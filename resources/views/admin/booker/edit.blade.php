@@ -15,7 +15,7 @@
                 <div class="col-12 col-md-12 col-lg-12">
                     <div class="card-body">
                       <div class="col-md-6">
-                        <h3>Add Booker</h3>
+                        <h3>Edit Booker</h3>
                       </div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                                     <i class="fas fa-phone"></i>
                                     </div>
                                 </div>
-                                <input type="text" value="{{ $booker->phone }}" name="phone" class="form-control">
+                                <input type="number" value="{{ $booker->phone }}" name="phone" class="form-control">
                             </div>
                             @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
@@ -86,9 +86,8 @@
                   <div class="card">
                   <div class="card-body">
                       <div class="form-group">
-                        <label>Date Of Birth  <span class="text-danger">*</span></label>
+                        <label>Date Of Birth </label>
                         <input type="date" value="{{ $booker->dob }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
-                        @error('dob') <span class="text-danger">{{ $message }}</span> @enderror
                       </div>
                       <div class="form-group">
                           <label>City </label>

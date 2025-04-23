@@ -90,7 +90,7 @@
                                                     <i class="fas fa-phone"></i>
                                                 </div>
                                             </div>
-                                            <input type="text" value="{{ old('phone') }}" name="phone"
+                                            <input type="number" value="{{ old('phone') }}" name="phone"
                                                 class="form-control">
                                         </div>
                                         @error('phone')
@@ -134,12 +134,9 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Date Of Birth <span class="text-danger">*</span></label>
+                                        <label>Date Of Birth </label>
                                         <input type="date" value="{{ old('dob') }}" name="dob"
                                             class="form-control datemask" placeholder="YYYY/MM/DD">
-                                        @error('dob')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
                                     </div>
                                     <div class="form-group">
                                         <label>City </label>

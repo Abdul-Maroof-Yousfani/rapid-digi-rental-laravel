@@ -13,11 +13,17 @@
                 @csrf
                 @method('put')
                 <div class="row">
+                  <div class="col-12 col-md-12 col-lg-12">
+                      <div class="card-body">
+                          <div class="col-md-6">
+                              <h3>Edit Customer</h3>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+                <div class="row">
                 <div class="col-12 col-md-6 col-lg-6">
                     <div class="card">
-                    <div class="card-header">
-                        <h4>Edit Customer</h4>
-                    </div>
                     <div class="card-body">
                         <div class="form-group">
                             <label>Customer name  <span class="text-danger">*</span></label>
@@ -44,7 +50,7 @@
                                     <i class="fas fa-phone"></i>
                                     </div>
                                 </div>
-                                <input type="text" value="{{ $customers->phone }}" name="phone" class="form-control">
+                                <input type="number" value="{{ $customers->phone }}" name="phone" class="form-control">
                             </div>
                             @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
@@ -95,9 +101,6 @@
                 </div>
                 <div class="col-12 col-md-6 col-lg-6">
                     <div class="card">
-                    <div class="card-header">
-                        <h4>Edit Customer</h4>
-                    </div>
                     <div class="card-body">
                         <div class="form-group">
                             <label>City </label>

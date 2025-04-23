@@ -87,7 +87,7 @@
                         
                         <div class="form-group">
                             <label>Vehicle Type  <span class="text-danger">*</span></label>
-                            <select name="vehicletypes" class="form-control">
+                            <select name="vehicletypes" class="form-control select2">
                                 <option value="">Select Vehicle</option>
                                 @foreach ($vehicletypes as $vtype)
                                 <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -98,7 +98,7 @@
 
                           <div class="form-group">
                             <label>Investor  <span class="text-danger">*</span></label>
-                            <select name="investor_id" class="form-control">
+                            <select name="investor_id" class="form-control select2">
                                 <option value="">Select Investor</option>
                                 @foreach ($investor as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>

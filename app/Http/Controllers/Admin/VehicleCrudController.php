@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Validator;
 
 class VehicleCrudController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:manage vehicles');;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -63,37 +67,12 @@ class VehicleCrudController extends Controller
                     'number_plate' => $request['number_plate'],
                     'status' => $request['status'],
                 ]);
-                return redirect()->route('vehicle.index')->with('success', 'Vehicle Added Against Investor Successfully!');
+                return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Added Against Investor Successfully!');
             } catch (\Exception $exp) {
                 return redirect()->back()->with('error', $exp->getMessage());
             }
         }
     }
-
-    // public function importCsvOld(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'importCsv' => 'required|file|mimes:csv,txt|max:2048', // customize as needed
-    //     ]);
-    //     if ($validator->fails()) {
-    //         return redirect()->back()->withErrors($validator);
-    //     }
-    //     $file = $request->file('importCsv');
-    //     $csv = Reader::createFromPath($file, 'r');
-    //     $csv->setHeaderOffset(0);
-    //     // dd($csv->getRecords());
-    //     $ddd = [];
-    //     foreach ($csv->getRecords() as $record) {
-    //         Vehicle::create([
-    //             'number_plate ' => $record['Plate No'],
-    //             'temp_vehicle_detail' => $record['Car Make-Model & Year'],
-    //             'investor_id ' => $record['Investor id'],
-    //             'vehicletypes' => $record['Vehicle Type id'],
-    //         ]);
-    //         return redirect()->back()->with('error', 'Import CSV Successfully!');
-    //         print_r($record);
-    //     }
-    // }
 
 
     public function importCsv(Request $request)
@@ -144,7 +123,7 @@ class VehicleCrudController extends Controller
     public function edit(string $id)
     {
         $vehicle= Vehicle::find($id);
-        if(!$vehicle){ return redirect()->route('vehicle.index')->with('error', 'Vehicle Not Found'); }
+        if(!$vehicle){ return redirect()->route('admin.vehicle.index')->with('error', 'Vehicle Not Found'); }
         $vehicletypes= Vehicletype::all();
         // $investor= User::has('investor')->with('investor')->get();
         $investor= Investor::all();
@@ -180,7 +159,7 @@ class VehicleCrudController extends Controller
                     'number_plate' => $request['number_plate'],
                     'status' => $request['status'],
                 ]);
-                return redirect()->route('vehicle.index')->with('success', 'Vehicle Updated Against Investor Successfully!');
+                return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Updated Against Investor Successfully!');
             } catch (\Exception $exp) {
                 return redirect()->back()->with('error', $exp->getMessage());
             }
@@ -193,9 +172,9 @@ class VehicleCrudController extends Controller
     public function destroy(string $id)
     {
         $vehicle= Vehicle::find($id);
-        if(!$vehicle){ return redirect()->route('vehicle.index')->with('error', 'Vehicle Not Found'); }
+        if(!$vehicle){ return redirect()->route('admin.vehicle.index')->with('error', 'Vehicle Not Found'); }
         else{ $vehicle->delete();
-            return redirect()->route('vehicle.index')->with('success', 'Vehicle Deleted Successfully');
+            return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Deleted Successfully');
         }
     }
 }

@@ -16,11 +16,17 @@
                 <form action="{{ role_base_url('customer') }}" method="post">
                     @csrf
                     <div class="row">
+                        <div class="col-12 col-md-12 col-lg-12">
+                            <div class="card-body">
+                                <div class="col-md-6">
+                                    <h3>Add Customer</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
-                                <div class="card-header">
-                                    <h4>Add Customer</h4>
-                                </div>
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Customer name <span class="text-danger">*</span></label>
@@ -53,7 +59,7 @@
                                                     <i class="fas fa-phone"></i>
                                                 </div>
                                             </div>
-                                            <input type="text" value="{{ old('phone') }}" name="phone"
+                                            <input type="number" value="{{ old('phone') }}" name="phone"
                                                 class="form-control">
                                         </div>
                                         @error('phone')
@@ -121,9 +127,6 @@
                         </div>
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
-                                <div class="card-header">
-                                    <h4>Add Customer</h4>
-                                </div>
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>City </label>

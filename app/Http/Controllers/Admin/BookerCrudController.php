@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Validator;
 
 class BookerCrudController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:manage bookers');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -39,7 +43,6 @@ class BookerCrudController extends Controller
             'password' => 'required|min:8|confirmed',
             'password_confirmation' => 'required|min:8',
             'phone' =>  'required|unique:bookers,phone',
-            'dob' => 'required',
             'gender' => 'required',
             'cnic' => 'required',
             'address' => 'required'
@@ -71,7 +74,7 @@ class BookerCrudController extends Controller
                     'status' => $request['status'],
                 ]);
 
-                return redirect()->route('booker.index')->with('success', 'Booker Added Successfully!')->withInput();
+                return redirect()->route('admin.booker.index')->with('success', 'Booker Added Successfully!')->withInput();
             } catch (\Exception $exp){
                 return redirect()->back()->withErrors('error', $exp->getMessage());
             }
@@ -94,7 +97,7 @@ class BookerCrudController extends Controller
     {
         $booker= Booker::find($id);
         if(!$booker){
-            return redirect()->route('booker.index')->with('error', 'Booker Not Found');
+            return redirect()->route('admin.booker.index')->with('error', 'Booker Not Found');
         }
         return view('admin.booker.edit', compact('booker'));
     }
@@ -106,14 +109,13 @@ class BookerCrudController extends Controller
     {
         $booker= Booker::find($id);
         if(!$booker){
-            return redirect()->route('booker.index')->with('error', 'Booker Not Found');
+            return redirect()->route('admin.booker.index')->with('error', 'Booker Not Found');
         }
         $user= User::find($booker->user_id);
         $validator= Validator::make($request->all(), [
             'booker_name' =>  'required',
             'email' =>  'required|email|unique:users,email,'. $booker->user_id,
             'phone' =>  'required|unique:bookers,phone,'. $id,
-            'dob' => 'required',
             'gender' => 'required',
             'cnic' => 'required',
             'address' => 'required'
@@ -143,7 +145,7 @@ class BookerCrudController extends Controller
                 'status' => $request['status'],
             ]);
 
-            return redirect()->route('booker.index')->with('success', 'Booker Updated Successfully');
+            return redirect()->route('admin.booker.index')->with('success', 'Booker Updated Successfully');
         }
     }
 
@@ -154,11 +156,11 @@ class BookerCrudController extends Controller
     {
         $booker= Booker::findOrFail($id);
         if(!$booker){
-            return redirect()->route('booker.index')->with('error', 'booker Not Found');
+            return redirect()->route('admin.booker.index')->with('error', 'booker Not Found');
         }else{
             $booker->delete();
             $booker->user->delete();
-            return redirect()->route('booker.index')->with('success', 'booker Deleted Successfully');
+            return redirect()->route('admin.booker.index')->with('success', 'booker Deleted Successfully');
         }
     }
 }

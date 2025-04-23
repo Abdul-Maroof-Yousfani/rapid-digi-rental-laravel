@@ -6,12 +6,16 @@ use App\Models\Vehicle;
 use App\Models\Customer;
 use App\Models\Vehicletype;
 use Illuminate\Http\Request;
+use App\Services\ZohoService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
 
 class BookingController extends Controller
 {
-    public function __construct()
+    protected $zohoService;
+    public function __construct(ZohoService $zohoService)
     {
+        $this->zohoService= $zohoService;
         $this->middleware(['permission:manage booking'])->only(['index','create', 'store', 'edit', 'update', 'destroy']);
     }
     /**
@@ -19,7 +23,26 @@ class BookingController extends Controller
      */
     public function index()
     {
+        dd($this->zohoService->getAccessToken());
         return view('booker.booking.index');
+
+        // $clientID = config('services.zoho.client_id');
+        // $clientSecret = config('services.zoho.client_secret');
+        // $redirectUri = config('services.zoho.redirect_uri');
+        // $refreshToken = "1000.4f137b39002c78113a04602a1e77ab26.e8c266a2a304861e19a5b79aee2d00b9";
+        // $grandtype = "refresh_token";
+        
+        // $response = Http::withOptions(['verify' => false])->asForm()->post('https://accounts.zoho.com/oauth/v2/token', [
+        //     'refresh_token' => $refreshToken,
+        //     'client_id' => $clientID,
+        //     'client_secret' => $clientSecret,
+        //     'redirect_uri' => $redirectUri,
+        //     'grant_type' => 'refresh_token',
+        // ]);
+        
+
+        // return $response;
+
     }
 
     /**

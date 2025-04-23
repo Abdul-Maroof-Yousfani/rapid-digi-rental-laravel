@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class VehicleTypeCrudController extends Controller
-{
+{   
+    public function __construct()
+    {
+        $this->middleware('permission:manage vehicle types');
+    }
     /**
      * Display a listing of the resource.
      */

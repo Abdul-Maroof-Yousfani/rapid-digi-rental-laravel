@@ -33,13 +33,12 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Customer  <span class="text-danger">*</span></label>
-                                        <select name="customer" class="form-control select2">
+                                        <select name="customer_id" class="form-control select2" required>
                                             <option value="">Select Customer</option>
                                             @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}">{{ $customer->customer_name }}</option>
                                             @endforeach
                                         </select>
-                                        @error('customer') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div><br>
                                 </div>
                             </div>
@@ -50,10 +49,7 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Notes <span class="text-danger">*</span></label>
-                                        <textarea name="notes" cols="30" class="form-control" rows="10">{{ old('notes') }}</textarea>
-                                        @error('notes')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
+                                        <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ old('notes') }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -105,7 +101,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="form-group"><br>
-                                                        <select name="vehicletypes[]" class="form-control select2 vehicletypes">
+                                                        <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
                                                             <option value="">Select Vehicle type</option>
                                                             @foreach ($vehicletypes as $vtype)
                                                                 <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -116,7 +112,7 @@
                                                 
                                                 <td class="text-truncate"><br>
                                                     <div class="form-group">
-                                                        <select name="vehicle[]" class="form-control select2 vehicle">
+                                                        <select name="vehicle[]" class="form-control select2 vehicle" required>
                                                             <option value="">Select Vehicle</option>
                                                         </select>
                                                     </div>
@@ -147,27 +143,17 @@
                                                 </td>
                                                 <td class="align-middle"><br>
                                                     <div class="form-group">
-                                                        <input type="date" value="{{ old('booking_date') }}" name="booking_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                                                        @error('booking_date')
-                                                            <span class="text-danger">{{ $message }}</span>
-                                                        @enderror
+                                                        <input type="date" value="" name="booking_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                                                     </div>
                                                 </td>
                                                 <td class="align-middle"><br>
                                                     <div class="form-group">
-                                                        <input type="date" value="{{ old('return_date') }}" name="return_date[]"
-                                                            class="form-control datemask" placeholder="YYYY/MM/DD">
-                                                        @error('return_date')
-                                                            <span class="text-danger">{{ $message }}</span>
-                                                        @enderror
+                                                        <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                                                     </div>
                                                 </td>
                                                 <td class="align-middle"><br>
                                                     <div class="form-group">
-                                                        <input type="text" value="{{ old('price') }}" name="price" class="form-control">
-                                                        @error('price')
-                                                            <span class="text-danger">{{ $message }}</span>
-                                                        @enderror
+                                                        <input type="text" value="" name="price[]" class="form-control" required>
                                                     </div>
                                                 </td>
                                                 <td>
@@ -300,7 +286,7 @@
                     </td>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -311,7 +297,7 @@
                     
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle">
+                            <select name="vehicle[]" class="form-control select2 vehicle" required>
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
@@ -343,27 +329,17 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="{{ old('booking_date') }}" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
-                            @error('booking_date')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="{{ old('return_date') }}" name="return_date[]"
-                                class="form-control datemask" placeholder="YYYY/MM/DD">
-                            @error('return_date')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="{{ old('price') }}" name="price" class="form-control">
-                            @error('price')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
+                            <input type="text" value="" name="price[]" class="form-control" required>
                         </div>
                     </td>
 
@@ -387,7 +363,7 @@
                     </td>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -398,7 +374,7 @@
                     
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle">
+                            <select name="vehicle[]" class="form-control select2 vehicle" required>
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
@@ -430,27 +406,17 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="{{ old('booking_date') }}" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
-                            @error('booking_date')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="{{ old('return_date') }}" name="return_date[]"
-                                class="form-control datemask" placeholder="YYYY/MM/DD">
-                            @error('return_date')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="{{ old('price') }}" name="price" class="form-control">
-                            @error('price')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
+                            <input type="text" value="" name="price[]" class="form-control" required>
                         </div>
                     </td>
 

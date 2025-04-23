@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Validator;
 
 class InvestorCrudController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:manage investors');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -40,7 +44,6 @@ class InvestorCrudController extends Controller
             'password' => 'required|min:8|confirmed',
             'password_confirmation' => 'required|min:8',
             'phone' =>  'required|unique:investors,phone',
-            'dob' => 'required',
             'gender' => 'required',
             'cnic' => 'required',
             'address' => 'required'
@@ -76,7 +79,7 @@ class InvestorCrudController extends Controller
                     'status' => $request['status'],
                 ]);
     
-                return redirect()->route('investor.index')->with('success', 'Investor Added Successfully');
+                return redirect()->route('admin.investor.index')->with('success', 'Investor Added Successfully');
             } catch (\Exception $exp) {
                 return redirect()->back()->with('error', $exp->getMessage());
             }
@@ -98,7 +101,7 @@ class InvestorCrudController extends Controller
     {
         $investor= Investor::find($id);
         if(!$investor){
-            return redirect()->route('investor.index')->with('error', 'Investor Not Found');
+            return redirect()->route('admin.investor.index')->with('error', 'Investor Not Found');
         }
         return view('admin.investor.edit', compact('investor'));
     }
@@ -110,14 +113,13 @@ class InvestorCrudController extends Controller
     {
         $investor= Investor::find($id);
         if(!$investor){
-            return redirect()->route('investor.index')->with('error', 'Investor Not Found');
+            return redirect()->route('admin.investor.index')->with('error', 'Investor Not Found');
         }
         $user= User::find($investor->user_id);
         $validator= Validator::make($request->all(), [
             'investor_name' =>  'required',
             'email' =>  'required|email|unique:users,email,'. $investor->user_id,
             'phone' =>  'required|unique:investors,phone,'. $id,
-            'dob' => 'required',
             'gender' => 'required',
             'cnic' => 'required',
             'address' => 'required'
@@ -150,7 +152,7 @@ class InvestorCrudController extends Controller
                     'status' => $request['status'],
                 ]);
     
-                return redirect()->route('investor.index')->with('success', 'Investor Updated Successfully');
+                return redirect()->route('admin.investor.index')->with('success', 'Investor Updated Successfully');
             } catch (\Exception $exp) {
                 return redirect()->back()->with('error', 'Something went wrong'.$exp->getMessage());
             }
@@ -165,12 +167,12 @@ class InvestorCrudController extends Controller
         $investor= Investor::findOrFail($id);
         // $investor= User::find($user_id);
         if(!$investor){
-            return redirect()->route('investor.index')->with('error', 'Investor Not Found');
+            return redirect()->route('admin.investor.index')->with('error', 'Investor Not Found');
         }else{
             $investor->vehicle->each->delete();
             $investor->delete();
             $investor->user->delete();
-            return redirect()->route('investor.index')->with('success', 'Investor Deleted with Vehicle Successfully');
+            return redirect()->route('admin.investor.index')->with('success', 'Investor Deleted with Vehicle Successfully');
         }
     }
 }

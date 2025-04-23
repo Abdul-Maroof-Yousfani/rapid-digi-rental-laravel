@@ -11,11 +11,17 @@
             <form action="{{ url('admin/investor') }}" method="post">
                 @csrf
                 <div class="row">
+                  <div class="col-12 col-md-12 col-lg-12">
+                      <div class="card-body">
+                          <div class="col-md-6">
+                              <h3>Add Investor</h3>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+                <div class="row">
                 <div class="col-12 col-md-6 col-lg-6">
                     <div class="card">
-                      <div class="card-header">
-                          <h4>Add Investor</h4>
-                      </div>
                       <div class="card-body">
                           <div class="form-group">
                               <label>Investor name <span class="text-danger">*</span></label>
@@ -70,7 +76,7 @@
                                       <i class="fas fa-phone"></i>
                                       </div>
                                   </div>
-                                  <input type="text" value="{{ old('phone') }}" name="phone" class="form-control">
+                                  <input type="number" value="{{ old('phone') }}" name="phone" class="form-control">
                               </div>
                               @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
                           </div>
@@ -78,7 +84,7 @@
                         
                         <div class="form-group">
                           <label>Gender  <span class="text-danger">*</span></label>
-                          <select name="gender" class="form-control">
+                          <select name="gender" class="form-control select2">
                               <option value="">Select Gender</option>
                               <option value="male">Male</option>
                               <option value="female">Female</option>
@@ -104,14 +110,10 @@
                 </div>
                 <div class="col-12 col-md-6 col-lg-6">
                     <div class="card">
-                    <div class="card-header">
-                        <h4>Add Investor</h4>
-                    </div>
                     <div class="card-body">
                         <div class="form-group">
-                          <label>Date Of Birth  <span class="text-danger">*</span></label>
+                          <label>Date Of Birth  </label>
                           <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
-                          @error('dob') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">
                             <label>City </label>
