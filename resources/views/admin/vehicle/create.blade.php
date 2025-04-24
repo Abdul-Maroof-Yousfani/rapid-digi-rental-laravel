@@ -244,7 +244,13 @@
                 @csrf
                 <div class="form-group">
                     <label for="importCsv">Upload CSV File <span class="text-danger">*</span></label>
-                    <input type="file" name="importCsv" class="form-control" required>
+                    <input type="file" name="importCsv" accept=".csv" class="form-control" required>
+                    <small class="form-text text-muted">Only <strong>.csv</strong> files are allowed.</small>
+                    @if ($errors->has('importCsv'))
+                        <div class="text-danger mt-1">
+                            {{ $errors->first('importCsv') }}
+                        </div>
+                    @endif
                 </div>
             
                 <div class="modal-footer">
@@ -261,4 +267,16 @@
 
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+@endsection
+
+
+@section('script')
+@if ($errors->has('importCsv'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const importModal = new bootstrap.Modal(document.getElementById('myModal'));
+        importModal.show();
+    });
+</script>
+@endif
 @endsection

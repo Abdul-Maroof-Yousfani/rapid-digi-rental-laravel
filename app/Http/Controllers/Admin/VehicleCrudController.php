@@ -82,7 +82,7 @@ class VehicleCrudController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator);
+            return redirect()->back()->withErrors($validator->messages());
         }
 
         $file = $request->file('importCsv');

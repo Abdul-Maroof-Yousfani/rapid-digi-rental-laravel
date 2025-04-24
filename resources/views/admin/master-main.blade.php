@@ -84,7 +84,7 @@
                 <aside id="sidebar-wrapper">
                     <div class="sidebar-brand">
                         <a href="{{ auth()->user()->hasRole('admin') ? route('admin.dashboard') : route('booker.dashboard') }}"> <img alt="image" src="{{ asset('assets/img/logo.png') }}"
-                                class="header-logo" /> <span class="logo-name">Rent A Car</span>
+                                class="header-logo" /> <span class="logo-name">Rapid Digi</span>
                         </a>
                     </div>
                     <ul class="sidebar-menu">
@@ -169,7 +169,7 @@
 
             <footer class="main-footer">
                 <div class="footer-left">
-                    <a href="">Rapid Digi rental System</a></a>
+                    <a href="">Rapid Digi Rental System</a></a>
                 </div>
                 <div class="footer-right">
                 </div>
