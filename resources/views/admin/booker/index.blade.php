@@ -40,10 +40,10 @@
                                 <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
                                 <td>
                                     <a href='{{ url("admin/booker/".$item->id."/edit") }}' class="btn btn-warning">Edit</a>
-                                    <form action="{{ url('admin/booker/'.$item->id) }}" method="POST" style="display:inline;">
+                                    <form action="{{ url('admin/booker/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this Booker?')">Delete</button>
+                                        <button type="submit" class="btn btn-danger delete-confirm">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -151,4 +151,37 @@
         </div>
       </div>
 
+@endsection
+
+
+
+
+@section('script')
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', function () {
+          const deleteButtons = document.querySelectorAll('.delete-confirm');
+          deleteButtons.forEach(button => {
+              button.addEventListener('click', function (e) {
+                  e.preventDefault(); // Stop form submit
+  
+                  const form = this.closest('form');
+  
+                  Swal.fire({
+                      title: 'Are you sure?',
+                      text: "You won't be able to revert this!",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#d33',
+                      cancelButtonColor: '#3085d6',
+                      confirmButtonText: 'Yes, delete it!'
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                          form.submit();
+                      }
+                  });
+              });
+          });
+      });
+  </script>
+  
 @endsection

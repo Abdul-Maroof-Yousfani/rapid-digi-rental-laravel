@@ -1,5 +1,5 @@
 @extends('admin.master-main')
-
+@section('title', ucfirst(Auth::user()->getRoleNames()->first()." "."Portal"))
 @section('content')
 
       <!-- Main Content -->

@@ -1,5 +1,5 @@
 @extends('admin.master-main')
-
+@section('title', ucfirst(Auth::user()->getRoleNames()->first()." "."Portal"))
 @section('content')
 
       <!-- Main Content -->
@@ -41,11 +41,16 @@
                                 <td>
                                     <a href='@can('manage customers') {{ role_base_url("customer/".$item->id."/edit") }} @endcan' class="btn btn-warning">Edit</a>
                                     {{-- <a href='@can('manage customers') {{ role_base_route("customer.edit", [$item->id]) }} @endcan' class="btn btn-warning">Edit</a> --}}
-                                    <form action="{{ auth()->user()->hasRole('admin') ? url("admin/customer/".$item->id) : url("booker/customer/".$item->id) }}" method="POST" style="display:inline;">
+
+                                    <form action="{{ auth()->user()->hasRole('admin') ? url('admin/customer/'.$item->id) : url('booker/customer/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this customer?')">Delete</button>
+                                        <button type="submit" class="btn btn-danger delete-confirm">
+                                            Delete
+                                        </button>
                                     </form>
+                                
+
                                 </td>
                             </tr>
                             @php $number++; @endphp
@@ -154,3 +159,32 @@
 @endsection
 
 
+@section('script')
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', function () {
+          const deleteButtons = document.querySelectorAll('.delete-confirm');
+          deleteButtons.forEach(button => {
+              button.addEventListener('click', function (e) {
+                  e.preventDefault(); // Stop form submit
+  
+                  const form = this.closest('form');
+  
+                  Swal.fire({
+                      title: 'Are you sure?',
+                      text: "You won't be able to revert this!",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#d33',
+                      cancelButtonColor: '#3085d6',
+                      confirmButtonText: 'Yes, delete it!'
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                          form.submit();
+                      }
+                  });
+              });
+          });
+      });
+  </script>
+  
+@endsection

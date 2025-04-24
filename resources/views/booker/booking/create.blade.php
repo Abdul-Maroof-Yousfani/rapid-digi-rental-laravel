@@ -1,9 +1,21 @@
 @extends('admin.master-main')
 @section('content')
+    <style>
+        .disableClick {
+            cursor: not-allowed !important;
+        }
 
-<style>
-    .disableClick{ cursor: not-allowed !important; }
-</style>
+        .select2-container--default .select2-selection--multiple .select2-selection__arrow,
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+
+            width: 16px !important;
+
+        }
+
+        .table-responsive{
+            overflow: scroll;
+        }
+    </style>
     <!-- Main Content -->
     <div class="main-content">
         <section class="section">
@@ -14,9 +26,7 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
             <div class="section-body">
-                <form 
-                {{-- action="{{ role_base_url('/booker') }}" method="post"  --}}
-                id="booking-form"  enctype="multipart/form-data">
+                <form {{-- action="{{ role_base_url('/booker') }}" method="post"  --}} id="booking-form" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
@@ -32,11 +42,11 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Customer  <span class="text-danger">*</span></label>
+                                        <label>Customer <span class="text-danger">*</span></label>
                                         <select name="customer_id" class="form-control select2" required>
                                             <option value="">Select Customer</option>
                                             @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}">{{ $customer->customer_name }}</option>
+                                                <option value="{{ $customer->id }}">{{ $customer->customer_name }}</option>
                                             @endforeach
                                         </select>
                                     </div><br>
@@ -57,119 +67,130 @@
 
                         <div class="col-12">
                             <div class="card">
-                              <div class="card-header">
-                                <h4>Booking Details</h4>
-                                <div class="card-header-form">
-                                    <div class="input-group">
-                                      <input type="text" class="form-control" placeholder="Search">
-                                      <div class="input-group-btn">
-                                        <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-                                      </div>
+                                <div class="card-header">
+                                    <h4>Booking Details</h4>
+                                    <div class="card-header-form">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Search">
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-primary"><i class="fas fa-search"></i></button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                              </div>
-                              <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-striped" id="vehicleTable">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-center">
-                                                    <div class="custom-checkbox custom-checkbox-table custom-control">
-                                                        <input type="checkbox" data-checkboxes="mygroup" data-checkbox-role="dad" class="custom-control-input" id="checkbox-all">
-                                                        <label for="checkbox-all" class="custom-control-label">&nbsp;</label>
-                                                    </div>
-                                                </th>
-                                                <th>Vehicle Type <span class="text-danger">*</span></th>
-                                                <th>Vehicle Name <span class="text-danger">*</span></th>
-                                                <th>Investor</th>
-                                                <th>No. Plate</th>
-                                                <th>Booking Status</th>
-                                                <th>Status</th>
-                                                <th>Start Date <span class="text-danger">*</span></th>
-                                                <th>Return Date <span class="text-danger">*</span></th>
-                                                <th>Price <span class="text-danger">*</span></th>
-                                                <th><button type="button" class="btn btn-success btn-md" id="addRow">+</button></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="vehicleTableBody">
-                                            <tr>
-                                                <td class="p-0 text-center">
-                                                    <div class="custom-checkbox custom-control">
-                                                        <input type="checkbox" data-checkboxes="mygroup" class="custom-control-input">
-                                                        <label class="custom-control-label">&nbsp;</label>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="form-group"><br>
-                                                        <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
-                                                            <option value="">Select Vehicle type</option>
-                                                            @foreach ($vehicletypes as $vtype)
-                                                                <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </td>
-                                                
-                                                <td class="text-truncate"><br>
-                                                    <div class="form-group">
-                                                        <select name="vehicle[]" class="form-control select2 vehicle" required>
-                                                            <option value="">Select Vehicle</option>
-                                                        </select>
-                                                    </div>
-                                                </td>
-                                                
-                                                <td class="align-middle"><br>
-                                                    <div class="form-group">
-                                                        <input type="text" name="investor[]" disabled class="form-control investor disableClick">
-                                                    </div>
-                                                </td>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" id="vehicleTable">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">
+                                                        <div class="custom-checkbox custom-checkbox-table custom-control">
+                                                            <input type="checkbox" data-checkboxes="mygroup"
+                                                                data-checkbox-role="dad" class="custom-control-input"
+                                                                id="checkbox-all">
+                                                            <label for="checkbox-all"
+                                                                class="custom-control-label">&nbsp;</label>
+                                                        </div>
+                                                    </th>
+                                                    <th>Vehicle Type <span class="text-danger">*</span></th>
+                                                    <th>Vehicle Name <span class="text-danger">*</span></th>
+                                                    <th>Investor</th>
+                                                    <th>No. Plate</th>
+                                                    <th>Booking Status</th>
+                                                    <th>Status</th>
+                                                    <th>Start Date <span class="text-danger">*</span></th>
+                                                    <th>Return Date <span class="text-danger">*</span></th>
+                                                    <th>Price <span class="text-danger">*</span></th>
+                                                    <th><button type="button" class="btn btn-success btn-md"
+                                                            id="addRow">+</button></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="vehicleTableBody">
+                                                <tr>
+                                                    <td class="p-0 text-center">
+                                                        <div class="custom-checkbox custom-control">
+                                                            <input type="checkbox" data-checkboxes="mygroup"
+                                                                class="custom-control-input">
+                                                            <label class="custom-control-label">&nbsp;</label>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group"><br>
+                                                            <select name="vehicletypes[]"
+                                                                class="form-control select2 vehicletypes" required>
+                                                                <option value="">Select Vehicle type</option>
+                                                                @foreach ($vehicletypes as $vtype)
+                                                                    <option value="{{ $vtype->id }}">{{ $vtype->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </td>
 
-                                                <td class="align-middle"><br>
-                                                    <div class="form-group">
-                                                        <input type="text" name="number_plate[]" disabled class="form-control no_plate disableClick">
-                                                    </div>
-                                                </td>
+                                                    <td class="text-truncate"><br>
+                                                        <div class="form-group">
+                                                            <select name="vehicle[]" class="form-control select2 vehicle"
+                                                                required>
+                                                                <option value="">Select Vehicle</option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
 
-                                                <td class="align-middle"><br>
-                                                    <div class="form-group">
-                                                        <input type="text" name="booking_status[]" disabled class="form-control booking_status disableClick">
-                                                    </div>
-                                                </td>
+                                                    <td class="align-middle investor"><br>
+                                                        <input type="hidden" name="investor[]" disabled
+                                                            class="form-control investor disableClick">
+                                                    </td>
 
-                                                <td class="align-middle"><br>
-                                                    <div class="form-group">
-                                                        <input type="text" name="status[]" disabled class="form-control status disableClick">
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle"><br>
-                                                    <div class="form-group">
-                                                        <input type="date" value="" name="booking_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle"><br>
-                                                    <div class="form-group">
-                                                        <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle"><br>
-                                                    <div class="form-group">
-                                                        <input type="text" value="" name="price[]" class="form-control" required>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-danger btn-md removeRow">X</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                                    <td class="align-middle no_plate"><br>
+                                                        <input type="hidden" name="number_plate[]" disabled
+                                                            class="form-control no_plate disableClick">
+                                                    </td>
+
+                                                    <td class="align-middle booking_status"><br>
+                                                        <input type="hidden" name="booking_status[]" disabled
+                                                            class="form-control booking_status disableClick">
+                                                    </td>
+
+                                                    <td class="align-middle status"><br>
+                                                        <input type="hidden" name="status[]" disabled
+                                                            class="form-control status disableClick">
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="date" value="" name="booking_date[]"
+                                                                class="form-control datemask" placeholder="YYYY/MM/DD"
+                                                                required>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="date" value="" name="return_date[]"
+                                                                class="form-control datemask" placeholder="YYYY/MM/DD"
+                                                                required>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="text" value="" name="price[]"
+                                                                class="form-control" required>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button"
+                                                            class="btn btn-danger btn-md removeRow">X</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                              </div>
                             </div>
-                          </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
-                            <input type="submit" value="Add Booker" id="submitBtn" name="submit" class="btn btn-primary">
+                            <input type="submit" value="Add Booker" id="submitBtn" name="submit"
+                                class="btn btn-primary">
                         </div>
                     </div>
                 </form>
@@ -272,11 +293,11 @@
         </div>
     </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('#addRow').click(function () {
-            let newRow = `
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#addRow').click(function() {
+                let newRow = `
                 <tr>
                     <td class="p-0 text-center">
                         <div class="custom-checkbox custom-control">
@@ -303,29 +324,13 @@
                         </div>
                     </td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" name="investor[]" disabled class="form-control investor disableClick">
-                        </div>
-                    </td>
+                    <td class="align-middle investor"><br></td>
                     
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" name="number_plate[]" disabled class="form-control no_plate disableClick">
-                        </div>
-                    </td>
+                    <td class="align-middle no_plate"><br></td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" name="number_plate[]" disabled class="form-control booking_status disableClick">
-                        </div>
-                    </td>
+                    <td class="align-middle booking_status"><br></td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" name="number_plate[]" disabled class="form-control status disableClick">
-                        </div>
-                    </td>
+                    <td class="align-middle status"><br></td>
 
                     <td class="align-middle"><br>
                         <div class="form-group">
@@ -345,15 +350,17 @@
 
                     <th><button type="button" class="btn btn-danger btn-md removeRow">X</button></th>
                 </tr>`;
-            $('#vehicleTableBody').append(newRow);
-            $('.select2').select2({ width: '100%' });
-        });
+                $('#vehicleTableBody').append(newRow);
+                $('.select2').select2({
+                    width: '100%'
+                });
+            });
 
-        // Remove row when X button clicked
-        $(document).on('click', '.removeRow', function () {
-            $(this).closest('tr').remove();
-            if($('#vehicleTableBody tr').length==0){
-                let defaultRow = `
+            // Remove row when X button clicked
+            $(document).on('click', '.removeRow', function() {
+                $(this).closest('tr').remove();
+                if ($('#vehicleTableBody tr').length == 0) {
+                    let defaultRow = `
                 <tr>
                     <td class="p-0 text-center">
                         <div class="custom-checkbox custom-control">
@@ -380,28 +387,16 @@
                         </div>
                     </td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" name="investor[]" disabled class="form-control investor disableClick">
-                        </div>
+                    <td class="align-middle investor"><br>
                     </td>
                     
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" name="number_plate[]" disabled class="form-control no_plate disableClick">
-                        </div>
+                    <td class="align-middle no_plate"><br>
                     </td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" name="booking_status[]" disabled class="form-control booking_status disableClick">
-                        </div>
+                    <td class="align-middle booking_status"><br>
                     </td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" name="status[]" disabled class="form-control status disableClick">
-                        </div>
+                    <td class="align-middle status"><br>
                     </td>
 
                     <td class="align-middle"><br>
@@ -422,104 +417,113 @@
 
                     <th><button type="button" class="btn btn-danger btn-md removeRow">X</button></th>
                 </tr>`;
-                $("#vehicleTableBody").append(defaultRow);
-                $('.select2').select2({ width: '100%' });
-            }
-        });
-
-        $(document).on('change', '.vehicletypes', function () {
-            let id = $(this).val();
-            let $row = $(this).closest('tr');
-            let $vehicleSelect = $row.find('select[name="vehicle[]"]');
-
-            $vehicleSelect.empty().append('<option value="">Loading...</option>');
-
-            $.ajax({
-                url: '/get-vehicle-by-Type/' + id,
-                type: 'GET',
-                success: function (response) {
-                    $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
-                    $.each(response, function (key, vehicle) {
-                        $vehicleSelect.append(
-                            '<option value="' + vehicle.id + '">' +
-                            (vehicle.temp_vehicle_detail ?? vehicle.vehicle_name) +
-                            '</option>'
-                        );
+                    $("#vehicleTableBody").append(defaultRow);
+                    $('.select2').select2({
+                        width: '100%'
                     });
                 }
             });
-        });
 
-        $(document).on('change', '.vehicle', function (){
-            let id = $(this).val();
-            let row = $(this).closest('tr');
-            let no_plate= row.find('.no_plate');
-            let investor= row.find('.investor');
-            let booking_status= row.find('.booking_status');
-            let status= row.find('.status');
-            if(!id) {
-                no_plate.val(''); 
-                booking_status.val('')
-                status.val('');
-                investor.val('');
-                return;
-            }
-            $.ajax({
-                url: '/get-vehicle-detail/' + id,
-                type: 'GET',
-                success: function(response) {
-                    if (response && Object.keys(response).length > 0) {
-                        investor.val(response.investor ?? '');
-                        no_plate.val(response.number_plate ?? '');
-                        booking_status.val(response.booking_status ?? '');
-                        status.val(response.status ?? '');
-                    } else {
-                        no_plate.val('');
-                        booking_status.val('');
-                        status.val('');
-                    }
-                }
-            });
-        });
+            $(document).on('change', '.vehicletypes', function() {
+                let id = $(this).val();
+                let $row = $(this).closest('tr');
+                let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
+                $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
-        $("#booking-form").on('submit', function(e){
-            e.preventDefault();
-            let formData= new FormData(this);
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $.ajax({
-                url: '{{ role_base_route("customer-booking.store") }}',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if(response.status){
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message,
-                        }).then(() => {
-                            $('#booking-form')[0].reset();
-                            window.location.href = '{{ role_base_route("customer-booking.index") }}';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Zoho Invoice Error!',
-                            text: response.message,
+                $.ajax({
+                    url: '/get-vehicle-by-Type/' + id,
+                    type: 'GET',
+                    success: function(response) {
+                        $vehicleSelect.empty().append(
+                            '<option value="">Select Vehicle</option>');
+                        $.each(response, function(key, vehicle) {
+                            $vehicleSelect.append(
+                                '<option value="' + vehicle.id + '">' +
+                                (vehicle.temp_vehicle_detail ?? vehicle
+                                    .vehicle_name) +
+                                '</option>'
+                            );
                         });
                     }
+                });
+            });
+
+            $(document).on('change', '.vehicle', function() {
+                let id = $(this).val();
+                let row = $(this).closest('tr');
+                let no_plate = row.find('.no_plate');
+                let investor = row.find('.investor');
+                let booking_status = row.find('.booking_status');
+                let status = row.find('.status');
+                if (!id) {
+                    no_plate.val('');
+                    booking_status.val('')
+                    status.val('');
+                    investor.val('');
+                    return;
                 }
+                $.ajax({
+                    url: '/get-vehicle-detail/' + id,
+                    type: 'GET',
+                    success: function(response) {
+                        if (response && Object.keys(response).length > 0) {
+                            investor.text(response.investor ?? '');
+                            no_plate.text(response.number_plate ?? '');
+                            booking_status.text(response.booking_status ?? '');
+                            status.text(response.status ?? '');
+
+                            investor.val(response.investor ?? '');
+                            no_plate.val(response.number_plate ?? '');
+                            booking_status.val(response.booking_status ?? '');
+                            status.val(response.status ?? '');
+                        } else {
+                            no_plate.val('');
+                            booking_status.val('');
+                            status.val('');
+                        }
+                    }
+                });
+            });
+
+
+            $("#booking-form").on('submit', function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    url: '{{ role_base_route('customer-booking.store') }}',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.status) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.message,
+                            }).then(() => {
+                                $('#booking-form')[0].reset();
+                                window.location.href =
+                                    '{{ role_base_route('customer-booking.index') }}';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Zoho Invoice Error!',
+                                text: response.message,
+                            });
+                        }
+                    }
+                });
             });
         });
-    });
-</script>
-
+    </script>
 @endsection

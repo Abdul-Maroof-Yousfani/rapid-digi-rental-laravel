@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('country')->nullable();
             $table->enum('status', ['1','0'])->default(1);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
