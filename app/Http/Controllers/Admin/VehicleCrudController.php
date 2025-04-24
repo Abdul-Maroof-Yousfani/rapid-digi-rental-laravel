@@ -78,7 +78,7 @@ class VehicleCrudController extends Controller
     public function importCsv(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'importCsv' => 'required|file|mimes:csv,txt|max:2048',
+            'importCsv' => 'required|file|mimes:csv|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -86,6 +86,10 @@ class VehicleCrudController extends Controller
         }
 
         $file = $request->file('importCsv');
+        if (strtolower($file->getClientOriginalExtension()) !== "csv") {
+            return redirect()->back()->with("error", "Invalid file format. Please upload a CSV file.");
+        }
+        
         $csv = Reader::createFromPath($file->getRealPath(), 'r');
         $csv->setHeaderOffset(0); // first row is headers
 
@@ -106,6 +110,7 @@ class VehicleCrudController extends Controller
             }
         }
         return redirect()->back()->with('success', 'CSV imported successfully!');
+
     }
 
 
