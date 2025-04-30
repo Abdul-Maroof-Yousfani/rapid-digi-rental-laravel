@@ -22,13 +22,14 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ role_base_url('customer-booking') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ role_base_url('customer-booking/'.$booking->id) }}" method="post" enctype="multipart/form-data">
                     @csrf
+                    @method('PUT')
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card-body">
                                 <div class="col-md-6">
-                                    <h3>Create Booking</h3>
+                                    <h3>Edit Booking</h3>
                                 </div>
                             </div>
                         </div>
@@ -42,7 +43,7 @@
                                         <select name="customer_id" class="form-control select2" required>
                                             <option value="">Select Customer</option>
                                             @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}">{{ $customer->customer_name }}</option>
+                                                <option value="{{ $customer->id }}" {{ $booking->customer_id==$customer->id ? 'selected' : '' }} >{{ $customer->customer_name }}</option>
                                             @endforeach
                                         </select>
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
@@ -79,7 +80,7 @@
 
                                     <div class="form-group">
                                         <label>Notes <span class="text-danger">*</span></label>
-                                        <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ old('notes') }}</textarea>
+                                        <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ $booking->notes }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -121,14 +122,21 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="vehicleTableBody">
+                                                @foreach ($booking_data as $index => $item)
+                                                @php
+                                                    $selectedVehicleId = $item->vehicle_id;
+                                                    $selectedTypeId = $vehicleTypeMap[$selectedVehicleId] ?? null;
+                                                    $filteredVehicles = $vehiclesByType[$selectedTypeId] ?? collect();
+                                                    $vehicleObj = $vehicles->where('id', $selectedVehicleId)->first();
+                                                @endphp
                                                 <tr>
                                                     <td>
                                                         <div class="form-group"><br>
-                                                            <select name="vehicletypes[]"
-                                                                class="form-control select2 vehicletypes" >
+                                                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
                                                                 <option value="">Select Vehicle type</option>
                                                                 @foreach ($vehicletypes as $vtype)
-                                                                    <option value="{{ $vtype->id }}">{{ $vtype->name }}
+                                                                    <option value="{{ $vtype->id }}" {{ $selectedTypeId == $vtype->id ? 'selected' : '' }}>
+                                                                        {{ $vtype->name }}
                                                                     </option>
                                                                 @endforeach
                                                             </select>
@@ -140,69 +148,71 @@
                                                             <select name="vehicle[]" class="form-control select2 vehicle"
                                                                 >
                                                                 <option value="">Select Vehicle</option>
+                                                                @foreach ($filteredVehicles as $vehicle)
+                                                                    <option value="{{ $vehicle->id }}" {{ $selectedVehicleId == $vehicle->id ? 'selected' : '' }}>
+                                                                        {{ $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail }}</option>
+                                                                @endforeach
                                                             </select>
                                                         </div>
                                                     </td>
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
+                                                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3">
+                                                                {{ $zohocolumn['invoice']['line_items'][$index]['description'] ?? '' }}
+                                                            </textarea>
                                                         </div>
                                                     </td>
 
                                                     <td class="align-middle investor"><br>
-                                                        <input type="hidden" name="investor[]" disabled
-                                                            class="form-control investor disableClick">
+                                                        {{ $vehicleObj->investor->name ?? 'N/A' }}
                                                     </td>
 
                                                     <td class="align-middle no_plate"><br>
-                                                        <input type="hidden" name="number_plate[]" disabled
-                                                            class="form-control no_plate disableClick">
+                                                        {{ $vehicleObj->number_plate ?? 'N/A' }}
                                                     </td>
 
                                                     <td class="align-middle booking_status"><br>
-                                                        <input type="hidden" name="booking_status[]" disabled
-                                                            class="form-control booking_status disableClick">
+                                                        {{ $vehicleObj->booking_status === null ? 'N/A' : ($vehicleObj->booking_status==1 ? 'Available' : 'Not Available') }}
                                                     </td>
 
                                                     <td class="align-middle status"><br>
-                                                        <input type="hidden" name="status[]" disabled
-                                                            class="form-control status disableClick">
+                                                        {{ $vehicleObj->status === null ? 'N/A' :  ($vehicleObj->status==1 ? 'Active' : 'Inactive') }}
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="date" value="" name="booking_date[]"
+                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="date" value="" name="return_date[]"
+                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="quantity[]" class="form-control" >
+                                                            <input type="text" value="{{ $zohocolumn['invoice']['line_items'][$index]['quantity'] ?? '' }}" name="quantity[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="discount[]" class="form-control" >
+                                                            <input type="text" value="{{ $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '' }}" name="discount[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
                                                             <div class="input-group">
-                                                                <input type="text" value="" name="tax[]" class="form-control" >
+                                                                <input type="text" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" name="tax[]" class="form-control" >
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="price[]" class="form-control" >
+                                                            <input type="text" value="{{ $item->price }}" name="price[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td>
@@ -210,6 +220,7 @@
                                                             class="btn btn-danger btn-md removeRow">X</button>
                                                     </td>
                                                 </tr>
+                                                @endforeach
                                             </tbody>
                                         </table>
                                     </div>
@@ -219,7 +230,7 @@
                     </div>
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
-                            <input type="submit" value="Create Booking" id="submitBtn"
+                            <input type="submit" value="Update Booking" id="submitBtn"
                                 class="btn btn-primary">
                         </div>
                     </div>

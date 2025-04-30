@@ -73,7 +73,6 @@ Route::get('get-vehicle-detail/{id}', [AjaxController::class, 'getNoByVehicle'])
 Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->group(function() {
     Route::get('/dashboard', [BookerController::class, 'index'])->name('dashboard')->middleware('permission:view booker dashboard');
     Route::resource('customer-booking', BookingController::class);
-
     Route::resource('customer', CustomerController::class);
 });
 

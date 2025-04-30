@@ -218,7 +218,7 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: '{{ session('error') }}',
+                text: `{{ session('error') }}`.replace(/\n/g, '\n'),
             });
         </script>
     @endif

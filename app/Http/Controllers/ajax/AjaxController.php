@@ -19,9 +19,9 @@ class AjaxController extends Controller
         $vehicle= Vehicle::where('id', $id)->first();
         if($vehicle){
             return response()->json([
-                'booking_status' => $vehicle->booking_status==1 ? "Available" : "Not Available", 
+                'booking_status' => $vehicle->booking_status==1 ? "Available" : "Not Available",
                 'number_plate' => $vehicle->number_plate, 
-                'investor' => $vehicle->investor->name, 
+                'investor' => $vehicle->investor->name,
                 'status' => $vehicle->status==1 ? "Active" : "Inactive",
             ], 200);
         }else{

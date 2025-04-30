@@ -150,8 +150,56 @@ class ZohoInvoice
         return json_decode($response->getBody(), true);
     }
 
-    public function updateInvoice()
-    {}
+    public function getInvoice($id)
+    {
+        $accessToken= $this->getAccessToken();
+        $client= new Client();
+        $response= $client->get('https://www.zohoapis.com/invoice/v3/invoices/'.$id, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken '.$accessToken,
+                'X-com-zoho-invoice-organizationid' => $this->orgId,
+            ]
+        ]);
+        return json_decode($response->getBody(), true);
+    }
+
+    public function updateInvoice($invoiceID, $customerId, $notes, $currency_code, $lineitems)
+    {
+        $accessToken= $this->getAccessToken();
+        $client= new Client();
+        $customer= Customer::select('zoho_customer_id')->where('id', $customerId)->first();
+        $response= $client->put('https://www.zohoapis.com/invoice/v3/invoices/'.$invoiceID, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken '. $accessToken,
+                'X-com-zoho-invoice-organizationid' => $this->orgId,
+                'content-type' => 'application/json',
+            ],
+            'json' => [
+                'customer_id' => $customer->zoho_customer_id,
+                'notes' => $notes,
+                'currency_code' => $currency_code,
+                'line_items' => $lineitems
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true);
+    }
+
+    public function deleteInvoice($invoiceID)
+    {
+        $accessToken= $this->getAccessToken();
+        $client= new Client();
+        $response= $client->delete('https://www.zohoapis.com/invoice/v3/invoices/'.$invoiceID, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken '. $accessToken,
+                'X-com-zoho-invoice-organizationid' => $this->orgId,
+            ]
+        ]);
+        return json_decode($response->getBody(), true);
+    }
 
 
 

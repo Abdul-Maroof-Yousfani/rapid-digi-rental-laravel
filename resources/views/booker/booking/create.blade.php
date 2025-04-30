@@ -125,7 +125,7 @@
                                                     <td>
                                                         <div class="form-group"><br>
                                                             <select name="vehicletypes[]"
-                                                                class="form-control select2 vehicletypes" >
+                                                                class="form-control select2 vehicletypes" required>
                                                                 <option value="">Select Vehicle type</option>
                                                                 @foreach ($vehicletypes as $vtype)
                                                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}
@@ -138,7 +138,7 @@
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
                                                             <select name="vehicle[]" class="form-control select2 vehicle"
-                                                                >
+                                                            required>
                                                                 <option value="">Select Vehicle</option>
                                                             </select>
                                                         </div>
@@ -173,19 +173,19 @@
                                                         <div class="form-group">
                                                             <input type="date" value="" name="booking_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
-                                                                >
+                                                                min="{{ date('Y-m-d') }}" required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
                                                             <input type="date" value="" name="return_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
-                                                                >
+                                                                min="{{ date('Y-m-d') }}" required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="quantity[]" class="form-control" >
+                                                            <input type="text" value="" name="quantity[]" class="form-control"  required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -202,7 +202,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="price[]" class="form-control" >
+                                                            <input type="text" value="" name="price[]" class="form-control"  required>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -356,7 +356,7 @@
                 <tr>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -367,7 +367,7 @@
 
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle">
+                            <select name="vehicle[]" class="form-control select2 vehicle" required>
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
@@ -389,17 +389,17 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="quantity[]" class="form-control" >
+                            <input type="text" value="" name="quantity[]" class="form-control"  required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -414,7 +414,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control">
+                            <input type="text" value="" name="price[]" class="form-control" required>
                         </div>
                     </td>
 
@@ -433,7 +433,7 @@
                 <tr>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -444,7 +444,7 @@
 
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle">
+                            <select name="vehicle[]" class="form-control select2 vehicle" required>
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
@@ -470,17 +470,17 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="quantity[]" class="form-control" >
+                            <input type="text" value="" name="quantity[]" class="form-control"  required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -495,7 +495,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control">
+                            <input type="text" value="" name="price[]" class="form-control" required>
                         </div>
                     </td>
 
