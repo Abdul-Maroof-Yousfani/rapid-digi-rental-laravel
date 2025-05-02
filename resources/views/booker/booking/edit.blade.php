@@ -113,6 +113,7 @@
                                                     <th>Status</th>
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
+                                                    <th>Type <span class="text-danger">*</span></th>
                                                     <th>Quantity <span class="text-danger">*</span></th>
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
@@ -191,6 +192,17 @@
                                                             <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 >
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <select name="invoice_type[]" class="form-control select2">
+                                                                <option value="">Select Type</option>
+                                                                <option value="1" {{ $item->transaction_type==1 ? 'selected' : '' }}>Invoice</option>
+                                                                <option value="2" {{ $item->transaction_type==2 ? 'selected' : '' }}>Fine</option>
+                                                                <option value="3" {{ $item->transaction_type==3 ? 'selected' : '' }}>Saliq</option>
+                                                                <option value="4" {{ $item->transaction_type==4 ? 'selected' : '' }}>Renew</option>
+                                                            </select>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -410,6 +422,17 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2">
+                                <option value="">Select Type</option>
+                                <option value="1">Invoice</option>
+                                <option value="2">Fine</option>
+                                <option value="3">Saliq</option>
+                                <option value="4">Renew</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
                             <input type="text" value="" name="quantity[]" class="form-control" >
                         </div>
                     </td>
@@ -487,6 +510,17 @@
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2">
+                                <option value="">Select Type</option>
+                                <option value="1">Invoice</option>
+                                <option value="2">Fine</option>
+                                <option value="3">Saliq</option>
+                                <option value="4">Renew</option>
+                            </select>
                         </div>
                     </td>
                     <td class="align-middle"><br>

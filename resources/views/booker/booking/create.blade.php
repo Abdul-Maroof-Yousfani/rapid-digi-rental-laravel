@@ -47,12 +47,6 @@
                                         </select>
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
-
-                                    <div class="form-group">
-                                        <label>Total Amount </label>
-                                        <input type="text" disabled value="{{ old('total_amount') }}" name="total_amount" class="form-control">
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
@@ -60,22 +54,7 @@
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
                                 <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Invoice Type <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fas fa-file-invoice"></i>
-                                                </div>
-                                            </div>
-                                            <select name="invoice_type" class="form-control">
-                                                <option value="">Select Type</option>
-                                                <option>Fine</option>
-                                                <option>Saliq</option>
-                                            </select>
-                                        </div>
-                                        @error('invoice_type') <span class="text-danger">{{ $message }}</span> @enderror
-                                    </div>
+
 
                                     <div class="form-group">
                                         <label>Notes <span class="text-danger">*</span></label>
@@ -112,6 +91,7 @@
                                                     <th>Status</th>
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
+                                                    <th>Type <span class="text-danger">*</span></th>
                                                     <th>Quantity <span class="text-danger">*</span></th>
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
@@ -181,6 +161,17 @@
                                                             <input type="date" value="" name="return_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 min="{{ date('Y-m-d') }}" required>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <select name="invoice_type[]" class="form-control select2">
+                                                                <option value="">Select Type</option>
+                                                                <option value="1">Invoice</option>
+                                                                <option value="2">Fine</option>
+                                                                <option value="3">Saliq</option>
+                                                                <option value="4">Renew</option>
+                                                            </select>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -399,6 +390,16 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2">
+                                <option value="">Select Type</option>
+                                <option value="1">Invoice</option>
+                                <option value="2">Fine</option>
+                                <option value="3">Saliq</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
                             <input type="text" value="" name="quantity[]" class="form-control"  required>
                         </div>
                     </td>
@@ -476,6 +477,16 @@
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2">
+                                <option value="">Select Type</option>
+                                <option value="1">Invoice</option>
+                                <option value="2">Fine</option>
+                                <option value="3">Saliq</option>
+                            </select>
                         </div>
                     </td>
                     <td class="align-middle"><br>

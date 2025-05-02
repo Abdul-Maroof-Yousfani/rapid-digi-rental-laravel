@@ -59,9 +59,10 @@ class BookingController extends Controller
             'booking_date.*' => 'required',
             'return_date.*' => 'required',
             'price.*' => 'required',
+            'invoice_type.*' => 'required',
             'quantity.*' => 'required',
         ]);
-
+        dd($request->all());
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
@@ -92,6 +93,7 @@ class BookingController extends Controller
             $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
+            $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -107,6 +109,7 @@ class BookingController extends Controller
                             'start_date' => $request['booking_date'][$key],
                             'end_date' => $request['return_date'][$key],
                             'price' => $request['price'][$key],
+                            'transaction_type' => $request['invoice_type'][$key],
                         ]);
                     }
 
@@ -115,6 +118,7 @@ class BookingController extends Controller
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
                         'type' => 'Booking Invoice',
+                        'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
                     ]);
 
@@ -180,6 +184,7 @@ class BookingController extends Controller
             'vehicletypes.*' => 'required',
             'booking_date.*' => 'required',
             'return_date.*' => 'required',
+            'invoice_type.*' => 'required',
             'price.*' => 'required',
             'quantity.*' => 'required',
         ]);
@@ -217,6 +222,7 @@ class BookingController extends Controller
             $invoiceResponse = $this->zohoinvoice->updateInvoice($invoiceID, $customerId, $notes, $currency_code, $lineitems);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
+            $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -233,6 +239,7 @@ class BookingController extends Controller
                             'start_date' => $request['booking_date'][$key],
                             'end_date' => $request['return_date'][$key],
                             'price' => $request['price'][$key],
+                            'transaction_type' => $request['invoice_type'][$key],
                         ]);
                     }
 
@@ -242,6 +249,7 @@ class BookingController extends Controller
                             'zoho_invoice_id' => $zohoInvoiceId,
                             'zoho_invoice_number' => $zohoInvoiceNumber,
                             'type' => 'Booking Invoice',
+                            'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                             'status' => 1,
                         ]
                     );

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->dateTime('start_date');
             $table->dateTime('end_date');
             $table->integer('price')->nullable();
+            $table->enum('transaction_type', ['1', '2', '3'])->nullable();
             $table->timestamps();
         });
     }

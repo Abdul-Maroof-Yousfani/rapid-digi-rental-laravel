@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('zoho_invoice_id')->nullable();
             $table->string('zoho_invoice_number')->nullable();
             $table->string('type')->nullable();
-            $table->integer('amount')->nullable();
+            $table->decimal('total_price', 10, 2)->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
         });

@@ -39,7 +39,7 @@
                                 <td>{{ $number }}.</td>
                                 <td>{{ $item->customer->customer_name ?? 0 }}</td>
                                 <td>{{ $item->invoice->zoho_invoice_number }}</td>
-                                <td>{{ $item->total_price }}</td>
+                                <td>{{ $item->invoice->total_price }}</td>
                                 <td>{{ $item->invoice->type }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>

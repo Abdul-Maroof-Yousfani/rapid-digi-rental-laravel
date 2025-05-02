@@ -14,5 +14,6 @@ class BookingData extends Model
         'start_date',
         'end_date',
         'price',
+        'transaction_type',
     ];
 }
