@@ -49,7 +49,7 @@
                                     </form>
 
 
-                                </td>
+                                </td>       
                             </tr>
                             @php $number++; @endphp
                             @endforeach

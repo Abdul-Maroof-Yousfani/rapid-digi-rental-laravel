@@ -534,7 +534,7 @@
                             '<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
                             $vehicleSelect.append(
-                                '<option value="' + vehicle.id + '">' +
+                                '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
                                 (vehicle.temp_vehicle_detail ?? vehicle
                                     .vehicle_name) +
                                 '</option>'

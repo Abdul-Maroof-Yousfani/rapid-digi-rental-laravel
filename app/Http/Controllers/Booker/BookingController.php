@@ -85,6 +85,7 @@ class BookingController extends Controller
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
                     'discount' => $request->discount[$key],
+                    'discount_type' => 'parcentage',
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
