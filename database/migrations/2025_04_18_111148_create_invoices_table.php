@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('type')->nullable();
             $table->decimal('total_price', 10, 2)->nullable();
             $table->string('status')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

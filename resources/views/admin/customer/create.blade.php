@@ -73,7 +73,7 @@
                                                     <i class="fas fa-address-card"></i>
                                                 </div>
                                             </div>
-                                            <input type="text" value="{{ old('licence') }}" name="licence"
+                                            <input type="number" value="{{ old('licence') }}" name="licence"
                                                 class="form-control licence">
                                         </div>
                                         @error('licence')
@@ -89,7 +89,7 @@
                                                     <i class="fas fa-id-card"></i>
                                                 </div>
                                             </div>
-                                            <input type="text" value="{{ old('cnic') }}" name="cnic"
+                                            <input type="number" value="{{ old('cnic') }}" name="cnic"
                                                 class="form-control cnic">
                                         </div>
                                         @error('cnic')

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->text('notes')->nullable();
             $table->integer('total_price')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

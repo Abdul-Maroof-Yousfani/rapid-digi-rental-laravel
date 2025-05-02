@@ -207,7 +207,6 @@ class CustomerController extends Controller
     {
         $customers= Customer::find($id);
         if($customers){
-            $this->zohoinvoice->deleteCustomer($id);
             $customers->delete();
             return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with("success", "Customer Deleted Successfully !");
         } else{

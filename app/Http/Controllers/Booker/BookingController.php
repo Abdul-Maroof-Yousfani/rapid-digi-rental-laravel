@@ -62,7 +62,6 @@ class BookingController extends Controller
             'invoice_type.*' => 'required',
             'quantity.*' => 'required',
         ]);
-        dd($request->all());
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
@@ -275,8 +274,6 @@ class BookingController extends Controller
         $booking= Booking::find($id);
         if($booking){
             $invoice= Invoice::where('booking_id', $id)->first();
-            $invoiceID= $invoice->zoho_invoice_id;
-            $this->zohoinvoice->deleteInvoice($invoiceID);
             BookingData::where('booking_id', $id)->delete();
             Invoice::where('booking_id', $id)->delete();
             $booking->delete();
