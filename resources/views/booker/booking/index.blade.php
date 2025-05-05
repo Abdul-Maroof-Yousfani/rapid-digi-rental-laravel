@@ -46,11 +46,12 @@
                                 <td>{{ $item->invoice->type }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
-                                    <a href='{{ url("booker/customer-booking/".$item->id."/edit") }}' class="btn btn-warning">Edit</a>
+                                    <a href="#" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
+                                    <a href='{{ url("booker/customer-booking/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
                                     <form action="{{ url("booker/customer-booking/".$item->id."") }}" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger delete-confirm">Delete</button>
+                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
                                     </form>
                                 </td>
                             </tr>

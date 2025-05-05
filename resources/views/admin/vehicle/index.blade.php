@@ -41,11 +41,11 @@
                               <td>{{ $item->year }}</td>
                               <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
                               <td>
-                                  <a href='{{ url("admin/vehicle/".$item->id."/edit") }}' class="btn btn-warning">Edit</a>
+                                  <a href='{{ url("admin/vehicle/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
                                   <form action="{{ url('admin/vehicle/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                       @csrf
                                       @method('DELETE')
-                                      <button type="submit" class="btn btn-danger delete-confirm">Delete</button>
+                                      <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
                                   </form>
                               </td>
                           </tr>
