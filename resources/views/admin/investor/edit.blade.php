@@ -25,10 +25,17 @@
                     <div class="card">
                       <div class="card-body">
                           <div class="form-group">
-                              <label>Investor name <span class="text-danger">*</span></label>
+                            <label>Investor name <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                  <div class="input-group-text">
+                                      <i class="fas fa-user"></i>
+                                  </div>
+                              </div>
                               <input type="text" value="{{ $investor->user->name }}" name="investor_name" class="form-control">
-                              @error('investor_name') <span class="text-danger">{{ $message }}</span> @enderror
-                          </div>
+                            </div>
+                            @error('investor_name') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
                           <div class="form-group">
                               <label>Email <span class="text-danger">*</span></label>
                               <div class="input-group">
@@ -56,30 +63,36 @@
                               @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
                           </div>
 
-                        
                         <div class="form-group">
-                          <label>Gender  <span class="text-danger">*</span></label>
-                          <select name="gender" class="form-control">
-                              <option value="">Select Gender</option>
-                              <option value="male" {{ $investor->gender=="male" ? "selected" : "" }}>Male</option>
-                              <option value="female" {{ $investor->gender=="female" ? "selected" : "" }}>Female</option>
-                          </select>
-                          @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-                        
+                            <label>Gender  <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                  <div class="input-group-text">
+                                      <i class="fas fa-venus-mars"></i>
+                                  </div>
+                              </div>
+                              <select name="gender" class="form-control">
+                                  <option value="">Select Gender</option>
+                                  <option value="male" {{ $investor->gender=="male" ? "selected" : "" }}>Male</option>
+                                  <option value="female" {{ $investor->gender=="female" ? "selected" : "" }}>Female</option>
+                              </select>
+                          </div>
+                            @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
+                          </div>
+
                         <div class="form-group">
                           <label>C-NIC  <span class="text-danger">*</span></label>
                           <div class="input-group">
                               <div class="input-group-prepend">
-                              <div class="input-group-text">
-                                  $
-                              </div>
+                                <div class="input-group-text">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
                               </div>
                               <input type="text" value="{{ $investor->cnic }}" name="cnic" class="form-control cnic">
                           </div>
                           @error('cnic') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
-                        
+
                         <div class="form-group">
                           <label>Date Of Birth </label>
                           <input type="date" value="{{ $investor->dob }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
@@ -90,9 +103,6 @@
                 </div>
                 <div class="col-12 col-md-6 col-lg-6">
                     <div class="card">
-                    <div class="card-header">
-                        <h4>Edit Investor</h4>
-                    </div>
                     <div class="card-body">
                         <div class="form-group">
                             <label>City </label>
@@ -132,7 +142,7 @@
                             <label>Postal Code </label>
                             <input type="text" value="{{ $investor->postal_code }}" name="postal_code" class="form-control postal_code">
                         </div>
-                        
+
                         <div class="form-group">
                           <label>Address  <span class="text-danger">*</span></label>
                           <textarea name="address" cols="30" class="form-control" rows="10">{{  $investor->address }}</textarea>

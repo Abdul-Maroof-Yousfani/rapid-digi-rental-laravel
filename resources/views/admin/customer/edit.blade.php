@@ -59,12 +59,12 @@
                         <div class="form-group">
                           <label>Driving Licence  <span class="text-danger">*</span></label>
                           <div class="input-group">
-                              <div class="input-group-prepend">
-                              <div class="input-group-text">
-                                  $
-                              </div>
-                              </div>
-                              <input type="text" value="{{ $customers->licence }}" name="licence" class="form-control licence">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <i class="fas fa-address-card"></i>
+                                </div>
+                            </div>
+                              <input type="number" value="{{ $customers->licence }}" name="licence" class="form-control licence">
                           </div>
                           @error('licence') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
@@ -73,11 +73,11 @@
                             <label>C-NIC  <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    $
+                                    <div class="input-group-text">
+                                        <i class="fas fa-id-card"></i>
+                                    </div>
                                 </div>
-                                </div>
-                                <input type="text" value="{{ $customers->cnic }}" name="cnic" class="form-control cnic">
+                                <input type="number" value="{{ $customers->cnic }}" name="cnic" class="form-control cnic">
                             </div>
                             @error('cnic') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
@@ -86,7 +86,7 @@
                             <input type="date" value="{{ $customers->dob }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
                             @error('dob') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
-                        
+
                         <div class="form-group">
                           <label>Gender  <span class="text-danger">*</span></label>
                           <select name="gender" class="form-control">

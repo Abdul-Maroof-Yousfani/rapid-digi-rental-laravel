@@ -7,11 +7,20 @@
         <section class="section">
           <div class="section-body">
             <div class="row">
+                <div class="col-12 col-md-12 col-lg-12">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <h3 class="mb-0">Investor List</h3>
+                      <a href="{{ route('admin.investor.create') }}" class="btn btn-primary">
+                        Add Investor
+                      </a>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="row">
               <div class="col-12">
                 <div class="card">
-                  <div class="card-header">
-                    <h4>Investor List</h4>
-                  </div>
                   <div class="card-body">
                     <div class="table-responsive">
                       <table class="table table-striped table-hover" id="tableExport" style="width:100%;">

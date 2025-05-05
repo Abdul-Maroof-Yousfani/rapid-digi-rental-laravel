@@ -97,7 +97,7 @@
                         @can('manage customers')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                                    data-feather="briefcase"></i><span>Customer</span></a>
+                                    data-feather="user"></i><span>Customer</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}">Add Customer</a></li>
                                 <li><a class="nav-link" href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.index') : route('booker.customer.index') }}">Customer list</a></li>
@@ -107,7 +107,7 @@
                         @can('manage investors')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                                    data-feather="command"></i><span>Investor</span></a>
+                                data-feather="dollar-sign"></i><span>Investor</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ route('admin.investor.create') }}">Add Investor</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.investor.index') }}">Investor List</a></li>
@@ -117,17 +117,17 @@
                         @can('manage bookers')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                                    data-feather="mail"></i><span>Booker</span></a>
+                                    data-feather="user-check"></i><span>Booking user</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ route('admin.booker.create') }}">Add Booker</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.booker.index') }}">Booker list</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.booker.create') }}">Add Booking User</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.booker.index') }}">Booking User list</a></li>
                             </ul>
                         </li>
                         @endcan
                         @can('manage vehicles')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                                    data-feather="mail"></i><span>Vehicle</span></a>
+                                    data-feather="truck"></i><span>Vehicle</span></a>
                             <ul class="dropdown-menu">
                                 <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.create') }}">Add Vehicle Type</a></li>
                                 <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.index') }}">Vehicle Type list</a></li>
