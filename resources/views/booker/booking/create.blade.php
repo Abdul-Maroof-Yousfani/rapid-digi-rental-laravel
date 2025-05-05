@@ -91,8 +91,6 @@
                                                     <th>Status</th>
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
-                                                    <th>Type <span class="text-danger">*</span></th>
-                                                    <th>Quantity <span class="text-danger">*</span></th>
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
@@ -161,22 +159,6 @@
                                                             <input type="date" value="" name="return_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 min="{{ date('Y-m-d') }}" required>
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <select name="invoice_type[]" class="form-control select2">
-                                                                <option value="">Select Type</option>
-                                                                <option value="1">Invoice</option>
-                                                                <option value="2">Fine</option>
-                                                                <option value="3">Saliq</option>
-                                                                <option value="4">Renew</option>
-                                                            </select>
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="text" value="" name="quantity[]" class="form-control"  required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -390,21 +372,6 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <select name="invoice_type[]" class="form-control select2">
-                                <option value="">Select Type</option>
-                                <option value="1">Invoice</option>
-                                <option value="2">Fine</option>
-                                <option value="3">Saliq</option>
-                            </select>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" value="" name="quantity[]" class="form-control"  required>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
                             <input type="text" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
@@ -477,21 +444,6 @@
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <select name="invoice_type[]" class="form-control select2">
-                                <option value="">Select Type</option>
-                                <option value="1">Invoice</option>
-                                <option value="2">Fine</option>
-                                <option value="3">Saliq</option>
-                            </select>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="text" value="" name="quantity[]" class="form-control"  required>
                         </div>
                     </td>
                     <td class="align-middle"><br>

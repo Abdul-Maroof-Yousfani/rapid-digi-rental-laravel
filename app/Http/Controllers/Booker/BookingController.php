@@ -59,8 +59,6 @@ class BookingController extends Controller
             'booking_date.*' => 'required',
             'return_date.*' => 'required',
             'price.*' => 'required',
-            'invoice_type.*' => 'required',
-            'quantity.*' => 'required',
         ]);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
@@ -83,7 +81,7 @@ class BookingController extends Controller
                     'name' => $vehicleName,
                     'description' => $description,
                     'rate' => (float) $request->price[$key],
-                    'quantity' => $request->quantity[$key],
+                    'quantity' => 1,
                     'discount' => $request->discount[$key],
                     'discount_type' => 'parcentage',
                     'tax_percentage' => $request->tax[$key],
@@ -109,7 +107,7 @@ class BookingController extends Controller
                             'start_date' => $request['booking_date'][$key],
                             'end_date' => $request['return_date'][$key],
                             'price' => $request['price'][$key],
-                            'transaction_type' => $request['invoice_type'][$key],
+                            'transaction_type' => 1,
                         ]);
                     }
 
@@ -184,9 +182,7 @@ class BookingController extends Controller
             'vehicletypes.*' => 'required',
             'booking_date.*' => 'required',
             'return_date.*' => 'required',
-            'invoice_type.*' => 'required',
             'price.*' => 'required',
-            'quantity.*' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -210,7 +206,7 @@ class BookingController extends Controller
                     'name' => $vehicleName,
                     'description' => $description,
                     'rate' => (float) $request->price[$key],
-                    'quantity' => $request->quantity[$key],
+                    'quantity' => 1,
                     'discount' => $request->discount[$key],
                     'tax_percentage' => $request->tax[$key],
                 ];
@@ -231,7 +227,7 @@ class BookingController extends Controller
                         'customer_id' => $customerId,
                         'notes' => $request['notes'],
                     ]);
-                    BookingData::where('booking_id', $booking->id)->delete();
+                    BookingData::where('booking_id', $booking->id)->forceDelete();
                     foreach ($request->vehicle as $key => $vehicle_id) {
                         $booking_data= BookingData::create([
                             'booking_id' => $booking->id,
@@ -239,7 +235,7 @@ class BookingController extends Controller
                             'start_date' => $request['booking_date'][$key],
                             'end_date' => $request['return_date'][$key],
                             'price' => $request['price'][$key],
-                            'transaction_type' => $request['invoice_type'][$key],
+                            'transaction_type' => 1,
                         ]);
                     }
 
