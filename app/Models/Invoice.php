@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Invoice extends Model
 {
-        use SoftDeletes;
+    use SoftDeletes;
     use HasFactory;
     protected $fillable = [
         'booking_id',

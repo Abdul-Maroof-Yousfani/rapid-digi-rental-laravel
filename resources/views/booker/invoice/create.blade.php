@@ -22,30 +22,26 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ role_base_url('customer-booking') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card-body">
                                 <div class="col-md-6">
-                                    <h3>Create Booking</h3>
+                                    <h3>Create Invoice - {{ $booking->customer->customer_name }}</h3>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
+
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Customer <span class="text-danger">*</span></label>
-                                        <select name="customer_id" class="form-control select2" required>
-                                            <option value="">Select Customer</option>
-                                            @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}">{{ $customer->customer_name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
+                                        <input type="text" value="{{ $booking->customer->customer_name }}" name="customer" class="form-control disableClick" disabled>
+                                        <input type="hidden" value="{{ $booking->id }}" name="booking_id" class="form-control disableClick" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -65,7 +61,7 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4>Booking Details</h4>
+                                    <h4>Items</h4>
                                     <div class="card-header-form">
                                         <div class="input-group">
                                             <input type="text" class="form-control" placeholder="Search">
@@ -89,6 +85,7 @@
                                                     <th>Status</th>
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
+                                                    <th>Type <span class="text-danger">*</span></th>
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
@@ -161,6 +158,17 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
+                                                            <select name="invoice_type[]" class="form-control select2" id="">
+                                                                <option value="">Select Type</option>
+                                                                <option value="2">Renew</option>
+                                                                <option value="1">Rent</option>
+                                                                <option value="3">Fine</option>
+                                                                <option value="4">Salik</option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
                                                             <input type="text" value="" name="discount[]" class="form-control" >
                                                         </div>
                                                     </td>
@@ -190,7 +198,7 @@
                     </div>
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
-                            <input type="submit" value="Create Booking" id="submitBtn"
+                            <input type="submit" value="Create Invoice" id="submitBtn"
                                 class="btn btn-primary">
                         </div>
                     </div>
@@ -370,6 +378,17 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2" id="">
+                                <option value="">Select Type</option>
+                                <option value="2">Renew</option>
+                                <option value="1">Rent</option>
+                                <option value="3">Fine</option>
+                                <option value="4">Salik</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
                             <input type="text" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
@@ -442,6 +461,17 @@
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2" id="">
+                                <option value="">Select Type</option>
+                                <option value="2">Renew</option>
+                                <option value="1">Rent</option>
+                                <option value="3">Fine</option>
+                                <option value="4">Salik</option>
+                            </select>
                         </div>
                     </td>
                     <td class="align-middle"><br>

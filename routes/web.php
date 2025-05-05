@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Booker\BookerController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Booker\BookingController;
+use App\Http\Controllers\Booker\InvoiceController;
 use App\Http\Controllers\Admin\BookerCrudController;
 use App\Http\Controllers\Admin\VehicleCrudController;
 use App\Http\Controllers\Investor\InvestorController;
@@ -74,6 +75,9 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('/dashboard', [BookerController::class, 'index'])->name('dashboard')->middleware('permission:view booker dashboard');
     Route::resource('customer-booking', BookingController::class);
     Route::resource('customer', CustomerController::class);
+    Route::get('booking/{id}', [InvoiceController::class, 'index'])->name('view.invoice');
+    Route::get('booking/{id}/create-invoice', [InvoiceController::class, 'create'])->name('create.invoice');
+    Route::post('booking/{id}/create-invoice', [InvoiceController::class, 'store'])->name('store.invoice');
 });
 
 Route::prefix('investor')->as('investor.')->middleware(['auth', 'role:investor', 'permission:view investor dashboard'])->group(function() {

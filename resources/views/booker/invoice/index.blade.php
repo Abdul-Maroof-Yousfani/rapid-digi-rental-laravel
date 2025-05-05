@@ -10,10 +10,10 @@
                 <div class="col-12 col-md-12 col-lg-12">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                      <h3 class="mb-0">Booking List</h3>
-                      <a href="{{ role_base_route('customer-booking.create') }}" class="btn btn-primary">
-                        Add Booking
-                      </a>
+                        <h3 class="mb-0">Invoices for Booking #{{$booking->id}}</h3>
+                        <a href="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" class="btn btn-primary">
+                            Create Invoice
+                        </a>
                     </div>
                   </div>
                 </div>
@@ -26,36 +26,29 @@
                       <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
                         <thead>
                           <tr>
-                            <th>S.no</th>
-                            <th>Customer</th>
                             <th>Invoice No</th>
                             <th>Total Price</th>
-                            <th>Invoice Type</th>
+                            <th>Type</th>
                             <th>Date</th>
                             <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          @php $number=1; @endphp
-                            @foreach ($booking as $item)
+                            @foreach ($invoice as $item)
                             <tr>
-                                <td>{{ $number }}.</td>
-                                <td>{{ $item->customer->customer_name ?? 0 }}</td>
-                                <td>{{ $item->invoice->zoho_invoice_number }}</td>
-                                <td>{{ $item->invoice->total_price }}</td>
-                                <td>{{ $item->invoice->type }}</td>
+                                <td>{{ $item->zoho_invoice_number }}</td>
+                                <td>{{ $item->total_price }}</td>
+                                <td>{{ $item->zoho_invoice_number }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
-                                    <a href="{{ url('booker/booking/'. $item->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
-                                    <a href='{{ url("booker/customer-booking/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                    <form action="{{ url("booker/customer-booking/".$item->id."") }}" method="POST" style="display:inline;" class="delete-form">
+                                    <a href="" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                                    <form action="" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
                                     </form>
                                 </td>
                             </tr>
-                            @php $number++; @endphp
                             @endforeach
                         </tbody>
                       </table>
