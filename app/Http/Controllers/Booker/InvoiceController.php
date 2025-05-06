@@ -54,6 +54,11 @@ class InvoiceController extends Controller
             $notes= $request->notes;
             $currency_code= "AED";
             $lineitems= [];
+            $invoiceTypes = [
+                2 => 'Renew',
+                3 => 'Fine',
+                4 => 'Salik',
+            ];
             foreach ($request->vehicle as $key => $vehicleId) {
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) {
@@ -64,9 +69,10 @@ class InvoiceController extends Controller
                 if (is_array($description)) {
                     $description = implode(', ', $description);
                 }
+                $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
                 $lineitems[]= [
                     'name' => $vehicleName,
-                    'description' => $description,
+                    'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => 1,
                     'discount' => $request->discount[$key],

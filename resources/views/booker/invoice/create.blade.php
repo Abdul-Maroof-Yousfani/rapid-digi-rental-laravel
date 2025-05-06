@@ -119,7 +119,7 @@
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
+                                                            <textarea name="description[]" class="form-control description" id="" cols="60" rows="3"></textarea>
                                                         </div>
                                                     </td>
 
@@ -158,7 +158,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <select name="invoice_type[]" class="form-control select2" id="">
+                                                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
                                                                 <option value="">Select Type</option>
                                                                 <option value="2">Renew</option>
                                                                 {{-- <option value="1">Rent</option> --}}
@@ -381,7 +381,6 @@
                             <select name="invoice_type[]" class="form-control select2" id="">
                                 <option value="">Select Type</option>
                                 <option value="2">Renew</option>
-                                <option value="1">Rent</option>
                                 <option value="3">Fine</option>
                                 <option value="4">Salik</option>
                             </select>
@@ -468,7 +467,6 @@
                             <select name="invoice_type[]" class="form-control select2" id="">
                                 <option value="">Select Type</option>
                                 <option value="2">Renew</option>
-                                <option value="1">Rent</option>
                                 <option value="3">Fine</option>
                                 <option value="4">Salik</option>
                             </select>
@@ -560,6 +558,12 @@
                     }
                 });
             });
+
+            // $(document).on('change', '.invoice_type', function() {
+            //     var invoice_type= $(this).val();
+            //     $()
+
+            // });
         });
     </script>
 @endsection
