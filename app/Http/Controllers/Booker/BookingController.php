@@ -69,14 +69,10 @@ class BookingController extends Controller
             $lineitems= [];
             foreach ($request->vehicle as $key => $vehicleId) {
                 $vehicle = Vehicle::find($vehicleId);
-                if (!$vehicle) {
-                    continue;
-                }
+                if (!$vehicle) { continue; }
                 $vehicleName = !empty($vehicle->name) ? $vehicle->name : $vehicle->temp_vehicle_detail;
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
-                if (is_array($description)) {
-                    $description = implode(', ', $description);
-                }
+                if (is_array($description)) { $description = implode(', ', $description); }
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description,
@@ -100,18 +96,7 @@ class BookingController extends Controller
                         'notes' => $request['notes'],
                     ]);
 
-                    foreach ($request->vehicle as $key => $vehicle_id) {
-                        $booking_data= BookingData::create([
-                            'booking_id' => $booking->id,
-                            'vehicle_id' => $vehicle_id,
-                            'start_date' => $request['booking_date'][$key],
-                            'end_date' => $request['return_date'][$key],
-                            'price' => $request['price'][$key],
-                            'transaction_type' => 1,
-                        ]);
-                    }
-
-                    Invoice::create([
+                    $invoice= Invoice::create([
                         'booking_id' => $booking->id,
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
@@ -119,6 +104,18 @@ class BookingController extends Controller
                         'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
                     ]);
+
+                    foreach ($request->vehicle as $key => $vehicle_id) {
+                        $booking_data= BookingData::create([
+                            'booking_id' => $booking->id,
+                            'vehicle_id' => $vehicle_id,
+                            'invoice_id' => $invoice->id,
+                            'start_date' => $request['booking_date'][$key],
+                            'end_date' => $request['return_date'][$key],
+                            'price' => $request['price'][$key],
+                            'transaction_type' => 1,
+                        ]);
+                    }
 
                     DB::commit();
                     return redirect()->route('booker.customer-booking.index')->with('success', 'Booking Created Successfully.')->withInput();
@@ -154,7 +151,7 @@ class BookingController extends Controller
         }else{
             $invoiceID= Invoice::where('booking_id', $id)->first();
             $zohocolumn = $this->zohoinvoice->getInvoice($invoiceID->zoho_invoice_id);
-            $booking_data= BookingData::where('booking_id', $booking->id)->get();
+            $booking_data= BookingData::where('booking_id', $booking->id)->where('transaction_type', 1)->get();
             $customers= Customer::all();
             $vehicletypes= Vehicletype::all();
             $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
@@ -194,14 +191,10 @@ class BookingController extends Controller
             $lineitems= [];
             foreach ($request->vehicle as $key => $vehicleId) {
                 $vehicle = Vehicle::find($vehicleId);
-                if (!$vehicle) {
-                    continue;
-                }
+                if (!$vehicle) { continue; }
                 $vehicleName = !empty($vehicle->name) ? $vehicle->name : $vehicle->temp_vehicle_detail;
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
-                if (is_array($description)) {
-                    $description = implode(', ', $description);
-                }
+                if (is_array($description)) { $description = implode(', ', $description); }
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description,
@@ -227,19 +220,8 @@ class BookingController extends Controller
                         'customer_id' => $customerId,
                         'notes' => $request['notes'],
                     ]);
-                    BookingData::where('booking_id', $booking->id)->forceDelete();
-                    foreach ($request->vehicle as $key => $vehicle_id) {
-                        $booking_data= BookingData::create([
-                            'booking_id' => $booking->id,
-                            'vehicle_id' => $vehicle_id,
-                            'start_date' => $request['booking_date'][$key],
-                            'end_date' => $request['return_date'][$key],
-                            'price' => $request['price'][$key],
-                            'transaction_type' => 1,
-                        ]);
-                    }
 
-                    Invoice::updateOrCreate(
+                    $invoice= Invoice::updateOrCreate(
                         ['booking_id' => $booking->id],
                         [
                             'zoho_invoice_id' => $zohoInvoiceId,
@@ -249,6 +231,19 @@ class BookingController extends Controller
                             'status' => 1,
                         ]
                     );
+
+                    BookingData::where('booking_id', $booking->id)->where('invoice_id', $invoice->id)->forceDelete();
+                    foreach ($request->vehicle as $key => $vehicle_id) {
+                        $booking_data= BookingData::create([
+                            'booking_id' => $booking->id,
+                            'vehicle_id' => $vehicle_id,
+                            'invoice_id' => $invoice->id,
+                            'start_date' => $request['booking_date'][$key],
+                            'end_date' => $request['return_date'][$key],
+                            'price' => $request['price'][$key],
+                            'transaction_type' => '1',
+                        ]);
+                    }
 
                     DB::commit();
                     return redirect()->route('booker.customer-booking.index')->with('success', 'Booking Updated Successfully.')->withInput();
@@ -271,6 +266,7 @@ class BookingController extends Controller
         $booking= Booking::find($id);
         if($booking){
             $invoice= Invoice::where('booking_id', $id)->first();
+            // BookingData::where('booking_id', $id)->where('invoice_id', $invoice->id)->delete();
             BookingData::where('booking_id', $id)->delete();
             Invoice::where('booking_id', $id)->delete();
             $booking->delete();

@@ -22,7 +22,7 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ role_base_url('customer-booking/'.$booking->id) }}" method="post" enctype="multipart/form-data">
+                <form action="" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="row">
@@ -43,7 +43,7 @@
                                         <select name="customer_id" class="form-control select2" required>
                                             <option value="">Select Customer</option>
                                             @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}" {{ $booking->customer_id==$customer->id ? 'selected' : '' }} >{{ $customer->customer_name }}</option>
+                                                <option value="{{ $customer->id }}" {{ $invoice->booking->customer_id==$customer->id ? 'selected' : '' }} >{{ $customer->customer_name }}</option>
                                             @endforeach
                                         </select>
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
@@ -80,7 +80,7 @@
 
                                     <div class="form-group">
                                         <label>Notes <span class="text-danger">*</span></label>
-                                        <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ $booking->notes }}</textarea>
+                                        <textarea name="notes" cols="30" class="form-control" rows="10" required></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -149,7 +149,7 @@
                                                                 <option value="">Select Vehicle</option>
                                                                 @foreach ($filteredVehicles as $vehicle)
                                                                     <option value="{{ $vehicle->id }}" {{ $selectedVehicleId == $vehicle->id ? 'selected' : '' }}>
-                                                                        {{ ($vehicle->vehicle_name) ?? ($vehicle->number_plate.' | '.$vehicle->temp_vehicle_detail) }}</option>
+                                                                        {{ $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>

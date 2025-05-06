@@ -78,6 +78,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('booking/{id}', [InvoiceController::class, 'index'])->name('view.invoice');
     Route::get('booking/{id}/create-invoice', [InvoiceController::class, 'create'])->name('create.invoice');
     Route::post('booking/{id}/create-invoice', [InvoiceController::class, 'store'])->name('store.invoice');
+    Route::get('booking/{id}/edit-invoice', [InvoiceController::class, 'edit'])->name('edit.invoice');
 });
 
 Route::prefix('investor')->as('investor.')->middleware(['auth', 'role:investor', 'permission:view investor dashboard'])->group(function() {

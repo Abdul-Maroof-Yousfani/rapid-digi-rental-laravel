@@ -13,6 +13,7 @@ class BookingData extends Model
     protected $fillable = [
         'booking_id',
         'vehicle_id',
+        'invoice_id',
         'start_date',
         'end_date',
         'price',

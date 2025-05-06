@@ -41,6 +41,7 @@
                                 <td>{{ $item->zoho_invoice_number }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
+                                    {{-- <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a> --}}
                                     <a href="" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
                                     <form action="" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
