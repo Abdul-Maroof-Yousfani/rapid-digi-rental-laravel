@@ -40,8 +40,9 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Customer <span class="text-danger">*</span></label>
-                                        <input type="text" value="{{ $booking->customer->customer_name }}" name="customer" class="form-control disableClick" disabled>
-                                        <input type="hidden" value="{{ $booking->id }}" name="booking_id" class="form-control disableClick" disabled>
+                                        <input type="text" value="{{ $booking->customer->customer_name }}" name="customer" class="form-control disableClick" readonly>
+                                        <input type="hidden" value="{{ $booking->id }}" name="booking_id" class="form-control disableClick" readonly>
+                                        <input type="hidden" value="{{ $booking->customer->id }}" name="customer_id" class="form-control disableClick" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -89,8 +90,7 @@
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
-                                                    <th><button type="button" class="btn btn-success btn-md"
-                                                            id="addRow">+</button></th>
+                                                    <th><button type="button" class="btn btn-success btn-md" id="addRow">+</button></th>
                                                 </tr>
                                             </thead>
                                             <tbody id="vehicleTableBody">
@@ -161,7 +161,7 @@
                                                             <select name="invoice_type[]" class="form-control select2" id="">
                                                                 <option value="">Select Type</option>
                                                                 <option value="2">Renew</option>
-                                                                <option value="1">Rent</option>
+                                                                {{-- <option value="1">Rent</option> --}}
                                                                 <option value="3">Fine</option>
                                                                 <option value="4">Salik</option>
                                                             </select>
