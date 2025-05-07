@@ -184,6 +184,7 @@ class ZohoInvoice
             ]
         ]);
 
+        // dd(json_decode($response->getBody(), true));
         return json_decode($response->getBody(), true);
     }
 
@@ -204,7 +205,7 @@ class ZohoInvoice
     public function getZohoTaxList($id)
     {
         $accessToken= $this->getAccessToken();
-        
+
     }
 
 

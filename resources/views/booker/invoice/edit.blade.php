@@ -22,14 +22,19 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="" method="post" enctype="multipart/form-data">
+                <form action="{{ url('booker/booking/'. $invoice->id .'/update-invoice') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card-body">
                                 <div class="col-md-6">
-                                    <h3>Edit Booking</h3>
+                                    @php
+                                        $customer_name= $invoice->booking->customer->customer_name;
+                                        $customer_id= $invoice->booking->customer->id;
+                                        $booking_id= $invoice->booking->id;
+                                    @endphp
+                                    <h3>Edit Invoice - {{ $customer_name }}</h3>
                                 </div>
                             </div>
                         </div>
@@ -40,18 +45,9 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Customer <span class="text-danger">*</span></label>
-                                        <select name="customer_id" class="form-control select2" required>
-                                            <option value="">Select Customer</option>
-                                            @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}" {{ $invoice->booking->customer_id==$customer->id ? 'selected' : '' }} >{{ $customer->customer_name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Total Amount </label>
-                                        <input type="text" disabled value="{{ old('total_amount') }}" name="total_amount" class="form-control">
+                                        <input type="text" value="{{ $customer_name }}" name="customer" class="form-control disableClick" readonly>
+                                        <input type="hidden" value="{{ $booking_id }}" name="booking_id" class="form-control disableClick" readonly>
+                                        <input type="hidden" value="{{ $customer_id }}" name="customer_id" class="form-control disableClick" readonly>
                                     </div>
 
                                 </div>
@@ -62,24 +58,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Invoice Type <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fas fa-file-invoice"></i>
-                                                </div>
-                                            </div>
-                                            <select name="invoice_type" class="form-control">
-                                                <option value="">Select Type</option>
-                                                <option>Fine</option>
-                                                <option>Saliq</option>
-                                            </select>
-                                        </div>
-                                        @error('invoice_type') <span class="text-danger">{{ $message }}</span> @enderror
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Notes <span class="text-danger">*</span></label>
+                                        <label>Invoice Notes <span class="text-danger">*</span></label>
                                         <textarea name="notes" cols="30" class="form-control" rows="10" required></textarea>
                                     </div>
                                 </div>
@@ -113,9 +92,12 @@
                                                     <th>Status</th>
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
+                                                    <th>Type <span class="text-danger">*</span></th>
+                                                    <th>Price (AED) <span class="text-danger">*</span></th>
+                                                    <th>Quantity <span class="text-danger">*</span></th>
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
-                                                    <th>Price (AED)<span class="text-danger">*</span></th>
+                                                    <th>Amount (AED)<span class="text-danger">*</span></th>
                                                     <th><button type="button" class="btn btn-success btn-md"
                                                             id="addRow">+</button></th>
                                                 </tr>
@@ -124,9 +106,8 @@
                                                 @foreach ($booking_data as $index => $item)
                                                 @php
                                                     $selectedVehicleId = $item->vehicle_id;
-                                                    $selectedTypeId = $vehicleTypeMap[$selectedVehicleId] ?? null;
-                                                    $filteredVehicles = $vehiclesByType[$selectedTypeId] ?? collect();
                                                     $vehicleObj = $vehicles->where('id', $selectedVehicleId)->first();
+                                                    $selectedVehicleTypeId = $vehicleObj->vehicletypes;
                                                 @endphp
                                                 <tr>
                                                     <td>
@@ -134,9 +115,7 @@
                                                             <select name="vehicletypes[]" class="form-control select2 vehicletypes">
                                                                 <option value="">Select Vehicle type</option>
                                                                 @foreach ($vehicletypes as $vtype)
-                                                                    <option value="{{ $vtype->id }}" {{ $selectedTypeId == $vtype->id ? 'selected' : '' }}>
-                                                                        {{ $vtype->name }}
-                                                                    </option>
+                                                                    <option value="{{ $vtype->id }}" {{ $vtype->id == $selectedVehicleTypeId ? 'Selected' : '' }}>{{ $vtype->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -144,12 +123,10 @@
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <select name="vehicle[]" class="form-control select2 vehicle"
-                                                                >
+                                                            <select name="vehicle[]" class="form-control select2 vehicle">
                                                                 <option value="">Select Vehicle</option>
-                                                                @foreach ($filteredVehicles as $vehicle)
-                                                                    <option value="{{ $vehicle->id }}" {{ $selectedVehicleId == $vehicle->id ? 'selected' : '' }}>
-                                                                        {{ $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail }}</option>
+                                                                @foreach ($vehicles as $vehicle)
+                                                                    <option value="{{ $vehicle->id }}" {{ $vehicle->id == $selectedVehicleId ? 'Selected' : '' }}>{{ $vehicle->number_plate }} | {{ $vehicle->temp_vehicle_detail ?? $vehicle->vehicle_name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -194,6 +171,26 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
+                                                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                                                <option value="">Select Type</option>
+                                                                <option value="2" {{ $item->transaction_type == 2 ? 'Selected' : '' }}>Renew</option>
+                                                                <option value="3" {{ $item->transaction_type == 3 ? 'Selected' : '' }}>Fine</option>
+                                                                <option value="4" {{ $item->transaction_type == 4 ? 'Selected' : '' }}>Salik</option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="text" value="{{ $item->price }}" name="price[]" class="form-control" >
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="text" value="{{ $zohocolumn['invoice']['line_items'][$index]['quantity'] ?? '' }}" name="quantity[]" class="form-control" >
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
                                                             <input type="text" value="{{ $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '' }}" name="discount[]" class="form-control" >
                                                         </div>
                                                     </td>
@@ -206,7 +203,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="{{ $item->price }}" name="price[]" class="form-control" >
+                                                            <input type="text" value="" name="amount[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td>
@@ -404,6 +401,27 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                <option value="">Select Type</option>
+                                <option value="2">Renew</option>
+                                {{-- <option value="1">Rent</option> --}}
+                                <option value="3">Fine</option>
+                                <option value="4">Salik</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="text" value="" name="price[]" class="form-control" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="text" value="" name="quantity[]" class="form-control" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
                             <input type="text" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
@@ -414,7 +432,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control">
+                            <input type="text" value="" name="amount[]" class="form-control">
                         </div>
                     </td>
 
@@ -480,6 +498,27 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                <option value="">Select Type</option>
+                                <option value="2">Renew</option>
+                                {{-- <option value="1">Rent</option> --}}
+                                <option value="3">Fine</option>
+                                <option value="4">Salik</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="text" value="" name="price[]" class="form-control" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="text" value="" name="quantity[]" class="form-control" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
                             <input type="text" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
@@ -490,7 +529,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control">
+                            <input type="text" value="" name="amount[]" class="form-control">
                         </div>
                     </td>
 
@@ -511,7 +550,7 @@
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
                 $.ajax({
-                    url: '/get-vehicle-by-Type/' + id,
+                    url: '/get-vehicle-by-booking/' + id,
                     type: 'GET',
                     success: function(response) {
                         $vehicleSelect.empty().append(

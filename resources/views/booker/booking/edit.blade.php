@@ -49,11 +49,6 @@
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
 
-                                    <div class="form-group">
-                                        <label>Total Amount </label>
-                                        <input type="text" disabled value="{{ old('total_amount') }}" name="total_amount" class="form-control">
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
@@ -62,24 +57,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Invoice Type <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fas fa-file-invoice"></i>
-                                                </div>
-                                            </div>
-                                            <select name="invoice_type" class="form-control">
-                                                <option value="">Select Type</option>
-                                                <option>Fine</option>
-                                                <option>Saliq</option>
-                                            </select>
-                                        </div>
-                                        @error('invoice_type') <span class="text-danger">{{ $message }}</span> @enderror
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Notes <span class="text-danger">*</span></label>
+                                        <label>Invoice Notes <span class="text-danger">*</span></label>
                                         <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ $booking->notes }}</textarea>
                                     </div>
                                 </div>

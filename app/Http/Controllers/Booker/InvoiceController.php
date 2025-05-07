@@ -31,8 +31,10 @@ class InvoiceController extends Controller
 
     public function create($id)
     {
-        $vehicletypes= Vehicletype::all();
         $booking = Booking::findOrFail($id);
+        $vehicleIds = BookingData::where('booking_id', $id)->pluck('vehicle_id');
+        $vehicleTypeIds = Vehicle::whereIn('id', $vehicleIds)->pluck('vehicletypes')->unique();
+        $vehicletypes = Vehicletype::whereIn('id', $vehicleTypeIds)->get();
         return view('booker.invoice.create', compact('vehicletypes', 'booking'));
     }
 
@@ -46,12 +48,14 @@ class InvoiceController extends Controller
             'vehicletypes.*' => 'required',
             'booking_date.*' => 'required',
             'return_date.*' => 'required',
+            'quantity.*' => 'required',
+            'invoice_type.*' => 'required',
             'price.*' => 'required',
         ]);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
-        }else {
+        } else {
             $notes= $request->notes;
             $currency_code= "AED";
             $lineitems= [];
@@ -59,7 +63,7 @@ class InvoiceController extends Controller
             foreach ($request->vehicle as $key => $vehicleId) {
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) { continue; }
-                $vehicleName = !empty($vehicle->name) ? $vehicle->name : $vehicle->temp_vehicle_detail;
+                $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
                 if (is_array($description)) { $description = implode(', ', $description); }
                 $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
@@ -67,9 +71,9 @@ class InvoiceController extends Controller
                     'name' => $vehicleName,
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
-                    'quantity' => 1,
+                    'quantity' => $request->quantity[$key],
                     'discount' => $request->discount[$key],
-                    'discount_type' => 'parcentage',
+                    'discount_type' => 'percentage',
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
@@ -117,51 +121,110 @@ class InvoiceController extends Controller
 
     public function edit(string $id)
     {
-        $invoice= Invoice::find($id);
-        $booking= Booking::find($invoice->id);
+        $invoice = Invoice::find($id);
+
         if(!$invoice){
             return redirect()->back()->with('error', 'Invoice not Found');
         }else{
-            // $invoiceID= Invoice::where('booking_id', $id)->first();
             $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
-            $booking_data= BookingData::where('invoice_id', $invoice->id)->get();
-            $customers= Customer::all();
-            $vehicletypes= Vehicletype::all();
-            $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
-            $vehicleTypeMap = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))
-            ->pluck('vehicletypes', 'id');
-            $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
+            $booking_data = BookingData::where('invoice_id', $invoice->id)->where('transaction_type', '!=', 1)->get();
 
-            return view('booker.invoice.edit', compact('zohocolumn', 'customers', 'vehicletypes', 'booking',
-            'booking_data',
-            'vehicles',
-            'vehicleTypeMap',
-            'vehiclesByType',
-            'invoice'));
+            // Get Vehicles and Vehile and Vehicle Type Against booking
+            $booking = Booking::find($invoice->booking_id);
+            $vehicle_ids = $booking_data->pluck('vehicle_id');
+            $vehicles = Vehicle::whereIn('id', $vehicle_ids)->get();
+            $vehicle_type_ids = $vehicles->pluck('vehicletypes')->unique();
+            $vehicletypes = Vehicletype::whereIn('id', $vehicle_type_ids)->get();
+
+            return view('booker.invoice.edit', compact('zohocolumn', 'vehicletypes', 'vehicles', 'invoice', 'booking_data'));
+        }
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $validator= Validator::make($request->all(), [
+            'customer_id' => 'required',
+            'booking_id' => 'required',
+            'notes' => 'required',
+            'vehicle.*' => 'required',
+            'vehicletypes.*' => 'required',
+            'booking_date.*' => 'required',
+            'return_date.*' => 'required',
+            'quantity.*' => 'required',
+            'price.*' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $errorMessages = implode("\n", $validator->errors()->all());
+            return redirect()->back()->with('error', $errorMessages)->withInput();
+        } else {
+            $notes= $request->notes;
+            $currency_code= "AED";
+            $lineitems= [];
+            $invoiceTypes = [ 2 => 'Renew', 3 => 'Fine', 4 => 'Salik', ];
+            foreach ($request->vehicle as $key => $vehicleId) {
+                $vehicle = Vehicle::find($vehicleId);
+                if (!$vehicle) { continue; }
+                $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
+                $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
+                if (is_array($description)) { $description = implode(', ', $description); }
+                $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
+                $lineitems[]= [
+                    'name' => $vehicleName,
+                    'description' => $description."\n".$invoiceTypeText,
+                    'rate' => (float) $request->price[$key],
+                    'quantity' => $request->quantity[$key],
+                    'discount' => $request->discount[$key],
+                    'discount_type' => 'percentage',
+                    'tax_percentage' => $request->tax[$key],
+                ];
+            }
+
+            // $invoice= Invoice::where('booking_id', $request->booking_id)->where('id', $id)->first();
+            $invoice= Invoice::find($id);
+            $invoiceID= $invoice->zoho_invoice_id;
+            $customerId=  $request->customer_id;
+            $invoiceResponse = $this->zohoinvoice->updateInvoice($invoiceID, $customerId, $notes, $currency_code, $lineitems);
+            $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
+            $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
+            $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
+            if (!empty($zohoInvoiceId)) {
+                try {
+                    DB::beginTransaction();
+                    $invoice= Invoice::updateOrCreate(
+                        ['booking_id' => $request->booking_id],
+                        [
+                            'zoho_invoice_id' => $zohoInvoiceId,
+                            'zoho_invoice_number' => $zohoInvoiceNumber,
+                            'type' => 'Booking Invoice',
+                            'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
+                            'status' => 1,
+                        ]
+                    );
+
+                    BookingData::where('booking_id', $request->booking_id)->where('invoice_id', $invoice->id)->forceDelete();
+                    foreach ($request->vehicle as $key => $vehicle_id) {
+                        $booking_data= BookingData::create([
+                            'booking_id' => $request->booking_id,
+                            'vehicle_id' => $vehicle_id,
+                            'invoice_id' => $invoice->id,
+                            'start_date' => $request['booking_date'][$key],
+                            'end_date' => $request['return_date'][$key],
+                            'price' => $request['price'][$key],
+                            'transaction_type' => $request['invoice_type'][$key],
+                        ]);
+                    }
+
+                    DB::commit();
+                    return redirect()->route('booker.view.invoice', $request->booking_id)->with('success', 'Booking Updated Successfully.')->withInput();
+
+                } catch (\Exception $exp) {
+                    DB::rollBack();
+                    return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
+                }
+            } else {
+                return redirect()->back()->withErrors('error', 'Invoice ID Not Fetch')->withInput();
+            }
         }
     }
 }
-
-
-
-
-// $booking= Booking::find($invoice->id);
-// if(!$invoice){
-//     return redirect()->back()->with('error', 'Invoice not Found');
-// }else{
-//     // $invoiceID= Invoice::where('booking_id', $id)->first();
-//     $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
-//     $booking_data= BookingData::where('booking_id', $booking->id)->where('transaction_type', 1)->get();
-//     $customers= Customer::all();
-//     $vehicletypes= Vehicletype::all();
-//     $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
-//     $vehicleTypeMap = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))
-//     ->pluck('vehicletypes', 'id');
-//     $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
-
-//     return view('booker.booking.edit', compact('zohocolumn', 'customers', 'vehicletypes', 'booking',
-//     'booking_data',
-//     'vehicles',
-//     'vehicleTypeMap',
-//     'vehiclesByType'));
-// }

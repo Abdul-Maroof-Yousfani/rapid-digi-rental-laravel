@@ -25,9 +25,9 @@ class Booking extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function invoice(): HasOne
+    public function invoice()
     {
-        return $this->hasOne(Invoice::class, 'booking_id', 'id');
+        return $this->hasMany(Invoice::class, 'booking_id', 'id');
     }
 
     public function customer()

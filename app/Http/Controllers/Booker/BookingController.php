@@ -31,7 +31,7 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $booking= Booking::with('invoice', 'customer')->get();
+        $booking = Booking::with('invoice', 'customer')->orderBy('id', 'desc')->get();
         return view('booker.booking.index', compact('booking'));
     }
 
@@ -70,7 +70,7 @@ class BookingController extends Controller
             foreach ($request->vehicle as $key => $vehicleId) {
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) { continue; }
-                $vehicleName = !empty($vehicle->name) ? $vehicle->name : $vehicle->temp_vehicle_detail;
+                $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
                 if (is_array($description)) { $description = implode(', ', $description); }
                 $lineitems[]= [
@@ -192,7 +192,7 @@ class BookingController extends Controller
             foreach ($request->vehicle as $key => $vehicleId) {
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) { continue; }
-                $vehicleName = !empty($vehicle->name) ? $vehicle->name : $vehicle->temp_vehicle_detail;
+                $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
                 if (is_array($description)) { $description = implode(', ', $description); }
                 $lineitems[]= [

@@ -41,7 +41,7 @@
                                     <div class="form-group">
                                         <label>Customer <span class="text-danger">*</span></label>
                                         <input type="text" value="{{ $booking->customer->customer_name }}" name="customer" class="form-control disableClick" readonly>
-                                        <input type="hidden" value="{{ $booking->id }}" name="booking_id" class="form-control disableClick" readonly>
+                                        <input type="hidden" value="{{ $booking->id }}" name="booking_id" class="form-control disableClick booking_id" readonly>
                                         <input type="hidden" value="{{ $booking->customer->id }}" name="customer_id" class="form-control disableClick" readonly>
                                     </div>
                                 </div>
@@ -52,7 +52,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Notes <span class="text-danger">*</span></label>
+                                        <label>Invoice Notes <span class="text-danger">*</span></label>
                                         <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ old('notes') }}</textarea>
                                     </div>
                                 </div>
@@ -87,33 +87,32 @@
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Type <span class="text-danger">*</span></th>
+                                                    <th>Price (AED) <span class="text-danger">*</span></th>
+                                                    <th>Quantity <span class="text-danger">*</span></th>
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
-                                                    <th>Price (AED)<span class="text-danger">*</span></th>
+                                                    <th>Amount (AED)<span class="text-danger">*</span></th>
                                                     <th><button type="button" class="btn btn-success btn-md" id="addRow">+</button></th>
                                                 </tr>
                                             </thead>
                                             <tbody id="vehicleTableBody">
                                                 <tr>
-                                                    <td>
-                                                        <div class="form-group"><br>
-                                                            <select name="vehicletypes[]"
-                                                                class="form-control select2 vehicletypes" required>
-                                                                <option value="">Select Vehicle type</option>
-                                                                @foreach ($vehicletypes as $vtype)
-                                                                    <option value="{{ $vtype->id }}">{{ $vtype->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
+                                                    <td class="text-truncate"><br>
+                                                        <div class="form-group">
+                                                        <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                                                            <option value="">Select Vehicle type</option>
+                                                            @foreach ($vehicletypes as $vtype)
+                                                                <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                                            @endforeach
+                                                        </select>
                                                         </div>
                                                     </td>
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <select name="vehicle[]" class="form-control select2 vehicle"
-                                                            required>
-                                                                <option value="">Select Vehicle</option>
-                                                            </select>
+                                                        <select name="vehicle[]" class="form-control select2 vehicle" required>
+                                                            <option value="">Select Vehicle</option>
+                                                        </select>
                                                         </div>
                                                     </td>
 
@@ -169,6 +168,16 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
+                                                            <input type="text" value="" name="price[]" class="form-control" >
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="text" value="" name="quantity[]" class="form-control" >
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
                                                             <input type="text" value="" name="discount[]" class="form-control" >
                                                         </div>
                                                     </td>
@@ -181,7 +190,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="price[]" class="form-control"  required>
+                                                            <input type="text" value="" name="amount[]" class="form-control"  required>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -388,6 +397,16 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
+                            <input type="text" value="" name="price[]" class="form-control" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="text" value="" name="quantity[]" class="form-control" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
                             <input type="text" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
@@ -398,7 +417,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control" required>
+                            <input type="text" value="" name="amount[]" class="form-control" required>
                         </div>
                     </td>
 
@@ -474,6 +493,16 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
+                            <input type="text" value="" name="price[]" class="form-control" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="text" value="" name="quantity[]" class="form-control" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
                             <input type="text" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
@@ -484,7 +513,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control" required>
+                            <input type="text" value="" name="amount[]" class="form-control" required>
                         </div>
                     </td>
 
@@ -499,13 +528,14 @@
 
             $(document).on('change', '.vehicletypes', function() {
                 let id = $(this).val();
+                let bookingId = $('.booking_id').val();
                 let $row = $(this).closest('tr');
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
                 $.ajax({
-                    url: '/get-vehicle-by-Type/' + id,
+                    url: '/get-vehicle-by-booking/' + id + '/booking/' + bookingId,
                     type: 'GET',
                     success: function(response) {
                         $vehicleSelect.empty().append(
@@ -558,12 +588,6 @@
                     }
                 });
             });
-
-            // $(document).on('change', '.invoice_type', function() {
-            //     var invoice_type= $(this).val();
-            //     $()
-
-            // });
         });
     </script>
 @endsection

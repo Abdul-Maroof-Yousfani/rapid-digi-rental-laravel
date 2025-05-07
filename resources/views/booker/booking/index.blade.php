@@ -39,11 +39,12 @@
                           @php $number=1; @endphp
                             @foreach ($booking as $item)
                             <tr>
+                                @php $firstInvoice = $item->invoice->first(); @endphp
                                 <td>{{ $number }}.</td>
                                 <td>{{ $item->customer->customer_name ?? 0 }}</td>
-                                <td>{{ $item->invoice->zoho_invoice_number }}</td>
-                                <td>{{ $item->invoice->total_price }}</td>
-                                <td>{{ $item->invoice->type }}</td>
+                                <td>{{ $firstInvoice->zoho_invoice_number }}</td>
+                                <td>{{ $firstInvoice->total_price }}</td>
+                                <td>{{ $firstInvoice->type }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
                                     <a href="{{ url('booker/booking/'. $item->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>

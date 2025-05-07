@@ -24,7 +24,7 @@ class Vehicle extends Model
         'number_plate',
         'status',
     ];
-    
+
     public function investor(): BelongsTo
     {
         return $this->belongsTo(Investor::class, 'investor_id', 'id');

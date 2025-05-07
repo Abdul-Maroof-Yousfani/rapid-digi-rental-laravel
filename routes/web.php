@@ -70,6 +70,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
 
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
 Route::get('get-vehicle-detail/{id}', [AjaxController::class, 'getNoByVehicle'])->name("getNoByVehicle");
+Route::get('get-vehicle-by-booking/{id}/booking/{booking_id}', [AjaxController::class, 'getVehicleAgaistBooking']);
 
 Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->group(function() {
     Route::get('/dashboard', [BookerController::class, 'index'])->name('dashboard')->middleware('permission:view booker dashboard');
@@ -79,6 +80,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('booking/{id}/create-invoice', [InvoiceController::class, 'create'])->name('create.invoice');
     Route::post('booking/{id}/create-invoice', [InvoiceController::class, 'store'])->name('store.invoice');
     Route::get('booking/{id}/edit-invoice', [InvoiceController::class, 'edit'])->name('edit.invoice');
+    Route::put('booking/{id}/update-invoice', [InvoiceController::class, 'update'])->name('update.invoice');
 });
 
 Route::prefix('investor')->as('investor.')->middleware(['auth', 'role:investor', 'permission:view investor dashboard'])->group(function() {
