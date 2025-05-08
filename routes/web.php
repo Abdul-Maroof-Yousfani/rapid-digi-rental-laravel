@@ -66,6 +66,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::post('vehicle/import-csv', [VehicleCrudController::class, 'importCsv'])->middleware('permission:import vehicles CSV');
     Route::resource('vehicle-type', VehicleTypeCrudController::class);
     Route::get('/csv-sample', [VehicleCrudController::class, 'csvSample'])->name('download.sample');
+    Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
 });
 
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
