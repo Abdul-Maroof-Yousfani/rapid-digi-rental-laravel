@@ -184,7 +184,7 @@
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
                                                             <div class="input-group">
-                                                                <input type="text" value="" name="tax[]" class="form-control" >
+                                                                <input type="number" value="" name="tax[]" class="form-control" >
                                                             </div>
                                                         </div>
                                                     </td>
@@ -412,7 +412,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="tax[]" class="form-control" >
+                            <input type="number" value="" name="tax[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -508,7 +508,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="tax[]" class="form-control" >
+                            <input type="number" value="" name="tax[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
