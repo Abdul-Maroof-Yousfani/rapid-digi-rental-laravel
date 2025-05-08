@@ -135,7 +135,7 @@
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
                                                             <textarea name="description[]" class="form-control" id="" cols="60" rows="3">
-                                                                {{ $zohocolumn['invoice']['line_items'][$index]['description'] ?? '' }}
+                                                                
                                                             </textarea>
                                                         </div>
                                                     </td>

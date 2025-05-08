@@ -222,4 +222,9 @@ class InvoiceController extends Controller
             }
         }
     }
+
+    public function destroy(string $id)
+    {
+        
+    }
 }
