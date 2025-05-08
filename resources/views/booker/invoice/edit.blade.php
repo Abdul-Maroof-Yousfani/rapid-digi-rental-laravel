@@ -34,7 +34,7 @@
                                         $customer_id= $invoice->booking->customer->id;
                                         $booking_id= $invoice->booking->id;
                                     @endphp
-                                    <h3>Edit Invoice - {{ $customer_name }}</h3>
+                                    <h3>Edit Invoice - {{ $invoice->zoho_invoice_number }}</h3>
                                 </div>
                             </div>
                         </div>

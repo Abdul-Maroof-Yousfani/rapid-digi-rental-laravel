@@ -130,7 +130,6 @@ class CustomerController extends Controller
             }
 
             $fullDetail= $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
-            // dd($fullDetail);
             $billing = $fullDetail['contact']['billing_address'] ?? [];
             Customer::create([
                 'zoho_customer_id' => $customer['contact_id'],

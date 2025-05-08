@@ -72,8 +72,7 @@ class InvoiceController extends Controller
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
-                    'discount' => $request->discount[$key],
-                    'discount_type' => 'percentage',
+                    'discount' => $request->discount[$key].'%',
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
@@ -174,12 +173,10 @@ class InvoiceController extends Controller
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
-                    'discount' => $request->discount[$key],
-                    'discount_type' => 'percentage',
+                    'discount' => $request->discount[$key].'%',
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
-
             // $invoice= Invoice::where('booking_id', $request->booking_id)->where('id', $id)->first();
             $invoice= Invoice::find($id);
             $invoiceID= $invoice->zoho_invoice_id;
