@@ -173,7 +173,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="price[]" class="form-control"  required>
+                                                            <input type="number" value="" name="price[]" class="form-control"  required>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -380,7 +380,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control" required>
+                            <input type="number" value="" name="price[]" class="form-control" required>
                         </div>
                     </td>
 
@@ -456,7 +456,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control" required>
+                            <input type="number" value="" name="price[]" class="form-control" required>
                         </div>
                     </td>
 

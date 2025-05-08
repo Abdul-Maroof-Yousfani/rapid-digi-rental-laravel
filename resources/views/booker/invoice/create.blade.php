@@ -168,12 +168,12 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="price[]" class="form-control" >
+                                                            <input type="number" value="" name="price[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="quantity[]" class="form-control" >
+                                                            <input type="number" value="" name="quantity[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -190,7 +190,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="amount[]" class="form-control"  required>
+                                                            <input type="number" value="" name="amount[]" class="form-control" disabled>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -397,12 +397,12 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control" >
+                            <input type="number" value="" name="price[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="quantity[]" class="form-control" >
+                            <input type="number" value="" name="quantity[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -417,7 +417,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="amount[]" class="form-control" required>
+                            <input type="number" value="" name="amount[]" class="form-control" disabled>
                         </div>
                     </td>
 
@@ -493,12 +493,12 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control" >
+                            <input type="number" value="" name="price[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="quantity[]" class="form-control" >
+                            <input type="number" value="" name="quantity[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -513,7 +513,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="amount[]" class="form-control" required>
+                            <input type="number" value="" name="amount[]" class="form-control" disabled>
                         </div>
                     </td>
 
