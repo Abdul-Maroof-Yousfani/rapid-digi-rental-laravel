@@ -78,8 +78,7 @@ class BookingController extends Controller
                     'description' => $description,
                     'rate' => (float) $request->price[$key],
                     'quantity' => 1,
-                    'discount' => $request->discount[$key],
-                    'discount_type' => 'parcentage',
+                    'discount' => $request->discount[$key].'%',
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
@@ -151,7 +150,7 @@ class BookingController extends Controller
         }else{
             $invoiceID= Invoice::where('booking_id', $id)->first();
             $zohocolumn = $this->zohoinvoice->getInvoice($invoiceID->zoho_invoice_id);
-            $booking_data= BookingData::where('booking_id', $booking->id)->where('transaction_type', 1)->get();
+            $booking_data= BookingData::where('booking_id', $booking->id)->where('transaction_type', 1)->orderBy('id', 'ASC')->get();
             $customers= Customer::all();
             $vehicletypes= Vehicletype::all();
             $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
@@ -200,7 +199,7 @@ class BookingController extends Controller
                     'description' => $description,
                     'rate' => (float) $request->price[$key],
                     'quantity' => 1,
-                    'discount' => $request->discount[$key],
+                    'discount' => $request->discount[$key].'%',
                     'tax_percentage' => $request->tax[$key],
                 ];
             }

@@ -172,7 +172,11 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="{{ $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '' }}" name="discount[]" class="form-control" >
+                                                            @php
+                                                                $discount = $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '';
+                                                                $discount = str_replace('%', '', $discount);
+                                                            @endphp
+                                                            <input type="text" value="{{ floatval($discount) }}" name="discount[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>

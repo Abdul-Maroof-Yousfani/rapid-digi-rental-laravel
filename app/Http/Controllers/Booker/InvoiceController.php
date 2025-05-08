@@ -121,10 +121,10 @@ class InvoiceController extends Controller
     public function edit(string $id)
     {
         $invoice = Invoice::find($id);
-
         if(!$invoice){
             return redirect()->back()->with('error', 'Invoice not Found');
         }else{
+            // Get Line Items From Zoho and DB
             $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
             $booking_data = BookingData::where('invoice_id', $invoice->id)->where('transaction_type', '!=', 1)->get();
 
@@ -188,16 +188,14 @@ class InvoiceController extends Controller
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
-                    $invoice= Invoice::updateOrCreate(
-                        ['booking_id' => $request->booking_id],
-                        [
+                    $invoice->update([
+                            'booking_id' => $request->booking_id,
                             'zoho_invoice_id' => $zohoInvoiceId,
                             'zoho_invoice_number' => $zohoInvoiceNumber,
                             'type' => 'Booking Invoice',
                             'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                             'status' => 1,
-                        ]
-                    );
+                    ]);
 
                     BookingData::where('booking_id', $request->booking_id)->where('invoice_id', $invoice->id)->forceDelete();
                     foreach ($request->vehicle as $key => $vehicle_id) {

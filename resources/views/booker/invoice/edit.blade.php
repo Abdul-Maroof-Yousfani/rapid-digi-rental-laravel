@@ -46,7 +46,7 @@
                                     <div class="form-group">
                                         <label>Customer <span class="text-danger">*</span></label>
                                         <input type="text" value="{{ $customer_name }}" name="customer" class="form-control disableClick" readonly>
-                                        <input type="hidden" value="{{ $booking_id }}" name="booking_id" class="form-control disableClick" readonly>
+                                        <input type="hidden" value="{{ $booking_id }}" name="booking_id" class="form-control disableClick booking_id" readonly>
                                         <input type="hidden" value="{{ $customer_id }}" name="customer_id" class="form-control disableClick" readonly>
                                     </div>
 
@@ -191,7 +191,11 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="{{ $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '' }}" name="discount[]" class="form-control" >
+                                                            @php
+                                                                $discount = $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '';
+                                                                $discount = str_replace('%', '', $discount);
+                                                            @endphp
+                                                            <input type="text" value="{{ floatval($discount) }}" name="discount[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -544,13 +548,14 @@
 
             $(document).on('change', '.vehicletypes', function() {
                 let id = $(this).val();
+                let booking_id = $('.booking_id').val();
                 let $row = $(this).closest('tr');
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
                 $.ajax({
-                    url: '/get-vehicle-by-booking/' + id,
+                    url: '/get-vehicle-by-booking/' + id +'/booking/'+booking_id,
                     type: 'GET',
                     success: function(response) {
                         $vehicleSelect.empty().append(
