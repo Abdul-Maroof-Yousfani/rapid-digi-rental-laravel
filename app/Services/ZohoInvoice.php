@@ -90,6 +90,36 @@ class ZohoInvoice
         return json_decode($response->getBody(), true);
     }
 
+    public function getAllCustomers()
+    {
+        $accessToken = $this->getAccessToken();
+        $client = new Client();
+        $response = $client->get('https://www.zohoapis.com/invoice/v3/contacts?organization_id=' . $this->orgId, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                'Content-Type'  => 'application/json',
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+        return $data['contacts'] ?? [];
+    }
+
+    public function getCustomerDetail($customerId)
+    {
+        $accessToken= $this->getAccessToken();
+        $client= new Client();
+        $response= $client->get('https://www.zohoapis.com/invoice/v3/contacts/'.$customerId.'?organization_id='. $this->orgId, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken '. $accessToken,
+            ]
+        ]);
+        
+        return json_decode($response->getBody(), true);
+    }
+
     public function updateCustomer($id, $customer_name, $status, $contact_person, $billing_address)
     {
         $accessToken= $this->getAccessToken();

@@ -111,6 +111,37 @@ class CustomerController extends Controller
 
     }
 
+    public function syncCustomersFromZoho()
+    {
+        $contact= $this->zohoinvoice->getAllCustomers();
+        foreach ($contact as $customer) {
+            $exists = Customer::where('zoho_customer_id', $customer['contact_id'])->exists();
+            if ($exists) {
+                continue;
+            }
+
+            $fullDetail= $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
+            $billing= $fullDetail['contact']['billing'] ?? [];
+            Customer::create([
+                'zoho_customer_id' => $customer['contact_id'],
+                'customer_name' => $customer['contact_name'],
+                'email' => $customer['email'] ?? null,
+                'phone' => $customer['phone'] ?? null,
+                'address' => $billing['address'] ?? null,
+                'city' => $billing['city'] ?? null,
+                'state' => $billing['state'] ?? null,
+                'country' => $billing['country'] ?? null,
+                'postal_code' => $billing['zip'] ?? null,
+                'status' => 1,
+                'gender' => null,
+                'cnic' => null,
+                'dob' => null,
+                'licence' => null,
+            ]);
+        }
+        return redirect()->back()->with('success', 'Customers synced successfully with Rapid System.');
+    }
+
     /**
      * Display the specified resource.
      */

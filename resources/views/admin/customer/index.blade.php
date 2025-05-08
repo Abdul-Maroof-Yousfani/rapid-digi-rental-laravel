@@ -11,9 +11,14 @@
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                       <h3 class="mb-0">Customer List</h3>
-                      <a href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}" class="btn btn-primary">
-                        Add Customer
-                      </a>
+                      <span>
+                          <a href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}" class="btn btn-primary">
+                            Add Customer
+                          </a>&nbsp;&nbsp;&nbsp;
+                          <a href="{{ auth()->user()->hasRole('admin') ? route('admin.syncCustomersFromZoho') : route('booker.syncCustomersFromZoho') }}" class="btn btn-primary">
+                            Sync From Zoho
+                          </a>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -47,8 +52,6 @@
                                 <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
                                 <td>
                                     <a href='@can('manage customers') {{ role_base_url("customer/".$item->id."/edit") }} @endcan' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                    {{-- <a href='@can('manage customers') {{ role_base_route("customer.edit", [$item->id]) }} @endcan' class="btn btn-warning">Edit</a> --}}
-
                                     <form action="{{ auth()->user()->hasRole('admin') ? url('admin/customer/'.$item->id) : url('booker/customer/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
