@@ -188,7 +188,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="{{ $item->price }}" name="price[]" class="form-control" >
+                                                            <input type="number" value="{{ $item->price }}" name="price[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td>
@@ -396,7 +396,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control">
+                            <input type="number" value="" name="price[]" class="form-control">
                         </div>
                     </td>
 
@@ -472,7 +472,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="price[]" class="form-control">
+                            <input type="number" value="" name="price[]" class="form-control">
                         </div>
                     </td>
 
