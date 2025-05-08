@@ -195,7 +195,7 @@
                                                                 $discount = $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '';
                                                                 $discount = str_replace('%', '', $discount);
                                                             @endphp
-                                                            <input type="text" value="{{ floatval($discount) }}" name="discount[]" class="form-control" >
+                                                            <input type="number" value="{{ floatval($discount) }}" name="discount[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -426,7 +426,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="discount[]" class="form-control" >
+                            <input type="number" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -523,7 +523,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="discount[]" class="form-control" >
+                            <input type="number" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>

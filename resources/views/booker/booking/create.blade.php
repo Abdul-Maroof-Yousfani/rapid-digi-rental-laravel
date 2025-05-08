@@ -161,7 +161,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="text" value="" name="discount[]" class="form-control" >
+                                                            <input type="number" value="" name="discount[]" class="form-control" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -370,7 +370,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="discount[]" class="form-control" >
+                            <input type="number" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -446,7 +446,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="text" value="" name="discount[]" class="form-control" >
+                            <input type="number" value="" name="discount[]" class="form-control" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
