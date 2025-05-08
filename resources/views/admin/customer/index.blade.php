@@ -15,7 +15,7 @@
                           <a href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}" class="btn btn-primary">
                             Add Customer
                           </a>&nbsp;&nbsp;&nbsp;
-                          <a href="{{ auth()->user()->hasRole('admin') ? route('admin.syncCustomersFromZoho') : route('booker.syncCustomersFromZoho') }}" class="btn btn-primary">
+                          <a href="{{ auth()->user()->hasRole('admin') ? route('admin.syncCustomersFromZoho') : route('booker.syncCustomersFromZoho') }}" class="btn btn-primary {{ $shouldEnableSync ? '' : 'disabled pointer-events-none opacity-50' }}" >
                             Sync From Zoho
                           </a>
                       </span>

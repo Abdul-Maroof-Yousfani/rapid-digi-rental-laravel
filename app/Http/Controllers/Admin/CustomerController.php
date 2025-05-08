@@ -24,8 +24,17 @@ class CustomerController extends Controller
      */
     public function index()
     {
+        $zohoCustomers = $this->zohoinvoice->getAllCustomers();
+        $dbCustomerIds= Customer::pluck('zoho_customer_id')->toArray();
+        $missing= [];
+        foreach ($zohoCustomers as $customer) {
+            if (!in_array($customer['contact_id'], $dbCustomerIds)) {
+                $missing[] = $customer['contact_id'];
+            }
+        }
+        $shouldEnableSync = count($missing) > 0;
         $customers= Customer::all();
-        return view('admin.customer.index', compact('customers'));
+        return view('admin.customer.index', compact('customers', 'shouldEnableSync'));
     }
 
     /**
@@ -121,7 +130,8 @@ class CustomerController extends Controller
             }
 
             $fullDetail= $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
-            $billing= $fullDetail['contact']['billing'] ?? [];
+            // dd($fullDetail);
+            $billing = $fullDetail['contact']['billing_address'] ?? [];
             Customer::create([
                 'zoho_customer_id' => $customer['contact_id'],
                 'customer_name' => $customer['contact_name'],
