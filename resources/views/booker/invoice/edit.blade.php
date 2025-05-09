@@ -97,7 +97,7 @@
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
                                                     <th>Price (AED) <span class="text-danger">*</span></th>
-                                                    <th>Amount (AED)<span class="text-danger">*</span></th>
+                                                    <th>Total</th>
                                                     <th><button type="button" class="btn btn-success btn-md"
                                                             id="addRow">+</button></th>
                                                 </tr>

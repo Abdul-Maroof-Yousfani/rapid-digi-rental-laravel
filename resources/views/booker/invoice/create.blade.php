@@ -88,10 +88,10 @@
                                                     <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Type <span class="text-danger">*</span></th>
                                                     <th>Quantity <span class="text-danger">*</span></th>
-                                                    <th>Discount <span class="text-danger"></span></th>
-                                                    <th>Tax (%) <span class="text-danger"></span></th>
+                                                    <th>Discount (%) </th>
+                                                    <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; </th>
                                                     <th>Price (AED) <span class="text-danger">*</span></th>
-                                                    <th>Amount (AED)<span class="text-danger">*</span></th>
+                                                    <th>Total Amount &nbsp;&nbsp;</th>
                                                     <th><button type="button" class="btn btn-success btn-md" id="addRow">+</button></th>
                                                 </tr>
                                             </thead>
