@@ -43,6 +43,7 @@ class InvoiceController extends Controller
         $validator= Validator::make($request->all(), [
             'customer_id' => 'required',
             'booking_id' => 'required',
+            'invoice_status' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -67,12 +68,14 @@ class InvoiceController extends Controller
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
                 if (is_array($description)) { $description = implode(', ', $description); }
                 $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
+                $discount= null;
+                if(!empty($request->discount[$key])){ $discount= $request->discount[$key].'%'; }
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
-                    'discount' => $request->discount[$key].'%',
+                    'discount' => $discount,
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
@@ -81,6 +84,9 @@ class InvoiceController extends Controller
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
+            if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
+                $this->zohoinvoice->markAsSent($zohoInvoiceId);
+            }
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -88,6 +94,7 @@ class InvoiceController extends Controller
                         'booking_id' => $request->booking_id,
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
+                        'invoice_status' => $request->invoice_status,
                         'type' => 'Booking Invoice',
                         'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
@@ -118,6 +125,11 @@ class InvoiceController extends Controller
         }
     }
 
+    public function updateInvoiceStatus()
+    {
+        return 'status Update';
+    }
+
     public function edit(string $id)
     {
         $invoice = Invoice::find($id);
@@ -144,12 +156,14 @@ class InvoiceController extends Controller
         $validator= Validator::make($request->all(), [
             'customer_id' => 'required',
             'booking_id' => 'required',
+            'invoice_status' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
             'booking_date.*' => 'required',
             'return_date.*' => 'required',
             'quantity.*' => 'required',
+            'invoice_type.*' => 'required',
             'price.*' => 'required',
         ]);
 
@@ -168,12 +182,14 @@ class InvoiceController extends Controller
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
                 if (is_array($description)) { $description = implode(', ', $description); }
                 $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
+                $discount= null;
+                if(!empty($request->discount[$key])){ $discount= $request->discount[$key].'%'; }
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
-                    'discount' => $request->discount[$key].'%',
+                    'discount' => $discount,
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
@@ -221,10 +237,5 @@ class InvoiceController extends Controller
                 return redirect()->back()->withErrors('error', 'Invoice ID Not Fetch')->withInput();
             }
         }
-    }
-
-    public function destroy(string $id)
-    {
-        
     }
 }

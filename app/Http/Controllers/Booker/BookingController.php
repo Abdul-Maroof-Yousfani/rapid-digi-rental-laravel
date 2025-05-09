@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingData;
 use App\Models\Customer;
+use App\Models\Deposit;
 use App\Models\Invoice;
 use App\Models\Vehicle;
 use App\Models\Vehicletype;
@@ -55,6 +56,7 @@ class BookingController extends Controller
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no',
             'deposit_amount' => 'required',
+            'invoice_status' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -89,6 +91,9 @@ class BookingController extends Controller
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
+            if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
+                $this->zohoinvoice->markAsSent($zohoInvoiceId);
+            }
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -102,10 +107,15 @@ class BookingController extends Controller
                         'booking_id' => $booking->id,
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
+                        'invoice_status' => $request->invoice_status,
                         'type' => 'Booking Invoice',
                         'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
-                        'deposit_amount' => $request['deposit_amount'],
+                    ]);
+
+                    Deposit::create([
+                        'booking_id' => $booking->id,
+                        'deposit_amount' => $request->deposit_amount,
                     ]);
 
                     foreach ($request->vehicle as $key => $vehicle_id) {
@@ -132,7 +142,6 @@ class BookingController extends Controller
             }
         }
     }
-
 
 
     /**
@@ -235,9 +244,13 @@ class BookingController extends Controller
                             'type' => 'Booking Invoice',
                             'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                             'status' => 1,
-                            'deposit_amount' => $request['deposit_amount'],
                         ]
                     );
+
+                    Deposit::create([
+                        'booking_id' => $booking->id,
+                        'deposit_amount' => $request->deposit_amount,
+                    ]);
 
                     BookingData::where('booking_id', $booking->id)->where('invoice_id', $invoice->id)->forceDelete();
                     foreach ($request->vehicle as $key => $vehicle_id) {

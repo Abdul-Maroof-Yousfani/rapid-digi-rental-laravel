@@ -29,7 +29,11 @@
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card-body">
                                 <div class="col-md-6">
-                                    <h3>Edit Booking</h3>
+                                    @php $firstInvoice= $booking->invoice->first(); @endphp
+                                    @foreach($booking->invoice as $inv)
+                                        {{ $inv->booking_id }}<br>
+                                    @endforeach
+                                    <h3>Edit Booking  - {{ $firstInvoice->zoho_invoice_number }}</h3>
                                 </div>
                             </div>
                         </div>
@@ -50,7 +54,6 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
-                                        @php $firstInvoice= $booking->invoice->first(); @endphp
                                         <input type="number" value="{{ $firstInvoice->deposit_amount }}" name="deposit_amount" class="form-control" >
                                     </div>
                                 </div>
@@ -63,6 +66,10 @@
                                     <div class="form-group">
                                         <label>Agreement No. <span class="text-danger">*</span></label>
                                         <input type="text" value="{{ $booking->agreement_no }}" name="agreement_no" class="form-control" >
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Reason For Update. <span class="text-danger">*</span></label>
+                                        <input type="text" value="{{ $firstInvoice->invoice_status }}" name="reason" class="form-control" >
                                     </div>
                                 </div>
                             </div>

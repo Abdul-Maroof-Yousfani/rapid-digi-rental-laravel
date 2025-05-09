@@ -11,17 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('invoices', function (Blueprint $table) {
+        Schema::create('deposits', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('booking_id');
             $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('cascade');
-            $table->string('zoho_invoice_id')->nullable();
-            $table->string('zoho_invoice_number')->nullable();
-            $table->enum('invoice_status', ['draft', 'sent'])->default('draft');
-            $table->string('type')->nullable();
-            $table->decimal('total_price', 10, 2)->nullable();
-            $table->string('status')->nullable();
-            $table->softDeletes();
+            $table->integer('deposit_amount')->nullable();
             $table->timestamps();
         });
     }
@@ -31,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('invoices');
+        Schema::dropIfExists('deposits');
     }
 };

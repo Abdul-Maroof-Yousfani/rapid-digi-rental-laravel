@@ -41,12 +41,21 @@
                                 <td>{{ $item->zoho_invoice_number }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
-                                    <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                    <form action="" method="POST" style="display:inline;" class="delete-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
-                                    </form>
+                                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                                        <div class="dropdown w-auto">
+                                            <a href="#" data-toggle="dropdown" class="btn btn-sm btn-success dropdown-toggle">Status</a>
+                                            <div class="dropdown-menu">
+                                                <a href="#" class="dropdown-item has-icon"><i class="fas fa-file-alt"></i> Draft</a>
+                                                <a href="#" class="dropdown-item has-icon"><i class="fas fa-paper-plane"></i> Sent</a>
+                                            </div>
+                                        </div>&nbsp;&nbsp;&nbsp;
+                                        <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a> &nbsp;&nbsp;&nbsp;
+                                        <form action="" method="POST" style="display:inline;" class="delete-form">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
 

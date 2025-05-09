@@ -84,6 +84,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('booking/{invoice_id}/edit-invoice', [InvoiceController::class, 'edit'])->name('edit.invoice');
     Route::put('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'update'])->name('update.invoice');
     Route::delete('booking/{invoice_id}/delete-invoice', [InvoiceController::class, 'destroy'])->name('destroy.invoice');
+    Route::patch('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'updateInvoiceStatus'])->name('update.status');
 });
 
 Route::prefix('investor')->as('investor.')->middleware(['auth', 'role:investor', 'permission:view investor dashboard'])->group(function() {

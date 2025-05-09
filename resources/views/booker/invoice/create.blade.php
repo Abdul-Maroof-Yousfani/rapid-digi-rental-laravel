@@ -52,8 +52,12 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Invoice Notes <span class="text-danger">*</span></label>
-                                        <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ old('notes') }}</textarea>
+                                        <label>Payment Status <span class="text-danger">*</span></label>
+                                        <select name="invoice_status" class="form-control" required>
+                                            <option value="">Select Status</option>
+                                            <option value="draft">Unpaid</option>
+                                            <option value="sent">Paid</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -99,12 +103,12 @@
                                                 <tr>
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                        <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
-                                                            <option value="">Select Vehicle type</option>
-                                                            @foreach ($vehicletypes as $vtype)
-                                                                <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
-                                                            @endforeach
-                                                        </select>
+                                                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                                                                <option value="">Select Vehicle type</option>
+                                                                @foreach ($vehicletypes as $vtype)
+                                                                    <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
                                                     </td>
 
@@ -186,7 +190,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                                            <input type="number" value="" name="amount[]" class="form-control disableClick amount" disabled>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -200,6 +204,15 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-12 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label>Invoice Notes <span class="text-danger">*</span></label>
+                                <textarea name="notes" cols="30" class="form-control" rows="20" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}
+                                </textarea>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">

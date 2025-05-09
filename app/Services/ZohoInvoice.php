@@ -159,6 +159,36 @@ class ZohoInvoice
         ]);
     }
 
+    public function markAsDraft($invoiceID)
+    {
+        $accessToken= $this->getAccessToken();
+        $client= new Client();
+        $response= $client->post('https://www.zohoapis.com/invoice/v3/invoices/'.$invoiceID.'/status/draft', [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken '. $accessToken,
+                'X-com-zoho-invoice-organizationid' => $this->orgId
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true);
+    }
+
+    public function markAsSent($invoiceID)
+    {
+        $accessToken= $this->getAccessToken();
+        $client= new Client();
+        $response= $client->post('https://www.zohoapis.com/invoice/v3/invoices/'.$invoiceID.'/status/sent', [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken '. $accessToken,
+                'X-com-zoho-invoice-organizationid' => $this->orgId
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true);
+    }
+
     public function createInvoice($customerId, $notes, $currency_code, $lineitems)
     {
         $accessToken = $this->getAccessToken();
