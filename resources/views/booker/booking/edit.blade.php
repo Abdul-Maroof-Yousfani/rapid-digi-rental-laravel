@@ -376,7 +376,7 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
+                            <input type="date" value="" name="booking_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -452,7 +452,7 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
+                            <input type="date" value="" name="booking_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>

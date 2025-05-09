@@ -148,15 +148,13 @@
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
                                                             <input type="date" value="" name="booking_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD"
-                                                                min="{{ date('Y-m-d') }}" required>
+                                                                class="form-control datemask" placeholder="YYYY/MM/DD" required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
                                                             <input type="date" value="" name="return_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD"
-                                                                min="{{ date('Y-m-d') }}" required>
+                                                                class="form-control datemask" placeholder="YYYY/MM/DD" required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -360,12 +358,12 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -436,14 +434,15 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" min="{{ date('Y-m-d') }}" required>
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
+
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <input type="number" value="" name="discount[]" class="form-control" >
