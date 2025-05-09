@@ -93,10 +93,10 @@
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Type <span class="text-danger">*</span></th>
-                                                    <th>Price (AED) <span class="text-danger">*</span></th>
                                                     <th>Quantity <span class="text-danger">*</span></th>
                                                     <th>Discount <span class="text-danger"></span></th>
                                                     <th>Tax (%) <span class="text-danger"></span></th>
+                                                    <th>Price (AED) <span class="text-danger">*</span></th>
                                                     <th>Amount (AED)<span class="text-danger">*</span></th>
                                                     <th><button type="button" class="btn btn-success btn-md"
                                                             id="addRow">+</button></th>
@@ -135,7 +135,7 @@
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
                                                             <textarea name="description[]" class="form-control" id="" cols="60" rows="3">
-                                                                
+
                                                             </textarea>
                                                         </div>
                                                     </td>
@@ -181,12 +181,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="number" value="{{ $item->price }}" name="price[]" class="form-control" >
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="number" value="{{ $zohocolumn['invoice']['line_items'][$index]['quantity'] ?? '' }}" name="quantity[]" class="form-control" >
+                                                            <input type="number" value="{{ $zohocolumn['invoice']['line_items'][$index]['quantity'] ?? '' }}" name="quantity[]" class="form-control quantity" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -195,19 +190,22 @@
                                                                 $discount = $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '';
                                                                 $discount = str_replace('%', '', $discount);
                                                             @endphp
-                                                            <input type="number" value="{{ floatval($discount) }}" name="discount[]" class="form-control" >
+                                                            <input type="number" value="{{ floatval($discount) }}" name="discount[]" class="form-control discount" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <div class="input-group">
-                                                                <input type="number" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" name="tax[]" class="form-control" >
-                                                            </div>
+                                                            <input type="number" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" name="tax[]" class="form-control tax" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="number" value="" name="amount[]" class="form-control" disabled>
+                                                            <input type="number" value="{{ $item->price }}" name="price[]" class="form-control price" >
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="number" value="" name="amount[]" class="form-control amount" disabled>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -416,27 +414,27 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="price[]" class="form-control" >
+                            <input type="number" value="" name="quantity[]" class="form-control quantity" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="quantity[]" class="form-control" >
+                            <input type="number" value="" name="discount[]" class="form-control discount" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="discount[]" class="form-control" >
+                            <input type="number" value="" name="tax[]" class="form-control tax" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="tax[]" class="form-control" >
+                            <input type="number" value="" name="price[]" class="form-control price" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="amount[]" class="form-control" disabled>
+                            <input type="number" value="" name="amount[]" class="form-control amount" disabled>
                         </div>
                     </td>
 
@@ -513,27 +511,27 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="price[]" class="form-control" >
+                            <input type="number" value="" name="quantity[]" class="form-control quantity" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="quantity[]" class="form-control" >
+                            <input type="number" value="" name="discount[]" class="form-control discount" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="discount[]" class="form-control" >
+                            <input type="number" value="" name="tax[]" class="form-control tax" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="tax[]" class="form-control" >
+                            <input type="number" value="" name="price[]" class="form-control price" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="amount[]" class="form-control" disabled>
+                            <input type="number" value="" name="amount[]" class="form-control amount" disabled>
                         </div>
                     </td>
 
@@ -608,6 +606,22 @@
                     }
                 });
             });
+
+            $(document).on('change', '.price, .quantity, .discount, .tax', function(){
+                var row = $(this).closest('tr');
+                var price = parseFloat(row.find('.price').val()) || null;
+                var qty = parseFloat(row.find('.quantity').val()) || null;
+                var discount = parseFloat(row.find('.discount').val()) || null;
+                var tax = parseFloat(row.find('.tax').val()) || null;
+                var subtotal = price*qty;
+
+                var discountAmount= (discount/100) * subtotal;
+                var taxAmount= (tax/100) * subtotal;
+                var lessDiscount= subtotal - discountAmount;
+                var total= lessDiscount + taxAmount;
+                row.find('.amount').val(total);
+            });
+
         });
     </script>
 @endsection
