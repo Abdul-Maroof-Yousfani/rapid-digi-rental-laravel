@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('cascade');
             $table->string('zoho_invoice_id')->nullable();
             $table->string('zoho_invoice_number')->nullable();
+            $table->integer('deposit_amount')->nullable();
             $table->string('type')->nullable();
             $table->decimal('total_price', 10, 2)->nullable();
             $table->string('status')->nullable();

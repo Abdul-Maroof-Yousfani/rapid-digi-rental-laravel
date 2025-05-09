@@ -48,7 +48,11 @@
                                         </select>
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
-
+                                    <div class="form-group">
+                                        <label>Deposit Amount <span class="text-danger">*</span></label>
+                                        @php $firstInvoice= $booking->invoice->first(); @endphp
+                                        <input type="number" value="{{ $firstInvoice->deposit_amount }}" name="deposit_amount" class="form-control" >
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -57,8 +61,8 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Invoice Notes <span class="text-danger">*</span></label>
-                                        <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ $booking->notes }}</textarea>
+                                        <label>Agreement No. <span class="text-danger">*</span></label>
+                                        <input type="text" value="{{ $booking->agreement_no }}" name="agreement_no" class="form-control" >
                                     </div>
                                 </div>
                             </div>
@@ -207,6 +211,13 @@
                                         </table>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label>Invoice Notes <span class="text-danger">*</span></label>
+                                <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ $booking->notes }}</textarea>
                             </div>
                         </div>
                     </div>

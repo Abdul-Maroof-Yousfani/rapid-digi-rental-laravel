@@ -18,7 +18,8 @@ class Invoice extends Model
         'zoho_invoice_number',
         'type',
         'total_price',
-        'status'
+        'status',
+        'deposit_amount'
     ];
 
     /**
