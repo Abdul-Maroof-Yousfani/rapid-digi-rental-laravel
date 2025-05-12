@@ -61,7 +61,18 @@ class InvoiceController extends Controller
             $currency_code= "AED";
             $lineitems= [];
             $invoiceTypes = [ 2 => 'Renew', 3 => 'Fine', 4 => 'Salik', ];
+            $allTaxResponses= [];
             foreach ($request->vehicle as $key => $vehicleId) {
+                $taxID= '';
+                if(isset($request->tax[$key])){
+                    $tax= [
+                        "tax_name" => 'Qwat_'.uniqid(),
+                        "tax_percentage" => 10.5,
+                    ];
+                    $taxResponse= $this->zohoinvoice->taxCreate($tax);
+                    $taxID= $taxResponse['tax']['tax_id'] ?? null;
+                    $allTaxResponses[] = $taxResponse;
+                }
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) { continue; }
                 $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
@@ -76,7 +87,8 @@ class InvoiceController extends Controller
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
                     'discount' => $discount,
-                    'tax_percentage' => $request->tax[$key],
+                    'tax_id' => $taxID,
+                    // 'tax_percentage' => $request->tax[$key],
                 ];
             }
             $customerId=  $request->customer_id;

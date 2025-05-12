@@ -49,6 +49,7 @@ class ZohoInvoice
         return $data['access_token'];
     }
 
+    // Customer Manage Functions Zoho
     public function searchCustomer($email, $phone)
     {
         $accessToken = $this->getAccessToken();
@@ -159,6 +160,7 @@ class ZohoInvoice
         ]);
     }
 
+    // Invoice Status Manage Functions Zoho
     public function markAsDraft($invoiceID)
     {
         $accessToken= $this->getAccessToken();
@@ -189,6 +191,7 @@ class ZohoInvoice
         return json_decode($response->getBody(), true);
     }
 
+    // Invoice Manage Functions Zoho
     public function createInvoice($customerId, $notes, $currency_code, $lineitems)
     {
         $accessToken = $this->getAccessToken();
@@ -224,30 +227,6 @@ class ZohoInvoice
         return json_decode($response->getBody(), true);
     }
 
-    // public function updateInvoice($invoiceID, $customerId, $notes, $currency_code, $lineitems)
-    // {
-    //     $accessToken= $this->getAccessToken();
-    //     $client= new Client();
-    //     $customer= Customer::select('zoho_customer_id')->where('id', $customerId)->first();
-    //     $response= $client->put('https://www.zohoapis.com/invoice/v3/invoices/'.$invoiceID, [
-    //         'verify' => false,
-    //         'headers' => [
-    //             'Authorization' => 'Zoho-oauthtoken '. $accessToken,
-    //             'X-com-zoho-invoice-organizationid' => $this->orgId,
-    //             'content-type' => 'application/json',
-    //         ],
-    //         'json' => [
-    //             'customer_id' => $customer->zoho_customer_id,
-    //             'notes' => $notes,
-    //             'currency_code' => $currency_code,
-    //             'line_items' => $lineitems
-    //         ]
-    //     ]);
-
-    //     // dd(json_decode($response->getBody(), true));
-    //     return json_decode($response->getBody(), true);
-    // }
-
     public function updateInvoice($invoiceID,$json)
     {
         $accessToken= $this->getAccessToken();
@@ -261,8 +240,6 @@ class ZohoInvoice
             ],
             'json' => $json
         ]);
-
-        // dd(json_decode($response->getBody(), true));
         return json_decode($response->getBody(), true);
     }
 
@@ -280,10 +257,28 @@ class ZohoInvoice
         return json_decode($response->getBody(), true);
     }
 
+    // Tax Manage Functions Zoho 
     public function getZohoTaxList($id)
     {
         $accessToken= $this->getAccessToken();
 
+    }
+
+    public function taxCreate($tax)
+    {
+        $accessToken= $this->getAccessToken();
+        $client= new Client();
+        $response= $client->post('https://www.zohoapis.com/invoice/v3/settings/taxes',[
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken '.'1000.49614085541dc3de8f0ff163b97d5fd9.ebd8422fc81c91e9ec459f247ebba4d1',
+                'X-com-zoho-invoice-organizationid' => $this->orgId,
+                'content-type' => 'application/json', 
+            ],
+            'json' => $tax
+        ]);
+
+        return json_decode($response->getBody(), true);
     }
 
 

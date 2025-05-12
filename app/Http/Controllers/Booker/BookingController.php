@@ -72,6 +72,16 @@ class BookingController extends Controller
             $currency_code= "AED";
             $lineitems= [];
             foreach ($request->vehicle as $key => $vehicleId) {
+                $taxID= '';
+                if(isset($request->tax[$key])){
+                    $tax= [
+                        "tax_name" => 'asd',
+                        "tax_percentage" => 10.5,
+                    ];
+                    $taxResponse= $this->zohoinvoice->taxCreate($tax);
+                    $taxID= $taxResponse['tax']['tax_id'] ?? null;
+                    dd($taxResponse);
+                }
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) { continue; }
                 $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
@@ -83,7 +93,8 @@ class BookingController extends Controller
                     'rate' => (float) $request->price[$key],
                     'quantity' => 1,
                     'discount' => $request->discount[$key].'%',
-                    'tax_percentage' => $request->tax[$key],
+                    'tax_id' => $taxID,
+                    // 'tax_percentage' => $request->tax[$key],
                 ];
             }
             $customerId=  $request->customer_id;
