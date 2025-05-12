@@ -54,7 +54,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
-                                        <input type="number" value="{{ $firstInvoice->deposit_amount }}" name="deposit_amount" class="form-control" >
+                                        <input type="number" value="{{ $booking->deposit->deposit_amount ?? null }}" name="deposit_amount" class="form-control" >
                                     </div>
                                 </div>
                             </div>
@@ -67,10 +67,12 @@
                                         <label>Agreement No. <span class="text-danger">*</span></label>
                                         <input type="text" value="{{ $booking->agreement_no }}" name="agreement_no" class="form-control" >
                                     </div>
-                                    <div class="form-group">
-                                        <label>Reason For Update. <span class="text-danger">*</span></label>
-                                        <input type="text" value="{{ $firstInvoice->invoice_status }}" name="reason" class="form-control" >
-                                    </div>
+                                    @if ($firstInvoice->invoice_status=='sent')
+                                        <div class="form-group">
+                                            <label>Reason For Update. <span class="text-danger">*</span></label>
+                                            <input type="text" value="" name="reason" class="form-control" >
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -220,7 +222,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="form-group">
                                 <label>Invoice Notes <span class="text-danger">*</span></label>

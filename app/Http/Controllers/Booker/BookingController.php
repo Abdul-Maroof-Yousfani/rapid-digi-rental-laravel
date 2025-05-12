@@ -184,9 +184,9 @@ class BookingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validator= Validator::make($request->all(), [
+        $rules = [
             'customer_id' => 'required',
-            'agreement_no' => 'required|unique:bookings,agreement_no,'.$id,
+            'agreement_no' => 'required|unique:bookings,agreement_no,' . $id,
             'deposit_amount' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
@@ -194,8 +194,12 @@ class BookingController extends Controller
             'booking_date.*' => 'required',
             'return_date.*' => 'required',
             'price.*' => 'required',
-        ]);
-
+        ];
+        $invoice = Invoice::where('booking_id', $id)->first();
+        if ($invoice && $invoice->invoice_status === 'sent') {
+            $rules['reason'] = 'required';
+        }
+        $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
@@ -218,11 +222,17 @@ class BookingController extends Controller
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
-
-            $invoice= Invoice::where('booking_id', $id)->first();
             $invoiceID= $invoice->zoho_invoice_id;
             $customerId=  $request->customer_id;
-            $invoiceResponse = $this->zohoinvoice->updateInvoice($invoiceID, $customerId, $notes, $currency_code, $lineitems);
+            $customer= Customer::select('zoho_customer_id')->where('id', $customerId)->first();
+            $json= [
+                'customer_id' => $customer->zoho_customer_id,
+                'notes' => $notes,
+                'currency_code' => $currency_code,
+                'line_items' => $lineitems,
+                'reason' => $request->reason,
+            ];
+            $invoiceResponse = $this->zohoinvoice->updateInvoice($invoiceID, $json);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
@@ -247,10 +257,12 @@ class BookingController extends Controller
                         ]
                     );
 
-                    Deposit::create([
-                        'booking_id' => $booking->id,
-                        'deposit_amount' => $request->deposit_amount,
-                    ]);
+                    Deposit::updateOrCreate(
+                        ['booking_id' => $booking->id],
+                        [
+                            'deposit_amount' => $request->deposit_amount,
+                        ]
+                    );
 
                     BookingData::where('booking_id', $booking->id)->where('invoice_id', $invoice->id)->forceDelete();
                     foreach ($request->vehicle as $key => $vehicle_id) {

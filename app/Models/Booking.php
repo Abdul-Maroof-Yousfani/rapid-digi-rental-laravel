@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use App\Models\Invoice;
 use App\Models\BookingData;
+use App\Models\Deposit;
+use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Booking extends Model
 {
@@ -34,6 +35,11 @@ class Booking extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
+    }
+
+    public function deposit()
+    {
+        return $this->belongsTo(Deposit::class, 'customer_id', 'id');
     }
 
 }
