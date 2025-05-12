@@ -28,9 +28,8 @@
                           <tr>
                             <th>S.no</th>
                             <th>Customer</th>
-                            <th>Invoice No</th>
+                            <th>Deposit Amount</th>
                             <th>Total Price</th>
-                            <th>Invoice Type</th>
                             <th>Date</th>
                             <th>Action</th>
                           </tr>
@@ -42,9 +41,8 @@
                                 @php $firstInvoice = $item->invoice->first(); @endphp
                                 <td>{{ $number }}.</td>
                                 <td>{{ $item->customer->customer_name ?? 0 }}</td>
-                                <td>{{ $firstInvoice->zoho_invoice_number }}</td>
+                                <td>{{ $item->deposit->deposit_amount ?? 0 }}</td>
                                 <td>{{ $firstInvoice->total_price }}</td>
-                                <td>{{ $firstInvoice->type }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
                                     <a href="{{ url('booker/booking/'. $item->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>

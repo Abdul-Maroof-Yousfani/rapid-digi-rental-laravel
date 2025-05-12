@@ -39,7 +39,7 @@ class Booking extends Model
 
     public function deposit()
     {
-        return $this->belongsTo(Deposit::class, 'customer_id', 'id');
+        return $this->hasOne(Deposit::class, 'booking_id', 'id');
     }
 
 }

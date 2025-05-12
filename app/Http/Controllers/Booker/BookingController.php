@@ -32,7 +32,7 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $booking = Booking::with('invoice', 'customer')->orderBy('id', 'desc')->get();
+        $booking = Booking::with('invoice', 'customer', 'deposit')->orderBy('id', 'desc')->get();
         return view('booker.booking.index', compact('booking'));
     }
 
@@ -108,7 +108,6 @@ class BookingController extends Controller
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
                         'invoice_status' => $request->invoice_status,
-                        'type' => 'Booking Invoice',
                         'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
                     ]);
@@ -251,7 +250,6 @@ class BookingController extends Controller
                         [
                             'zoho_invoice_id' => $zohoInvoiceId,
                             'zoho_invoice_number' => $zohoInvoiceNumber,
-                            'type' => 'Booking Invoice',
                             'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
                             'status' => 1,
                         ]

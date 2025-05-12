@@ -54,16 +54,18 @@
                             </div>
                         </div>
 
+                        @if ($invoice->invoice_status=='sent')
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
                                 <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Reason For Update. <span class="text-danger">*</span></label>
-                                        <input type="text" value="{{ $invoice->invoice_status }}" name="reason" class="form-control" >
+                                        <div class="form-group">
+                                            <label>Reason For Update. <span class="text-danger">*</span></label>
+                                            <input type="text" value="" name="reason" class="form-control" required>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
 
                         <div class="col-12">
                             <div class="card">
@@ -94,10 +96,10 @@
                                                     <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Type <span class="text-danger">*</span></th>
                                                     <th>Quantity <span class="text-danger">*</span></th>
-                                                    <th>Discount <span class="text-danger"></span></th>
-                                                    <th>Tax (%) <span class="text-danger"></span></th>
-                                                    <th>Price (AED) <span class="text-danger">*</span></th>
-                                                    <th>Total</th>
+                                                    <th>Discount (%) <span class="text-danger"></span></th>
+                                                    <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-danger"></span></th>
+                                                    <th>Price (AED)<span class="text-danger">*</span></th>
+                                                    <th>Total Amount &nbsp;&nbsp;</th>
                                                     <th><button type="button" class="btn btn-success btn-md"
                                                             id="addRow">+</button></th>
                                                 </tr>

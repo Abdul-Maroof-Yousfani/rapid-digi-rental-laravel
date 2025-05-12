@@ -26,39 +26,36 @@
                       <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
                         <thead>
                           <tr>
+                            <th>S. No</th>
                             <th>Invoice No</th>
                             <th>Total Price</th>
-                            <th>Type</th>
                             <th>Date</th>
                             <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
+                            @php $number=1; @endphp
                             @foreach ($invoice as $item)
                             <tr>
+                                <td>{{ $number }}.</td>
                                 <td>{{ $item->zoho_invoice_number }}</td>
                                 <td>{{ $item->total_price }}</td>
-                                <td>{{ $item->zoho_invoice_number }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-1 flex-wrap">
-                                        <div class="dropdown w-auto">
-                                            <a href="#" data-toggle="dropdown" class="btn btn-sm btn-success dropdown-toggle">Status</a>
-                                            <div class="dropdown-menu">
-                                                <a href="#" class="dropdown-item has-icon"><i class="fas fa-file-alt"></i> Draft</a>
-                                                <a href="#" class="dropdown-item has-icon"><i class="fas fa-paper-plane"></i> Sent</a>
-                                            </div>
-                                        </div>&nbsp;&nbsp;&nbsp;
-                                        <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a> &nbsp;&nbsp;&nbsp;
-                                        <form action="" method="POST" style="display:inline;" class="delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
-                                        </form>
-                                    </div>
+                                    <form action="{{ url('booker/invoice/'.$item->id.'/status') }}" method="POST" class="status-form" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="status" value="sent">
+                                        <button {{ $item->invoice_status == 'sent' ? 'disabled' : '' }} class="btn btn-sm btn-success status-confirm"> <i class="fas fa-paper-plane"></i> Send </button>
+                                    </form>
+                                    <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                                    <form action="" method="POST" style="display:inline;" class="delete-form">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                                    </form>
                                 </td>
                             </tr>
-
+                            @php $number++; @endphp
                             @endforeach
                         </tbody>
                       </table>
@@ -189,6 +186,31 @@
               });
           });
       });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+          const deleteButtons = document.querySelectorAll('.status-confirm');
+          deleteButtons.forEach(button => {
+              button.addEventListener('click', function (e) {
+                  e.preventDefault(); // Stop form submit
+                  const form = this.closest('form');
+                  Swal.fire({
+                      title: 'Are you sure?',
+                      text: "You won't be able to revert this!",
+                      icon: 'success',
+                      showCancelButton: true,
+                      confirmButtonColor: '#28a745',
+                      cancelButtonColor: '#3085d6',
+                      confirmButtonText: 'Yes, Send It!'
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                          form.submit();
+                      }
+                  });
+              });
+          });
+      });
+
   </script>
 
 @endsection

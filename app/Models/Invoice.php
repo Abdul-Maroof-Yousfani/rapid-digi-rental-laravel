@@ -17,7 +17,6 @@ class Invoice extends Model
         'zoho_invoice_id',
         'zoho_invoice_number',
         'invoice_status',
-        'type',
         'total_price',
         'status',
         'deposit_amount'
