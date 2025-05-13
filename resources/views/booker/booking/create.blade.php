@@ -211,7 +211,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
                             <input type="submit" value="Create Booking" id="submitBtn"
@@ -518,8 +518,10 @@
                         $vehicleSelect.empty().append(
                             '<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
+                            desable= '';
+                            if(vehicle.status==0){ desable= 'disabled'; }
                             $vehicleSelect.append(
-                                '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
+                                '<option '+desable+' value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
                                 (vehicle.temp_vehicle_detail ?? vehicle
                                     .vehicle_name) +
                                 '</option>'
