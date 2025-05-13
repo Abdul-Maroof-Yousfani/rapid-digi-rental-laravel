@@ -133,6 +133,20 @@
                                 <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.index') }}">Vehicle Type list</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.vehicle.create') }}">Add Vehicle</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.vehicle.index') }}">Vehicle list</a></li>
+                                <li><a class="nav-link" href="">Add Vehicle Status</a></li>
+                                <li><a class="nav-link" href="">Vehicle Status list</a></li>
+                            </ul>
+                        </li>
+                        @endcan
+                        @can('manage sale person')
+                        <li class="dropdown">
+                            <a href="#" class="menu-toggle nav-link has-dropdown">
+                                <i class="fas fa-user-tie" style="width: 16px; margin-right: 8px; text-align: left;"></i>
+                                <span>Sale Person</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="">Add Sale Person</a></li>
+                                <li><a class="nav-link" href="">Sale Person list</a></li>
                             </ul>
                         </li>
                         @endcan

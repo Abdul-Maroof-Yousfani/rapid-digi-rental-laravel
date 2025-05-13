@@ -51,7 +51,7 @@
                                     <form action="" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>Delete</button>
                                     </form>
                                 </td>
                             </tr>

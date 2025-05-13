@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\Booker;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Invoice;
 use App\Models\Booking;
+use App\Models\BookingData;
+use App\Models\Customer;
+use App\Models\Deposit;
+use App\Models\Invoice;
 use App\Models\Vehicle;
 use App\Models\Vehicletype;
-use App\Models\Customer;
 use App\Services\ZohoInvoice;
-use App\Models\BookingData;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class InvoiceController extends Controller
 {
@@ -61,18 +62,7 @@ class InvoiceController extends Controller
             $currency_code= "AED";
             $lineitems= [];
             $invoiceTypes = [ 2 => 'Renew', 3 => 'Fine', 4 => 'Salik', ];
-            $allTaxResponses= [];
             foreach ($request->vehicle as $key => $vehicleId) {
-                $taxID= '';
-                if(isset($request->tax[$key])){
-                    $tax= [
-                        "tax_name" => 'Qwat_'.uniqid(),
-                        "tax_percentage" => 10.5,
-                    ];
-                    $taxResponse= $this->zohoinvoice->taxCreate($tax);
-                    $taxID= $taxResponse['tax']['tax_id'] ?? null;
-                    $allTaxResponses[] = $taxResponse;
-                }
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) { continue; }
                 $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
@@ -87,7 +77,6 @@ class InvoiceController extends Controller
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
                     'discount' => $discount,
-                    'tax_id' => $taxID,
                     // 'tax_percentage' => $request->tax[$key],
                 ];
             }
@@ -144,10 +133,13 @@ class InvoiceController extends Controller
         }else{
             $invoiceID= $invoice->zoho_invoice_id;
             try {
-                $this->zohoinvoice->markAsSent($invoiceID);
-                $invoice->update([
-                    'invoice_status' => $request->status
-                ]);
+                // $this->zohoinvoice->markAsSent($invoiceID);
+                $invoice->update([ 'invoice_status' => $request->status ]);
+                if($invoice->invoice_status=='sent'){
+                    $booking_id= $invoice->booking_id;
+                    $customer_id= $invoice->booking->customer_id;
+                    $deposit= Deposit::where('booking_id', $booking_id)->first();
+                }
                 return redirect()->back()->with('success', 'Invoice no #'.$invoice->zoho_invoice_number.' Sent Successfully!');
             } catch (\GuzzleHttp\Exception\ClientException $exp) {
                 $response = $exp->getResponse();
@@ -193,12 +185,6 @@ class InvoiceController extends Controller
             'invoice_type.*' => 'required',
             'price.*' => 'required',
         ];
-
-
-        $invoice= Invoice::find($id);
-        if ($invoice && $invoice->invoice_status === 'sent') {
-            $rules['reason'] = 'required';
-        }
         $validator= Validator::make($request->all(),$rules);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
@@ -227,6 +213,7 @@ class InvoiceController extends Controller
                 ];
             }
             // $invoice= Invoice::where('booking_id', $request->booking_id)->where('id', $id)->first();
+            $invoice= Invoice::find($id);
             $invoiceID= $invoice->zoho_invoice_id;
             $customerId=  $request->customer_id;
             $customer= Customer::select('zoho_customer_id')->where('id', $customerId)->first();

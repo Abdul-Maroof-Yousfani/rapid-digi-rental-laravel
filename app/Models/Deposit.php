@@ -16,7 +16,7 @@ class Deposit extends Model
         'deposit_amount',
     ];
 
- 
+
     /**
      * Get the booking that owns the Deposit
      *
