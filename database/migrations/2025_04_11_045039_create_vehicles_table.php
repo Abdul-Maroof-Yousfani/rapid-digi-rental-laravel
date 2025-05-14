@@ -22,8 +22,9 @@ return new class extends Migration
             $table->string('car_make')->nullable();
             $table->string('year')->nullable();
             $table->string('number_plate')->unique();
-            $table->enum('booking_status', [1, 0])->nullable();
             $table->enum('status', [1, 0])->nullable()->default(1);
+            $table->unsignedBigInteger('vehicle_status_id')->nullable();
+            $table->foreign('vehicle_status_id')->references('id')->on('vehiclestatuses')->onDelete('set null');
             $table->timestamps();
         });
     }

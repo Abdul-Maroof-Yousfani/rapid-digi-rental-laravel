@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\VehicleStatus;
+use App\Models\Vehicle;
+use App\Models\Vehiclestatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +16,7 @@ class VehiclestatusController extends Controller
      */
     public function index()
     {
-        $status= VehicleStatus::all();
+        $status= Vehiclestatus::all();
         return view('admin.vehicle.status.index', compact('status'));
     }
 
@@ -40,7 +41,7 @@ class VehiclestatusController extends Controller
         }else{
             try {
                 DB::beginTransaction();
-                VehicleStatus::create([
+                Vehiclestatus::create([
                     'name' => $request->name,
                 ]);
                 return redirect()->route('admin.vehicle-status.index')->with('success', 'Status Added Successfully!');
@@ -65,7 +66,7 @@ class VehiclestatusController extends Controller
      */
     public function edit(string $id)
     {
-        $status= VehicleStatus::find($id);
+        $status= Vehiclestatus::find($id);
         if(!$status){
             return redirect()->route('admin.vehicle-status.index')->with('error', 'Status Not Found');
         }
@@ -85,7 +86,7 @@ class VehiclestatusController extends Controller
         }else{
             try {
                 DB::beginTransaction();
-                $status= VehicleStatus::find($id);
+                $status= Vehiclestatus::find($id);
                 $status->update([
                     'name' => $request->name,
                 ]);
@@ -103,12 +104,38 @@ class VehiclestatusController extends Controller
      */
     public function destroy(string $id)
     {
-        $status= VehicleStatus::find($id);
+        $status= Vehiclestatus::find($id);
         if(!$status){
             return redirect()->back()->with('error', 'Status Not Found');
         }else{
             $status->delete();
             return redirect()->back()->with('success', 'Status Deleted Successfully!');
         }
+    }
+
+    public function StatusForm(){
+        $status= Vehiclestatus::all();
+        $vehicle= Vehicle::all();
+        return view('booker.assignstatus.create', compact('status', 'vehicle'));
+    }
+
+    public function assignStatus(Request $request)
+    {
+        $vehicle= Vehicle::find($request->vehicle_id);
+        if($vehicle){
+            $status= Vehiclestatus::find($request->status);
+            $vehicle->update([
+                'vehicle_status_id' => $request->status
+            ]);
+            return redirect()->back()->with('success', 'Vehicle Status is '. $status->name);
+        }
+    }
+
+    public function viewAssinedVehicle()
+    {
+        $vehicles = Vehicle::with('vehiclestatus')
+            ->whereNotNull('vehicle_status_id')
+            ->get();
+        return view('booker.assignstatus.index', compact('vehicles'));
     }
 }

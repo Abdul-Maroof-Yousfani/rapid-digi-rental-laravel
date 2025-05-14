@@ -86,9 +86,13 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('booking/{invoice_id}/edit-invoice', [InvoiceController::class, 'edit'])->name('edit.invoice');
     Route::put('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'update'])->name('update.invoice');
     Route::delete('booking/{invoice_id}/delete-invoice', [InvoiceController::class, 'destroy'])->name('destroy.invoice');
-    Route::patch('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'updateInvoiceStatus'])->name('update.status');
+    // Route::patch('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'updateInvoiceStatus'])->name('update.status');
 
     Route::post('invoice/{invoice_id}/status', [InvoiceController::class, 'updateInvoiceStatus'])->name('invoice.sent');
+
+    Route::get('assign-status', [VehiclestatusController::class, 'StatusForm'])->name('status-form');
+    Route::post('assign-status', [VehiclestatusController::class, 'assignStatus'])->name('assign-status');
+    Route::get('vehicle-assigned', [VehiclestatusController::class, 'viewAssinedVehicle'])->name('assined-vehicle');
 
 });
 
