@@ -121,13 +121,20 @@ class VehiclestatusController extends Controller
 
     public function assignStatus(Request $request)
     {
+        $validator= Validator::make($request->all(), [
+            'vehicle_id' => 'required',
+            'status' => 'required',
+        ]);
+        if($validator->fails()){
+            return redirect()->back()->withErrors($validator->messages())->withInput();
+        }
         $vehicle= Vehicle::find($request->vehicle_id);
         if($vehicle){
             $status= Vehiclestatus::find($request->status);
             $vehicle->update([
                 'vehicle_status_id' => $request->status
             ]);
-            return redirect()->back()->with('success', 'Vehicle Status is '. $status->name);
+            return redirect()->route('booker.assined.vehicle')->with('success', 'Vehicle Status is '. $status->name);
         }
     }
 
@@ -138,4 +145,35 @@ class VehiclestatusController extends Controller
             ->get();
         return view('booker.assignstatus.index', compact('vehicles'));
     }
+
+    public function editAssinedVehicle($id)
+    {
+        $vehicle= Vehicle::find($id);
+        $status= Vehiclestatus::all();
+        return view('booker.assignstatus.edit', compact('status', 'vehicle'));
+    }
+
+    public function updateAssinedVehicle(Request $request, string $id)
+    {
+        $validator= Validator::make($request->all(), [
+            'status' => 'required',
+        ]);
+        if($validator->fails()){
+            return redirect()->back()->withErrors($validator->messages())->withInput();
+        }
+        $vehicle= Vehicle::find($id);
+    }
+
+    public function deleteAssinedVehicle($id)
+    {
+        $vehicle = Vehicle::find($id);
+        if ($vehicle) {
+            $vehicle->update([
+                'vehicle_status_id' => null
+            ]);
+        return redirect()->route('booker.assined.vehicle')->with('success', 'Status removed to ' . $vehicle->vehicle_name);
+        }
+        return redirect()->route('booker.assined.vehicle')->with('error', 'Vehicle not found.');
+    }
+
 }

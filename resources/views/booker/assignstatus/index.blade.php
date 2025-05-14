@@ -10,9 +10,9 @@
                 <div class="col-12 col-md-12 col-lg-12">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                      <h3 class="mb-0">Booking List</h3>
-                      <a href="{{ role_base_route('customer-booking.create') }}" class="btn btn-primary">
-                        Add Booking
+                      <h3 class="mb-0">Assined Vehicles List</h3>
+                      <a href="{{ role_base_route('status.form') }}" class="btn btn-primary">
+                        Assign Vehicles
                       </a>
                     </div>
                   </div>
@@ -40,11 +40,10 @@
                                 <td>{{ $item->number_plate }} | {{ $item->vehicle_name ?? $item->temp_vehicle_detail }}</td>
                                 <td>{{ $item->vehiclestatus->name }}</td>
                                 <td>
-                                    <a href='{{ url("booker/customer-booking/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                    <form action="{{ url("booker/customer-booking/".$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                    <a href='{{ url("booker/vehicle-assigned/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                                    <form action="{{ url("booker/vehicle-assigned/".$item->id."/delete") }}" method="get" style="display:inline;" class="delete-form">
                                         @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Remove</button>
                                     </form>
                                 </td>
                             </tr>
