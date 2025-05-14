@@ -36,7 +36,7 @@
                                     @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Vehicle Status</label>
+                                    <label class="form-label">Sale Person Status</label>
                                     <div class="selectgroup w-100">
                                     <label class="selectgroup-item">
                                         <input type="radio" name="status" value="1" class="selectgroup-input-radio" checked>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="row">
                   <div class="col-12 col-md-6 col-lg-6">
-                    <input type="submit" value="Add Vehicle" name="submit" class="btn btn-primary">
+                    <input type="submit" value="Add Sale Person" name="submit" class="btn btn-primary">
                   </div>
                 </div>
             </form>

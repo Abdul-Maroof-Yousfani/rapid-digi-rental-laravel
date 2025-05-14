@@ -133,8 +133,8 @@
                                 <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.index') }}">Vehicle Type list</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.vehicle.create') }}">Add Vehicle</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.vehicle.index') }}">Vehicle list</a></li>
-                                <li><a class="nav-link" href="">Add Vehicle Status</a></li>
-                                <li><a class="nav-link" href="">Vehicle Status list</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.vehicle-status.create') }}">Add Vehicle Status</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.vehicle-status.index') }}">Vehicle Status list</a></li>
                             </ul>
                         </li>
                         @endcan

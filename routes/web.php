@@ -1,24 +1,26 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BookerCrudController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\InvestorCrudController;
+use App\Http\Controllers\Admin\SalepersonController;
+use App\Http\Controllers\Admin\VehicleCrudController;
+use App\Http\Controllers\Admin\VehiclestatusController;
+use App\Http\Controllers\Admin\VehicleTypeCrudController;
+use App\Http\Controllers\ajax\AjaxController;
+use App\Http\Controllers\Api\ZohoController;
+use App\Http\Controllers\Booker\BookerController;
+use App\Http\Controllers\Booker\BookingController;
+use App\Http\Controllers\Booker\InvoiceController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Investor\InvestorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Api\ZohoController;
-use App\Http\Controllers\ajax\AjaxController;
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Booker\BookerController;
-use App\Http\Controllers\Admin\CustomerController;
-use App\Http\Controllers\Booker\BookingController;
-use App\Http\Controllers\Booker\InvoiceController;
-use App\Http\Controllers\Admin\BookerCrudController;
-use App\Http\Controllers\Admin\VehicleCrudController;
-use App\Http\Controllers\Investor\InvestorController;
-use App\Http\Controllers\Admin\InvestorCrudController;
-use App\Http\Controllers\Admin\SalepersonController;
-use App\Http\Controllers\Admin\VehicleTypeCrudController;
+
 
 
 
@@ -62,6 +64,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::resource('booker', BookerCrudController::class);
     Route::resource('vehicle', VehicleCrudController::class);
     Route::resource('sale-person', SalepersonController::class);
+    Route::resource('vehicle-status', VehiclestatusController::class);
     Route::post('vehicle/import-csv', [VehicleCrudController::class, 'importCsv'])->middleware('permission:import vehicles CSV');
     Route::resource('vehicle-type', VehicleTypeCrudController::class);
     Route::get('/csv-sample', [VehicleCrudController::class, 'csvSample'])->name('download.sample');

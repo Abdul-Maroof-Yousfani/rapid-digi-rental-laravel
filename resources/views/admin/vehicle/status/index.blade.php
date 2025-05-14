@@ -10,9 +10,9 @@
                 <div class="col-12 col-md-12 col-lg-12">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                      <h3 class="mb-0">Vehicle List</h3>
-                      <a href="{{ route('admin.vehicle.create') }}" class="btn btn-primary">
-                        Add Vehicle
+                      <h3 class="mb-0">Status List</h3>
+                      <a href="{{ route('admin.vehicle-status.create') }}" class="btn btn-primary">
+                        Add Status
                       </a>
                     </div>
                   </div>
@@ -27,31 +27,19 @@
                         <thead>
                           <tr>
                             <th>S no.</th>
-                            <th>Vehicle Name</th>
-                            <th>Vehicle type</th>
-                            <th>Investor</th>
-                            <th>Number Plate</th>
-                            <th>Car Make</th>
-                            <th>Year</th>
                             <th>Status</th>
                             <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
                           @php $number=1; @endphp
-                          @foreach ($vehicle as $item)
+                          @foreach ($status as $item)
                           <tr>
                               <td>{{ $number }}.</td>
-                              <td>{{ $item->vehicle_name }}</td>
-                              <td>{{ $item->vehicletype->name }}</td>
-                              <td>{{ $item->investor->name }}</td>
-                              <td>{{ $item->number_plate }}</td>
-                              <td>{{ $item->car_make }}</td>
-                              <td>{{ $item->year }}</td>
-                              <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
+                              <td>{{ $item->name }}</td>
                               <td>
-                                  <a href='{{ url("admin/vehicle/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
-                                  <form action="{{ url('admin/vehicle/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                  <a href='{{ url("admin/vehicle-status/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
+                                  <form action="{{ url('admin/vehicle-status/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                       @csrf
                                       @method('DELETE')
                                       <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>

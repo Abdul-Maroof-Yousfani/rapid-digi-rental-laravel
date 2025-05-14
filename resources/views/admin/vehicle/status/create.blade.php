@@ -1,72 +1,50 @@
-@extends('admin.master-main')
 
+@extends('admin.master-main')
 @section('content')
 
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
           <div class="section-body">
-            <div class="row">
-                <div class="col-12 col-md-12 col-lg-12">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <h3 class="mb-0">Vehicle List</h3>
-                      <a href="{{ route('admin.vehicle.create') }}" class="btn btn-primary">
-                        Add Vehicle
-                      </a>
-                    </div>
+            <form action="{{ url('admin/vehicle-status') }}" method="post">
+                @csrf
+                <div class="row">
+                  <div class="col-12 col-md-12 col-lg-12">
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <h3>Add Status</h3>
+                          </div>
+                        </div>
+                      </div>
                   </div>
                 </div>
-            </div>
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
-                        <thead>
-                          <tr>
-                            <th>S no.</th>
-                            <th>Vehicle Name</th>
-                            <th>Vehicle type</th>
-                            <th>Investor</th>
-                            <th>Number Plate</th>
-                            <th>Car Make</th>
-                            <th>Year</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @php $number=1; @endphp
-                          @foreach ($vehicle as $item)
-                          <tr>
-                              <td>{{ $number }}.</td>
-                              <td>{{ $item->vehicle_name }}</td>
-                              <td>{{ $item->vehicletype->name }}</td>
-                              <td>{{ $item->investor->name }}</td>
-                              <td>{{ $item->number_plate }}</td>
-                              <td>{{ $item->car_make }}</td>
-                              <td>{{ $item->year }}</td>
-                              <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
-                              <td>
-                                  <a href='{{ url("admin/vehicle/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
-                                  <form action="{{ url('admin/vehicle/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
-                                      @csrf
-                                      @method('DELETE')
-                                      <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
-                                  </form>
-                              </td>
-                          </tr>
-                          @php $number++; @endphp
-                          @endforeach
-                        </tbody>
-                      </table>
-                    </div>
+                <div class="row">
+                  <div class="col-12 col-md-6 col-lg-6">
+                      <div class="card">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Status <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">
+                                                <i class="fas fa-toggle-on"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" value="{{ old('name') }}" name="name" class="form-control name">
+                                    </div>
+                                    @error('name') <span class="text-danger">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                      </div>
                   </div>
                 </div>
-              </div>
-            </div>
+                <div class="row">
+                  <div class="col-12 col-md-6 col-lg-6">
+                    <input type="submit" value="Add Status" name="submit" class="btn btn-primary">
+                  </div>
+                </div>
+            </form>
           </div>
         </section>
         <div class="settingSidebar">
@@ -162,35 +140,7 @@
         </div>
       </div>
 
-@endsection
-
-
-
-
-@section('script')
-    <script type="text/javascript">
-      document.addEventListener('DOMContentLoaded', function () {
-          const deleteButtons = document.querySelectorAll('.delete-confirm');
-          deleteButtons.forEach(button => {
-              button.addEventListener('click', function (e) {
-                  e.preventDefault(); // Stop form submit
-                  const form = this.closest('form');
-                  Swal.fire({
-                      title: 'Are you sure?',
-                      text: "You won't be able to revert this!",
-                      icon: 'warning',
-                      showCancelButton: true,
-                      confirmButtonColor: '#d33',
-                      cancelButtonColor: '#3085d6',
-                      confirmButtonText: 'Yes, delete it!'
-                  }).then((result) => {
-                      if (result.isConfirmed) {
-                          form.submit();
-                      }
-                  });
-              });
-          });
-      });
-  </script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 @endsection
+
