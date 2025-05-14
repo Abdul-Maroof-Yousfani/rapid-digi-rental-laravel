@@ -10,7 +10,7 @@
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card-body">
                                 <div class="col-md-6">
-                                    <h3>Add Booker</h3>
+                                    <h3>Add Booking User</h3>
                                 </div>
                             </div>
                         </div>

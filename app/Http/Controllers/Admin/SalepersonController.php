@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\SalePerson;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class SalepersonController extends Controller
 {
@@ -12,7 +15,8 @@ class SalepersonController extends Controller
      */
     public function index()
     {
-        //
+        $salePerson= SalePerson::all();
+        return view('admin.saleperson.index', compact('salePerson'));
     }
 
     /**
@@ -20,7 +24,7 @@ class SalepersonController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.saleperson.create');
     }
 
     /**
@@ -28,7 +32,27 @@ class SalepersonController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator= Validator::make($request->all(), [
+            'name' => 'required',
+            'status' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return redirect()->back()->withErrors($validator->messages())->withInput();
+        }else{
+            try {
+                DB::beginTransaction();
+                SalePerson::create([
+                    'name' => $request->name,
+                    'status' => $request->status,
+                ]);
+                return redirect()->route('admin.sale-person.index')->with('success', 'Sale Person Added Successfully!');
+                DB::commit();
+            } catch (\Exception $exp) {
+                DB::rollBack();
+                return redirect()->back()->with('error', $exp->getMessage());
+            }
+        }
     }
 
     /**
@@ -44,7 +68,11 @@ class SalepersonController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $salePerson= SalePerson::find($id);
+        if(!$salePerson){
+            return redirect()->route('admin.sale-person.index')->with('error', 'Sale Person Not Found');
+        }
+        return view('admin.saleperson.edit', compact('salePerson'));
     }
 
     /**
@@ -52,7 +80,28 @@ class SalepersonController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validator= Validator::make($request->all(), [
+            'name' => 'required',
+            'status' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return redirect()->back()->withErrors($validator->messages())->withInput();
+        }else{
+            try {
+                DB::beginTransaction();
+                $salePerson= SalePerson::find($id);
+                $salePerson->update([
+                    'name' => $request->name,
+                    'status' => $request->status,
+                ]);
+                return redirect()->route('admin.sale-person.index')->with('success', 'Sale Person Updated Successfully!');
+                DB::commit();
+            } catch (\Exception $exp) {
+                DB::rollBack();
+                return redirect()->back()->with('error', $exp->getMessage());
+            }
+        }
     }
 
     /**
@@ -60,6 +109,12 @@ class SalepersonController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $salePerson= SalePerson::find($id);
+        if(!$salePerson){
+            return redirect()->back()->with('error', 'Sale Person Not Found');
+        }else{
+            $salePerson->delete();
+            return redirect()->back()->with('success', 'Sale Person Deleted Successfully!');
+        }
     }
 }

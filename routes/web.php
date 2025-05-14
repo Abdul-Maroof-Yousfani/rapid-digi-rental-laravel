@@ -17,10 +17,8 @@ use App\Http\Controllers\Admin\BookerCrudController;
 use App\Http\Controllers\Admin\VehicleCrudController;
 use App\Http\Controllers\Investor\InvestorController;
 use App\Http\Controllers\Admin\InvestorCrudController;
+use App\Http\Controllers\Admin\SalepersonController;
 use App\Http\Controllers\Admin\VehicleTypeCrudController;
-
-
-
 
 
 
@@ -63,6 +61,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::resource('investor', InvestorCrudController::class);
     Route::resource('booker', BookerCrudController::class);
     Route::resource('vehicle', VehicleCrudController::class);
+    Route::resource('sale-person', SalepersonController::class);
     Route::post('vehicle/import-csv', [VehicleCrudController::class, 'importCsv'])->middleware('permission:import vehicles CSV');
     Route::resource('vehicle-type', VehicleTypeCrudController::class);
     Route::get('/csv-sample', [VehicleCrudController::class, 'csvSample'])->name('download.sample');
@@ -86,7 +85,6 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::delete('booking/{invoice_id}/delete-invoice', [InvoiceController::class, 'destroy'])->name('destroy.invoice');
     Route::patch('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'updateInvoiceStatus'])->name('update.status');
 
-    // Invoice Status Route
     Route::post('invoice/{invoice_id}/status', [InvoiceController::class, 'updateInvoiceStatus'])->name('invoice.sent');
 
 });

@@ -145,8 +145,8 @@
                                 <span>Sale Person</span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="">Add Sale Person</a></li>
-                                <li><a class="nav-link" href="">Sale Person list</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.sale-person.create') }}">Add Sale Person</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.sale-person.index') }}">Sale Person list</a></li>
                             </ul>
                         </li>
                         @endcan
