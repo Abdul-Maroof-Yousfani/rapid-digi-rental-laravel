@@ -257,11 +257,20 @@ class ZohoInvoice
         return json_decode($response->getBody(), true);
     }
 
-    // Tax Manage Functions Zoho 
-    public function getZohoTaxList($id)
+    // Tax Manage Functions Zoho
+    public function taxList()
     {
         $accessToken= $this->getAccessToken();
+        $client= new Client();
+        $response= $client->get('https://www.zohoapis.com/invoice/v3/settings/taxes', [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken '. $accessToken,
+                'X-com-zoho-invoice-organizationid' => $this->orgId
+            ],
+        ]);
 
+        return json_decode($response->getBody(), true);
     }
 
     public function taxCreate($tax)
@@ -273,7 +282,7 @@ class ZohoInvoice
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken '.'1000.49614085541dc3de8f0ff163b97d5fd9.ebd8422fc81c91e9ec459f247ebba4d1',
                 'X-com-zoho-invoice-organizationid' => $this->orgId,
-                'content-type' => 'application/json', 
+                'content-type' => 'application/json',
             ],
             'json' => $tax
         ]);

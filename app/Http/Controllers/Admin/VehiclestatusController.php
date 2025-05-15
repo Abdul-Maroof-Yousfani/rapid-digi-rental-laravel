@@ -180,5 +180,4 @@ class VehiclestatusController extends Controller
         }
         return redirect()->route('booker.assined.vehicle')->with('error', 'Vehicle not found.');
     }
-
 }

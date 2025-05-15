@@ -96,6 +96,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('vehicle-assigned/{vehicle_id}/edit', [VehiclestatusController::class, 'editAssinedVehicle'])->name('assined.vehicle.edit');
     Route::post('assign-status/{vehicle_id}/update', [VehiclestatusController::class, 'updateAssinedVehicle'])->name('assined.vehicle.update');
     Route::get('vehicle-assigned/{vehicle_id}/delete', [VehiclestatusController::class, 'deleteAssinedVehicle'])->name('assined.vehicle.delete');
+    
 
 });
 

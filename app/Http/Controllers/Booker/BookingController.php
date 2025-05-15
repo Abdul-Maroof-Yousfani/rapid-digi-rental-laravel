@@ -45,7 +45,8 @@ class BookingController extends Controller
         $customers= Customer::all();
         $vehicletypes= Vehicletype::all();
         $salePerson= SalePerson::all();
-        return view('booker.booking.create', compact('customers', 'vehicletypes', 'salePerson'));
+        $taxlist= $this->zohoinvoice->taxList();
+        return view('booker.booking.create', compact('customers', 'vehicletypes', 'salePerson', 'taxlist'));
     }
 
     /**
@@ -71,7 +72,6 @@ class BookingController extends Controller
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
         }else {
-            // dd($request->all());
             $notes= $request->notes;
             $currency_code= "AED";
             $lineitems= [];
@@ -86,7 +86,7 @@ class BookingController extends Controller
                     'description' => $description,
                     'rate' => (float) $request->price[$key],
                     'quantity' => 1,
-                    // 'tax_percentage' => $request->tax[$key],
+                    'tax_id' => $request->tax[$key]
                 ];
             }
             $customerId=  $request->customer_id;
@@ -98,7 +98,6 @@ class BookingController extends Controller
             if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
                 $this->zohoinvoice->markAsSent($zohoInvoiceId);
             }
-            // dd($request->all());
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -135,7 +134,7 @@ class BookingController extends Controller
                             'transaction_type' => 1,
                             'description' => $lineItemData['description'],
                             'quantity' => 1,
-                            'tax_percent' => $request['tax'][$key] ?? 0,
+                            'tax_percent' =>  0,
                             'item_total' => $lineItemData['item_total'],
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
