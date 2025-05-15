@@ -150,7 +150,7 @@
                                                     </td>
 
                                                     <td class="align-middle booking_status"><br>
-                                                        {{ $vehicleObj->booking_status === null ? 'N/A' : ($vehicleObj->booking_status==1 ? 'Available' : 'Not Available') }}
+                                                        {{ $vehicleObj->vehiclestatus->name }}
                                                     </td>
 
                                                     <td class="align-middle status"><br>
@@ -581,17 +581,10 @@
                         if (response && Object.keys(response).length > 0) {
                             investor.text(response.investor ?? '');
                             no_plate.text(response.number_plate ?? '');
-                            booking_status.text(response.booking_status ?? '');
+                            booking_status.text(response.vehicle_status ?? '');
                             status.text(response.status ?? '');
-
-                            investor.val(response.investor ?? '');
-                            no_plate.val(response.number_plate ?? '');
-                            booking_status.val(response.booking_status ?? '');
-                            status.val(response.status ?? '');
                         } else {
-                            no_plate.val('');
-                            booking_status.val('');
-                            status.val('');
+
                         }
                     }
                 });

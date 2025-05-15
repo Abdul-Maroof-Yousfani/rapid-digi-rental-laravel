@@ -17,6 +17,12 @@ class BookingData extends Model
         'start_date',
         'end_date',
         'price',
-        'transaction_type',
+        'description',
+        'rate',
+        'quantity',
+        'tax_percent',
+        'item_total',
+        'tax_name',
+        'transaction_type'
     ];
 }

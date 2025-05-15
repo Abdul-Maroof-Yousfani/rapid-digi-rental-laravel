@@ -54,7 +54,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
-                                        <input type="number" value="{{ $booking->deposit->deposit_amount ?? null }}" name="deposit_amount" class="form-control" >
+                                        <input type="number" value="{{ $booking->deposit->deposit_amount ?? 0 }}" name="deposit_amount" class="form-control" >
                                     </div>
 
                                     @if ($firstInvoice->invoice_status=='sent')

@@ -94,6 +94,7 @@ class BookingController extends Controller
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
+            $zohoLineItems = $invoiceResponse['invoice']['line_items'] ?? [];
             if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
                 $this->zohoinvoice->markAsSent($zohoInvoiceId);
             }
@@ -123,6 +124,7 @@ class BookingController extends Controller
                     ]);
 
                     foreach ($request->vehicle as $key => $vehicle_id) {
+                        $lineItemData= $zohoLineItems[$key] ?? [];
                         $booking_data= BookingData::create([
                             'booking_id' => $booking->id,
                             'vehicle_id' => $vehicle_id,
@@ -131,6 +133,11 @@ class BookingController extends Controller
                             'end_date' => $request['return_date'][$key],
                             'price' => $request['price'][$key],
                             'transaction_type' => 1,
+                            'description' => $lineItemData['description'],
+                            'quantity' => 1,
+                            'tax_percent' => $request['tax'][$key] ?? 0,
+                            'item_total' => $lineItemData['item_total'],
+                            'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
                     }
 
@@ -243,6 +250,7 @@ class BookingController extends Controller
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
+            $zohoLineItems = $invoiceResponse['invoice']['line_items'] ?? [];
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -273,6 +281,7 @@ class BookingController extends Controller
 
                     BookingData::where('booking_id', $booking->id)->where('invoice_id', $invoice->id)->forceDelete();
                     foreach ($request->vehicle as $key => $vehicle_id) {
+                        $lineItemData= $zohoLineItems[$key] ?? [];
                         $booking_data= BookingData::create([
                             'booking_id' => $booking->id,
                             'vehicle_id' => $vehicle_id,
@@ -281,6 +290,11 @@ class BookingController extends Controller
                             'end_date' => $request['return_date'][$key],
                             'price' => $request['price'][$key],
                             'transaction_type' => '1',
+                            'description' => $lineItemData['description'],
+                            'quantity' => 1,
+                            'tax_percent' => $request['tax'][$key] ?? 0,
+                            'item_total' => $lineItemData['item_total'],
+                            'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
                     }
 

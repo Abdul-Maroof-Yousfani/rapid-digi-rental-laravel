@@ -53,7 +53,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
-                                        <input type="number" value="" name="deposit_amount" class="form-control" >
+                                        <input type="number" value="0" name="deposit_amount" class="form-control" >
                                     </div>
                                 </div>
                             </div>
