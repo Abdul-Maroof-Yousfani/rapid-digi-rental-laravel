@@ -69,14 +69,11 @@ class InvoiceController extends Controller
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
                 if (is_array($description)) { $description = implode(', ', $description); }
                 $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
-                $discount= null;
-                if(!empty($request->discount[$key])){ $discount= $request->discount[$key].'%'; }
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
-                    'discount' => $discount,
                     // 'tax_percentage' => $request->tax[$key],
                 ];
             }
@@ -133,7 +130,7 @@ class InvoiceController extends Controller
         }else{
             $invoiceID= $invoice->zoho_invoice_id;
             try {
-                // $this->zohoinvoice->markAsSent($invoiceID);
+                $this->zohoinvoice->markAsSent($invoiceID);
                 $invoice->update([ 'invoice_status' => $request->status ]);
                 if($invoice->invoice_status=='sent'){
                     $booking_id= $invoice->booking_id;
@@ -185,6 +182,10 @@ class InvoiceController extends Controller
             'invoice_type.*' => 'required',
             'price.*' => 'required',
         ];
+        $invoice= Invoice::find($id);
+        if ($invoice && $invoice->invoice_status === 'sent') {
+            $rules['reason'] = 'required';
+        }
         $validator= Validator::make($request->all(),$rules);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
@@ -201,19 +202,15 @@ class InvoiceController extends Controller
                 $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
                 if (is_array($description)) { $description = implode(', ', $description); }
                 $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
-                $discount= null;
-                if(!empty($request->discount[$key])){ $discount= $request->discount[$key].'%'; }
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
-                    'discount' => $discount,
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
             // $invoice= Invoice::where('booking_id', $request->booking_id)->where('id', $id)->first();
-            $invoice= Invoice::find($id);
             $invoiceID= $invoice->zoho_invoice_id;
             $customerId=  $request->customer_id;
             $customer= Customer::select('zoho_customer_id')->where('id', $customerId)->first();

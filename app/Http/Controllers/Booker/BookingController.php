@@ -86,7 +86,6 @@ class BookingController extends Controller
                     'description' => $description,
                     'rate' => (float) $request->price[$key],
                     'quantity' => 1,
-                    'discount' => $request->discount[$key].'%',
                     // 'tax_percentage' => $request->tax[$key],
                 ];
             }
@@ -196,7 +195,6 @@ class BookingController extends Controller
             'agreement_no' => 'required|unique:bookings,agreement_no,' . $id,
             'sale_person_id' => 'required',
             'deposit_amount' => 'required',
-            'reason' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -204,6 +202,10 @@ class BookingController extends Controller
             'return_date.*' => 'required',
             'price.*' => 'required',
         ];
+        $invoice = Invoice::where('booking_id', $id)->first();
+        if ($invoice && $invoice->invoice_status === 'sent') {
+            $rules['reason'] = 'required';
+        }
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
@@ -224,11 +226,9 @@ class BookingController extends Controller
                     'description' => $description,
                     'rate' => (float) $request->price[$key],
                     'quantity' => 1,
-                    'discount' => $request->discount[$key].'%',
                     'tax_percentage' => $request->tax[$key],
                 ];
             }
-            $invoice = Invoice::where('booking_id', $id)->first();
             $invoiceID= $invoice->zoho_invoice_id;
             $customerId=  $request->customer_id;
             $customer= Customer::select('zoho_customer_id')->where('id', $customerId)->first();

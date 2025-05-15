@@ -115,7 +115,6 @@
                                                     <th>Status</th>
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
-                                                    <th>Discount (%) <span class="text-danger"></span></th>
                                                     <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
@@ -194,15 +193,6 @@
                                                             <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 >
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            @php
-                                                                $discount = $zohocolumn['invoice']['line_items'][$index]['discount'] ?? '';
-                                                                $discount = str_replace('%', '', $discount);
-                                                            @endphp
-                                                            <input type="number" value="{{ floatval($discount) }}" name="discount[]" class="form-control discount" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -424,11 +414,6 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="discount[]" class="form-control discount" >
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
                             <input type="number" value="" name="tax[]" class="form-control tax" >
                         </div>
                     </td>
@@ -501,11 +486,6 @@
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="number" value="" name="discount[]" class="form-control discount" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -595,16 +575,12 @@
                 });
             });
 
-            $(document).on('change', '.price, .discount, .tax', function(){
+            $(document).on('change', '.price, .tax', function(){
                 var row = $(this).closest('tr');
                 var price = parseFloat(row.find('.price').val()) || null;
-                var discount = parseFloat(row.find('.discount').val()) || null;
                 var tax = parseFloat(row.find('.tax').val()) || null;
-
-                var discountAmount= (discount/100) * price;
                 var taxAmount= (tax/100) * price;
-                var lessDiscount= price - discountAmount;
-                var total= lessDiscount + taxAmount;
+                var total= price + taxAmount;
                 row.find('.amount').val(total);
             });
         });

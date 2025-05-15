@@ -92,7 +92,6 @@
                                                     <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Type <span class="text-danger">*</span></th>
                                                     <th>Quantity <span class="text-danger">*</span></th>
-                                                    <th>Discount (%) </th>
                                                     <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; </th>
                                                     <th>Price (AED) <span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
@@ -127,23 +126,19 @@
                                                     </td>
 
                                                     <td class="align-middle investor"><br>
-                                                        <input type="hidden" name="investor[]" disabled
-                                                            class="form-control investor disableClick">
+                                                        
                                                     </td>
 
                                                     <td class="align-middle no_plate"><br>
-                                                        <input type="hidden" name="number_plate[]" disabled
-                                                            class="form-control no_plate disableClick">
+
                                                     </td>
 
                                                     <td class="align-middle booking_status"><br>
-                                                        <input type="hidden" name="booking_status[]" disabled
-                                                            class="form-control booking_status disableClick">
+
                                                     </td>
 
                                                     <td class="align-middle status"><br>
-                                                        <input type="hidden" name="status[]" disabled
-                                                            class="form-control status disableClick">
+
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
@@ -171,11 +166,6 @@
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
                                                             <input type="number" value="" name="quantity[]" class="form-control quantity" >
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="number" value="" name="discount[]" class="form-control discount" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -411,11 +401,6 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="discount[]" class="form-control discount" >
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
                             <input type="number" value="" name="tax[]" class="form-control tax" >
                         </div>
                     </td>
@@ -507,11 +492,6 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="discount[]" class="form-control discount" >
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
                             <input type="number" value="" name="tax[]" class="form-control tax" >
                         </div>
                     </td>
@@ -582,38 +562,25 @@
                         if (response && Object.keys(response).length > 0) {
                             investor.text(response.investor ?? '');
                             no_plate.text(response.number_plate ?? '');
-                            booking_status.text(response.booking_status ?? '');
+                            booking_status.text(response.vehicle_status ?? '');
                             status.text(response.status ?? '');
-
-                            investor.val(response.investor ?? '');
-                            no_plate.val(response.number_plate ?? '');
-                            booking_status.val(response.booking_status ?? '');
-                            status.val(response.status ?? '');
                         } else {
-                            no_plate.val('');
-                            booking_status.val('');
-                            status.val('');
+
                         }
                     }
                 });
             });
 
-            $(document).on('change', '.price, .quantity, .discount, .tax', function(){
+            $(document).on('change', '.price, .quantity, .tax', function(){
                 var row = $(this).closest('tr');
                 var price = parseFloat(row.find('.price').val()) || null;
                 var qty = parseFloat(row.find('.quantity').val()) || null;
-                var discount = parseFloat(row.find('.discount').val()) || null;
                 var tax = parseFloat(row.find('.tax').val()) || null;
                 var subtotal = price*qty;
-
-                var discountAmount= (discount/100) * subtotal;
                 var taxAmount= (tax/100) * subtotal;
-                var lessDiscount= subtotal - discountAmount;
-                var total= lessDiscount + taxAmount;
+                var total= subtotal + taxAmount;
                 row.find('.amount').val(total);
             });
-
-
         });
     </script>
 @endsection
