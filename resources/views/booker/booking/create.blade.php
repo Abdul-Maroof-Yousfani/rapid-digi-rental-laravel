@@ -48,6 +48,10 @@
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="form-group">
+                                        <label>Agreement No. <span class="text-danger">*</span></label>
+                                        <input type="text" value="" name="agreement_no" class="form-control" >
+                                    </div>
+                                    <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
                                         <input type="number" value="" name="deposit_amount" class="form-control" >
                                     </div>
@@ -59,10 +63,15 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Agreement No. <span class="text-danger">*</span></label>
-                                        <input type="text" value="" name="agreement_no" class="form-control" >
+                                        <label>Sale Person <span class="text-danger">*</span></label>
+                                        <select name="sale_person_id" class="form-control select2" required>
+                                            <option value="">Select Sale Person</option>
+                                            @foreach ($salePerson as $item)
+                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
-
                                     <div class="form-group">
                                         <label>Payment Status <span class="text-danger">*</span></label>
                                         <select name="invoice_status" class="form-control" required>

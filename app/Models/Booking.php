@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\BookingData;
+use App\Models\Customer;
 use App\Models\Deposit;
 use App\Models\Invoice;
+use App\Models\SalePerson;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +22,7 @@ class Booking extends Model
         'agreement_no',
         'notes',
         'total_price',
+        'sale_person_id',
     ];
 
     /**
@@ -40,6 +43,11 @@ class Booking extends Model
     public function deposit()
     {
         return $this->hasOne(Deposit::class, 'booking_id', 'id');
+    }
+
+    public function salePerson()
+    {
+        return $this->belongsTo(SalePerson::class, 'sale_person_id', 'id');
     }
 
 }

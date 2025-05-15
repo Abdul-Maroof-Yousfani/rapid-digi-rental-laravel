@@ -56,6 +56,13 @@
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
                                         <input type="number" value="{{ $booking->deposit->deposit_amount ?? null }}" name="deposit_amount" class="form-control" >
                                     </div>
+
+                                    @if ($firstInvoice->invoice_status=='sent')
+                                        <div class="form-group">
+                                            <label>Reason For Update. <span class="text-danger">*</span></label>
+                                            <input type="text" value="" name="reason" class="form-control" required>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -64,15 +71,19 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
+                                        <label>Sale Person <span class="text-danger">*</span></label>
+                                        <select name="sale_person_id" class="form-control select2" required>
+                                            <option value="">Select Sale Person</option>
+                                            @foreach ($salePerson as $item)
+                                                <option value="{{ $item->id }}" {{ $item->id==$booking->sale_person_id ? 'Selected' : '' }}>{{ $item->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div class="form-group">
                                         <label>Agreement No. <span class="text-danger">*</span></label>
                                         <input type="text" value="{{ $booking->agreement_no }}" name="agreement_no" class="form-control" >
                                     </div>
-                                    @if ($firstInvoice->invoice_status=='sent')
-                                        <div class="form-group">
-                                            <label>Reason For Update. <span class="text-danger">*</span></label>
-                                            <input type="text" value="" name="reason" class="form-control" >
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
                         </div>

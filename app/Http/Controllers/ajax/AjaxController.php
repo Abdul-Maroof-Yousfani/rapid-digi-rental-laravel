@@ -11,7 +11,7 @@ class AjaxController extends Controller
 {
     public function getVehicleByType($id)
     {
-        $vehicle= Vehicle::where('vehicletypes', $id)->get();
+        $vehicle= Vehicle::where('vehicletypes', $id)->where('vehicle_status_id', 1)->get();
         return response()->json($vehicle);
     }
 

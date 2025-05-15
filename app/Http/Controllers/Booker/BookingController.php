@@ -9,12 +9,13 @@ use App\Models\BookingData;
 use App\Models\Customer;
 use App\Models\Deposit;
 use App\Models\Invoice;
+use App\Models\SalePerson;
 use App\Models\Vehicle;
 use App\Models\Vehicletype;
+use App\Services\ZohoInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use App\Services\ZohoInvoice;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -32,7 +33,7 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $booking = Booking::with('invoice', 'customer', 'deposit')->orderBy('id', 'desc')->get();
+        $booking = Booking::with('invoice', 'customer', 'deposit', 'salePerson')->orderBy('id', 'desc')->get();
         return view('booker.booking.index', compact('booking'));
     }
 
@@ -43,7 +44,8 @@ class BookingController extends Controller
     {
         $customers= Customer::all();
         $vehicletypes= Vehicletype::all();
-        return view('booker.booking.create', compact('customers', 'vehicletypes'));
+        $salePerson= SalePerson::all();
+        return view('booker.booking.create', compact('customers', 'vehicletypes', 'salePerson'));
     }
 
     /**
@@ -56,6 +58,7 @@ class BookingController extends Controller
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no',
             'deposit_amount' => 'required',
+            'sale_person_id' => 'required',
             'invoice_status' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
@@ -68,6 +71,7 @@ class BookingController extends Controller
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
         }else {
+            // dd($request->all());
             $notes= $request->notes;
             $currency_code= "AED";
             $lineitems= [];
@@ -94,6 +98,7 @@ class BookingController extends Controller
             if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
                 $this->zohoinvoice->markAsSent($zohoInvoiceId);
             }
+            // dd($request->all());
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -101,6 +106,7 @@ class BookingController extends Controller
                         'customer_id' => $customerId,
                         'agreement_no' => $request['agreement_no'],
                         'notes' => $request['notes'],
+                        'sale_person_id' => $request['sale_person_id'],
                     ]);
 
                     $invoice= Invoice::create([
@@ -169,8 +175,10 @@ class BookingController extends Controller
             $vehicleTypeMap = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))
             ->pluck('vehicletypes', 'id');
             $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
+            $salePerson= SalePerson::all();
 
             return view('booker.booking.edit', compact('zohocolumn', 'customers', 'vehicletypes', 'booking',
+            'salePerson',
             'booking_data',
             'vehicles',
             'vehicleTypeMap',
@@ -186,7 +194,9 @@ class BookingController extends Controller
         $rules = [
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no,' . $id,
+            'sale_person_id' => 'required',
             'deposit_amount' => 'required',
+            'reason' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -199,6 +209,7 @@ class BookingController extends Controller
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
         } else {
+            // dd($request->all());
             $notes= $request->notes;
             $currency_code= "AED";
             $lineitems= [];
@@ -240,6 +251,7 @@ class BookingController extends Controller
                         'customer_id' => $customerId,
                         'agreement_no' => $request['agreement_no'],
                         'notes' => $request['notes'],
+                        'sale_person_id' => $request['sale_person_id'],
                     ]);
 
                     $invoice= Invoice::updateOrCreate(

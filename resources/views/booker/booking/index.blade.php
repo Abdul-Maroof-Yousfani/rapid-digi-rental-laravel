@@ -28,6 +28,7 @@
                           <tr>
                             <th>S.no</th>
                             <th>Customer</th>
+                            <th>Sale Person</th>
                             <th>Deposit Amount</th>
                             <th>Total Price</th>
                             <th>Date</th>
@@ -41,6 +42,7 @@
                                 @php $firstInvoice = $item->invoice->first(); @endphp
                                 <td>{{ $number }}.</td>
                                 <td>{{ $item->customer->customer_name ?? 0 }}</td>
+                                <td>{{ $item->salePerson->name ?? 'N/A' }}</td>
                                 <td>{{ $item->deposit->deposit_amount ?? 0 }}</td>
                                 <td>{{ $firstInvoice->total_price }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>

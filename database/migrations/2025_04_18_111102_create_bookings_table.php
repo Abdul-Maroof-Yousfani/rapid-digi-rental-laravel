@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->unsignedBigInteger('sale_people_id');
+            $table->foreign('sale_person_id')->references('id')->on('sale_people')->onDelete('set null');
             $table->string('agreement_no', 100)->nullable()->unique();
             $table->text('notes')->nullable();
             $table->integer('total_price')->nullable();
