@@ -20,7 +20,7 @@ class AjaxController extends Controller
         $vehicle= Vehicle::where('id', $id)->first();
         if($vehicle){
             return response()->json([
-                'booking_status' => $vehicle->booking_status==1 ? "Available" : "Not Available",
+                'vehicle_status' => $vehicle->vehiclestatus->name ?? 'N/A',
                 'number_plate' => $vehicle->number_plate,
                 'investor' => $vehicle->investor->name,
                 'status' => $vehicle->status==1 ? "Active" : "Inactive",
@@ -29,7 +29,7 @@ class AjaxController extends Controller
             return response()->json([], 200);
         }
     }
-    
+
     public function getVehicleAgaistBooking($vehicleTypeId, $bookingId)
     {
         $bookedVehicleIds = BookingData::where('booking_id', $bookingId)->pluck('vehicle_id')->unique();

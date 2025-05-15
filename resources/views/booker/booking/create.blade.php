@@ -141,23 +141,19 @@
                                                     </td>
 
                                                     <td class="align-middle investor"><br>
-                                                        <input type="hidden" name="investor[]" disabled
-                                                            class="form-control investor disableClick">
+
                                                     </td>
 
                                                     <td class="align-middle no_plate"><br>
-                                                        <input type="hidden" name="number_plate[]" disabled
-                                                            class="form-control no_plate disableClick">
+
                                                     </td>
 
                                                     <td class="align-middle booking_status"><br>
-                                                        <input type="hidden" name="booking_status[]" disabled
-                                                            class="form-control booking_status disableClick">
+
                                                     </td>
 
                                                     <td class="align-middle status"><br>
-                                                        <input type="hidden" name="status[]" disabled
-                                                            class="form-control status disableClick">
+
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
@@ -518,10 +514,8 @@
                         $vehicleSelect.empty().append(
                             '<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
-                            desable= '';
-                            if(vehicle.status==0){ desable= 'disabled'; }
                             $vehicleSelect.append(
-                                '<option '+desable+' value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
+                                '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
                                 (vehicle.temp_vehicle_detail ?? vehicle
                                     .vehicle_name) +
                                 '</option>'
@@ -552,17 +546,10 @@
                         if (response && Object.keys(response).length > 0) {
                             investor.text(response.investor ?? '');
                             no_plate.text(response.number_plate ?? '');
-                            booking_status.text(response.booking_status ?? '');
+                            booking_status.text(response.vehicle_status ?? '');
                             status.text(response.status ?? '');
-
-                            investor.val(response.investor ?? '');
-                            no_plate.val(response.number_plate ?? '');
-                            booking_status.val(response.booking_status ?? '');
-                            status.val(response.status ?? '');
                         } else {
-                            no_plate.val('');
-                            booking_status.val('');
-                            status.val('');
+
                         }
                     }
                 });

@@ -115,7 +115,7 @@ class VehiclestatusController extends Controller
 
     public function StatusForm(){
         $status= Vehiclestatus::all();
-        $vehicle= Vehicle::all();
+        $vehicle= Vehicle::where('vehicle_status_id', null)->get();
         return view('booker.assignstatus.create', compact('status', 'vehicle'));
     }
 
@@ -159,9 +159,14 @@ class VehiclestatusController extends Controller
             'status' => 'required',
         ]);
         if($validator->fails()){
-            return redirect()->back()->withErrors($validator->messages())->withInput();
+            $errorMessages = implode("\n", $validator->errors()->all());
+            return redirect()->back()->with('error', $errorMessages)->withInput();
         }
         $vehicle= Vehicle::find($id);
+        $vehicle->update([
+            'vehicle_status_id' => $request->status
+        ]);
+        return redirect()->route('booker.assined.vehicle')->with('success', 'Status Updated Successfully!');
     }
 
     public function deleteAssinedVehicle($id)

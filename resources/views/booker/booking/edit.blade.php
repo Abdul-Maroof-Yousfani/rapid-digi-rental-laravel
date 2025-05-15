@@ -536,10 +536,8 @@
                         $vehicleSelect.empty().append(
                             '<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
-                            desable= '';
-                            if(vehicle.status==0){ desable= 'disabled'; }
                             $vehicleSelect.append(
-                                '<option '+desable+' value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
+                                '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
                                 (vehicle.temp_vehicle_detail ?? vehicle
                                     .vehicle_name) +
                                 '</option>'
