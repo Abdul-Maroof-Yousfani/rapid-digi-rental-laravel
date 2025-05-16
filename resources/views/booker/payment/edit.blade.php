@@ -22,13 +22,19 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ role_base_url('customer-booking') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url('booker/booking/'. $invoice->id .'/update-invoice') }}" method="post" enctype="multipart/form-data">
                     @csrf
+                    @method('PUT')
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card-body">
                                 <div class="col-md-6">
-                                    <h3>Create Booking</h3>
+                                    @php
+                                        $customer_name= $invoice->booking->customer->customer_name;
+                                        $customer_id= $invoice->booking->customer->id;
+                                        $booking_id= $invoice->booking->id;
+                                    @endphp
+                                    <h3>Edit Invoice #{{ $invoice->zoho_invoice_number }}</h3>
                                 </div>
                             </div>
                         </div>
@@ -39,50 +45,27 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Customer <span class="text-danger">*</span></label>
-                                        <select name="customer_id" class="form-control select2" required>
-                                            <option value="">Select Customer</option>
-                                            @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}">{{ $customer->customer_name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
+                                        <input type="text" value="{{ $customer_name }}" name="customer" class="form-control disableClick" readonly>
+                                        <input type="hidden" value="{{ $booking_id }}" name="booking_id" class="form-control disableClick booking_id" readonly>
+                                        <input type="hidden" value="{{ $customer_id }}" name="customer_id" class="form-control disableClick" readonly>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Agreement No. <span class="text-danger">*</span></label>
-                                        <input type="text" value="" name="agreement_no" class="form-control" >
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Deposit Amount <span class="text-danger">*</span></label>
-                                        <input type="number" value="0" name="deposit_amount" class="form-control" >
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
 
+                        @if ($invoice->invoice_status=='sent')
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
                                 <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Sale Person <span class="text-danger">*</span></label>
-                                        <select name="sale_person_id" class="form-control select2" required>
-                                            <option value="">Select Sale Person</option>
-                                            @foreach ($salePerson as $item)
-                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Payment Status <span class="text-danger">*</span></label>
-                                        <select name="invoice_status" class="form-control" required>
-                                            <option value="">Select Status</option>
-                                            <option value="draft">Unpaid</option>
-                                            <option value="sent">Paid</option>
-                                        </select>
+                                        <div class="form-group">
+                                            <label>Reason For Update. <span class="text-danger">*</span></label>
+                                            <input type="text" value="" name="reason" class="form-control" required>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
 
                         <div class="col-12">
                             <div class="card">
@@ -111,6 +94,8 @@
                                                     <th>Status</th>
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
+                                                    <th>Type <span class="text-danger">*</span></th>
+                                                    <th>Quantity <span class="text-danger">*</span></th>
                                                     <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
@@ -119,15 +104,19 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="vehicleTableBody">
+                                                @foreach ($booking_data as $index => $item)
+                                                @php
+                                                    $selectedVehicleId = $item->vehicle_id;
+                                                    $vehicleObj = $vehicles->where('id', $selectedVehicleId)->first();
+                                                    $selectedVehicleTypeId = $vehicleObj->vehicletypes;
+                                                @endphp
                                                 <tr>
                                                     <td>
                                                         <div class="form-group"><br>
-                                                            <select name="vehicletypes[]"
-                                                                class="form-control select2 vehicletypes" required>
+                                                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
                                                                 <option value="">Select Vehicle type</option>
                                                                 @foreach ($vehicletypes as $vtype)
-                                                                    <option value="{{ $vtype->id }}">{{ $vtype->name }}
-                                                                    </option>
+                                                                    <option value="{{ $vtype->id }}" {{ $vtype->id == $selectedVehicleTypeId ? 'Selected' : '' }}>{{ $vtype->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -135,55 +124,78 @@
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <select name="vehicle[]" class="form-control select2 vehicle"
-                                                            required>
+                                                            <select name="vehicle[]" class="form-control select2 vehicle">
                                                                 <option value="">Select Vehicle</option>
+                                                                @foreach ($vehicles as $vehicle)
+                                                                    <option value="{{ $vehicle->id }}" {{ $vehicle->id == $selectedVehicleId ? 'Selected' : '' }}>{{ $vehicle->number_plate }} | {{ $vehicle->temp_vehicle_detail ?? $vehicle->vehicle_name }}</option>
+                                                                @endforeach
                                                             </select>
                                                         </div>
                                                     </td>
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
+                                                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3">
+
+                                                            </textarea>
                                                         </div>
                                                     </td>
 
                                                     <td class="align-middle investor"><br>
-
+                                                        {{ $vehicleObj->investor->name ?? 'N/A' }}
                                                     </td>
 
                                                     <td class="align-middle no_plate"><br>
-
+                                                        {{ $vehicleObj->number_plate ?? 'N/A' }}
                                                     </td>
 
                                                     <td class="align-middle booking_status"><br>
-
+                                                        {{ $vehicleObj->vehiclestatus->name }}
                                                     </td>
 
                                                     <td class="align-middle status"><br>
-
+                                                        {{ $vehicleObj->status === null ? 'N/A' :  ($vehicleObj->status==1 ? 'Active' : 'Inactive') }}
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="date" value="" name="booking_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
+                                                                class="form-control datemask" placeholder="YYYY/MM/DD"
+                                                                >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="date" value="" name="return_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
+                                                                class="form-control datemask" placeholder="YYYY/MM/DD"
+                                                                >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
-                                                        <input type="hidden" name="tax_percent[]" value="" class="tax">
+                                                        <div class="form-group">
+                                                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                                                <option value="">Select Type</option>
+                                                                <option value="2" {{ $item->transaction_type == 2 ? 'Selected' : '' }}>Renew</option>
+                                                                <option value="3" {{ $item->transaction_type == 3 ? 'Selected' : '' }}>Fine</option>
+                                                                <option value="4" {{ $item->transaction_type == 4 ? 'Selected' : '' }}>Salik</option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="number" value="{{ $zohocolumn['invoice']['line_items'][$index]['quantity'] ?? '' }}" name="quantity[]" class="form-control quantity" >
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <input type="hidden" name="tax_percent[]" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" class="tax">
                                                         <div class="form-group">
                                                                 <select name="tax[]"
                                                                 class="form-control select2 zohotax" required>
                                                                 <option value="">Select Tax</option>
-                                                                @foreach ($taxlist['taxes'] as $item)
-                                                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
-                                                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                                                @foreach ($taxlist['taxes'] as $taxes)
+                                                                    <option value="{{ $taxes['tax_id'] }}"
+                                                                    {{ $zohocolumn['invoice']['line_items'][$index]['tax_id']==$taxes['tax_id'] ? 'Selected' : '' }}
+                                                                    data-percentage="{{ $taxes['tax_percentage'] }}">
+                                                                        {{ $taxes['tax_name'] }} ({{ $taxes['tax_percentage'].'%' }})
                                                                     </option>
                                                                 @endforeach
                                                             </select>
@@ -191,7 +203,7 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="number" value="" name="price[]" class="form-control price"  required>
+                                                            <input type="number" value="{{ $item->price }}" name="price[]" class="form-control price" >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -204,23 +216,25 @@
                                                             class="btn btn-danger btn-md removeRow">X</button>
                                                     </td>
                                                 </tr>
+                                                @endforeach
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="form-group">
-                                <label>Notes <span class="text-danger">*</span></label>
-                                <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}</textarea>
+                                <label>Invoice Notes <span class="text-danger">*</span></label>
+                                <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}
+                                </textarea>
                             </div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
-                            <input type="submit" value="Create Booking" id="submitBtn"
+                            <input type="submit" value="Update Booking" id="submitBtn"
                                 class="btn btn-primary">
                         </div>
                     </div>
@@ -357,7 +371,7 @@
                 <tr>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -368,7 +382,7 @@
 
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle" required>
+                            <select name="vehicle[]" class="form-control select2 vehicle">
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
@@ -390,18 +404,34 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
-                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
-                            <select name="tax[]"
+                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                <option value="">Select Type</option>
+                                <option value="2">Renew</option>
+                                {{-- <option value="1">Rent</option> --}}
+                                <option value="3">Fine</option>
+                                <option value="4">Salik</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="number" value="" name="quantity[]" class="form-control quantity" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <input type="hidden" name="tax_percent[]" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" class="tax">
+                        <div class="form-group">
+                                <select name="tax[]"
                                 class="form-control select2 zohotax" required>
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
@@ -414,7 +444,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="price[]" class="form-control price" required>
+                            <input type="number" value="" name="price[]" class="form-control price" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -438,7 +468,7 @@
                 <tr>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -449,7 +479,7 @@
 
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle" required>
+                            <select name="vehicle[]" class="form-control select2 vehicle">
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
@@ -475,18 +505,34 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
-                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
-                            <select name="tax[]"
+                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                <option value="">Select Type</option>
+                                <option value="2">Renew</option>
+                                {{-- <option value="1">Rent</option> --}}
+                                <option value="3">Fine</option>
+                                <option value="4">Salik</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="number" value="" name="quantity[]" class="form-control quantity" >
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <input type="hidden" name="tax_percent[]" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" class="tax">
+                        <div class="form-group">
+                                <select name="tax[]"
                                 class="form-control select2 zohotax" required>
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
@@ -499,7 +545,7 @@
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="number" value="" name="price[]" class="form-control price" required>
+                            <input type="number" value="" name="price[]" class="form-control price" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -519,13 +565,14 @@
 
             $(document).on('change', '.vehicletypes', function() {
                 let id = $(this).val();
+                let booking_id = $('.booking_id').val();
                 let $row = $(this).closest('tr');
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
                 $.ajax({
-                    url: '/get-vehicle-by-Type/' + id,
+                    url: '/get-vehicle-by-booking/' + id +'/booking/'+booking_id,
                     type: 'GET',
                     success: function(response) {
                         $vehicleSelect.empty().append(
@@ -572,14 +619,16 @@
                 });
             });
 
-            $(document).on('change', '.price, .zohotax', function(){
+            $(document).on('change', '.price, .quantity, .zohotax', function(){
                 var row = $(this).closest('tr');
                 var zohotax = row.find('.zohotax option:selected').data('percentage') || 0;
                 row.find('.tax').val(zohotax);
                 var price = parseFloat(row.find('.price').val()) || null;
+                var qty = parseFloat(row.find('.quantity').val()) || null;
                 var tax = parseFloat(row.find('.tax').val()) || null;
-                var taxAmount= (tax/100) * price;
-                var total= price + taxAmount;
+                var subtotal = price*qty;
+                var taxAmount= (tax/100) * subtotal;
+                var total= subtotal + taxAmount;
                 row.find('.amount').val(total);
             });
 

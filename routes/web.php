@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ZohoController;
 use App\Http\Controllers\Booker\BookerController;
 use App\Http\Controllers\Booker\BookingController;
 use App\Http\Controllers\Booker\InvoiceController;
+use App\Http\Controllers\Booker\PaymentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Investor\InvestorController;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+
 
 
 
@@ -79,6 +81,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('/dashboard', [BookerController::class, 'index'])->name('dashboard')->middleware('permission:view booker dashboard');
     Route::resource('customer-booking', BookingController::class);
     Route::resource('customer', CustomerController::class);
+    Route::resource('payment', PaymentController::class);
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
     Route::get('booking/{id}', [InvoiceController::class, 'index'])->name('view.invoice');
     Route::get('booking/{id}/create-invoice', [InvoiceController::class, 'create'])->name('create.invoice');
@@ -96,7 +99,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('vehicle-assigned/{vehicle_id}/edit', [VehiclestatusController::class, 'editAssinedVehicle'])->name('assined.vehicle.edit');
     Route::post('assign-status/{vehicle_id}/update', [VehiclestatusController::class, 'updateAssinedVehicle'])->name('assined.vehicle.update');
     Route::get('vehicle-assigned/{vehicle_id}/delete', [VehiclestatusController::class, 'deleteAssinedVehicle'])->name('assined.vehicle.delete');
-    
+
 
 });
 

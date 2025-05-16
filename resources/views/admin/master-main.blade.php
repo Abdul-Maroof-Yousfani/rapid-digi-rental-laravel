@@ -161,6 +161,14 @@
                                 <li><a class="nav-link" href="{{ role_base_route('assined.vehicle') }}">Assined Vehicles</a></li>
                             </ul>
                         </li>
+                        <li class="dropdown">
+                            <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                                    data-feather="file-text"></i><span>Payments</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{ role_base_route('payment.create') }}">Recieve Payment</a></li>
+                                <li><a class="nav-link" href="">Payment list</a></li>
+                            </ul>
+                        </li>
                         @endcan
 
                     </ul>

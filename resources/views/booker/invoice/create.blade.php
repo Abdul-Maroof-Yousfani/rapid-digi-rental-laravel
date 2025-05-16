@@ -169,7 +169,7 @@
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
-                                                        <input type="text" name="tax_percent[]" value="" class="tax">
+                                                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                                                         <div class="form-group">
                                                                 <select name="tax[]"
                                                                 class="form-control select2 zohotax" required>
@@ -409,7 +409,7 @@
                         </div>
                     </td>
                     <td class="align-middle"><br>
-                        <input type="text" name="tax_percent[]" value="" class="tax">
+                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
                                 <select name="tax[]"
                                 class="form-control select2 zohotax" required>
@@ -509,7 +509,7 @@
                         </div>
                     </td>
                     <td class="align-middle"><br>
-                        <input type="text" name="tax_percent[]" value="" class="tax">
+                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
                                 <select name="tax[]"
                                 class="form-control select2 zohotax" required>
