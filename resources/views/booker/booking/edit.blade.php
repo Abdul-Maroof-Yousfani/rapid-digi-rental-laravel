@@ -196,10 +196,19 @@
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
+                                                        <input type="hidden" name="tax_percent[]" value="{{ $item->tax_percent }}" class="tax">
                                                         <div class="form-group">
-                                                            <div class="input-group">
-                                                                <input type="number" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" name="tax[]" class="form-control tax" >
-                                                            </div>
+                                                            <select name="tax[]"
+                                                                class="form-control select2 zohotax" required>
+                                                                <option value="">Select Tax</option>
+                                                                @foreach ($taxlist['taxes'] as $taxes)
+                                                                    <option value="{{ $taxes['tax_id'] }}"
+                                                                    data-percentage="{{ $taxes['tax_percentage'] }}"
+                                                                    {{ $zohocolumn['invoice']['line_items'][$index]['tax_id']==$taxes['tax_id']  ? 'Selected' : '' }}>
+                                                                        {{ $taxes['tax_name'] }} ({{ $taxes['tax_percentage'].'%' }})
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -413,8 +422,17 @@
                         </div>
                     </td>
                     <td class="align-middle"><br>
+                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
-                            <input type="number" value="" name="tax[]" class="form-control tax" >
+                            <select name="tax[]"
+                                class="form-control select2 zohotax" required>
+                                <option value="">Select Tax</option>
+                                @foreach ($taxlist['taxes'] as $item)
+                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -489,8 +507,17 @@
                         </div>
                     </td>
                     <td class="align-middle"><br>
+                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
-                            <input type="number" value="" name="tax[]" class="form-control tax" >
+                            <select name="tax[]"
+                                class="form-control select2 zohotax" required>
+                                <option value="">Select Tax</option>
+                                @foreach ($taxlist['taxes'] as $item)
+                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </td>
                     <td class="align-middle"><br>
@@ -575,8 +602,10 @@
                 });
             });
 
-            $(document).on('change', '.price, .tax', function(){
+            $(document).on('change', '.price, .zohotax', function(){
                 var row = $(this).closest('tr');
+                var zohotax = row.find('.zohotax option:selected').data('percentage') || 0;
+                row.find('.tax').val(zohotax);
                 var price = parseFloat(row.find('.price').val()) || null;
                 var tax = parseFloat(row.find('.tax').val()) || null;
                 var taxAmount= (tax/100) * price;

@@ -176,8 +176,8 @@
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
+                                                        <input type="text" name="tax_percent[]" value="" class="tax">
                                                         <div class="form-group">
-                                                            <input type="hidden" value="" class="tax">
                                                                 <select name="tax[]"
                                                                 class="form-control select2 zohotax" required>
                                                                 <option value="">Select Tax</option>
@@ -399,9 +399,9 @@
                         </div>
                     </td>
                     <td class="align-middle"><br>
+                        <input type="text" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
-                            <input type="hidden" value="" class="tax">
-                                <select name="tax[]"
+                            <select name="tax[]"
                                 class="form-control select2 zohotax" required>
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
@@ -484,9 +484,9 @@
                         </div>
                     </td>
                     <td class="align-middle"><br>
+                        <input type="text" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
-                            <input type="hidden" value="" class="tax">
-                                <select name="tax[]"
+                            <select name="tax[]"
                                 class="form-control select2 zohotax" required>
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)

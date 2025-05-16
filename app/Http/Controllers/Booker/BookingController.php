@@ -134,7 +134,7 @@ class BookingController extends Controller
                             'transaction_type' => 1,
                             'description' => $lineItemData['description'],
                             'quantity' => 1,
-                            'tax_percent' =>  0,
+                            'tax_percent' => $request['tax_percent'][$key] ?? 0,
                             'item_total' => $lineItemData['item_total'],
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
@@ -181,8 +181,10 @@ class BookingController extends Controller
             ->pluck('vehicletypes', 'id');
             $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
             $salePerson= SalePerson::all();
+            $taxlist= $this->zohoinvoice->taxList();
 
             return view('booker.booking.edit', compact('zohocolumn', 'customers', 'vehicletypes', 'booking',
+            'taxlist',
             'salePerson',
             'booking_data',
             'vehicles',
@@ -232,7 +234,7 @@ class BookingController extends Controller
                     'description' => $description,
                     'rate' => (float) $request->price[$key],
                     'quantity' => 1,
-                    'tax_percentage' => $request->tax[$key],
+                    'tax_id' => $request->tax[$key]
                 ];
             }
             $invoiceID= $invoice->zoho_invoice_id;
@@ -288,10 +290,10 @@ class BookingController extends Controller
                             'start_date' => $request['booking_date'][$key],
                             'end_date' => $request['return_date'][$key],
                             'price' => $request['price'][$key],
-                            'transaction_type' => '1',
+                            'transaction_type' => 1,
                             'description' => $lineItemData['description'],
                             'quantity' => 1,
-                            'tax_percent' => $request['tax'][$key] ?? 0,
+                            'tax_percent' => $request['tax_percent'][$key] ?? 0,
                             'item_total' => $lineItemData['item_total'],
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);

@@ -36,7 +36,8 @@ class InvoiceController extends Controller
         $vehicleIds = BookingData::where('booking_id', $id)->pluck('vehicle_id');
         $vehicleTypeIds = Vehicle::whereIn('id', $vehicleIds)->pluck('vehicletypes')->unique();
         $vehicletypes = Vehicletype::whereIn('id', $vehicleTypeIds)->get();
-        return view('booker.invoice.create', compact('vehicletypes', 'booking'));
+        $taxlist= $this->zohoinvoice->taxList();
+        return view('booker.invoice.create', compact('vehicletypes', 'booking', 'taxlist'));
     }
 
     public function store(Request $request)
@@ -74,7 +75,7 @@ class InvoiceController extends Controller
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
-                    // 'tax_percentage' => $request->tax[$key],
+                    'tax_id' => $request->tax[$key]
                 ];
             }
             $customerId=  $request->customer_id;
@@ -110,7 +111,7 @@ class InvoiceController extends Controller
                             'transaction_type' => $request['invoice_type'][$key],
                             'description' => $lineItemData['description'],
                             'quantity' => $request['quantity'][$key],
-                            'tax_percent' => $request['tax'][$key] ?? 0,
+                            'tax_percent' => $request['tax_percent'][$key] ?? 0,
                             'item_total' => $lineItemData['item_total'],
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
@@ -163,6 +164,7 @@ class InvoiceController extends Controller
             // Get Line Items From Zoho and DB
             $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
             $booking_data = BookingData::where('invoice_id', $invoice->id)->where('transaction_type', '!=', 1)->orderBy('id', 'ASC')->get();
+            $taxlist= $this->zohoinvoice->taxList();
 
             // Get Vehicles and Vehile and Vehicle Type Against booking
             $booking = Booking::find($invoice->booking_id);
@@ -171,7 +173,7 @@ class InvoiceController extends Controller
             $vehicle_type_ids = $vehicles->pluck('vehicletypes')->unique();
             $vehicletypes = Vehicletype::whereIn('id', $vehicle_type_ids)->get();
 
-            return view('booker.invoice.edit', compact('zohocolumn', 'vehicletypes', 'vehicles', 'invoice', 'booking_data'));
+            return view('booker.invoice.edit', compact('zohocolumn', 'vehicletypes', 'vehicles', 'invoice', 'booking_data', 'taxlist'));
         }
     }
 
@@ -214,7 +216,7 @@ class InvoiceController extends Controller
                     'description' => $description."\n".$invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
-                    'tax_percentage' => $request->tax[$key],
+                    'tax_id' => $request->tax[$key]
                 ];
             }
             // $invoice= Invoice::where('booking_id', $request->booking_id)->where('id', $id)->first();
@@ -257,7 +259,7 @@ class InvoiceController extends Controller
                             'transaction_type' => $request['invoice_type'][$key],
                             'description' => $lineItemData['description'],
                             'quantity' => $request['quantity'][$key],
-                            'tax_percent' => $request['tax'][$key] ?? 0,
+                            'tax_percent' => $request['tax_percent'][$key] ?? 0,
                             'item_total' => $lineItemData['item_total'],
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);

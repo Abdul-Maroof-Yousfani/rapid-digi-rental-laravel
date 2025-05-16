@@ -44,7 +44,7 @@
                                 <td>{{ $item->customer->customer_name ?? 0 }}</td>
                                 <td>{{ $item->salePerson->name ?? 'N/A' }}</td>
                                 <td>{{ $item->deposit->deposit_amount ?? 0 }}</td>
-                                <td>{{ $firstInvoice }}</td>
+                                <td>{{ $firstInvoice->total_price }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
                                     <a href="{{ url('booker/booking/'. $item->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
