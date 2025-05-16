@@ -176,17 +176,17 @@
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <select name="tax[]"class="form-control select2 zohotax" required>
-                                                                <option value="">Select Tax</option>
-                                                                @foreach ($taxlist['taxes'] as $item)
-                                                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
-                                                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <input type="hidden" name="tax_percent[]" value="" class="tax">
+                                                    <input type="hidden" name="tax_percent[]" value="" class="tax">
+                                                    <div class="form-group">
+                                                        <select name="tax[]"class="form-control select2 zohotax" required>
+                                                            <option value="">Select Tax</option>
+                                                            @foreach ($taxlist['taxes'] as $item)
+                                                                <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                                                    {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">

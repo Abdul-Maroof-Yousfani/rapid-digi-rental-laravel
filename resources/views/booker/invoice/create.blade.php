@@ -76,14 +76,14 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body p-0">
+                                <div class="card-body">
                                     <div class="table table-responsive">
                                         <table class="table table-striped" id="vehicleTable">
                                             <thead>
                                                 <tr>
                                                     <th>Vehicle Type <span class="text-danger">*</span></th>
                                                     <th>Vehicle Name <span class="text-danger">*</span></th>
-                                                    <th>Description </th>
+                                                    <th>Description</th>
                                                     <th>Investor</th>
                                                     <th>No. Plate</th>
                                                     <th>Booking Status</th>
@@ -92,15 +92,18 @@
                                                     <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Type <span class="text-danger">*</span></th>
                                                     <th>Quantity <span class="text-danger">*</span></th>
-                                                    <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; </th>
+                                                    <th>Tax (%)</th>
                                                     <th>Price (AED) <span class="text-danger">*</span></th>
-                                                    <th>Total Amount &nbsp;&nbsp;</th>
-                                                    <th><button type="button" class="btn btn-success btn-md" id="addRow">+</button></th>
+                                                    <th>Total Amount</th>
+                                                    <th>
+                                                        <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody id="vehicleTableBody">
                                                 <tr>
-                                                    <td class="text-truncate"><br>
+                                                    <!-- Vehicle Type -->
+                                                    <td>
                                                         <div class="form-group">
                                                             <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
                                                                 <option value="">Select Vehicle type</option>
@@ -111,50 +114,46 @@
                                                         </div>
                                                     </td>
 
-                                                    <td class="text-truncate"><br>
+                                                    <!-- Vehicle Name -->
+                                                    <td>
                                                         <div class="form-group">
-                                                        <select name="vehicle[]" class="form-control select2 vehicle" required>
-                                                            <option value="">Select Vehicle</option>
-                                                        </select>
+                                                            <select name="vehicle[]" class="form-control select2 vehicle" required>
+                                                                <option value="">Select Vehicle</option>
+                                                            </select>
                                                         </div>
                                                     </td>
 
-                                                    <td class="text-truncate"><br>
+                                                    <!-- Description -->
+                                                    <td>
                                                         <div class="form-group">
-                                                            <textarea name="description[]" class="form-control description" id="" cols="60" rows="3"></textarea>
+                                                            <textarea name="description[]" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
                                                         </div>
                                                     </td>
 
-                                                    <td class="align-middle investor"><br>
+                                                    <!-- Dynamic Fields to be filled by JS -->
+                                                    <td class="align-middle investor"></td>
+                                                    <td class="align-middle no_plate"></td>
+                                                    <td class="align-middle booking_status"></td>
+                                                    <td class="align-middle status"></td>
 
-                                                    </td>
-
-                                                    <td class="align-middle no_plate"><br>
-
-                                                    </td>
-
-                                                    <td class="align-middle booking_status"><br>
-
-                                                    </td>
-
-                                                    <td class="align-middle status"><br>
-
-                                                    </td>
-                                                    <td class="align-middle"><br>
+                                                    <!-- Start Date -->
+                                                    <td>
                                                         <div class="form-group">
-                                                            <input type="date" value="" name="booking_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                                                            <input type="date" name="booking_date[]" class="form-control datemask" required>
                                                         </div>
                                                     </td>
-                                                    <td class="align-middle"><br>
+
+                                                    <!-- Return Date -->
+                                                    <td>
                                                         <div class="form-group">
-                                                            <input type="date" value="" name="return_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                                                            <input type="date" name="return_date[]" class="form-control datemask" required>
                                                         </div>
                                                     </td>
-                                                    <td class="align-middle"><br>
+
+                                                    <!-- Invoice Type -->
+                                                    <td>
                                                         <div class="form-group">
-                                                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                                            <select name="invoice_type[]" class="form-control select2 invoice_type">
                                                                 <option value="">Select Type</option>
                                                                 <option value="2">Renew</option>
                                                                 {{-- <option value="1">Rent</option> --}}
@@ -163,43 +162,52 @@
                                                             </select>
                                                         </div>
                                                     </td>
-                                                    <td class="align-middle"><br>
+
+                                                    <!-- Quantity -->
+                                                    <td>
                                                         <div class="form-group">
-                                                            <input type="number" value="" name="quantity[]" class="form-control quantity" >
+                                                            <input type="number" name="quantity[]" class="form-control quantity">
                                                         </div>
                                                     </td>
-                                                    <td class="align-middle"><br>
-                                                        <input type="hidden" name="tax_percent[]" value="" class="tax">
+
+                                                    <!-- Tax -->
+                                                    <td>
+                                                        <input type="hidden" name="tax_percent[]" class="tax">
                                                         <div class="form-group">
-                                                                <select name="tax[]"
-                                                                class="form-control select2 zohotax" required>
+                                                            <select name="tax[]" class="form-control select2 zohotax" required>
                                                                 <option value="">Select Tax</option>
                                                                 @foreach ($taxlist['taxes'] as $item)
                                                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
-                                                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'] }}%)
                                                                     </option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
                                                     </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="number" value="" name="price[]" class="form-control price" >
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="number" value="" name="amount[]" class="form-control disableClick amount" disabled>
-                                                        </div>
-                                                    </td>
+
+                                                    <!-- Price -->
                                                     <td>
-                                                        <button type="button"
-                                                            class="btn btn-danger btn-md removeRow">X</button>
+                                                        <div class="form-group">
+                                                            <input type="number" name="price[]" class="form-control price">
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Total Amount -->
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="number" name="amount[]" class="form-control disableClick amount" disabled>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Remove Button -->
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger btn-md removeRow">X</button>
                                                     </td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -207,7 +215,7 @@
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="form-group">
                                 <label>Invoice Notes <span class="text-danger">*</span></label>
-                                <textarea name="notes" cols="30" class="form-control" rows="20" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}
+                                <textarea name="notes" style="width:100%;"  cols="30" class="form-control" rows="20" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}
                                 </textarea>
                             </div>
                         </div>
