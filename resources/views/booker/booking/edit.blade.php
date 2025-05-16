@@ -1,21 +1,12 @@
 @extends('admin.master-main')
 @section('content')
     <style>
-        .disableClick {
-            cursor: not-allowed !important;
-        }
-
-        .select2-container--default .select2-selection--multiple .select2-selection__arrow,
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-
-            width: 16px !important;
-
-        }
-
-        .table-responsive{
-            overflow: scroll;
-            white-space: nowrap
-        }
+ .disableClick{cursor:not-allowed !important;}
+.select2-container--default .select2-selection--multiple .select2-selection__arrow,.select2-container--default .select2-selection--single .select2-selection__arrow{width:16px !important;}
+.table-responsive{overflow:scroll;white-space:nowrap}
+.form-group {
+    margin-bottom: 0px !important;
+}
     </style>
     <!-- Main Content -->
     <div class="main-content">
@@ -101,7 +92,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body p-0">
+                                <div class="card-body">
                                     <div class="table table-responsive">
                                         <table class="table table-striped" id="vehicleTable">
                                             <thead>
@@ -146,8 +137,7 @@
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <select name="vehicle[]" class="form-control select2 vehicle"
-                                                                >
+                                                            <select name="vehicle[]" class="form-control select2 vehicle">
                                                                 <option value="">Select Vehicle</option>
                                                                 @foreach ($filteredVehicles as $vehicle)
                                                                 @php $disable= $vehicle->status==0 ? 'disabled' : ''; @endphp
@@ -160,7 +150,7 @@
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3">
+                                                            <textarea name="description[]" style="width:200px;" class="form-control" id="" cols="60" rows="3">
                                                                 {{ $zohocolumn['invoice']['line_items'][$index]['description'] ?? '' }}
                                                             </textarea>
                                                         </div>
@@ -241,6 +231,7 @@
                             </div>
                         </div>
                     </div>
+                    <br>
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
                             <input type="submit" value="Update Booking" id="submitBtn"

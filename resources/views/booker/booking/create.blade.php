@@ -97,7 +97,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body p-0">
+                                <div class="card-body ">
                                     <div class="table table-responsive">
                                         <table class="table table-striped" id="vehicleTable">
                                             <thead>
@@ -144,7 +144,7 @@
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
+                                                            <textarea name="description[]" style="width:200px;" class="form-control" id="" cols="60" rows="3"></textarea>
                                                         </div>
                                                     </td>
 
@@ -176,10 +176,8 @@
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
-                                                        <input type="text" name="tax_percent[]" value="" class="tax">
                                                         <div class="form-group">
-                                                                <select name="tax[]"
-                                                                class="form-control select2 zohotax" required>
+                                                            <select name="tax[]"class="form-control select2 zohotax" required>
                                                                 <option value="">Select Tax</option>
                                                                 @foreach ($taxlist['taxes'] as $item)
                                                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
@@ -188,6 +186,7 @@
                                                                 @endforeach
                                                             </select>
                                                         </div>
+                                                        <input type="text"class="form-control " name="tax_percent[]" value="" class="tax">
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
@@ -399,7 +398,6 @@
                         </div>
                     </td>
                     <td class="align-middle"><br>
-                        <input type="text" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
                             <select name="tax[]"
                                 class="form-control select2 zohotax" required>
@@ -411,6 +409,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        <input type="text" class="form-control " name="tax_percent[]" value="" class="tax">
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
