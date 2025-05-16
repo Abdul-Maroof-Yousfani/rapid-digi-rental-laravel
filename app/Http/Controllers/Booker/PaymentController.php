@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Booker;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bank;
+use App\Models\Booking;
+use App\Models\Invoice;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 
@@ -21,8 +24,10 @@ class PaymentController extends Controller
      */
     public function create()
     {
+        $booking= Booking::all();
         $paymentMethod= PaymentMethod::all();
-        return view('booker.payment.create', compact('paymentMethod'));
+        $bank= Bank::all();
+        return view('booker.payment.create', compact('paymentMethod', 'booking', 'bank'));
     }
 
     /**

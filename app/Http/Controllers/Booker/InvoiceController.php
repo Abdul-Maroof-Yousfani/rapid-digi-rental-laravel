@@ -95,7 +95,7 @@ class InvoiceController extends Controller
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
                         'invoice_status' => $request->invoice_status,
-                        'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
+                        'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
                     ]);
 
@@ -242,7 +242,7 @@ class InvoiceController extends Controller
                             'booking_id' => $request->booking_id,
                             'zoho_invoice_id' => $zohoInvoiceId,
                             'zoho_invoice_number' => $zohoInvoiceNumber,
-                            'total_price' => number_format($zohoInvoiceTotal, 2, '.', ''),
+                            'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
                             'status' => 1,
                     ]);
 

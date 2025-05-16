@@ -27,178 +27,100 @@
                         <div class="card">
                             <div class="card-header">
                                 <h4>Payment Recieve Form</h4>
-                                <div class="card-header-action">
-                                    <form>
-                                        <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Search">
-                                        <div class="input-group-btn">
-                                            <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-                                        </div>
-                                        </div>
-                                    </form>
-                                </div>
+                                <div class="card-header-action"></div>
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                <table class="table table-striped" id="sortable-table">
-                                    <tbody class="ui-sortable">
-                                    <tr>
-                                        <td>
-                                        <div class="sort-handler ui-sortable-handle">
-                                            <i class="fas fa-th"></i>
-                                        </div>
-                                        </td>
-                                        <td class="align-middle">
-                                            <select name="customer_id" class="form-control select2" required>
-                                                <option value="">Select Booking</option>
-                                            </select>
-                                        </td>
-                                        <td class="align-middle">
-                                            <select name="customer_id" class="form-control select2" required>
-                                                <option value="">Payment method</option>
-                                                @foreach ($paymentMethod as $item)
-                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td class="align-middle">
-                                            <select name="customer_id" class="form-control select2" required>
-                                                <option value="">Select Bank</option>
-                                            </select>
-                                        </td>
-                                        <td>2018-01-20</td>
-                                        <td>
-                                        <div class="badge badge-success">Completed</div>
-                                        </td>
-                                        <td><a href="#" class="btn btn-primary">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <div class="sort-handler ui-sortable-handle">
-                                            <i class="fas fa-th"></i>
-                                        </div>
-                                        </td>
-                                        <td>Redesign homepage</td>
-                                        <td class="align-middle">
-                                        <div class="progress" data-height="4" data-toggle="tooltip" title="" data-original-title="40%" style="height: 4px;">
-                                            <div class="progress-bar" data-width="40" style="width: 40px;"></div>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <img alt="image" src="assets/img/users/user-1.png" class="rounded-circle" width="35" data-toggle="tooltip" title="" data-original-title="Nur Alpiana">
-                                        <img alt="image" src="assets/img/users/user-3.png" class="rounded-circle" width="35" data-toggle="tooltip" title="" data-original-title="Hariono Yusup">
-                                        <img alt="image" src="assets/img/users/user-4.png" class="rounded-circle" width="35" data-toggle="tooltip" title="" data-original-title="Bagus Dwi Cahya">
-                                        </td>
-                                        <td>2018-04-10</td>
-                                        <td>
-                                        <div class="badge badge-info">Todo</div>
-                                        </td>
-                                        <td><a href="#" class="btn btn-primary">Detail</a></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                                    <table class="table table-striped" id="sortable-table">
+                                        <tbody class="ui-sortable">
+                                        <tr>
+                                            <td class="align-middle">
+                                                <select name="booking_id" class="form-control select2 booking_id" required>
+                                                    <option value="">Select Booking</option>
+                                                    @foreach ($booking as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->agreement_no }} | {{ $item->customer->customer_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td class="align-middle">
+                                                <select name="payment_method" class="form-control payment_method select2" required>
+                                                    <option value="">Payment method</option>
+                                                    @foreach ($paymentMethod as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td class="align-middle">
+                                                <select name="bank" class="form-control select2 bank" disabled>
+                                                    <option value="">Select Bank</option>
+                                                    @foreach ($bank as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->bank_name }} | {{ $item->account_number }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td class="align-middle">
+                                                <input type="text" value="" name="" class="form-control customer_name">
+                                            </td>
+                                            <td class="align-middle">
+                                                <input type="number" value="" name="total_amount" class="form-control total_amount" disabled>
+                                            </td>
+                                            <td class="align-middle">
+                                                <input type="number" value="" name="deposit_amount" class="form-control deposit_amount" disabled>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <br><br>
+
+                <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Invoices List</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-striped" id="table-1">
+                        <thead>
+                          <tr>
+                            <th class="text-center pt-3">
+                              <div class="custom-checkbox custom-checkbox-table custom-control">
+                                <input type="checkbox" data-checkboxes="mygroup" data-checkbox-role="dad"
+                                  class="custom-control-input" id="checkbox-all">
+                                <label for="checkbox-all" class="custom-control-label">&nbsp;</label>
+                              </div>
+                            </th>
+                            <th>Invoice No.</th>
+                            <th>Salik Qty | Amount</th>
+                            <th>Fine Qty | Amount</th>
+                            <th>Renew</th>
+                            <th>Rent</th>
+                            <th>Status</th>
+                            <th>Total Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody id="booking_detail"></tbody>
+
+
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+                
+
             </div>
         </section>
-        <div class="settingSidebar">
-            <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
-            </a>
-            <div class="settingSidebar-body ps-container ps-theme-default">
-                <div class=" fade show active">
-                    <div class="setting-panel-header">Setting Panel
-                    </div>
-                    <div class="p-15 border-bottom">
-                        <h6 class="font-medium m-b-10">Select Layout</h6>
-                        <div class="selectgroup layout-color w-50">
-                            <label class="selectgroup-item">
-                                <input type="radio" name="value" value="1"
-                                    class="selectgroup-input-radio select-layout" checked>
-                                <span class="selectgroup-button">Light</span>
-                            </label>
-                            <label class="selectgroup-item">
-                                <input type="radio" name="value" value="2"
-                                    class="selectgroup-input-radio select-layout">
-                                <span class="selectgroup-button">Dark</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="p-15 border-bottom">
-                        <h6 class="font-medium m-b-10">Sidebar Color</h6>
-                        <div class="selectgroup selectgroup-pills sidebar-color">
-                            <label class="selectgroup-item">
-                                <input type="radio" name="icon-input" value="1"
-                                    class="selectgroup-input select-sidebar">
-                                <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                                    data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
-                            </label>
-                            <label class="selectgroup-item">
-                                <input type="radio" name="icon-input" value="2"
-                                    class="selectgroup-input select-sidebar" checked>
-                                <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                                    data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="p-15 border-bottom">
-                        <h6 class="font-medium m-b-10">Color Theme</h6>
-                        <div class="theme-setting-options">
-                            <ul class="choose-theme list-unstyled mb-0">
-                                <li title="white" class="active">
-                                    <div class="white"></div>
-                                </li>
-                                <li title="cyan">
-                                    <div class="cyan"></div>
-                                </li>
-                                <li title="black">
-                                    <div class="black"></div>
-                                </li>
-                                <li title="purple">
-                                    <div class="purple"></div>
-                                </li>
-                                <li title="orange">
-                                    <div class="orange"></div>
-                                </li>
-                                <li title="green">
-                                    <div class="green"></div>
-                                </li>
-                                <li title="red">
-                                    <div class="red"></div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="p-15 border-bottom">
-                        <div class="theme-setting-options">
-                            <label class="m-b-0">
-                                <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                                    id="mini_sidebar_setting">
-                                <span class="custom-switch-indicator"></span>
-                                <span class="control-label p-l-10">Mini Sidebar</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="p-15 border-bottom">
-                        <div class="theme-setting-options">
-                            <label class="m-b-0">
-                                <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                                    id="sticky_header_setting">
-                                <span class="custom-switch-indicator"></span>
-                                <span class="control-label p-l-10">Sticky Header</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mt-4 mb-4 p-3 align-center rt-sidebar-last-ele">
-                        <a href="#" class="btn btn-icon icon-left btn-primary btn-restore-theme">
-                            <i class="fas fa-undo"></i> Restore Default
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -224,4 +146,57 @@
         </script>
     @endif
 
+@endsection
+
+@section('script')
+    <script>
+        $(document).ready(function(){
+            $(document).on('change', '.payment_method', function(){
+                var paymentMethod= $(this).val();
+                if(paymentMethod==3){
+                    $('.bank').removeAttr('disabled');
+                } else {
+                    $('.bank').attr('disabled', true).val('');
+                }
+            });
+
+            $(document).on('change', '.booking_id', function(){
+                var bookingID= $(this).val();
+                $.ajax({
+                    url : '/get-booking-detail/'+bookingID,
+                    type: 'GET',
+                    success:function(response){
+                        if(response){
+                            $('.total_amount').val(response.total_amount);
+                            $('.deposit_amount').val(response.deposit_amount);
+                            $('.customer_name').val(response.customer);
+                            $('#booking_detail').html('');
+                            // $.each(invoice_detail, function(index, invoice){
+                            //     var row= '<tr><td>'+
+                            //         invoice.zoho_invoice_number+
+                            //         '</td><td></td><td></td><td></td><td>'+invoice.invoice_status+
+                            //         '</td><td>'+invoice.total_amount+'</td></tr>';
+                            //     var tbody= $('#booking_detail').append(row);
+                            // });
+
+                            $.each(response.invoice_detail, function(index, invoice){
+                                var row = '<tr><td class="text-center pt-2"><div class="custom-checkbox custom-control"><input type="checkbox" data-checkboxes="mygroup" class="custom-control-input" id="checkbox-1"><label for="checkbox-1" class="custom-control-label">&nbsp;</label></div></td>' +
+                                    '<td>' + invoice.zoho_invoice_number + '</td>' +
+                                    '<td>' + invoice.summary.salik_qty + ' | ' + invoice.summary.salik_amount + '</td>' +
+                                    '<td>' + invoice.summary.fine_qty + ' | ' + invoice.summary.fine_amount + '</td>' +
+                                    '<td>' + invoice.summary.renew_amount + '</td>' +
+                                    '<td>' + invoice.summary.rent_amount + '</td>' +
+                                    '<td>' + invoice.invoice_status + '</td>' +
+                                    '<td>' + invoice.total_amount + '</td>' +
+                                    '</tr>';
+                                $('#booking_detail').append(row);
+                            });
+                            
+                        }
+                    }
+                });
+            });
+
+        });
+    </script>
 @endsection

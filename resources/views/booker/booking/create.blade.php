@@ -186,7 +186,7 @@
                                                                 @endforeach
                                                             </select>
                                                         </div>
-                                                        <input type="text"class="form-control " name="tax_percent[]" value="" class="tax">
+                                                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
@@ -409,7 +409,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <input type="text" class="form-control " name="tax_percent[]" value="" class="tax">
+                        <input type="hidden" name="tax_percent[]" value="" class="tax">
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">

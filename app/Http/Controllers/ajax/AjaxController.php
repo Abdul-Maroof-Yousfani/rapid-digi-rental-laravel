@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\ajax;
 
-use App\Models\Vehicle;
-use App\Models\BookingData;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\BookingData;
+use App\Models\Deposit;
+use App\Models\Invoice;
+use App\Models\Vehicle;
+use Illuminate\Http\Request;
 
 class AjaxController extends Controller
 {
@@ -39,4 +42,79 @@ class AjaxController extends Controller
 
         return response()->json($vehicles);
     }
+
+    // public function getBookingDetail($booking_id)
+    // {
+    //     $depositAmount = Deposit::where('booking_id', $booking_id)->first();
+    //     $totalAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
+    //     $invoices = Invoice::where('booking_id', $booking_id)->get();
+    //     $booking = Booking::find($booking_id);
+    //     return response()->json([
+    //         'total_amount' => $totalAmount,
+    //         'deposit_amount' => $depositAmount->deposit_amount ?? 0,
+    //         'invoice_detail' => $invoices,
+    //         'customer' => $booking->customer->customer_name,
+    //     ]);
+    // }
+
+
+
+
+    public function getBookingDetail($booking_id)
+{
+    $depositAmount = Deposit::where('booking_id', $booking_id)->first();
+    $totalAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
+    $booking = Booking::find($booking_id);
+
+    $invoices = Invoice::where('booking_id', $booking_id)->get()->map(function($invoice) {
+        $bookingData = BookingData::where('invoice_id', $invoice->id)->get();
+
+        // Group by transaction_type and calculate totals
+        $summary = [
+            'salik_qty' => 0,
+            'salik_amount' => 0,
+            'fine_qty' => 0,
+            'fine_amount' => 0,
+            'renew_amount' => 0,
+            'rent_amount' => 0,
+        ];
+
+        foreach ($bookingData as $data) {
+            switch ($data->transaction_type) {
+                case 4: // Salik
+                    $summary['salik_qty'] += $data->quantity;
+                    $summary['salik_amount'] += $data->item_total;
+                    break;
+                case 3: // Fine
+                    $summary['fine_qty'] += $data->quantity;
+                    $summary['fine_amount'] += $data->item_total;
+                    break;
+                case 2: // Renew
+                    $summary['renew_amount'] += $data->item_total;
+                    break;
+                case 1: // Rent
+                    $summary['rent_amount'] += $data->item_total;
+                    break;
+            }
+        }
+
+        return [
+            'zoho_invoice_number' => $invoice->zoho_invoice_number,
+            'invoice_status' => $invoice->invoice_status,
+            'total_amount' => $invoice->total_amount,
+            'summary' => $summary,
+        ];
+    });
+
+    return response()->json([
+        'total_amount' => $totalAmount,
+        'deposit_amount' => $depositAmount->deposit_amount ?? 0,
+        'invoice_detail' => $invoices,
+        'customer' => $booking->customer->customer_name,
+    ]);
+}
+
+
+
+
 }

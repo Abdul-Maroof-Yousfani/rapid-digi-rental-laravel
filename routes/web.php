@@ -76,6 +76,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
 Route::get('get-vehicle-detail/{id}', [AjaxController::class, 'getNoByVehicle'])->name("getNoByVehicle");
 Route::get('get-vehicle-by-booking/{id}/booking/{booking_id}', [AjaxController::class, 'getVehicleAgaistBooking']);
+Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail']);
 
 Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->group(function() {
     Route::get('/dashboard', [BookerController::class, 'index'])->name('dashboard')->middleware('permission:view booker dashboard');
