@@ -1,21 +1,9 @@
 @extends('admin.master-main')
 @section('content')
     <style>
-        .disableClick {
-            cursor: not-allowed !important;
-        }
-
-        .select2-container--default .select2-selection--multiple .select2-selection__arrow,
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-
-            width: 16px !important;
-
-        }
-
-        .table-responsive{
-            overflow: scroll;
-            white-space: nowrap
-        }
+        .disableClick{cursor:not-allowed !important;}
+        .select2-container--default .select2-selection--multiple .select2-selection__arrow,.select2-container--default .select2-selection--single .select2-selection__arrow{width:16px !important;}
+        .table-responsive{overflow:scroll;white-space:nowrap}
     </style>
     <!-- Main Content -->
     <div class="main-content">
@@ -80,7 +68,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body p-0">
+                                <div class="card-body ">
                                     <div class="table table-responsive">
                                         <table class="table table-striped" id="vehicleTable">
                                             <thead>
@@ -135,7 +123,7 @@
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3">
+                                                            <textarea name="description[]" style="width:200px;"class="form-control" id="" cols="60" rows="3">
 
                                                             </textarea>
                                                         </div>
@@ -390,7 +378,7 @@
 
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
+                            <textarea name="description[]" style="width:200px;"class="form-control" id="" cols="60" rows="3"></textarea>
                         </div>
                     </td>
 
