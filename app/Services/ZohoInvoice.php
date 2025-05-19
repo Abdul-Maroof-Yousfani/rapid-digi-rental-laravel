@@ -33,21 +33,21 @@ class ZohoInvoice
         $this->refreshToken = config('services.zoho.refresh_token');
     }
 
-    public function getAccessToken()
-    {
-        $client = new Client();
-        $response = $client->post('https://accounts.zoho.com/oauth/v2/token', [
-            'verify' => false,
-            'form_params' => [
-                'refresh_token' => $this->refreshToken,
-                'client_id' => $this->clientID,
-                'client_secret' => $this->clientSecret,
-                'grant_type' => 'refresh_token',
-            ]
-        ]);
-        $data = json_decode($response->getBody(), true);
-        return $data['access_token'];
-    }
+    // public function getAccessToken()
+    // {
+    //     $client = new Client();
+    //     $response = $client->post('https://accounts.zoho.com/oauth/v2/token', [
+    //         'verify' => false,
+    //         'form_params' => [
+    //             'refresh_token' => $this->refreshToken,
+    //             'client_id' => $this->clientID,
+    //             'client_secret' => $this->clientSecret,
+    //             'grant_type' => 'refresh_token',
+    //         ]
+    //     ]);
+    //     $data = json_decode($response->getBody(), true);
+    //     return $data['access_token'];
+    // }
 
     // Customer Manage Functions Zoho
     public function searchCustomer($email, $phone)
