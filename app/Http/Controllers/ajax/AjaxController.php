@@ -49,7 +49,7 @@ class AjaxController extends Controller
         if(!$booking_id){
             return response()->json([ 'error' => 'Data Not Found' ]);
         }
-        $depositAmount = Deposit::where('booking_id', $booking_id)->first();
+        $deposit = Deposit::where('booking_id', $booking_id)->first();
         $bookingAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
         $getVehicle = BookingData::with('vehicle')->select('vehicle_id')->where('booking_id', $booking_id)->groupBy('vehicle_id')->get();
         $vehicles= [];
@@ -102,7 +102,8 @@ class AjaxController extends Controller
 
         return response()->json([
             'booking_amount' => $bookingAmount,
-            'deposit_amount' => $depositAmount->deposit_amount ?? 0,
+            'deposit_amount' => $deposit->deposit_amount ?? 0,
+            'deposit_id' => $deposit->id,
             'invoice_detail' => $invoices,
             'customer' => $booking->customer->customer_name,
             'vehicle' => $vehicles

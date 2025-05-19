@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('deposit_handlings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('invoice_id');
-            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('restrict');
+            $table->unsignedBigInteger('payment_data_id');
+            $table->foreign('payment_data_id')->references('id')->on('payment_data')->onDelete('restrict');
+            $table->unsignedBigInteger('deposit_id');
+            $table->foreign('deposit_id')->references('id')->on('deposits')->onDelete('restrict');
+            $table->integer('remaining_deposit');
             $table->timestamps();
         });
     }
