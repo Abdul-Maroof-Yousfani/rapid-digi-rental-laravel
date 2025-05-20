@@ -166,7 +166,7 @@
                                     data-feather="file-text"></i><span>Payments</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ role_base_route('payment.create') }}">Recieve Payment</a></li>
-                                <li><a class="nav-link" href="">Payment list</a></li>
+                                <li><a class="nav-link" href="{{ role_base_route('payment.index') }}">Payment list</a></li>
                             </ul>
                         </li>
                         @endcan

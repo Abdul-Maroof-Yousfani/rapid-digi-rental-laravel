@@ -84,9 +84,6 @@
                   </div>
                   <div class="col-12 col-md-6 col-lg-6">
                       <div class="card">
-                      {{-- <div class="card-header">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal"> Import Csv </button>
-                      </div> --}}
                       <div class="card-body">
 
 

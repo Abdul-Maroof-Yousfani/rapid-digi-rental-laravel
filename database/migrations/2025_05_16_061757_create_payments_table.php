@@ -17,12 +17,12 @@ return new class extends Migration
             $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('restrict');
             $table->unsignedBigInteger('payment_method');
             $table->foreign('payment_method')->references('id')->on('payment_methods')->onDelete('set null');
-            $table->unsignedBigInteger('bank_id');
+            $table->unsignedBigInteger('bank_id')->nullable();
             $table->foreign('bank_id')->references('id')->on('banks')->onDelete('restrict');
-            $table->string('receipt');
-            $table->integer('booking_amount');
-            $table->integer('paid_amount');
-            $table->integer('pending_amount');
+            $table->string('receipt')->nullable();
+            $table->decimal('booking_amount', 10, 2);
+            $table->decimal('paid_amount', 10, 2);
+            $table->decimal('pending_amount', 10, 2)->nullable();
             $table->timestamps();
         });
     }

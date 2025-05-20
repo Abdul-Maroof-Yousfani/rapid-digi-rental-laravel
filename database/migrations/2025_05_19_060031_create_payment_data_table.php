@@ -18,9 +18,9 @@ return new class extends Migration
             $table->unsignedBigInteger('payment_id');
             $table->foreign('payment_id')->references('id')->on('payments')->onDelete('restrict');
             $table->enum('status', ['paid', 'pending']);
-            $table->integer('invoice_amount');
-            $table->integer('paid_amount');
-            $table->integer('pending_amount');
+            $table->decimal('invoice_amount', 10, 2);
+            $table->decimal('paid_amount', 10, 2)->default(0);
+            $table->decimal('pending_amount', 10, 2)->nullable();
             $table->timestamps();
         });
     }

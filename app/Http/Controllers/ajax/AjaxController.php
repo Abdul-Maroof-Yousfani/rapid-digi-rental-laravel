@@ -96,6 +96,7 @@ class AjaxController extends Controller
                 'zoho_invoice_number' => $invoice->zoho_invoice_number,
                 'invoice_status' => $invoice->invoice_status,
                 'invoice_amount' => $invoice->total_amount,
+                'invoice_id' => $invoice->id,
                 'summary' => $summary,
             ];
         });

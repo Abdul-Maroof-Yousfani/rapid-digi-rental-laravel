@@ -10,9 +10,9 @@
                 <div class="col-12 col-md-12 col-lg-12">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">Invoices for Booking #{{$booking->id}}</h3>
-                        <a href="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" class="btn btn-primary">
-                            Create Invoice
+                        <h3 class="mb-0">Payment List</h3>
+                        <a href="{{ role_base_route('payment.create') }}" class="btn btn-primary">
+                            Create Payment
                         </a>
                     </div>
                   </div>
@@ -27,26 +27,27 @@
                         <thead>
                           <tr>
                             <th>S. No</th>
-                            <th>Invoice No</th>
-                            <th>Total Price</th>
-                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Agreement no</th>
+                            <th>Payment Method</th>
+                            <th>Booking Amount</th>
+                            <th>Paid Amount</th>
+                            <th>Pending Amount</th>
                             <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
                             @php $number=1; @endphp
-                            @foreach ($invoice as $item)
+                            @foreach ($payment as $item)
                             <tr>
                                 <td>{{ $number }}.</td>
-                                <td>{{ $item->zoho_invoice_number }}</td>
-                                <td>{{ $item->total_price }}</td>
-                                <td>{{ $item->created_at->format('d-M-Y') }}</td>
+                                <td>{{ $item->booking->customer->customer_name }}</td>
+                                <td>{{ $item->booking->agreement_no }}</td>
+                                <td>{{ $item->paymentMethod->name }}</td>
+                                <td>{{ $item->booking_amount }}</td>
+                                <td>{{ $item->paid_amount }}</td>
+                                <td>{{ $item->pending_amount ?? 0 }}</td>
                                 <td>
-                                    <form action="{{ url('booker/invoice/'.$item->id.'/status') }}" method="POST" class="status-form" style="display:inline;">
-                                        @csrf
-                                        <input type="hidden" name="status" value="sent">
-                                        <button {{ $item->invoice_status == 'sent' ? 'disabled' : '' }} class="btn btn-sm btn-success status-confirm"> <i class="fas fa-paper-plane"></i> Send </button>
-                                    </form>
                                     <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
                                     <form action="" method="POST" style="display:inline;" class="delete-form">
                                         @csrf

@@ -5,9 +5,14 @@ namespace App\Http\Controllers\Booker;
 use App\Http\Controllers\Controller;
 use App\Models\Bank;
 use App\Models\Booking;
+use App\Models\DepositHandling;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\PaymentData;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends Controller
 {
@@ -16,7 +21,8 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        // return view('booker.payment.create');
+        $payment= Payment::with('booking', 'paymentMethod')->get();
+        return view('booker.payment.index', compact('payment'));
     }
 
     /**
@@ -35,7 +41,68 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules= [
+            'booking_id' => 'required',
+            'payment_method' => 'required',
+            'booking_amount' => 'required',
+            'amount_receive' => 'required',
+            'invoice_id.*' => 'required',
+            'invPaidAmount.*' => 'required',
+        ];
+
+        if($request['payment_method']==3){ $rules['bank_id'] = 'required'; }
+        $validator= Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            $errormessage= implode('\n', $validator->errors()->all());
+            return redirect()->back()->with('error', $errormessage)->withInput();
+        } else {
+            // dd($request->all());
+            try {
+                DB::beginTransaction();
+                $pendingAmount= $request['booking_amount'] - $request['amount_receive'];
+                $payment= Payment::create([
+                    'booking_id' => $request['booking_id'],
+                    'payment_method' => $request['payment_method'],
+                    'bank_id' => $request['bank_id'] ?? null,
+                    'booking_amount' => $request['booking_amount'],
+                    'paid_amount' => $request['amount_receive'],
+                    'pending_amount' => $pendingAmount
+                ]);
+                
+                $paymentDataMap = [];
+                foreach ($request['invoice_id'] as $key => $invoice_ids) {
+                    $invoiceAmount= $request['invoice_amount'][$key];
+                    $invPaidAmount= $request['invPaidAmount'][$key];
+                    $pendingAmount= $invoiceAmount - $invPaidAmount;
+                    $status= $invoiceAmount == $invPaidAmount ? 'paid' : 'pending';
+                    $paymentdata= PaymentData::create([
+                        'invoice_id' => $invoice_ids,
+                        'payment_id' => $payment->id,
+                        'status' => $status,
+                        'invoice_amount' => $invoiceAmount,
+                        'paid_amount' => $invPaidAmount,
+                        'pending_amount' => $pendingAmount,
+                    ]);
+                    $paymentDataMap[$key] = $paymentdata->id;
+                }
+
+                foreach ($request['addDepositAmount'] as $index => $deductAmount) {
+                    if (floatval($deductAmount) > 0) {
+                        DepositHandling::create([
+                            'payment_data_id' => $paymentDataMap[$index],
+                            'deposit_id' => $request['deposit_id'],
+                            'deduct_deposit' => $deductAmount,
+                        ]);
+                    }
+                }
+
+                return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
+                DB::commit();
+            } catch (\Exception $exp) {
+                DB::rollback();
+                return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
+            }
+        }
     }
 
     /**
