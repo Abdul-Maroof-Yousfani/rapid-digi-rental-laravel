@@ -42,11 +42,6 @@
                                 <td>{{ $item->total_price }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
-                                    <form action="{{ url('booker/invoice/'.$item->id.'/status') }}" method="POST" class="status-form" style="display:inline;">
-                                        @csrf
-                                        <input type="hidden" name="status" value="sent">
-                                        <button {{ $item->invoice_status == 'sent' ? 'disabled' : '' }} class="btn btn-sm btn-success status-confirm"> <i class="fas fa-paper-plane"></i> Send </button>
-                                    </form>
                                     <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
                                     <form action="" method="POST" style="display:inline;" class="delete-form">
                                         @csrf

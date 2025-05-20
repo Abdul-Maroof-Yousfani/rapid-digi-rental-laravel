@@ -48,8 +48,8 @@
                                 <td>{{ $item->paid_amount }}</td>
                                 <td>{{ $item->pending_amount ?? 0 }}</td>
                                 <td>
-                                    <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                    <form action="" method="POST" style="display:inline;" class="delete-form">
+                                    <a href="" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                                    <form action="" method="" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>Delete</button>

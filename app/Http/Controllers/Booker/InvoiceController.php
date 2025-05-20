@@ -130,30 +130,6 @@ class InvoiceController extends Controller
         }
     }
 
-    public function updateInvoiceStatus(Request $request,$invoiceID)
-    {
-        $invoice= Invoice::find($invoiceID);
-        if(!$invoice){
-            return redirect()->back()->with('success', 'Invoice not Found');
-        }else{
-            $invoiceID= $invoice->zoho_invoice_id;
-            try {
-                $this->zohoinvoice->markAsSent($invoiceID);
-                $invoice->update([ 'invoice_status' => $request->status ]);
-                if($invoice->invoice_status=='sent'){
-                    $booking_id= $invoice->booking_id;
-                    $customer_id= $invoice->booking->customer_id;
-                    $deposit= Deposit::where('booking_id', $booking_id)->first();
-                }
-                return redirect()->back()->with('success', 'Invoice no #'.$invoice->zoho_invoice_number.' Sent Successfully!');
-            } catch (\GuzzleHttp\Exception\ClientException $exp) {
-                $response = $exp->getResponse();
-                $body = json_decode($response->getBody(), true);
-                $errorMessage = $body['message'] ?? 'An unexpected error occurred.';
-                return redirect()->back()->with('error', 'Zoho Error: ' . $errorMessage);
-            }
-        }
-    }
 
     public function edit(string $id)
     {

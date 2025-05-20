@@ -106,7 +106,7 @@
                                                 <td class="align-middle">
                                                     <div class="form-group">
                                                         <label for="">Receive Amount</label><br>
-                                                        <input type="number" placeholder="Receive Amount" value="" name="" class="form-control amount_receive" >
+                                                        <input type="number" placeholder="Receive Amount" value="" name="" class="form-control amount_receive" min="0" step="0.01">
                                                     </div>
                                                 </td>
                                                 <td class="align-middle">
@@ -269,7 +269,7 @@
                                     '<td class="invoice_total">' + invoice.invoice_amount + '</td>' +
                                     '<td class="text-center">'+
                                         '<div class="custom-control custom-checkbox">' +
-                                        '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"><input type="text" class="addDepositAmount form-control" name="addDepositAmount[]" value="">' +
+                                        '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"><input type="hidden" class="addDepositAmount form-control" name="addDepositAmount[]" value="">' +
                                         '<label class="custom-control-label" for="depositCheck' + index + '"></label></div>'+
                                     '</td>'+
                                     '<td class="recieve_amount">'+
@@ -294,20 +294,36 @@
                     $('.remaining_amount').val('');
                     $('.insubtot').val('');
                     $('.invPaidAmount').val(0);
+
+                    // Reset only invoice row colors
+                    $('#booking_detail tr').each(function () {
+                        if ($(this).find('.invoice_total').length > 0) {
+                            $(this).css('background-color', '');
+                        }
+                    });
                     return;
                 }
                 let remainingAmount = parseFloat($(this).val()) || 0;
                 $('#booking_detail tr').each(function () {
+                    
+                    // Skip rows that are not invoice rows
+                    let invoiceTotalCell = $(this).find('.invoice_total');
+                    if (invoiceTotalCell.length === 0) {
+                        return;
+                    }
                     let invoiceAmount = parseFloat($(this).find('.invoice_total').text()) || 0;
                     let inputField = $(this).find('.invPaidAmount');
                     if (remainingAmount >= invoiceAmount) {
                         inputField.val(invoiceAmount.toFixed(2));
                         remainingAmount -= invoiceAmount;
+                        $(this).css('background-color', '#d4edda');
                     } else if (remainingAmount > 0) {
                         inputField.val(remainingAmount.toFixed(2));
                         remainingAmount = 0;
+                        $(this).css('background-color', '#fff3cd');
                     } else {
                         inputField.val(0);
+                        $(this).css('background-color', '#fff3cd');
                     }
                 });
 
