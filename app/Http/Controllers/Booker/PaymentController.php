@@ -10,12 +10,18 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentData;
 use App\Models\PaymentMethod;
+use App\Services\ZohoInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends Controller
 {
+    protected $zohoinvoice;
+    public function __construct(ZohoInvoice $zohoinvoice) {
+        $this->zohoinvoice = $zohoinvoice;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -68,7 +74,7 @@ class PaymentController extends Controller
                     'paid_amount' => $request['amount_receive'],
                     'pending_amount' => $pendingAmount
                 ]);
-                
+
                 $paymentDataMap = [];
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
                     $invoiceAmount= $request['invoice_amount'][$key];
@@ -93,6 +99,19 @@ class PaymentController extends Controller
                             'deposit_id' => $request['deposit_id'],
                             'deduct_deposit' => $deductAmount,
                         ]);
+                    }
+                }
+
+                $paymentDataList = PaymentData::with('invoice')
+                    ->where('status', 'paid')
+                    ->get();
+
+                foreach ($paymentDataList as $key => $paymentData) {
+                    if ($paymentData->invoice) {
+                        $invoiceID= $paymentData->invoice->zoho_invoice_id;
+                        $this->zohoinvoice->markAsSent($invoiceID);
+                    } else {
+                        return redirect()->route('booker.payment.index')->with('success', 'Record inserted But Not Send Because Invoice ID Not Found');
                     }
                 }
 

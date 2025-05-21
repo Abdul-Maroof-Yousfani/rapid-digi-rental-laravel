@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,4 +17,14 @@ class PaymentData extends Model
         'paid_amount',
         'pending_amount'
     ];
+
+    /**
+     * Get the invoice that owns the PaymentData
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class, 'invoice_id', 'id');
+    }
 }
