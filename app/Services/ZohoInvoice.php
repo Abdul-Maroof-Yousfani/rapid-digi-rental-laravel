@@ -118,22 +118,18 @@ class ZohoInvoice
 
     public function getAllCustomers()
     {
-        // $accessToken = $this->getAccessToken();
-        // $client = new Client();
-        // $response = $client->get('https://www.zohoapis.com/invoice/v3/contacts?organization_id=' . $this->orgId, [
-        //     'verify' => false,
-        //     'headers' => [
-        //         'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-        //         'Content-Type'  => 'application/json',
-        //     ]
-        // ]);
-
-        // $data = json_decode($response->getBody(), true);
-        // return $data['contacts'] ?? [];
-
-        ApiToken::create([
-            'zoho_access_token' => '1000.2bcf6dd25aaa7153370f0019b1bff99c.5bcabb5692ae07e6da507f484f80cdb0'
+        $accessToken = $this->getAccessToken();
+        $client = new Client();
+        $response = $client->get('https://www.zohoapis.com/invoice/v3/contacts?organization_id=' . $this->orgId, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                'Content-Type'  => 'application/json',
+            ]
         ]);
+
+        $data = json_decode($response->getBody(), true);
+        return $data['contacts'] ?? [];
     }
 
     public function getCustomerDetail($customerId)
