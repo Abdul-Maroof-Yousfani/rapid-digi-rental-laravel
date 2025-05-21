@@ -62,8 +62,6 @@ class AjaxController extends Controller
 
         $invoices = Invoice::where('booking_id', $booking_id)->get()->map(function($invoice) {
             $bookingData = BookingData::where('invoice_id', $invoice->id)->get();
-
-            // Group by transaction_type and calculate totals
             $summary = [
                 'salik_qty' => 0,
                 'salik_amount' => 0,

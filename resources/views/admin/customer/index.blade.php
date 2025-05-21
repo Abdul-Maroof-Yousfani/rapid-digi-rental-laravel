@@ -24,53 +24,71 @@
                 </div>
             </div>
             <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
-                        <thead>
-                          <tr>
-                            <th>S.no</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>CNIC</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            @php $number=1; @endphp
-                            @foreach ($customers as $item)
-                            <tr>
-                                <td>{{ $number }}.</td>
-                                <td>{{ $item->customer_name }}</td>
-                                <td>{{ $item->email }}</td>
-                                <td>{{ $item->phone }}</td>
-                                <td>{{ $item->cnic }}</td>
-                                <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
-                                <td>
-                                    <a href='@can('manage customers') {{ role_base_url("customer/".$item->id."/edit") }} @endcan' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                    <form action="{{ auth()->user()->hasRole('admin') ? url('admin/customer/'.$item->id) : url('booker/customer/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>
-                                            Delete
-                                        </button>
-                                    </form>
+                <div class="col-12">
+                    <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-2 form-group">
+                                <label for="">From Date</label>
+                                <input type="date" class="form-control" id="">
+                            </div>
+                            <div class="col-2 form-group">
+                                <label for="">.</label>
+                                <input type="text" placeholder="Between" class="form-control" disabled>
+                            </div>
+                            <div class="col-2 form-group">
+                                <label for="">To Date</label>
+                                <input type="date" class="form-control" id="">
+                            </div>
+                            <div class="col-2 form-group">
+                                <a href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}" class="btn btn-primary">
+                                    Filter
+                                </a>
+                            </div>
+                        </div><br>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" /*id="tableExport"*/ style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>S.no</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>CNIC</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $number=1; @endphp
+                                    @foreach ($customers as $item)
+                                    <tr>
+                                        <td>{{ $number }}.</td>
+                                        <td>{{ $item->customer_name }}</td>
+                                        <td>{{ $item->email }}</td>
+                                        <td>{{ $item->phone }}</td>
+                                        <td>{{ $item->cnic }}</td>
+                                        <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
+                                        <td>
+                                            <a href='@can('manage customers') {{ role_base_url("customer/".$item->id."/edit") }} @endcan' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                                            <form action="{{ auth()->user()->hasRole('admin') ? url('admin/customer/'.$item->id) : url('booker/customer/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>
+                                                    Delete
+                                                </button>
+                                            </form>
 
-
-                                </td>
-                            </tr>
-                            @php $number++; @endphp
-                            @endforeach
-                        </tbody>
-                      </table>
+                                        </td>
+                                    </tr>
+                                    @php $number++; @endphp
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                  </div>
+                    </div>
                 </div>
-              </div>
             </div>
           </div>
         </section>

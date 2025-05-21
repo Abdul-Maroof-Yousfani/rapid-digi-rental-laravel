@@ -33,21 +33,45 @@ class ZohoInvoice
         $this->refreshToken = config('services.zoho.refresh_token');
     }
 
+    public function refreshAccessToken()
+    {
+        $apiToken= ApiToken::find(2);
+        $client= new Client();
+        $response= $client->post('https://accounts.zoho.com/oauth/v2/token', [
+            'verify' => false,
+            'form_params' => [
+                'refresh_token' => $this->refreshToken,
+                'client_id' => $this->clientID,
+                'client_secret' => $this->clientSecret,
+                'grant_type' => 'refresh_token',
+            ]
+        ]);
+        $data= json_decode($response->getBody(), true);
+        $newAccesstoken= $data['access_token'];
+        $apiToken->zoho_access_token= $newAccesstoken;
+        $apiToken->save();
+        return $newAccesstoken;
+    }
+
     public function getAccessToken()
     {
-        // $client = new Client();
-        // $response = $client->post('https://accounts.zoho.com/oauth/v2/token', [
-        //     'verify' => false,
-        //     'form_params' => [
-        //         'refresh_token' => $this->refreshToken,
-        //         'client_id' => $this->clientID,
-        //         'client_secret' => $this->clientSecret,
-        //         'grant_type' => 'refresh_token',
-        //     ]
-        // ]);
-        // $data = json_decode($response->getBody(), true);
-        // return $data['access_token'];
-        return '1000.dc405d3df68a368c56c2a79b16e13624.b04d989faec18a9b25d28dded0e7f04c';
+        $apiToken= ApiToken::find(2);
+        $accessToken= $apiToken->zoho_access_token;
+        $client= new Client();
+        try {
+            $client->get('https://www.zohoapis.com/invoice/v3/contacts?organization_id=' . $this->orgId, [
+                'verify' => false,
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'Content-Type'  => 'application/json',
+                ],
+            ]);
+            return $accessToken;
+        } catch (\GuzzleHttp\Exception\ClientException $exp) {
+            $response= json_decode($exp->getResponse()->getBody(), true);
+            if($response['code'] == 57){ return $this->refreshAccessToken();}
+            else { return $exp; }
+        }
     }
 
     // Customer Manage Functions Zoho

@@ -9,7 +9,6 @@ class ApiToken extends Model
 {
     use HasFactory;
     protected $fillable= [
-        'zoho_refresh_token',
         'zoho_access_token'
     ];
 }
