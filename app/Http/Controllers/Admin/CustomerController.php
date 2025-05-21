@@ -7,6 +7,7 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Services\ZohoInvoice;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
@@ -33,7 +34,7 @@ class CustomerController extends Controller
             }
         }
         $shouldEnableSync = count($missing) > 0;
-        $customers= Customer::all();
+        $customers= Customer::where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
         return view('admin.customer.index', compact('customers', 'shouldEnableSync'));
     }
 

@@ -167,6 +167,8 @@
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ role_base_route('payment.create') }}">Recieve Payment</a></li>
                                 <li><a class="nav-link" href="{{ role_base_route('payment.index') }}">Payment list</a></li>
+                                <li><a class="nav-link" href="{{ role_base_route('credit-note.create') }}">Add Credit Note</a></li>
+                                <li><a class="nav-link" href="{{ role_base_route('credit-note.index') }}">Credit Note list</a></li>
                             </ul>
                         </li>
                         @endcan

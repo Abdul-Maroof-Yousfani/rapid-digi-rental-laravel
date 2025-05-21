@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\Vehicle;
 use App\Models\Vehicletype;
 use App\Services\ZohoInvoice;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +26,8 @@ class InvoiceController extends Controller
 
     public function index(string $id)
     {
-        $invoice= Invoice::where('booking_id', $id)->get();
+        $invoice= Invoice::where('booking_id', $id)->where('created_at', '>=', Carbon::now()->subDays(15))
+                ->orderBy('id', 'DESC')->get();
         $booking= Booking::findOrFail($id);
         return view('booker.invoice.index', compact('invoice', 'booking'));
     }

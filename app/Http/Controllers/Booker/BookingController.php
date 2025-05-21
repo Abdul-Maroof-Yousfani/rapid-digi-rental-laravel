@@ -13,6 +13,7 @@ use App\Models\SalePerson;
 use App\Models\Vehicle;
 use App\Models\Vehicletype;
 use App\Services\ZohoInvoice;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -33,7 +34,9 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $booking = Booking::with('invoice', 'customer', 'deposit', 'salePerson')->orderBy('id', 'desc')->get();
+        $booking = Booking::with('invoice', 'customer', 'deposit', 'salePerson')
+                    ->where('created_at', '>=', Carbon::now()->subDays(15))
+                    ->orderBy('id', 'desc')->get();
         return view('booker.booking.index', compact('booking'));
     }
 
