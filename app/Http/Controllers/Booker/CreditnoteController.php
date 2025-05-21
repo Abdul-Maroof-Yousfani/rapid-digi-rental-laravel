@@ -7,6 +7,7 @@ use App\Models\Bank;
 use App\Models\Booking;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CreditnoteController extends Controller
 {
@@ -34,7 +35,22 @@ class CreditnoteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules= [
+            'booking_id' => 'required',
+            'refund_method' => 'required',
+            'refund_amount' => 'required',
+            'refund_date' => 'required',
+        ];
+
+        if($request['payment_method']==3){ $rules['bank_id'] = 'required'; }
+        $validator= Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            $errormessage= implode('\n', $validator->errors()->all());
+            return redirect()->back()->with('error', $errormessage)->withInput();
+        } else {
+            // dd($request->all());
+            
+        }
     }
 
     /**

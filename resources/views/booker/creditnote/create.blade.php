@@ -29,7 +29,7 @@
                         </div>
                     </div>
                 </div>
-                <form action="{{ url('booker/payment') }}" method="post">
+                <form action="{{ url('booker/credit-note') }}" method="post">
                     @csrf
                     <div class="row">
                         <div class="col-12">
@@ -84,7 +84,7 @@
                                                     <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Refund Amount</label><br>
-                                                            <input type="number" placeholder="refund Amount" value="" name="" class="form-control refund_amount" min="0" step="0.01">
+                                                            <input type="number" placeholder="refund Amount" value="" name="refund_amount" class="form-control refund_amount" min="0" step="0.01">
                                                         </div>
                                                     </td>
                                                     <td class="align-middle">
@@ -96,10 +96,18 @@
                                                     <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Remaining Deposit</label><br>
-                                                            <input type="number" value="" name="deposit_amount" class="form-control deposit_amount"  disabled>
+                                                            <input type="number" value="" name="remaining_deposit" class="form-control remaining_deposit"  disabled>
                                                             <input type="hidden" name="deposit_id" value="" class="deposit_id">
                                                         </div>
                                                     </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <label for="">Initial Deposit</label><br>
+                                                        <input type="number" value="" name="" class="form-control deposit_amount"  disabled>
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -146,7 +154,7 @@
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="form-group">
                                 <label>Remarks (Optional)</label>
-                                <textarea name="remarks" cols="30" class="form-control" rows="10" required></textarea>
+                                <textarea name="remarks" cols="30" class="form-control" rows="10"></textarea>
                             </div>
                         </div>
                     </div>
@@ -211,6 +219,7 @@
                             $('.booking_amount').val(response.booking_amount);
                             $('.deposit_amount').val(response.deposit_amount);
                             $('.deposit_id').val(response.deposit_id);
+                            $('.remaining_deposit').val();
                             let subtotal = 0;
                             $.each(response.invoice_detail, function(index, invoice){
                                 var row = '<tr><td class="text-center pt-2"><div class="custom-checkbox custom-control"><input type="checkbox" data-checkboxes="mygroup" class="custom-control-input" id="checkbox-1"><label for="checkbox-1" class="custom-control-label">&nbsp;</label></div></td>' +
