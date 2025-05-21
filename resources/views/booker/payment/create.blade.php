@@ -305,7 +305,7 @@
                 }
                 let remainingAmount = parseFloat($(this).val()) || 0;
                 $('#booking_detail tr').each(function () {
-                    
+
                     // Skip rows that are not invoice rows
                     let invoiceTotalCell = $(this).find('.invoice_total');
                     if (invoiceTotalCell.length === 0) {
@@ -313,17 +313,21 @@
                     }
                     let invoiceAmount = parseFloat($(this).find('.invoice_total').text()) || 0;
                     let inputField = $(this).find('.invPaidAmount');
+                    let depositCheckbox = $(this).find('.add_deposit');
                     if (remainingAmount >= invoiceAmount) {
                         inputField.val(invoiceAmount.toFixed(2));
                         remainingAmount -= invoiceAmount;
                         $(this).css('background-color', '#d4edda');
+                        depositCheckbox.prop('disabled', true);
                     } else if (remainingAmount > 0) {
                         inputField.val(remainingAmount.toFixed(2));
                         remainingAmount = 0;
                         $(this).css('background-color', '#fff3cd');
+                        depositCheckbox.prop('disabled', false);
                     } else {
                         inputField.val(0);
                         $(this).css('background-color', '#fff3cd');
+                        depositCheckbox.prop('disabled', false);
                     }
                 });
 
