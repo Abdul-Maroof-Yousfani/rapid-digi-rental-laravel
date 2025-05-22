@@ -83,6 +83,7 @@ Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail'
 Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->group(function() {
     Route::get('/dashboard', [BookerController::class, 'index'])->name('dashboard')->middleware('permission:view booker dashboard');
     Route::resource('customer-booking', BookingController::class);
+    Route::get('booking-close/{booking_id}', [BookingController::class, 'closeBooking']);
     Route::resource('customer', CustomerController::class);
     Route::resource('payment', PaymentController::class);
     Route::resource('credit-note', CreditnoteController::class);
@@ -102,8 +103,11 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::post('assign-status/{vehicle_id}/update', [VehiclestatusController::class, 'updateAssinedVehicle'])->name('assined.vehicle.update');
     Route::get('vehicle-assigned/{vehicle_id}/delete', [VehiclestatusController::class, 'deleteAssinedVehicle'])->name('assined.vehicle.delete');
 
+
     // AJAX Routes
     Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
+
+
 
 });
 

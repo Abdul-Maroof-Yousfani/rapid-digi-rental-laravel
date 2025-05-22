@@ -58,6 +58,21 @@
                                                 </td>
                                                 <td class="align-middle p-0">
                                                     <div class="form-group">
+                                                        <label for="">Booking Amount</label><br>
+                                                        <input type="number" value="" name="booking_amount" class="form-control booking_amount" readonly>
+                                                    </div>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <div class="form-group">
+                                                        <label for="">Customer name</label><br>
+                                                        <input type="text" value="" name="customer_name" class="form-control customer_name" disabled>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="align-middle">
+                                                    <div class="form-group">
                                                         <label for="">Payment Method</label><br>
                                                         <select name="payment_method" class="form-control payment_method select2" required>
                                                             <option value="">Payment method</option>
@@ -76,21 +91,6 @@
                                                                 <option value="{{ $item->id }}">{{ $item->bank_name }} | {{ $item->account_number }}</option>
                                                             @endforeach
                                                         </select>
-                                                    </div>
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Customer name</label><br>
-                                                        <input type="text" value="" name="customer_name" class="form-control customer_name" disabled>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Booking Amount</label><br>
-                                                        <input type="number" value="" name="booking_amount" class="form-control booking_amount" readonly>
                                                     </div>
                                                 </td>
                                                 <td class="align-middle">
@@ -284,14 +284,39 @@
                 });
             });
 
+            // function recalculateTotals() {
+            //     let subtotal = 0;
+            //     $('.invPaidAmount').each(function(){
+            //         subtotal += parseFloat($(this).val()) || 0;
+            //     });
+            //     $('.insubtot').val(subtotal.toFixed(2));
+            //     let bookingTotal = parseFloat($('.booking_amount').val()) || 0;
+            //     let receivedAmount = subtotal;
+            //     $('.amount_receive').val(receivedAmount.toFixed(2));
+            //     let pendingAmount = bookingTotal - receivedAmount;
+            //     $('.pending_amount').val(pendingAmount.toFixed(2));
+            // }
+
+            function recalculateTotals() {
+                let subtotal = 0;
+                $('.invPaidAmount').each(function(){
+                    subtotal += parseFloat($(this).val()) || 0;
+                });
+                $('.insubtot').val(subtotal.toFixed(2));
+                let bookingTotal = parseFloat($('.booking_amount').val()) || 0;
+                let receivedAmount = subtotal;
+                let pendingAmount = bookingTotal - receivedAmount;
+                $('.pending_amount').val(pendingAmount.toFixed(2));
+                let remaining = receivedAmount;
+                $('.remaining_amount').val(remaining.toFixed(2));
+            }
+
             $(document).on('input', '.amount_receive', function () {
                 if (!$(this).val()) {
                     $('.pending_amount').val('');
                     $('.remaining_amount').val('');
                     $('.insubtot').val('');
                     $('.invPaidAmount').val(0);
-
-                    // Reset only invoice row colors
                     $('#booking_detail tr').each(function () {
                         if ($(this).find('.invoice_total').length > 0) {
                             $(this).css('background-color', '');
@@ -324,17 +349,11 @@
                         depositCheckbox.prop('disabled', false);
                     }
                 });
-
-                let subtotal = 0;
-                $('.invPaidAmount').each(function(){ subtotal += parseFloat($(this).val()) || 0; });
-                $('.insubtot').val(subtotal.toFixed(2));
+                recalculateTotals();
                 $('.remaining_amount').val(remainingAmount.toFixed(2));
-                let bookingTotal = parseFloat($('.booking_amount').val()) || 0;
-                let receivedAmount = parseFloat($('.amount_receive').val()) || 0;
-                let pendingAmount = bookingTotal - receivedAmount;
-                $('.pending_amount').val(pendingAmount.toFixed(2));
-            });
 
+
+            });
 
             $(document).on('change', '.add_deposit', function () {
                 var row = $(this).closest('tr');
@@ -372,8 +391,24 @@
                 } else if (parseFloat($invoiceAmountInput.val()) > 0 && parseFloat($invoiceAmountInput.val()) < invoiceTotal) {
                     row.css('background-color', '#fff3cd');
                 }
+
+                recalculateTotals();
+                $('.remaining_amount').val($('.amount_receive').val());
+
+
             });
 
         });
     </script>
 @endsection
+
+
+{{-- let subtotal = 0;
+$('.invPaidAmount').each(function(){ subtotal += parseFloat($(this).val()) || 0; });
+$('.insubtot').val(subtotal.toFixed(2));
+let subtot= $('.insubtot').val(subtotal.toFixed(2));;
+$('.remaining_amount').val(remainingAmount.toFixed(2));
+let bookingTotal = parseFloat($('.booking_amount').val()) || 0;
+let receivedAmount = parseFloat($('.amount_receive').val()) || 0;
+let pendingAmount = bookingTotal - receivedAmount;
+$('.pending_amount').val(pendingAmount.toFixed(2)); --}}

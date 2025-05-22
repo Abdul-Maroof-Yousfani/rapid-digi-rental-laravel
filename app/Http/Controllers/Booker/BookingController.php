@@ -8,7 +8,9 @@ use App\Models\Booking;
 use App\Models\BookingData;
 use App\Models\Customer;
 use App\Models\Deposit;
+use App\Models\DepositHandling;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\SalePerson;
 use App\Models\Vehicle;
 use App\Models\Vehicletype;
@@ -335,6 +337,27 @@ class BookingController extends Controller
             return redirect()->back()->with('success', 'Booking Deleted Successfully!');
         }else{
             return redirect()->back()->with('error', 'Booking Not Found!');
+        }
+    }
+
+    public function closeBooking(string $bookingID)
+    {
+        $booking= Booking::find($bookingID);
+        $depositHandling= DepositHandling::where('booking_id', $bookingID)->sum('deduct_deposit');
+        // return $depositHandling;
+        if($depositHandling) {
+            if($depositHandling == $booking->deposit->deposit_amount){
+                $payment= Payment::where('booking_id', $bookingID)->first();
+                if($payment->pending_amount == 0){
+                    return 'You Can Close This Booking';
+                } else {
+                    return 'This Booking Payment is Pending';
+                }
+            } else {
+                return redirect()->back()->with('error', 'Please Add Credit Note of This Booking');
+            }
+        } else {
+            return 'Record Not Found';
         }
     }
 }
