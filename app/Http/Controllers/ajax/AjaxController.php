@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingData;
 use App\Models\Deposit;
+use App\Models\DepositHandling;
 use App\Models\Invoice;
+use App\Models\PaymentData;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 
@@ -49,9 +51,10 @@ class AjaxController extends Controller
         if(!$booking_id){
             return response()->json([ 'error' => 'Data Not Found' ]);
         }
-        $deposit = Deposit::where('booking_id', $booking_id)->first();
         $bookingAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
-        $getVehicle = BookingData::with('vehicle')->select('vehicle_id')->where('booking_id', $booking_id)->groupBy('vehicle_id')->get();
+        $deductAmount = DepositHandling::where('booking_id', $booking_id)->sum('deduct_deposit');
+        $getVehicle = BookingData::with('vehicle')->select('vehicle_id')
+                    ->where('booking_id', $booking_id)->groupBy('vehicle_id')->get();
         $vehicles= [];
         foreach ($getVehicle as $value) {
             $vehicles[]= [
@@ -101,11 +104,11 @@ class AjaxController extends Controller
 
         return response()->json([
             'booking_amount' => $bookingAmount,
-            'deposit_amount' => $deposit->deposit_amount ?? 0,
-            'deposit_id' => $deposit->id,
+            'deposit_amount' => $booking->deposit->deposit_amount ?? 0,
             'invoice_detail' => $invoices,
             'customer' => $booking->customer->customer_name,
-            'vehicle' => $vehicles
+            'vehicle' => $vehicles,
+            'deduct_amount' => $deductAmount ?? 0
         ]);
     }
 

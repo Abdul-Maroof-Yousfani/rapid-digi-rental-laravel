@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::create('deposits', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('booking_id');
-            $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('cascade');
             $table->integer('deposit_amount')->nullable();
             $table->timestamps();
         });

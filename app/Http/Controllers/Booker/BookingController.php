@@ -104,11 +104,17 @@ class BookingController extends Controller
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
+
+                    $deposit =Deposit::create([
+                        'deposit_amount' => $request->deposit_amount,
+                    ]);
+
                     $booking= Booking::create([
                         'customer_id' => $customerId,
                         'agreement_no' => $request['agreement_no'],
                         'notes' => $request['notes'],
                         'sale_person_id' => $request['sale_person_id'],
+                        'deposit_id' => $deposit->id,
                     ]);
 
                     $invoice= Invoice::create([
@@ -120,10 +126,7 @@ class BookingController extends Controller
                         'status' => 1,
                     ]);
 
-                    Deposit::create([
-                        'booking_id' => $booking->id,
-                        'deposit_amount' => $request->deposit_amount,
-                    ]);
+
 
                     foreach ($request->vehicle as $key => $vehicle_id) {
                         $lineItemData= $zohoLineItems[$key] ?? [];
@@ -259,6 +262,15 @@ class BookingController extends Controller
                 try {
                     DB::beginTransaction();
                     $booking = Booking::findOrFail($id);
+                    if ($booking->deposit_id) {
+                        $deposit = Deposit::find($booking->deposit_id);
+                        if ($deposit) {
+                            $deposit->update([
+                                'deposit_amount' => $request->deposit_amount,
+                            ]);
+                        }
+                    }
+
                     $booking->update([
                         'customer_id' => $customerId,
                         'agreement_no' => $request['agreement_no'],
@@ -273,13 +285,6 @@ class BookingController extends Controller
                             'zoho_invoice_number' => $zohoInvoiceNumber,
                             'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
                             'status' => 1,
-                        ]
-                    );
-
-                    Deposit::updateOrCreate(
-                        ['booking_id' => $booking->id],
-                        [
-                            'deposit_amount' => $request->deposit_amount,
                         ]
                     );
 

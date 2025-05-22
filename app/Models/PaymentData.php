@@ -27,4 +27,14 @@ class PaymentData extends Model
     {
         return $this->belongsTo(Invoice::class, 'invoice_id', 'id');
     }
+
+    /**
+     * Get the payment that owns the PaymentData
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class, 'payment_id', 'id');
+    }
 }

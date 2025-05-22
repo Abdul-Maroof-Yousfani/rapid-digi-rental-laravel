@@ -96,7 +96,7 @@ class PaymentController extends Controller
                     if (floatval($deductAmount) > 0) {
                         DepositHandling::create([
                             'payment_data_id' => $paymentDataMap[$index],
-                            'deposit_id' => $request['deposit_id'],
+                            'booking_id' => $request['booking_id'],
                             'deduct_deposit' => $deductAmount,
                         ]);
                     }

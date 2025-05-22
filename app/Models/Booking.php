@@ -23,6 +23,7 @@ class Booking extends Model
         'notes',
         'total_price',
         'sale_person_id',
+        'deposit_id',
     ];
 
     /**
@@ -35,6 +36,11 @@ class Booking extends Model
         return $this->hasMany(Invoice::class, 'booking_id', 'id');
     }
 
+    public function depositHandling()
+    {
+        return $this->hasMany(DepositHandling::class, 'booking_id', 'id');
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
@@ -42,12 +48,13 @@ class Booking extends Model
 
     public function deposit()
     {
-        return $this->hasOne(Deposit::class, 'booking_id', 'id');
+        return $this->belongsTo(Deposit::class, 'deposit_id', 'id');
     }
 
     public function salePerson()
     {
         return $this->belongsTo(SalePerson::class, 'sale_person_id', 'id');
     }
+
 
 }

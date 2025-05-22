@@ -97,7 +97,6 @@
                                                     <div class="form-group">
                                                         <label for="">Deposit Amount</label><br>
                                                         <input type="number" value="" name="deposit_amount" class="form-control deposit_amount"  disabled>
-                                                        <input type="hidden" name="deposit_id" value="" class="deposit_id">
                                                     </div>
                                                 </td>
                                             </tr>
@@ -229,10 +228,8 @@
         $(document).ready(function(){
             $(document).on('change', '.payment_method', function(){
                 var paymentMethod= $(this).val();
-                if(paymentMethod==3){
-                    $('.bank_id').removeAttr('disabled'); }
-                else {
-                    $('.bank_id').attr('disabled', true).val('');}
+                if(paymentMethod==3){ $('.bank_id').removeAttr('disabled'); }
+                else { $('.bank_id').attr('disabled', true).val('');}
             });
 
             $(document).on('change', '.booking_id', function(){
@@ -248,7 +245,6 @@
                             $('.booking_amount').val(response.booking_amount);
                             $('.deposit_amount').val(response.deposit_amount);
                             $('.customer_name').val(response.customer);
-                            $('.deposit_id').val(response.deposit_id);
                             $.each(response.vehicle, function(index, vehicles) {
                                 var row = '<tr>' +
                                             '<th scope="row">' + (index + 1) + '</th>' +
@@ -305,8 +301,6 @@
                 }
                 let remainingAmount = parseFloat($(this).val()) || 0;
                 $('#booking_detail tr').each(function () {
-
-                    // Skip rows that are not invoice rows
                     let invoiceTotalCell = $(this).find('.invoice_total');
                     if (invoiceTotalCell.length === 0) {
                         return;
@@ -372,6 +366,11 @@
                     row.find('.invPaidAmount').val(newTotal);
                     $('.remaining_deposit').val((currentDeposit + appliedDeposit));
                     row.find('.addDepositAmount').val('');
+                }
+                if (parseFloat($invoiceAmountInput.val()) >= invoiceTotal) {
+                    row.css('background-color', '#d4edda');
+                } else if (parseFloat($invoiceAmountInput.val()) > 0 && parseFloat($invoiceAmountInput.val()) < invoiceTotal) {
+                    row.css('background-color', '#fff3cd');
                 }
             });
 

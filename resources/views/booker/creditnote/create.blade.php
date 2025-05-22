@@ -45,10 +45,10 @@
                                                 <tr>
                                                     <td class="align-middle">
                                                         <div class="form-group">
-                                                            <label for="">Booking</label><br>
+                                                            <label for="">Booking <span class="text-danger">*</span></label><br>
                                                             <select name="booking_id" id="booking_id" class="form-control select2 booking_id" required>
                                                                 <option value="">Select Booking</option>
-                                                                @foreach ($booking as $item)
+                                                                @foreach ($filterBooking as $item)
                                                                     <option value="{{ $item->id }}">
                                                                         {{ $item->agreement_no }} | {{ $item->customer->customer_name }}
                                                                     </option>
@@ -58,7 +58,7 @@
                                                     </td>
                                                     <td class="align-middle p-0">
                                                         <div class="form-group">
-                                                            <label for="">Refund Method</label><br>
+                                                            <label for="">Refund Method <span class="text-danger">*</span></label><br>
                                                             <select name="refund_method" class="form-control refund_method select2" required>
                                                                 <option value="">Refund method</option>
                                                                 @foreach ($refundMethod as $item)
@@ -69,7 +69,7 @@
                                                     </td>
                                                     <td class="align-middle">
                                                         <div class="form-group">
-                                                            <label for="">Bank</label><br>
+                                                            <label for="" class="bankLabel">Bank</label><br>
                                                             <select name="bank_id" class="form-control select2 bank_id" disabled>
                                                                 <option value="">Select Bank</option>
                                                                 @foreach ($bank as $item)
@@ -83,21 +83,20 @@
                                                 <tr>
                                                     <td class="align-middle">
                                                         <div class="form-group">
-                                                            <label for="">Refund Amount</label><br>
-                                                            <input type="number" placeholder="refund Amount" value="" name="refund_amount" class="form-control refund_amount" min="0" step="0.01">
+                                                            <label for="">Refund Amount  <span class="text-danger">*</span></label><br>
+                                                            <input type="number" placeholder="Refund Amount" value="" name="refund_amount" class="form-control refund_amount" min="0" step="0.01" required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle">
                                                         <div class="form-group">
-                                                            <label for="">Refund Date</label><br>
-                                                            <input type="date" value="" name="refund_date" class="form-control refund_date" >
+                                                            <label for="">Refund Date  <span class="text-danger">*</span></label><br>
+                                                            <input type="date" value="" name="refund_date" class="form-control refund_date" required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Remaining Deposit</label><br>
-                                                            <input type="number" value="" name="remaining_deposit" class="form-control remaining_deposit"  disabled>
-                                                            <input type="hidden" name="deposit_id" value="" class="deposit_id">
+                                                            <input type="number" value="" name="remaining_deposit" class="form-control remaining_deposit"  readonly>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -118,7 +117,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-12 d-none">
                             <div class="card">
                                 <div class="card-header">
                                     <h4>Invoices List</h4>
@@ -157,6 +156,7 @@
                                 <textarea name="remarks" cols="30" class="form-control" rows="10"></textarea>
                             </div>
                         </div>
+
                     </div>
 
                     <div class="row">
@@ -202,9 +202,13 @@
             $(document).on('change', '.refund_method', function(){
                 var refundMethod= $(this).val();
                 if(refundMethod==3){
-                    $('.bank_id').removeAttr('disabled'); }
+                    $('.bank_id').removeAttr('disabled');
+                    $('.bankLabel').append(' <span class="text-danger">*</span>');
+                }
                 else {
-                    $('.bank_id').attr('disabled', true).val('');}
+                    $('.bank_id').attr('disabled', true).val('');
+                    $('.bankLabel .text-danger').remove();
+                }
             });
 
             $(document).on('change', '.booking_id', function(){
@@ -216,10 +220,10 @@
                     success:function(response){
                     $('#booking_detail').html('');
                         if(response){
+                            remainingDeposit= response.deposit_amount - response.deduct_amount;
                             $('.booking_amount').val(response.booking_amount);
                             $('.deposit_amount').val(response.deposit_amount);
-                            $('.deposit_id').val(response.deposit_id);
-                            $('.remaining_deposit').val();
+                            $('.remaining_deposit').val(remainingDeposit);
                             let subtotal = 0;
                             $.each(response.invoice_detail, function(index, invoice){
                                 var row = '<tr><td class="text-center pt-2"><div class="custom-checkbox custom-control"><input type="checkbox" data-checkboxes="mygroup" class="custom-control-input" id="checkbox-1"><label for="checkbox-1" class="custom-control-label">&nbsp;</label></div></td>' +

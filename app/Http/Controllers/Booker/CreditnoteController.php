@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Booker;
 use App\Http\Controllers\Controller;
 use App\Models\Bank;
 use App\Models\Booking;
+use App\Models\CreditNote;
+use App\Models\DepositHandling;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class CreditnoteController extends Controller
@@ -16,7 +19,8 @@ class CreditnoteController extends Controller
      */
     public function index()
     {
-        return view('booker.creditnote.index');
+        $creditNote= CreditNote::with('paymentMethod', 'booking')->get();
+        return view('booker.creditnote.index', compact('creditNote'));
     }
 
     /**
@@ -24,10 +28,17 @@ class CreditnoteController extends Controller
      */
     public function create()
     {
-        $booking= Booking::with('deposit')->get();
+        $booking= Booking::whereHas('deposit', function ($query){
+            $query->where('deposit_amount', '>', 0);
+        })->with('deposit', 'customer', 'depositHandling')->get();
+
+        $filterBooking= $booking->filter(function($booking){
+            $totalDeducted = $booking->depositHandling->sum('deduct_deposit');
+            return $booking->deposit->deposit_amount > $totalDeducted;
+        });
         $refundMethod= PaymentMethod::all();
         $bank= Bank::all();
-        return view('booker.creditnote.create', compact('booking', 'refundMethod', 'bank'));
+        return view('booker.creditnote.create', compact('filterBooking', 'refundMethod', 'bank'));
     }
 
     /**
@@ -39,6 +50,7 @@ class CreditnoteController extends Controller
             'booking_id' => 'required',
             'refund_method' => 'required',
             'refund_amount' => 'required',
+            'remaining_deposit' => 'required',
             'refund_date' => 'required',
         ];
 
@@ -48,8 +60,28 @@ class CreditnoteController extends Controller
             $errormessage= implode('\n', $validator->errors()->all());
             return redirect()->back()->with('error', $errormessage)->withInput();
         } else {
-            // dd($request->all());
-            
+            try {
+                DB::beginTransaction();
+                $lastCreditNote = CreditNote::orderBy('id', 'desc')->first();
+                $nextNumber = $lastCreditNote ? $lastCreditNote->id + 1 : 1;
+                $creditNoteNo = 'CN-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT); // CN-0001
+                CreditNote::create([
+                    'credit_note_no' => $creditNoteNo,
+                    'booking_id' => $request['booking_id'],
+                    'payment_method' => $request['refund_method'],
+                    'bank_id' => $request['bank_id'],
+                    'remaining_deposit' => $request['remaining_deposit'],
+                    'refund_amount' => $request['refund_amount'],
+                    'remarks' => $request['remarks'],
+                    'refund_date' => $request['refund_date'],
+                ]);
+                return redirect()->route('booker.credit-note.index')->with('success', 'Credit Note Created Successfully.')->withInput();
+                DB::commit();
+            } catch (\Exception $exp) {
+                DB::rollback();
+                return redirect()->back()->with('error', $exp->getMessage())->withInput();;
+            }
+
         }
     }
 

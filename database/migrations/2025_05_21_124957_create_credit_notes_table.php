@@ -20,8 +20,6 @@ return new class extends Migration
             $table->foreign('payment_method')->references('id')->on('bookings')->onDelete('set null');
             $table->unsignedBigInteger('bank_id')->nullable();
             $table->foreign('bank_id')->references('id')->on('banks')->onDelete('set null');
-            $table->unsignedBigInteger('deposit_id');
-            $table->foreign('deposit_id')->references('id')->on('deposits')->onDelete('set null');
             $table->decimal('remaining_deposit', 10, 2)->nullable();
             $table->decimal('refund_amount', 10, 2)->nullable();
             $table->text('remarks')->nullable();
