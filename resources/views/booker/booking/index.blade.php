@@ -190,7 +190,7 @@
 
                     } else if (res.status === 'deposit_remaining') {
                         alert('Deposit Remaining Amount '+ res.deposit_amount);
-                        // window.location.href = '/booker/credit-note/create?booking_id=' + bookingId;
+                        window.location.href = '/booker/credit-note/create?booking_id=' + bookingId;
                     } else if (res.status === 'can_close') {
                         $.ajax({
                             url: '/booker/booking/close/' + bookingId,
