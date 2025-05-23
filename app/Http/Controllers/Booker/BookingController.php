@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -170,6 +171,34 @@ class BookingController extends Controller
     {
         //
     }
+
+
+
+
+
+public function bookingReport(Request $request)
+{
+    $query = Booking::with(['bookingData.vehicle', 'customer', 'invoice']);
+
+     $query->whereHas('bookingData.vehicle', function ($q) {
+        $q->where('investor_id', Auth::id()); // or Auth::user()->id
+    });
+    if ($request->filled('from_date') && $request->filled('to_date')) {
+        $from = Carbon::parse($request->from_date)->startOfDay(); // 00:00:00
+        $to = Carbon::parse($request->to_date)->endOfDay();       // 23:59:59
+
+        $query->whereBetween('created_at', [$from, $to]);
+    }
+
+    // Filter by customer
+    if ($request->filled('customer_id')) {
+        $query->where('customer_id', $request->customer_id);
+    }
+
+    $bookings = $query->get();
+
+    return view('reports.report_booking', compact('bookings'));
+}
 
     /**
      * Show the form for editing the specified resource.

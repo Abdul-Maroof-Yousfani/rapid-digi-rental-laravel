@@ -117,4 +117,6 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
 
 Route::prefix('investor')->as('investor.')->middleware(['auth', 'role:investor', 'permission:view investor dashboard'])->group(function() {
     Route::get('/dashboard', [InvestorController::class, 'index'])->name('dashboard');
+   Route::get('/reports/bookingReport', [BookingController::class, 'bookingReport'])->name('bookingReport');
+
 });
