@@ -47,7 +47,7 @@ class InvoiceController extends Controller
         $validator= Validator::make($request->all(), [
             'customer_id' => 'required',
             'booking_id' => 'required',
-            'invoice_status' => 'required',
+            // 'invoice_status' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -86,9 +86,9 @@ class InvoiceController extends Controller
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
             $zohoLineItems = $invoiceResponse['invoice']['line_items'] ?? [];
-            if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
-                $this->zohoinvoice->markAsSent($zohoInvoiceId);
-            }
+            // if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
+            //     $this->zohoinvoice->markAsSent($zohoInvoiceId);
+            // }
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -96,7 +96,7 @@ class InvoiceController extends Controller
                         'booking_id' => $request->booking_id,
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
-                        'invoice_status' => $request->invoice_status,
+                        // 'invoice_status' => $request->invoice_status,
                         'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
                     ]);

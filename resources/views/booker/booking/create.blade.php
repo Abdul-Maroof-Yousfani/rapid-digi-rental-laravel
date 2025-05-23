@@ -72,14 +72,6 @@
                                         </select>
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
-                                    <div class="form-group">
-                                        <label>Payment Status <span class="text-danger">*</span></label>
-                                        <select name="invoice_status" class="form-control" required>
-                                            <option value="">Select Status</option>
-                                            <option value="draft">Unpaid</option>
-                                            <option value="sent">Paid</option>
-                                        </select>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -140,7 +132,7 @@
                                                                 <option value="">Select Vehicle</option>
                                                             </select>
                                                         </div>
-                                                    </td>         
+                                                    </td>
 
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
@@ -178,7 +170,7 @@
                                                     <td class="align-middle"><br>
                                                     <input type="hidden" name="tax_percent[]" value="" class="tax">
                                                     <div class="form-group">
-                                                        <select name="tax[]"class="form-control select2 zohotax" required>
+                                                        <select name="tax[]"class="form-control select2 zohotax">
                                                             <option value="">Select Tax</option>
                                                             @foreach ($taxlist['taxes'] as $item)
                                                                 <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
@@ -400,7 +392,7 @@
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <select name="tax[]"
-                                class="form-control select2 zohotax" required>
+                                class="form-control select2 zohotax">
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
@@ -486,7 +478,7 @@
                         <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
                             <select name="tax[]"
-                                class="form-control select2 zohotax" required>
+                                class="form-control select2 zohotax">
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">

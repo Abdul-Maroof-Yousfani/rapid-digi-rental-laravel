@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\BookingData;
+use App\Models\CreditNote;
 use App\Models\Customer;
 use App\Models\Deposit;
+use App\Models\DepositHandling;
 use App\Models\Invoice;
 use App\Models\SalePerson;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +26,7 @@ class Booking extends Model
         'total_price',
         'sale_person_id',
         'deposit_id',
+        'booking_status'
     ];
 
     /**
@@ -56,5 +59,15 @@ class Booking extends Model
         return $this->belongsTo(SalePerson::class, 'sale_person_id', 'id');
     }
 
+    public function creditNote()
+    {
+        return $this->hasOne(CreditNote::class, 'booking_id', 'id');
+    }
+
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'booking_id', 'id');
+    }
 
 }

@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\PaymentData;
 use App\Models\PaymentMethod;
 use App\Services\ZohoInvoice;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -27,7 +28,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payment= Payment::with('booking', 'paymentMethod')->get();
+        $payment= Payment::with('booking', 'paymentMethod')->where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
         return view('booker.payment.index', compact('payment'));
     }
 
@@ -36,7 +37,7 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        $booking= Booking::all();
+        $booking= Booking::orderBy('id', 'DESC')->get();
         $paymentMethod= PaymentMethod::all();
         $bank= Bank::all();
         return view('booker.payment.create', compact('paymentMethod', 'booking', 'bank'));
@@ -66,13 +67,15 @@ class PaymentController extends Controller
             try {
                 DB::beginTransaction();
                 $pendingAmount= $request['booking_amount'] - $request['amount_receive'];
+                $paymentStatus= $pendingAmount==0 ? 'paid' : 'pending';
                 $payment= Payment::create([
                     'booking_id' => $request['booking_id'],
                     'payment_method' => $request['payment_method'],
                     'bank_id' => $request['bank_id'] ?? null,
                     'booking_amount' => $request['booking_amount'],
                     'paid_amount' => $request['amount_receive'],
-                    'pending_amount' => $pendingAmount
+                    'pending_amount' => $pendingAmount,
+                    'payment_status' => $paymentStatus
                 ]);
 
                 $paymentDataMap = [];

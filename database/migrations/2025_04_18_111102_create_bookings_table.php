@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign('deposit_id')->references('id')->on('deposits')->onDelete('set null');
             $table->string('agreement_no', 100)->nullable()->unique();
             $table->text('notes')->nullable();
+            $table->enum('status', ['paid', 'pending'])->nullable();
             $table->integer('total_price')->nullable();
             $table->softDeletes();
             $table->timestamps();

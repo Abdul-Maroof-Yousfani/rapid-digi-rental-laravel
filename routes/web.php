@@ -106,6 +106,10 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
 
     // AJAX Routes
     Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
+    Route::get('/booking/check-status/{id}', [BookingController::class, 'checkCloseEligibility'])->name('booker.booking.check');
+    Route::post('/booking/close/{id}', [BookingController::class, 'closeBooking'])->name('booker.booking.close');
+    Route::post('/booking/force-close/{id}', [BookingController::class, 'forceCloseBooking'])->name('booker.booking.force-close');
+
 
 
 

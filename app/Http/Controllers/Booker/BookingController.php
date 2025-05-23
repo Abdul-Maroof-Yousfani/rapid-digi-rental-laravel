@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ZohoController;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingData;
+use App\Models\CreditNote;
 use App\Models\Customer;
 use App\Models\Deposit;
 use App\Models\DepositHandling;
@@ -37,7 +38,7 @@ class BookingController extends Controller
     public function index()
     {
         $booking = Booking::with('invoice', 'customer', 'deposit', 'salePerson')
-                    ->where('created_at', '>=', Carbon::now()->subDays(15))
+                    // ->where('created_at', '>=', Carbon::now()->subDays(15))
                     ->orderBy('id', 'desc')->get();
         return view('booker.booking.index', compact('booking'));
     }
@@ -65,7 +66,7 @@ class BookingController extends Controller
             'agreement_no' => 'required|unique:bookings,agreement_no',
             'deposit_amount' => 'required',
             'sale_person_id' => 'required',
-            'invoice_status' => 'required',
+            // 'invoice_status' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -100,9 +101,9 @@ class BookingController extends Controller
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
             $zohoLineItems = $invoiceResponse['invoice']['line_items'] ?? [];
-            if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
-                $this->zohoinvoice->markAsSent($zohoInvoiceId);
-            }
+            // if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
+            //     $this->zohoinvoice->markAsSent($zohoInvoiceId);
+            // }
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -123,7 +124,7 @@ class BookingController extends Controller
                         'booking_id' => $booking->id,
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
-                        'invoice_status' => $request->invoice_status,
+                        // 'invoice_status' => $request->invoice_status,
                         'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
                     ]);
@@ -219,9 +220,9 @@ class BookingController extends Controller
             'price.*' => 'required',
         ];
         $invoice = Invoice::where('booking_id', $id)->first();
-        if ($invoice && $invoice->invoice_status === 'sent') {
-            $rules['reason'] = 'required';
-        }
+        // if ($invoice && $invoice->invoice_status === 'sent') {
+        //     $rules['reason'] = 'required';
+        // }
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
@@ -340,24 +341,79 @@ class BookingController extends Controller
         }
     }
 
-    public function closeBooking(string $bookingID)
+    // public function closeBooking(string $bookingID)
+    // {
+    //     $booking= Booking::find($bookingID);
+    //     if($booking->deposit->deposit_amount == 0){
+    //         $payment= Payment::where('booking_id', $bookingID)->first();
+    //         $paymentAmount= $payment->pending_amount;
+    //         /**return 'This Booking Deposit in zero | Pending Amount is '.$paymentAmount. '<br> But You Can Close This Booking';*/
+    //         return redirect()->back()->with('error', 'Your Pending Amount is'.$paymentAmount.' But You Can Closed');
+    //     } else {
+    //         $depositHandling= DepositHandling::where('booking_id', $bookingID)->sum('deduct_deposit');
+    //         $payment= Payment::where('booking_id', $bookingID)->first();
+    //         $paymentAmount= $payment->pending_amount ?? 0;
+    //         $paidAmount= $payment->paid_amount ?? 0;
+    //         if($depositHandling == $booking->deposit->deposit_amount){
+    //             /**return 'Your Initial Deposit Amount is '.$booking->deposit->deposit_amount.
+    //                 '<br>Your Deposit Adjust Amount Is '. $depositHandling.
+    //                 '<br>Paid Amount '.$paidAmount-$depositHandling.
+    //                 '<br>Your Pending Amount is '.$paymentAmount.
+    //                 '<br>But You Can close booking';*/
+    //             return redirect()->back()->with('error', 'Your Pending Amount is '.$paymentAmount);
+    //         } else {
+    //             $creditNote= CreditNote::where('booking_id', $bookingID)->first();
+    //             if($creditNote){
+    //                     /**return 'Refund Deposit Amount '.$creditNote->refund_amount.'<br>'
+    //                         .'Previous Deposit Adjust '.$depositHandling.'<br>'
+    //                         .'Initial Deposit '.$booking->deposit->deposit_amount.' = '.$creditNote->refund_amount + $depositHandling
+    //                         .'<br>You Can close Booking';*/
+    //             return redirect()->back()->with('success', 'Booking is Closed'.$paymentAmount);
+    //             } else {
+    //                 $payable= $booking->deposit->deposit_amount - $depositHandling;
+    //                     /**return 'Payable Remaining Deposit Is : '.$payable.
+    //                         '<br>Can not close booking Please make Credit note';*/
+    //                 return redirect()->back()->with('success', 'Your Deposit Payable is '. $payable. ' Make Credit Note');
+    //             }
+    //         }
+    //     }
+    // }
+
+
+    public function checkCloseEligibility($id)
     {
-        $booking= Booking::find($bookingID);
-        $depositHandling= DepositHandling::where('booking_id', $bookingID)->sum('deduct_deposit');
-        // return $depositHandling;
-        if($depositHandling) {
-            if($depositHandling == $booking->deposit->deposit_amount){
-                $payment= Payment::where('booking_id', $bookingID)->first();
-                if($payment->pending_amount == 0){
-                    return 'You Can Close This Booking';
-                } else {
-                    return 'This Booking Payment is Pending';
-                }
-            } else {
-                return redirect()->back()->with('error', 'Please Add Credit Note of This Booking');
-            }
-        } else {
-            return 'Record Not Found';
+        $booking = Booking::with('deposit', 'payment')->find($id);
+        $depositHandling = DepositHandling::where('booking_id', $id)->sum('deduct_deposit');
+        $payment = Payment::where('booking_id', $id)->first();
+        $depositAmount = $booking->deposit->deposit_amount ?? 0;
+        $pending = $payment->pending_amount ?? 0;
+
+        if ($pending > 0) {
+            return response()->json(['status' => 'pending_payment', 'amount' => $pending]);
         }
+
+        // Total Deposit Recieved
+        if ($depositAmount > 0 && $depositAmount > $depositHandling) {
+            $creditNote = CreditNote::where('booking_id', $id)->first();
+            if(!$creditNote){
+                $payable = $depositAmount - $depositHandling;
+                return response()->json(['status' => 'deposit_remaining', 'deposit_amount' => $payable]);
+            }
+        }
+        return response()->json(['status' => 'can_close']);
+    }
+
+    public function closeBooking($id)
+    {
+        $booking = Booking::find($id);
+        $booking->update(['booking_status' => 'closed']);
+        return response()->json(['success' => true]);
+    }
+
+    public function forceCloseBooking($id)
+    {
+        $booking = Booking::find($id);
+        $booking->update(['booking_status' => 'closed']);
+        return response()->json(['success' => true]);
     }
 }

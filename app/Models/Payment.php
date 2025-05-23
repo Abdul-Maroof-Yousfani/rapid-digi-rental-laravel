@@ -17,6 +17,7 @@ class Payment extends Model
         'booking_amount',
         'paid_amount',
         'pending_amount',
+        'payment_status',
     ];
 
     /**

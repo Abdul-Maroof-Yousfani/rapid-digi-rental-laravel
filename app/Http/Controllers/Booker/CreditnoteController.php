@@ -30,7 +30,7 @@ class CreditnoteController extends Controller
     {
         $booking= Booking::whereHas('deposit', function ($query){
             $query->where('deposit_amount', '>', 0);
-        })->with('deposit', 'customer', 'depositHandling')->get();
+        })->with('deposit', 'customer', 'depositHandling')->orderBy('id', 'DESC')->get();
 
         $filterBooking= $booking->filter(function($booking){
             $totalDeducted = $booking->depositHandling->sum('deduct_deposit');

@@ -39,7 +39,7 @@
                             <tr>
                                 <td>{{ $number }}.</td>
                                 <td>{{ $item->zoho_invoice_number }}</td>
-                                <td>{{ $item->total_price }}</td>
+                                <td>{{ $item->total_amount }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
                                     <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>

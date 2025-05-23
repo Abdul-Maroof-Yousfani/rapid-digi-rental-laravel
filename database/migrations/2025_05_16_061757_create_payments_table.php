@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('booking_amount', 10, 2);
             $table->decimal('paid_amount', 10, 2);
             $table->decimal('pending_amount', 10, 2)->nullable();
+            $table->enum('payment_status', ['paid', 'pending'])->nullable();
             $table->timestamps();
         });
     }

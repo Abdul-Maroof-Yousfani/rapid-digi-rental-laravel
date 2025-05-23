@@ -48,20 +48,20 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6 col-lg-6">
+                        {{-- <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Payment Status <span class="text-danger">*</span></label>
-                                        <select name="invoice_status" class="form-control" required>
+                                        <select name="invoice_status" class="form-control" required readonly>
                                             <option value="">Select Status</option>
-                                            <option value="draft">Unpaid</option>
+                                            <option value="draft" selected>Unpaid</option>
                                             <option value="sent">Paid</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="col-12">
                             <div class="card">
