@@ -173,18 +173,18 @@
                         </li>
                         @endcan
 
-
+                        @can('view reports')
                           <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Report</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{role_base_route('bookingReport')}}">Vehicles Booking</a></li>
-                                <li><a class="nav-link" href="">Revenue</a></li>
-                                <li><a class="nav-link" href="">Upcoming Bookings</a></li>
+                                <li><a class="nav-link" href="{{role_base_route('bookingReport')}}">Vehicles & Revenue Booking</a></li>
+                                <!-- <li><a class="nav-link" href="">Revenue</a></li>
+                                <li><a class="nav-link" href="">Upcoming Bookings</a></li> -->
                              
                             </ul>
                         </li>
-
+                        @endcan
 
                     </ul>
                 </aside>

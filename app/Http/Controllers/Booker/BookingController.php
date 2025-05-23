@@ -180,8 +180,8 @@ public function bookingReport(Request $request)
 {
     $query = Booking::with(['bookingData.vehicle', 'customer', 'invoice']);
 
-     $query->whereHas('bookingData.vehicle', function ($q) {
-        $q->where('investor_id', Auth::id()); // or Auth::user()->id
+    $query->whereHas('bookingData.vehicle.investor', function ($q) {
+        $q->where('user_id', Auth::id());
     });
     if ($request->filled('from_date') && $request->filled('to_date')) {
         $from = Carbon::parse($request->from_date)->startOfDay(); // 00:00:00
