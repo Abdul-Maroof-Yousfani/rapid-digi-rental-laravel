@@ -73,7 +73,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Agreement No. <span class="text-danger">*</span></label>
-                                        <input type="text" value="{{ $booking->agreement_no }}" name="agreement_no" class="form-control" >
+                                        <input type="text" value="{{ $booking->agreement_no }}" name="agreement_no" class="form-control agreement_no" >
                                     </div>
                                 </div>
                             </div>
@@ -366,6 +366,19 @@
 @section('script')
     <script>
         $(document).ready(function() {
+
+            $(document).on('keypress', '.agreement_no', function (e) {
+                if (e.key === '-' || e.which === 45) {
+                    e.preventDefault();
+                }
+            });
+
+            $(document).on('keypress', '.price', function (e) {
+                if (e.key === '-' || e.which === 45) {
+                    e.preventDefault();
+                }
+            });
+
             $('#addRow').click(function() {
                 let newRow = `
                 <tr>

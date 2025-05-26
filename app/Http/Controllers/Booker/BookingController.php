@@ -39,7 +39,7 @@ class BookingController extends Controller
     public function index()
     {
         $booking = Booking::with('invoice', 'customer', 'deposit', 'salePerson')
-                    // ->where('created_at', '>=', Carbon::now()->subDays(15))
+                    ->where('created_at', '>=', Carbon::now()->subDays(15))
                     ->orderBy('id', 'desc')->get();
         return view('booker.booking.index', compact('booking'));
     }

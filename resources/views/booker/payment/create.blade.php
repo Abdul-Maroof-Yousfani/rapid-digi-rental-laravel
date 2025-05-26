@@ -225,6 +225,12 @@
 
 @section('script')
     <script>
+        $(document).on('keypress', '.amount_receive', function (e) {
+            if (e.key === '-' || e.which === 45) {
+                e.preventDefault();
+            }
+        });
+
         $(document).ready(function(){
             $(document).on('change', '.payment_method', function(){
                 var paymentMethod= $(this).val();
@@ -283,19 +289,6 @@
                     }
                 });
             });
-
-            // function recalculateTotals() {
-            //     let subtotal = 0;
-            //     $('.invPaidAmount').each(function(){
-            //         subtotal += parseFloat($(this).val()) || 0;
-            //     });
-            //     $('.insubtot').val(subtotal.toFixed(2));
-            //     let bookingTotal = parseFloat($('.booking_amount').val()) || 0;
-            //     let receivedAmount = subtotal;
-            //     $('.amount_receive').val(receivedAmount.toFixed(2));
-            //     let pendingAmount = bookingTotal - receivedAmount;
-            //     $('.pending_amount').val(pendingAmount.toFixed(2));
-            // }
 
             function recalculateTotals() {
                 let subtotal = 0;
