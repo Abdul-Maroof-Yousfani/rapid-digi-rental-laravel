@@ -39,6 +39,7 @@ class VehiclestatusController extends Controller
         if($validator->fails()){
             return redirect()->back()->withErrors($validator->messages())->withInput();
         }else{
+            // dd($request->all());
             try {
                 DB::beginTransaction();
                 Vehiclestatus::create([

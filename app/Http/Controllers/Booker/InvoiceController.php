@@ -26,8 +26,11 @@ class InvoiceController extends Controller
 
     public function index(string $id)
     {
-        $invoice= Invoice::where('booking_id', $id)->where('created_at', '>=', Carbon::now()->subDays(15))
-                ->orderBy('id', 'DESC')->get();
+        $invoice= Invoice::with('bookingData')
+                ->where('booking_id', $id)->where('created_at', '>=', Carbon::now()->subDays(15))
+                ->whereHas('bookingData', function ($query) {
+                    $query->where('transaction_type', '!=', 1);
+                })->orderBy('id', 'DESC')->get();
         $booking= Booking::findOrFail($id);
         return view('booker.invoice.index', compact('invoice', 'booking'));
     }
@@ -119,8 +122,8 @@ class InvoiceController extends Controller
                         ]);
                     }
 
-                    DB::commit();
                     return redirect()->route('booker.view.invoice', $request->booking_id)->with('success', 'Invoice Created Successfully.')->withInput();
+                    DB::commit();
 
                 } catch (\Exception $exp) {
                     DB::rollBack();
@@ -243,8 +246,8 @@ class InvoiceController extends Controller
                         ]);
                     }
 
-                    DB::commit();
                     return redirect()->route('booker.view.invoice', $request->booking_id)->with('success', 'Booking Updated Successfully.')->withInput();
+                    DB::commit();
 
                 } catch (\Exception $exp) {
                     DB::rollBack();

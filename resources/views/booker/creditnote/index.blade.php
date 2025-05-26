@@ -39,7 +39,7 @@
                                 <tbody>
                                     @foreach ($creditNote as $item)
                                     <tr>
-                                        <td>{{ $item->credit_note_no }}.</td>
+                                        <td>{{ $item->credit_note_no }}</td>
                                         <td>{{ $item->booking->customer->customer_name }}</td>
                                         <td>{{ $item->booking->agreement_no }}</td>
                                         <td>{{ $item->paymentMethod->name }}</td>

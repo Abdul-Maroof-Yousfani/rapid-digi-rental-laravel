@@ -23,7 +23,7 @@ class VehicleCrudController extends Controller
      */
     public function index()
     {
-        $vehicle= Vehicle::all();
+        $vehicle= Vehicle::orderBy('id', 'DESC')->get();
         return view("admin.vehicle.index", compact('vehicle'));
     }
 

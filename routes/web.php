@@ -75,10 +75,16 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
 });
 
+// AJAX Routes
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
 Route::get('get-vehicle-detail/{id}', [AjaxController::class, 'getNoByVehicle'])->name("getNoByVehicle");
 Route::get('get-vehicle-by-booking/{id}/booking/{booking_id}', [AjaxController::class, 'getVehicleAgaistBooking']);
 Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail']);
+
+Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
+Route::get('/check-status/{id}', [BookingController::class, 'checkCloseEligibility'])->name('booking.check');
+Route::post('/booking/force-close/{id}', [BookingController::class, 'forceCloseBooking'])->name('booker.booking.force-close');
+Route::post('/booking/close/{id}', [BookingController::class, 'closeBooking'])->name('booker.booking.close');
 
 Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->group(function() {
     Route::get('/dashboard', [BookerController::class, 'index'])->name('dashboard')->middleware('permission:view booker dashboard');
@@ -102,13 +108,6 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('vehicle-assigned/{vehicle_id}/edit', [VehiclestatusController::class, 'editAssinedVehicle'])->name('assined.vehicle.edit');
     Route::post('assign-status/{vehicle_id}/update', [VehiclestatusController::class, 'updateAssinedVehicle'])->name('assined.vehicle.update');
     Route::get('vehicle-assigned/{vehicle_id}/delete', [VehiclestatusController::class, 'deleteAssinedVehicle'])->name('assined.vehicle.delete');
-
-
-    // AJAX Routes
-    Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
-    Route::get('/booking/check-status/{id}', [BookingController::class, 'checkCloseEligibility'])->name('booker.booking.check');
-    Route::post('/booking/close/{id}', [BookingController::class, 'closeBooking'])->name('booker.booking.close');
-    Route::post('/booking/force-close/{id}', [BookingController::class, 'forceCloseBooking'])->name('booker.booking.force-close');
 
 
 

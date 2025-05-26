@@ -47,7 +47,7 @@
                                         <i class="fas fa-tools"></i>
                                       </div>
                                   </div>
-                                  <input type="text" value="{{ old('car_make') }}" name="car_make" class="form-control">
+                                  <input type="text" value="{{ old('car_make') }}" name="car_make" class="form-control car_make">
                               </div>
                               @error('car_make') <span class="text-danger">{{ $message }}</span> @enderror
                           </div>

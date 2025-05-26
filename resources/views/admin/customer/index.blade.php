@@ -133,7 +133,7 @@
                 return;
             }
             $.ajax({
-                url: '/booker/getCustomerList',
+                url: '/getCustomerList',
                 method: 'get',
                 data: data,
                 success:function(response){

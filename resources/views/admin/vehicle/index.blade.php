@@ -42,7 +42,7 @@
                           @foreach ($vehicle as $item)
                           <tr>
                               <td>{{ $number }}.</td>
-                              <td>{{ $item->vehicle_name }}</td>
+                              <td>{{ $item->vehicle_name ?? $item->temp_vehicle_detail }}</td>
                               <td>{{ $item->vehicletype->name }}</td>
                               <td>{{ $item->investor->name }}</td>
                               <td>{{ $item->number_plate }}</td>

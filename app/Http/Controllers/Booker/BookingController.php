@@ -49,7 +49,7 @@ class BookingController extends Controller
      */
     public function create()
     {
-        $customers= Customer::all();
+        $customers= Customer::orderBy('id', 'DESC')->get();
         $vehicletypes= Vehicletype::all();
         $salePerson= SalePerson::all();
         $taxlist= $this->zohoinvoice->taxList();
@@ -371,41 +371,41 @@ public function bookingReport(Request $request)
     }
 
     // public function closeBooking(string $bookingID)
-    // {
-    //     $booking= Booking::find($bookingID);
-    //     if($booking->deposit->deposit_amount == 0){
-    //         $payment= Payment::where('booking_id', $bookingID)->first();
-    //         $paymentAmount= $payment->pending_amount;
-    //         /**return 'This Booking Deposit in zero | Pending Amount is '.$paymentAmount. '<br> But You Can Close This Booking';*/
-    //         return redirect()->back()->with('error', 'Your Pending Amount is'.$paymentAmount.' But You Can Closed');
-    //     } else {
-    //         $depositHandling= DepositHandling::where('booking_id', $bookingID)->sum('deduct_deposit');
-    //         $payment= Payment::where('booking_id', $bookingID)->first();
-    //         $paymentAmount= $payment->pending_amount ?? 0;
-    //         $paidAmount= $payment->paid_amount ?? 0;
-    //         if($depositHandling == $booking->deposit->deposit_amount){
-    //             /**return 'Your Initial Deposit Amount is '.$booking->deposit->deposit_amount.
-    //                 '<br>Your Deposit Adjust Amount Is '. $depositHandling.
-    //                 '<br>Paid Amount '.$paidAmount-$depositHandling.
-    //                 '<br>Your Pending Amount is '.$paymentAmount.
-    //                 '<br>But You Can close booking';*/
-    //             return redirect()->back()->with('error', 'Your Pending Amount is '.$paymentAmount);
-    //         } else {
-    //             $creditNote= CreditNote::where('booking_id', $bookingID)->first();
-    //             if($creditNote){
-    //                     /**return 'Refund Deposit Amount '.$creditNote->refund_amount.'<br>'
-    //                         .'Previous Deposit Adjust '.$depositHandling.'<br>'
-    //                         .'Initial Deposit '.$booking->deposit->deposit_amount.' = '.$creditNote->refund_amount + $depositHandling
-    //                         .'<br>You Can close Booking';*/
-    //             return redirect()->back()->with('success', 'Booking is Closed'.$paymentAmount);
-    //             } else {
-    //                 $payable= $booking->deposit->deposit_amount - $depositHandling;
-    //                     /**return 'Payable Remaining Deposit Is : '.$payable.
-    //                         '<br>Can not close booking Please make Credit note';*/
-    //                 return redirect()->back()->with('success', 'Your Deposit Payable is '. $payable. ' Make Credit Note');
-    //             }
-    //         }
-    //     }
+        // {
+        //     $booking= Booking::find($bookingID);
+        //     if($booking->deposit->deposit_amount == 0){
+        //         $payment= Payment::where('booking_id', $bookingID)->first();
+        //         $paymentAmount= $payment->pending_amount;
+        //         /**return 'This Booking Deposit in zero | Pending Amount is '.$paymentAmount. '<br> But You Can Close This Booking';*/
+        //         return redirect()->back()->with('error', 'Your Pending Amount is'.$paymentAmount.' But You Can Closed');
+        //     } else {
+        //         $depositHandling= DepositHandling::where('booking_id', $bookingID)->sum('deduct_deposit');
+        //         $payment= Payment::where('booking_id', $bookingID)->first();
+        //         $paymentAmount= $payment->pending_amount ?? 0;
+        //         $paidAmount= $payment->paid_amount ?? 0;
+        //         if($depositHandling == $booking->deposit->deposit_amount){
+        //             /**return 'Your Initial Deposit Amount is '.$booking->deposit->deposit_amount.
+        //                 '<br>Your Deposit Adjust Amount Is '. $depositHandling.
+        //                 '<br>Paid Amount '.$paidAmount-$depositHandling.
+        //                 '<br>Your Pending Amount is '.$paymentAmount.
+        //                 '<br>But You Can close booking';*/
+        //             return redirect()->back()->with('error', 'Your Pending Amount is '.$paymentAmount);
+        //         } else {
+        //             $creditNote= CreditNote::where('booking_id', $bookingID)->first();
+        //             if($creditNote){
+        //                     /**return 'Refund Deposit Amount '.$creditNote->refund_amount.'<br>'
+        //                         .'Previous Deposit Adjust '.$depositHandling.'<br>'
+        //                         .'Initial Deposit '.$booking->deposit->deposit_amount.' = '.$creditNote->refund_amount + $depositHandling
+        //                         .'<br>You Can close Booking';*/
+        //             return redirect()->back()->with('success', 'Booking is Closed'.$paymentAmount);
+        //             } else {
+        //                 $payable= $booking->deposit->deposit_amount - $depositHandling;
+        //                     /**return 'Payable Remaining Deposit Is : '.$payable.
+        //                         '<br>Can not close booking Please make Credit note';*/
+        //                 return redirect()->back()->with('success', 'Your Deposit Payable is '. $payable. ' Make Credit Note');
+        //             }
+        //         }
+        //     }
     // }
 
 
@@ -417,11 +417,6 @@ public function bookingReport(Request $request)
         $depositAmount = $booking->deposit->deposit_amount ?? 0;
         $pending = $payment->pending_amount ?? 0;
 
-        if ($pending > 0) {
-            return response()->json(['status' => 'pending_payment', 'amount' => $pending]);
-        }
-
-        // Total Deposit Recieved
         if ($depositAmount > 0 && $depositAmount > $depositHandling) {
             $creditNote = CreditNote::where('booking_id', $id)->first();
             if(!$creditNote){
@@ -429,6 +424,15 @@ public function bookingReport(Request $request)
                 return response()->json(['status' => 'deposit_remaining', 'deposit_amount' => $payable]);
             }
         }
+
+        if($pending){
+            if ($pending > 0) {
+                return response()->json(['status' => 'pending_payment', 'amount' => $pending]); }
+        }else {
+            return response()->json(['status' => 'not_received', 'amount' => 'not receive']);
+        }
+
+
         return response()->json(['status' => 'can_close']);
     }
 
