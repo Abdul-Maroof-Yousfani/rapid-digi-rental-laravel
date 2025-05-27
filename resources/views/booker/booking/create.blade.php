@@ -170,10 +170,11 @@
                                                     <td class="align-middle"><br>
                                                     <input type="hidden" name="tax_percent[]" value="" class="tax">
                                                     <div class="form-group">
-                                                        <select name="tax[]"class="form-control select2 zohotax">
+                                                        <select name="tax[]"class="form-control select2 zohotax" readonly>
                                                             <option value="">Select Tax</option>
                                                             @foreach ($taxlist['taxes'] as $item)
-                                                                <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                                                <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}"
+                                                                                                                        {{ $item['tax_name']=='VAT' ? 'selected' : '' }}>
                                                                     {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
                                                                 </option>
                                                             @endforeach
@@ -313,7 +314,8 @@
                                 class="form-control select2 zohotax">
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
-                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}"
+                                                                                            {{ $item['tax_name']=='VAT' ? 'selected' : '' }}>
                                         {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
                                     </option>
                                 @endforeach
@@ -399,7 +401,8 @@
                                 class="form-control select2 zohotax">
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
-                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}"
+                                                                                        {{ $item['tax_name']=='VAT' ? 'selected' : '' }}>
                                         {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
                                     </option>
                                 @endforeach

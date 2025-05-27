@@ -53,6 +53,7 @@ class PaymentController extends Controller
             'payment_method' => 'required',
             'booking_amount' => 'required',
             'amount_receive' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'invoice_id.*' => 'required',
             'invPaidAmount.*' => 'required',
         ];
@@ -63,9 +64,14 @@ class PaymentController extends Controller
             $errormessage= implode('\n', $validator->errors()->all());
             return redirect()->back()->with('error', $errormessage)->withInput();
         } else {
-            // dd($request->all());
             try {
                 DB::beginTransaction();
+                $imagePath = null;
+                if ($request->hasFile('image')) {
+                    $image = $request->file('image');
+                    $imageName = time() . '.' . $image->getClientOriginalExtension();
+                    $imagePath = $image->storeAs('public/images', $imageName);
+                }
                 $pendingAmount= $request['booking_amount'] - $request['amount_receive'];
                 $paymentStatus= $pendingAmount==0 ? 'paid' : 'pending';
                 $payment= Payment::create([
@@ -75,7 +81,8 @@ class PaymentController extends Controller
                     'booking_amount' => $request['booking_amount'],
                     'paid_amount' => $request['amount_receive'],
                     'pending_amount' => $pendingAmount,
-                    'payment_status' => $paymentStatus
+                    'payment_status' => $paymentStatus,
+                    'receipt' => $imagePath,
                 ]);
 
                 $paymentDataMap = [];

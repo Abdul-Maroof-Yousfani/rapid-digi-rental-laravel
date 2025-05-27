@@ -29,7 +29,7 @@
                         </div>
                     </div>
                 </div>
-                <form action="{{ url('booker/payment') }}" method="post">
+                <form action="{{ url('booker/payment') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-12">
@@ -104,8 +104,8 @@
                                             <tr>
                                                 <td class="align-middle">
                                                     <div class="form-group">
-                                                        <label for="">Receive Amount</label><br>
-                                                        <input type="number" placeholder="Receive Amount" value="" name="" class="form-control amount_receive" min="0" step="0.01">
+                                                        <label for="image">Upload Image</label><br>
+                                                        <input type="file" name="image" id="image" class="form-control" accept="image/*">
                                                     </div>
                                                 </td>
                                                 <td class="align-middle">
@@ -118,6 +118,14 @@
                                                     <div class="form-group">
                                                         <label for="">Remaining Deposit</label><br>
                                                         <input type="number" placeholder="" value="" name="" class="form-control remaining_deposit" disabled>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="align-middle">
+                                                    <div class="form-group">
+                                                        <label for="">Receive Amount</label><br>
+                                                        <input type="number" placeholder="Receive Amount" value="" name="" class="form-control amount_receive" min="0" step="0.01">
                                                     </div>
                                                 </td>
                                             </tr>
