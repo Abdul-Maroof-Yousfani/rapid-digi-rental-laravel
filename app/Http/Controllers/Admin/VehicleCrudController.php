@@ -23,8 +23,12 @@ class VehicleCrudController extends Controller
      */
     public function index()
     {
+        $vehicletypes= Vehicletype::all();
+        if($vehicletypes->isEmpty()) { return redirect()->route('vehicle-type.create')->with('error', 'First Add Vehicle Type Then You can Add Vehicle'); }
+        $investor= Investor::all();
+        if($investor->isEmpty()) { return redirect()->route('investor.create')->with('error', 'First Add Investor Then You can Add Vehicle'); }
         $vehicle= Vehicle::orderBy('id', 'DESC')->get();
-        return view("admin.vehicle.index", compact('vehicle'));
+        return view("admin.vehicle.index", compact('vehicle', 'vehicletypes', 'investor'));
     }
 
     /**
@@ -34,7 +38,6 @@ class VehicleCrudController extends Controller
     {
         $vehicletypes= Vehicletype::all();
         if($vehicletypes->isEmpty()) { return redirect()->route('vehicle-type.create')->with('error', 'First Add Vehicle Type Then You can Add Vehicle'); }
-        // $investor= User::has('investor')->with('investor')->get();
         $investor= Investor::all();
         if($investor->isEmpty()) { return redirect()->route('investor.create')->with('error', 'First Add Investor Then You can Add Vehicle'); }
         return view("admin.vehicle.create", compact('vehicletypes', 'investor'));
@@ -55,11 +58,14 @@ class VehicleCrudController extends Controller
         ]);
 
         if($validator->fails()){
-            return redirect()->back()->withErrors($validator->messages())->withInput();
-        }
-        else{
+            if($request->ajax()){
+                return response()->json(['error' => $validator->errors()], 422);
+            } else {
+                return redirect()->back()->withErrors($validator->messages())->withInput();
+            }
+        } else{
             try {
-                Vehicle::create([
+                $vehicle = Vehicle::create([
                     'vehicle_name' => $request['vehicle_name'],
                     'vehicletypes' => $request['vehicletypes'],
                     'investor_id' => $request['investor_id'],
@@ -68,7 +74,11 @@ class VehicleCrudController extends Controller
                     'number_plate' => $request['number_plate'],
                     'status' => $request['status'],
                 ]);
-                return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Added Against Investor Successfully!');
+                if($request->ajax()){
+                    return response()->json(['success' => 'Vehicle Added Successfully!', 'data' => $vehicle->load('vehicletype', 'investor')]);
+                } else {
+                    return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Added Against Investor Successfully!');
+                }
             } catch (\Exception $exp) {
                 return redirect()->back()->with('error', $exp->getMessage());
             }

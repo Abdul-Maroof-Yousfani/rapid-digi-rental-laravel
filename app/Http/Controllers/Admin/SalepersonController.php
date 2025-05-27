@@ -38,19 +38,28 @@ class SalepersonController extends Controller
         ]);
 
         if($validator->fails()){
-            return redirect()->back()->withErrors($validator->messages())->withInput();
+            if ($request->ajax()) { return response()->json(['errors' => $validator->errors()], 422); }
+            else { return redirect()->back()->withErrors($validator->messages())->withInput(); }
         }else{
             try {
                 DB::beginTransaction();
-                SalePerson::create([
+                $salemen = SalePerson::create([
                     'name' => $request->name,
                     'status' => $request->status,
                 ]);
-                return redirect()->route('admin.sale-person.index')->with('success', 'Sale Person Added Successfully!');
                 DB::commit();
+                if ($request->ajax()) {
+                    return response()->json(['success' => 'Sale Men Added Successfully!', 'data' => $salemen]);
+                } else {
+                    return redirect()->route('admin.sale-person.index')->with('success', 'Sale Person Added Successfully!');
+                }
             } catch (\Exception $exp) {
                 DB::rollBack();
-                return redirect()->back()->with('error', $exp->getMessage());
+                if ($request->ajax()) {
+                    return response()->json(['error' => $exp->getMessage()], 500);
+                } else {
+                    return redirect()->back()->with('error', $exp->getMessage());
+                }
             }
         }
     }

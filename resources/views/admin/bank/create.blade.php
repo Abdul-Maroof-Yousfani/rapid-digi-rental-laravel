@@ -5,7 +5,6 @@
     <div class="main-content">
         <section class="section">
             <div class="section-body">
-                @can('manage customers')
                 <form action="{{ url('admin/bank') }}" method="post">
                     @csrf
                     <div class="row">
@@ -100,7 +99,6 @@
                         </div>
                     </div>
                 </form>
-                @endcan
             </div>
         </section>
     </div>

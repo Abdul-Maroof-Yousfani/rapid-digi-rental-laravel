@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="{{ asset('assets/bundles/jquery-selectric/selectric.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/bundles/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/bundles/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Template CSS -->
     <link rel="stylesheet" href="{{ asset('assets/bundles/datatables/datatables.min.css') }}">
     <link rel="stylesheet"
@@ -226,6 +228,8 @@
             </footer>
         </div>
     </div>
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- General JS Scripts -->
     <script src="{{ asset('assets/js/app.min.js') }}"></script>
     <script src="{{ asset('assets/bundles/apexcharts/apexcharts.min.js') }}"></script>
@@ -260,6 +264,7 @@
     <!-- Sweet Alert CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
     @yield('script')
 
     @if (session('error'))
@@ -281,6 +286,198 @@
             });
         </script>
     @endif
+
+
+    <script>
+        // $(document).ready(function(){
+        //     $("#bankForm").on('submit', function(e) {
+        //         e.preventDefault();
+        //         var form = $(this);
+        //         var formData = form.serialize();
+        //         $.ajax({
+        //             url: '{{ route("admin.bank.store") }}',
+        //             type: 'POST',
+        //             data: formData,
+        //             success:function(response){
+        //                 if (response.success) {
+        //                     $('#bankModal').modal('hide');
+        //                     form[0].reset();
+        //                     Swal.fire({
+        //                         icon: 'success',
+        //                         title: 'Success',
+        //                         text: response.success,
+        //                         confirmButtonText: 'OK'
+        //                     });
+        //                     $('#responseList').prepend(`
+        //                         <tr>
+        //                             <td>${response.data.bank_name}</td>
+        //                             <td>${response.data.account_name}</td>
+        //                             <td>${response.data.account_number}</td>
+        //                             <td>${response.data.iban}</td>
+        //                             <td>${response.data.swift_code}</td>
+        //                             <td>${response.data.branch}</td>
+        //                             <td>
+        //                                 <a href="/admin/bank/${response.id}/edit" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+        //                                 <form action="/admin/bank/${response.id}" method="POST" style="display:inline;" class="delete-form">
+        //                                     @csrf
+        //                                     @method('DELETE')
+        //                                     <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+        //                                 </form>
+        //                             </td>
+        //                         </tr>
+        //                     `);
+        //                 }  else {
+        //                     Swal.fire({
+        //                         icon: 'error',
+        //                         title: 'Error',
+        //                         text: response.error,
+        //                         confirmButtonText: 'OK'
+        //                     });
+        //                 }
+        //             }
+        //         })
+        //     });
+        // });
+
+
+        $(document).ready(function () {
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            window.renderSaleMenRow = function (data, index) {
+                return `
+                    <tr>
+                        <td>${index + 1}.</td>
+                        <td>${data.name}</td>
+                        <td>${data.status==1 ? 'Active' : 'Inactive' }</td>
+                        <td>
+                            <a href="/admin/sale-person/${data.id}/edit" class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
+                            <form action="/admin/sale-person/${data.id}" method="POST" style="display:inline;" class="delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>`;
+            };
+
+
+            window.renderBankRow = function(data, index) {
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${data.bank_name}</td>
+                        <td>${data.account_name}</td>
+                        <td>${data.account_number}</td>
+                        <td>${data.iban}</td>
+                        <td>${data.swift_code}</td>
+                        <td>${data.branch}</td>
+                        <td>
+                            <a href="/admin/bank/${data.id}/edit" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                            <form action="/admin/bank/${data.id}" method="POST" style="display:inline;" class="delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>`;
+            };
+
+            window.renderVehicleRow = function(data, index){
+                return `
+                    <tr>
+                        <td>${index + 1}.</td>
+                        <td>${data.vehicle_name ?? data.temp_vehicle_detail}</td>
+                        <td>${data.vehicletype?.name}</td>
+                        <td>${data.investor?.name}</td>
+                        <td>${data.number_plate}</td>
+                        <td>${data.car_make}</td>
+                        <td>${data.year}</td>
+                        <td>${data.status==1 ? 'Active' : 'Inactive' }</td>
+                        <td>
+                            <a href="/admin/vehicle/${data.id}/edit" class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
+                            <form action="/admin/vehicle/${data.id}" method="POST" style="display:inline;" class="delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>`;
+            };
+
+            $(".ajax-form").on("submit", function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var formData = form.serialize();
+                var url = form.data("url");
+                var targetTable = form.data("target-table");
+                var renderFunctionName = form.data("render-function");
+                var modalId = form.data("modal-id");
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        console.log("Full Response:", response);
+                        if (response.success) {
+                            form[0].reset();
+                            if (modalId) {
+                                $('#' + modalId).modal('hide');
+                            }
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.success,
+                                confirmButtonText: 'OK'
+                            });
+
+                            // console.log("Response Data:", response.data);
+                            // console.log("Render Function:", renderFunctionName);
+                            // console.log("Target Table:", targetTable);
+                            let currentRowCount = $(targetTable + " tbody tr").length;
+                            if (response.data && typeof window[renderFunctionName] === 'function') {
+                                let newRow = window[renderFunctionName](response.data, currentRowCount);
+                                $(targetTable + " tbody").prepend(newRow);
+                            }  else {
+                                console.error("Render function not found or response data missing");
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || 'Something went wrong',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        let errors = xhr.responseJSON?.errors || {};
+                        let errorMsg = '';
+                        $.each(errors, function (key, value) {
+                            errorMsg += value + '\n';
+                        });
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: errorMsg || 'Please check your input.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+        });
+
+
+
+
+
+    </script>
 
 
 </body>
