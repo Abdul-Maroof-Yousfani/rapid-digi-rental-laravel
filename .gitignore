@@ -28,3 +28,6 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+
+# Ignore images in public/assets/images
+/public/assets/images/*

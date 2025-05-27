@@ -70,7 +70,8 @@ class PaymentController extends Controller
                 if ($request->hasFile('image')) {
                     $image = $request->file('image');
                     $imageName = time() . '.' . $image->getClientOriginalExtension();
-                    $imagePath = $image->storeAs('public/images', $imageName);
+                    $image->move(public_path('assets/images'), $imageName);
+                    $imagePath= 'assets/images/' . $imageName;
                 }
                 $pendingAmount= $request['booking_amount'] - $request['amount_receive'];
                 $paymentStatus= $pendingAmount==0 ? 'paid' : 'pending';

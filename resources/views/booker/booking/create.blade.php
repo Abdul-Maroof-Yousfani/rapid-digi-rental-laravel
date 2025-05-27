@@ -48,10 +48,6 @@
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="form-group">
-                                        <label>Agreement No. <span class="text-danger">*</span></label>
-                                        <input type="text" value="" name="agreement_no" class="form-control agreement_no" >
-                                    </div>
-                                    <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
                                         <input type="number" value="0" name="deposit_amount" class="form-control" >
                                     </div>
@@ -71,6 +67,10 @@
                                             @endforeach
                                         </select>
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Agreement No. <span class="text-danger">*</span></label>
+                                        <input type="text" value="" name="agreement_no" class="form-control agreement_no">
                                     </div>
                                 </div>
                             </div>
