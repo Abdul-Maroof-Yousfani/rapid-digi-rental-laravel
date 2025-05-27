@@ -122,8 +122,8 @@ class InvoiceController extends Controller
                         ]);
                     }
 
-                    return redirect()->route('booker.view.invoice', $request->booking_id)->with('success', 'Invoice Created Successfully.')->withInput();
                     DB::commit();
+                    return redirect()->route('booker.view.invoice', $request->booking_id)->with('success', 'Invoice Created Successfully.')->withInput();
 
                 } catch (\Exception $exp) {
                     DB::rollBack();
@@ -246,8 +246,8 @@ class InvoiceController extends Controller
                         ]);
                     }
 
-                    return redirect()->route('booker.view.invoice', $request->booking_id)->with('success', 'Booking Updated Successfully.')->withInput();
                     DB::commit();
+                    return redirect()->route('booker.view.invoice', $request->booking_id)->with('success', 'Booking Updated Successfully.')->withInput();
 
                 } catch (\Exception $exp) {
                     DB::rollBack();

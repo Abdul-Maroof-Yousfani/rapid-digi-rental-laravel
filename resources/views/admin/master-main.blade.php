@@ -149,6 +149,16 @@
                                 <li><a class="nav-link" href="{{ route('admin.sale-person.index') }}">Sale Person list</a></li>
                             </ul>
                         </li>
+                        <li class="dropdown">
+                            <a href="#" class="menu-toggle nav-link has-dropdown">
+                                <i class="fa-landmark" style="width: 16px; margin-right: 8px; text-align: left;"></i>
+                                <span>Banks</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{ route('admin.bank.create') }}">Add Bank</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.bank.index') }}">Bank list</a></li>
+                            </ul>
+                        </li>
                         @endcan
                         @can('manage booking')
                         <li class="dropdown">
@@ -181,7 +191,7 @@
                                 <li><a class="nav-link" href="{{role_base_route('bookingReport')}}">Vehicles & Revenue Booking</a></li>
                                 <!-- <li><a class="nav-link" href="">Revenue</a></li>
                                 <li><a class="nav-link" href="">Upcoming Bookings</a></li> -->
-                             
+
                             </ul>
                         </li>
                         @endcan

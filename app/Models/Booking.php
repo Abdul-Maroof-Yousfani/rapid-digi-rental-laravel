@@ -54,11 +54,11 @@ class Booking extends Model
         return $this->belongsTo(Deposit::class, 'deposit_id', 'id');
     }
 
-    
-   public function bookingData()
-{
-    return $this->hasMany(BookingData::class, 'booking_id', 'id');
-}
+
+    public function bookingData()
+    {
+        return $this->hasMany(BookingData::class, 'booking_id', 'id');
+    }
 
     public function salePerson()
     {

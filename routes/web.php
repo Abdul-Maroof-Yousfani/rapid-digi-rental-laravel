@@ -1,28 +1,29 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\BookerCrudController;
-use App\Http\Controllers\Admin\CustomerController;
-use App\Http\Controllers\Admin\InvestorCrudController;
-use App\Http\Controllers\Admin\SalepersonController;
-use App\Http\Controllers\Admin\VehicleCrudController;
-use App\Http\Controllers\Admin\VehiclestatusController;
-use App\Http\Controllers\Admin\VehicleTypeCrudController;
-use App\Http\Controllers\ajax\AjaxController;
-use App\Http\Controllers\ajax\FilterviewController;
-use App\Http\Controllers\Api\ZohoController;
-use App\Http\Controllers\Booker\BookerController;
-use App\Http\Controllers\Booker\BookingController;
-use App\Http\Controllers\Booker\CreditnoteController;
-use App\Http\Controllers\Booker\InvoiceController;
-use App\Http\Controllers\Booker\PaymentController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Investor\InvestorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Api\ZohoController;
+use App\Http\Controllers\ajax\AjaxController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Booker\BookerController;
+use App\Http\Controllers\Admin\BankCrudController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Booker\BookingController;
+use App\Http\Controllers\Booker\InvoiceController;
+use App\Http\Controllers\Booker\PaymentController;
+use App\Http\Controllers\ajax\FilterviewController;
+use App\Http\Controllers\Admin\BookerCrudController;
+use App\Http\Controllers\Admin\SalepersonController;
+use App\Http\Controllers\Admin\VehicleCrudController;
+use App\Http\Controllers\Booker\CreditnoteController;
+use App\Http\Controllers\Investor\InvestorController;
+use App\Http\Controllers\Admin\InvestorCrudController;
+use App\Http\Controllers\Admin\VehiclestatusController;
+use App\Http\Controllers\Admin\VehicleTypeCrudController;
 
 
 
@@ -66,6 +67,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::resource('customer', CustomerController::class);
     Route::resource('investor', InvestorCrudController::class);
     Route::resource('booker', BookerCrudController::class);
+    Route::resource('bank', BankCrudController::class);
     Route::resource('vehicle', VehicleCrudController::class);
     Route::resource('sale-person', SalepersonController::class);
     Route::resource('vehicle-status', VehiclestatusController::class);

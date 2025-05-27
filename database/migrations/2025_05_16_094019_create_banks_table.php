@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('bank_name');
             $table->string('account_name');
-            $table->string('account_number');
+            $table->string('account_number')->unique();
             $table->string('iban')->nullable();
             $table->string('swift_code')->nullable();
             $table->string('branch')->nullable();
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->enum('status', [1, 0])->default(1);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
