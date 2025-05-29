@@ -16,7 +16,7 @@ class VehiclestatusController extends Controller
      */
     public function index()
     {
-        $status= Vehiclestatus::all();
+        $status= Vehiclestatus::orderBy('id', 'DESC')->get();
         return view('admin.vehicle.status.index', compact('status'));
     }
 
@@ -37,19 +37,21 @@ class VehiclestatusController extends Controller
             'name' => 'required',
         ]);
         if($validator->fails()){
-            return redirect()->back()->withErrors($validator->messages())->withInput();
+            if ($request->ajax()) { return response()->json(['error' => $validator->errors()], 422); }
+            else { return redirect()->back()->withErrors($validator->messages())->withInput(); }
         }else{
-            // dd($request->all());
             try {
                 DB::beginTransaction();
-                Vehiclestatus::create([
+                $vstatus = Vehiclestatus::create([
                     'name' => $request->name,
                 ]);
-                return redirect()->route('admin.vehicle-status.index')->with('success', 'Status Added Successfully!');
                 DB::commit();
+                if ($request->ajax()) { return response()->json(['success' => 'Status Added Successfully!', 'data' => $vstatus]); }
+                else { return redirect()->route('admin.vehicle-status.index')->with('success', 'Status Added Successfully!'); }
             } catch (\Exception $exp) {
                 DB::rollBack();
-                return redirect()->back()->with('error', $exp->getMessage());
+                if ($request->ajax()) { return response()->json(['error' => $exp->getMessage()]); }
+                else { return redirect()->back()->with('error', $exp->getMessage()); }
             }
         }
     }
@@ -107,10 +109,12 @@ class VehiclestatusController extends Controller
     {
         $status= Vehiclestatus::find($id);
         if(!$status){
-            return redirect()->back()->with('error', 'Status Not Found');
+            return response()->json(['error' => 'Status Not Found']);
+            // return redirect()->back()->with('error', 'Status Not Found');
         }else{
             $status->delete();
-            return redirect()->back()->with('success', 'Status Deleted Successfully!');
+            return response()->json(['success' => 'Status Deleted Successfully!']);
+            // return redirect()->back()->with('success', 'Status Deleted Successfully!');
         }
     }
 

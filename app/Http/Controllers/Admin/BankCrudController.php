@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
+use QueryException;
 use App\Models\Bank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +42,7 @@ class BankCrudController extends Controller
         ]);
         if ($validator->fails()) {
             if ($request->ajax()) {
-                return response()->json(['errors' => $validator->errors()], 422);
+                return response()->json(['error' => $validator->errors()], 422);
             } else {
                 $errorMessages = implode("\n", $validator->errors()->all());
                 return redirect()->back()->with('error', $errorMessages)->withInput();
@@ -123,7 +124,7 @@ class BankCrudController extends Controller
                 ]);
                 DB::commit();
                 return redirect()->route('admin.bank.index')->with('success', 'Bank Updated Successfully!');
-            } catch (\Exeptio $th) {
+            } catch (\Exeption $th) {
                 DB::rollBack();
                 return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
             }
@@ -135,6 +136,24 @@ class BankCrudController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $bank= Bank::find($id);
+            if(!$bank){
+                return response()->json(['error' => 'Bank Not Found']);
+            }else{
+                $bank->forceDelete();
+                return response()->json(['success' => 'Bank Deleted Successfully!']);
+            }
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'error' => 'Cannot delete bank because it is referenced in payments.'
+                ], 400);
+            } else {
+                return response()->json([
+                    'error' => 'Database error occurred. ' . $e->getMessage()
+                ], 500);
+            }
+        }
     }
 }

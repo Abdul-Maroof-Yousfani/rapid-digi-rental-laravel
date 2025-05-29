@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('booking_id');
             $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('cascade');
             $table->unsignedBigInteger('vehicle_id');
-            $table->foreign('vehicle_id')->references('id')->on('vehicles')->onDelete('cascade');
+            $table->foreign('vehicle_id')->references('id')->on('vehicles')->onDelete('restrict');
             $table->unsignedBigInteger('invoice_id');
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->dateTime('start_date')->nullable();

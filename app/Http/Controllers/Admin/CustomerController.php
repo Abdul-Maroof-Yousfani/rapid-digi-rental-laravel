@@ -63,7 +63,11 @@ class CustomerController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            if($request->ajax()){
+                return response()->json(['error' => $validator->errors()], 422);
+            } else {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
         }else{
             $customer_name= $request->customer_name;
             $status= $request->status;
@@ -94,7 +98,7 @@ class CustomerController extends Controller
             }
             if(isset($customerId)){
                 try {
-                    Customer::create([
+                    $customer = Customer::create([
                         'zoho_customer_id' => $customerId,
                         'customer_name' => $customer_name,
                         'email' => $email,
@@ -110,9 +114,17 @@ class CustomerController extends Controller
                         'postal_code' => $postal_code,
                         'status' => $status,
                     ]);
-                    return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Added Successfully!');
+                    if ($request->ajax()){
+                        return response()->json(['success' => 'Customer Added Successfully!','data' => $customer]);
+                    } else {
+                        return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Added Successfully!');
+                    }
                 } catch (\Exception $exp) {
-                    return redirect()->back()->with('error', $exp->getMessage());
+                    if ($request->ajax()){
+                        return response()->json(['error' => $exp->getMessage()]);
+                    } else {
+                        return redirect()->back()->with('error', $exp->getMessage());
+                    }
                 }
             } else {
                 return redirect()->back()->withErrors('error', 'Customer ID Not Fetch')->withInput();
@@ -246,12 +258,16 @@ class CustomerController extends Controller
      */
     public function destroy(string $id)
     {
-        $customers= Customer::find($id);
-        if($customers){
-            $customers->delete();
-            return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with("success", "Customer Deleted Successfully !");
-        } else{
-            return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('error', 'Customer Not Found !');
+        try {
+            $customers= Customer::find($id);
+            if($customers){
+                $customers->delete();
+                return response()->json(['success' => 'Customer Deleted Successfully!'], 200);
+            } else{
+                return response()->json(['error' => 'Customer Not Found!'], 404);
+            }
+        } catch (\Exception $exp) {
+            return response()->json(['error' => $exp->getMessage()], 500);
         }
     }
 }

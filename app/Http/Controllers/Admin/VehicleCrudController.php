@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Exeption;
 use App\Models\User;
 use League\Csv\Reader;
 use App\Models\Vehicle;
 use App\Models\Investor;
 use App\Models\Vehicletype;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
 class VehicleCrudController extends Controller
@@ -215,10 +216,16 @@ class VehicleCrudController extends Controller
      */
     public function destroy(string $id)
     {
-        $vehicle= Vehicle::find($id);
-        if(!$vehicle){ return redirect()->route('admin.vehicle.index')->with('error', 'Vehicle Not Found'); }
-        else{ $vehicle->delete();
-            return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Deleted Successfully');
+        try {
+            $vehicle= Vehicle::find($id);
+            if(!$vehicle) {
+                return response()->json(['error' => 'Vehicle Not Found']);
+            } else {
+                $vehicle->delete();
+                return response()->json(['success' => 'Vehicle Deleted Successfully!'], 200);
+            }
+        } catch (Exeption $exp) {
+            return response()->json(['error' => $exp->getMessage()], 500);
         }
     }
 }

@@ -31,7 +31,7 @@
                                                 <i class="fas fa-toggle-on"></i>
                                             </div>
                                         </div>
-                                        <input type="text" value="{{ old('name') }}" name="name" class="form-control name">
+                                        <input type="text" value="{{ old('name') }}" name="name" class="form-control name" required>
                                     </div>
                                     @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>

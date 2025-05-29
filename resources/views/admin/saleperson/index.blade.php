@@ -44,9 +44,9 @@
                               <td>
                                   <a href='{{ url("admin/sale-person/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
                                   <form action="{{ url('admin/sale-person/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
-                                      @csrf
-                                      @method('DELETE')
-                                      <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
                                   </form>
                               </td>
                           </tr>
@@ -125,36 +125,5 @@
                 </form>
             </div>
         </div>
-
-@endsection
-
-
-
-
-@section('script')
-    <script type="text/javascript">
-      document.addEventListener('DOMContentLoaded', function () {
-          const deleteButtons = document.querySelectorAll('.delete-confirm');
-          deleteButtons.forEach(button => {
-              button.addEventListener('click', function (e) {
-                  e.preventDefault(); // Stop form submit
-                  const form = this.closest('form');
-                  Swal.fire({
-                      title: 'Are you sure?',
-                      text: "You won't be able to revert this!",
-                      icon: 'warning',
-                      showCancelButton: true,
-                      confirmButtonColor: '#d33',
-                      cancelButtonColor: '#3085d6',
-                      confirmButtonText: 'Yes, delete it!'
-                  }).then((result) => {
-                      if (result.isConfirmed) {
-                          form.submit();
-                      }
-                  });
-              });
-          });
-      });
-  </script>
 
 @endsection

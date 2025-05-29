@@ -118,12 +118,18 @@ class SalepersonController extends Controller
      */
     public function destroy(string $id)
     {
-        $salePerson= SalePerson::find($id);
-        if(!$salePerson){
-            return redirect()->back()->with('error', 'Sale Person Not Found');
-        }else{
-            $salePerson->delete();
-            return redirect()->back()->with('success', 'Sale Person Deleted Successfully!');
+        try {
+            $salePerson= SalePerson::find($id);
+            if(!$salePerson){
+                return response()->json(['error' => 'Sale Person Not Found']);
+                // return redirect()->back()->with('error', 'Sale Person Not Found');
+            }else{
+                $salePerson->delete();
+                return response()->json(['success' => 'Sale Person Deleted Successfully!']);
+                // return redirect()->back()->with('success', 'Sale Person Deleted Successfully!');
+            }
+        } catch (Exeption $exp) {
+            return response()->json(['error' => 'Internal Server Error!']);
         }
     }
 }
