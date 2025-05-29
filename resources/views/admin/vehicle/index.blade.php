@@ -50,7 +50,10 @@
                               <td>{{ $item->year }}</td>
                               <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
                               <td>
-                                  <a href='{{ url("admin/vehicle/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
+                                  {{-- <a href='{{ url("admin/vehicle/".$item->id."/edit") }}' class="btn btn-warning btn-sm" data-id="{{ $item->id }}"><i class="far fa-edit"></i>Edit</a> --}}
+                                    <button type="button" class="btn btn-warning btn-sm edit-vehicle-btn" data-id="{{ $item->id }}">
+                                        <i class="far fa-edit"></i> Edit
+                                    </button>
                                   <form action="{{ url('admin/vehicle/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="DELETE">
@@ -71,10 +74,148 @@
         </section>
       </div>
 
+
+    <!-- Create Model Code -->
     <div class="modal fade" id="vehicleModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <form class="ajax-form" data-url="{{ url('admin/vehicle') }}" data-target-table="#vehicleResponseList" data-render-function="renderVehicleRow" data-modal-id="vehicleModal">
                 @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Vehicle</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
+                                        <tr>
+                                            <td>
+                                                <div class="form-group">
+                                                    <label>Vehicle name  <span class="text-danger">*</span></label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <div class="input-group-text">
+                                                            <i class="fas fa-car-side"></i>
+                                                            </div>
+                                                        </div>
+                                                        <input type="text" value="{{ old('vehicle_name') }}" name="vehicle_name" class="form-control">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group">
+                                                    <label>Car Make <span class="text-danger">*</span></label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <div class="input-group-text">
+                                                                <i class="fas fa-tools"></i>
+                                                            </div>
+                                                        </div>
+                                                        <input type="text" value="{{ old('car_make') }}" name="car_make" class="form-control car_make">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="form-group">
+                                                    <label>Vehicle Type  <span class="text-danger">*</span></label>
+                                                    <select name="vehicletypes" class="form-control select2">
+                                                        <option value="">Select Vehicle</option>
+                                                        @foreach ($vehicletypes as $vtype)
+                                                        <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('vehicletypes') <span class="text-danger">{{ $message }}</span> @enderror
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group">
+                                                    <label>Investor  <span class="text-danger">*</span></label>
+                                                    <select name="investor_id" class="form-control select2">
+                                                        <option value="">Select Investor</option>
+                                                        @foreach ($investor as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('investor_id') <span class="text-danger">{{ $message }}</span> @enderror
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="form-group">
+                                                    <label>Year  <span class="text-danger">*</span></label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <div class="input-group-text">
+                                                                <i class="fas fa-calendar"></i>
+                                                            </div>
+                                                        </div>
+                                                        <input type="number" value="{{ old('year') }}" name="year" class="form-control year">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group">
+                                                    <label>Number Plate  <span class="text-danger">*</span></label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-id-card"></i>
+                                                        </div>
+                                                        </div>
+                                                        <input type="text" value="{{ old('number_plate') }}" name="number_plate" class="form-control number_plate">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                <div class="form-group">
+                                                    <label class="form-label">Vehicle Status</label>
+                                                    <div class="selectgroup w-100">
+                                                        <label class="selectgroup-item">
+                                                            <input type="radio" name="status" value="1" class="selectgroup-input-radio" checked>
+                                                            <span class="selectgroup-button">Active</span>
+                                                        </label>
+                                                        <label class="selectgroup-item">
+                                                            <input type="radio" name="status" value="0" class="selectgroup-input-radio">
+                                                            <span class="selectgroup-button">Inactive</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Edit Model Code -->
+    <div class="modal fade" id="vehicleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <form id="vehicleEditForm" method="POST" class="ajax-form"
+                        data-url="{{ url('admin/vehicle') }}/:id"
+                        data-method="PUT"
+                        data-target-table="#vehicleResponseList"
+                        data-render-function="renderVehicleRow"
+                        data-modal-id="vehicleModal">
+                @csrf
+                <input type="hidden" name="_method" value="PUT">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Add Vehicle</h5>

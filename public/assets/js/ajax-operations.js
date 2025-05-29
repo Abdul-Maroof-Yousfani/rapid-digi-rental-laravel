@@ -73,7 +73,7 @@ $(document).ready(function () {
                 <td>${data.year}</td>
                 <td>${data.status==1 ? 'Active' : 'Inactive' }</td>
                 <td>
-                    <a href="/admin/vehicle/${data.id}/edit" class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
+                    <a href="/admin/vehicle/${data.id}/edit" class="btn btn-warning btn-sm" data-id="${data.id}"><i class="far fa-edit"></i>Edit</a>
                     <form action="/admin/vehicle/${data.id}" method="POST" style="display:inline;" class="delete-form">
                         <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                         <input type="hidden" name="_method" value="DELETE">
@@ -106,7 +106,7 @@ $(document).ready(function () {
         </tr>`;
     };
 
-    // Create And View Ajax Code
+    // Create And View Ajax Global Function
     $(".ajax-form").on("submit", function (e) {
         e.preventDefault();
         var form = $(this);
@@ -173,7 +173,7 @@ $(document).ready(function () {
         });
     });
 
-
+    // Delete Ajax Global Function
     $(document).on("submit", ".delete-form", function (e) {
         e.preventDefault();
 
@@ -233,6 +233,81 @@ $(document).ready(function () {
             }
         });
     });
+
+
+
+
+
+    // window.populateVehicleForm = function (data) {
+    //     let form = $('#vehicleEditForm');
+    //     const urlWithId = form.data('url').replace(':id', data.id);
+    //     form.attr('action', urlWithId);
+    //     form.find('input[name="vehicle_name"]').val(data.vehicle_name);
+    //     form.find('input[name="car_make"]').val(data.car_make);
+    //     form.find('select[name="vehicletypes"]').val(data.vehicletype_id).trigger('change');
+    //     form.find('select[name="investor_id"]').val(data.investor_id).trigger('change');
+    //     form.find('input[name="year"]').val(data.year);
+    //     form.find('input[name="number_plate"]').val(data.number_plate);
+    //     form.find('input[name="status"][value="' + data.status + '"]').prop('checked', true);
+    // };
+
+
+    window.populateVehicleForm = function (data) {
+    let form = $('#vehicleEditForm');
+
+    // Set the form action URL (replace :id with actual vehicle id)
+    const urlWithId = form.data('url').replace(':id', data.id);
+    form.attr('action', urlWithId);
+
+    // Populate fields
+    form.find('input[name="vehicle_name"]').val(data.vehicle_name || '');
+    form.find('input[name="car_make"]').val(data.car_make || '');
+
+    // For select dropdowns - vehicletypes and investor_id
+    form.find('select[name="vehicletypes"]').val(data.vehicletype_id || '').trigger('change');
+    form.find('select[name="investor_id"]').val(data.investor_id || '').trigger('change');
+
+    form.find('input[name="year"]').val(data.year || '');
+    form.find('input[name="number_plate"]').val(data.number_plate || '');
+
+    // Set status radio button checked, fallback to 1 if missing
+    let status = (typeof data.status !== 'undefined') ? data.status.toString() : '1';
+    form.find('input[name="status"][value="' + status + '"]').prop('checked', true);
+};
+
+
+    $(document).on('click', '.edit-vehicle-btn', function () {
+        let id = $(this).data('id');
+        window.handleEdit(id, '/get-vehicle-for-edit-form/:id', 'vehicleModal', window.populateVehicleForm);
+    });
+
+
+    window.handleEdit = function (id, fetchUrl, modalId, populateCallback) {
+        $.ajax({
+            url: fetchUrl.replace(':id', id),
+            type: 'GET',
+            success: function (response) {
+                console.log("AJAX Response:", response);
+                if (response.success && response.data) {
+                populateCallback(response.data);
+                $('#' + modalId).modal('show');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.error || 'Could not fetch data',
+                    });
+                }
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong while fetching data.',
+                });
+            }
+        });
+    };
 
 
 });

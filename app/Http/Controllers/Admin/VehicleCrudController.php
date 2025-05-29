@@ -167,10 +167,10 @@ class VehicleCrudController extends Controller
      */
     public function edit(string $id)
     {
+        // $investor= User::has('investor')->with('investor')->get();
         $vehicle= Vehicle::find($id);
         if(!$vehicle){ return redirect()->route('admin.vehicle.index')->with('error', 'Vehicle Not Found'); }
         $vehicletypes= Vehicletype::all();
-        // $investor= User::has('investor')->with('investor')->get();
         $investor= Investor::all();
         return view("admin.vehicle.edit", compact('vehicle', 'vehicletypes', 'investor'));
     }

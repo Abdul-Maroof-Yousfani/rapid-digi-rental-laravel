@@ -112,4 +112,19 @@ class AjaxController extends Controller
         ]);
     }
 
+    public function getVehicleForEditForm($id)
+    {
+        $vehicle = Vehicle::with('vehicletype', 'investor')->find($id);
+        if (!$vehicle) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Vehicle Not Found'
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $vehicle
+        ]);
+    }
+
 }

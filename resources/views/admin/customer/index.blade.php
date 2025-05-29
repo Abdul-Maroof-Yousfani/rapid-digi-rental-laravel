@@ -12,9 +12,6 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h3 class="mb-0">Customer List</h3>
                             <span>
-                                {{-- <a href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}" class="btn btn-primary">
-                                    Add Customer
-                                </a>&nbsp;&nbsp;&nbsp; --}}
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#customerModal">
                                     Add Customer
                                 </button>
