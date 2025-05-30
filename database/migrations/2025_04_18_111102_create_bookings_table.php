@@ -22,7 +22,10 @@ return new class extends Migration
             $table->string('agreement_no', 100)->nullable()->unique();
             $table->text('notes')->nullable();
             $table->enum('status', ['paid', 'pending'])->nullable();
+            $table->enum('booking_status', ['closed', 'overdue'])->nullable();
+            $table->enum('booking_cancel', [0, 1])->nullable();
             $table->integer('total_price')->nullable();
+            $table->dateTime('started_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

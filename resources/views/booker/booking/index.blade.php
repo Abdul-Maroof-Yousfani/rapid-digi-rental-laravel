@@ -38,7 +38,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $number=1; @endphp
+                            @php
+                                $now = \Carbon\Carbon::now();
+                                $number=1;
+                            @endphp
                             @foreach ($booking as $item)
                             <tr>
                                 @php $firstInvoice = $item->invoice->first(); @endphp
@@ -51,19 +54,34 @@
                                 <td>{{ $item->payment->payment_status ?? "pending" }}</td>
                                 <td>{{ $firstInvoice->total_amount }}</td>
                                 <td>
-                                    <button class="btn btn-success close-booking btn-sm" data-booking-id="{{ $item->id }}" {{ $item->booking_status=='closed' ? 'disabled' : '' }}>
-                                        <i class="fas fa-lock"></i> Close Booking
-                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                            Actions
+                                        </button>
+                                        <div class="dropdown-menu">
 
+                                            <button class="dropdown-item close-booking" data-booking-id="{{ $item->id }}" {{ $item->booking_status=='closed' ? 'disabled' : '' }}>
+                                                <i class="fas fa-lock"></i> Close Booking
+                                            </button>
 
-                                    <a href="{{ url('booker/booking/'. $item->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
-                                    <a href='{{ url("booker/customer-booking/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                    <form action="{{ url("booker/customer-booking/".$item->id."") }}" method="POST" style="display:inline;" class="delete-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
-                                    </form>
+                                            <a class="dropdown-item" href="{{ url('booker/booking/'. $item->id) }}"> <i class="fas fa-eye"></i> View </a>
+                                            <a class="dropdown-item" href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}"> <i class="far fa-edit"></i> Edit </a>
+                                            @if (is_null($item->started_at) || \Carbon\Carbon::parse($item->started_at)->isAfter($now))
+                                            <a class="dropdown-item" href=""> <i class="fas fa-times"></i> Cancel </a>
+                                            @endif
+                                            <form action="{{ url('booker/customer-booking/'.$item->id) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this booking?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                    <i class="far fa-trash-alt"></i> Delete
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    </div>
                                 </td>
+
+
                             </tr>
                             @php $number++; @endphp
                             @endforeach
@@ -77,24 +95,6 @@
           </div>
         </section>
       </div>
-
-
-    {{-- <!-- Modal -->
-    <div class="modal fade" id="confirmCloseModal" tabindex="-1" aria-labelledby="confirmCloseModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Pending Amount Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modalMessage">Kya aap remaining amount clear karna chahtay hain?</div>
-            <div class="modal-footer">
-                <a href="#" class="btn btn-success" id="yesRedirectBtn">Yes</a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="noCloseBtn">No</button>
-            </div>
-            </div>
-        </div>
-    </div> --}}
 
 @endsection
 
@@ -240,63 +240,6 @@
                         });
 
                     }
-
-
-
-
-                    // if (res.status === 'pending_payment') {
-                        //     $('#modalMessage').text(`Pending amount hai Rs. ${res.amount}. Kya aap clear karna chahtay hain?`);
-                        //     $('#yesRedirectBtn').attr('href', '/booker/payment/' + bookingId + '/create');
-                        //     $('#confirmCloseModal').modal('show');
-
-                        //     $('#noCloseBtn').off('click').on('click', function () {
-                        //         $.ajax({
-                        //             url: '/booking/force-close/' + bookingId,
-                        //             type: 'POST',
-                        //             data: {
-                        //                 _token: '{{ csrf_token() }}'
-                        //             },
-                        //             success: function () {
-                        //                 // location.reload();
-                        //                 Swal.fire({
-                        //                     icon: 'success',
-                        //                     title: 'Booking Closed!',
-                        //                     text: 'Booking successfully closed.',
-                        //                     confirmButtonText: 'OK'
-                        //                 }).then((result) => {
-                        //                     if (result.isConfirmed) {
-                        //                         location.reload();
-                        //                     }
-                        //                 });
-                        //             }
-                        //         });
-                        //     });
-                    // }
-
-
-
-                    // else if (res.status === 'can_close') {
-                        //     $.ajax({
-                        //         url: '/booking/close/' + bookingId,
-                        //         type: 'POST',
-                        //         data: {
-                        //             _token: '{{ csrf_token() }}'
-                        //         },
-                        //         success: function () {
-                        //             // location.reload();
-                        //             Swal.fire({
-                        //                 icon: 'success',
-                        //                 title: 'Booking Closed!',
-                        //                 text: 'Booking successfully closed.',
-                        //                 confirmButtonText: 'OK'
-                        //             }).then((result) => {
-                        //                 if (result.isConfirmed) {
-                        //                     location.reload();
-                        //                 }
-                        //             });
-                        //         }
-                        //     });
-                    // }
                 }
             });
         });

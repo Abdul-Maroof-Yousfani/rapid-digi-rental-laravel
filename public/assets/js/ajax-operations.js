@@ -247,7 +247,7 @@ $(document).ready(function () {
 
         fetchUrl = fetchUrl.replace(':id', id);
         let populateCallbackName = form.data('callback');
-        console.log("Resolved Fetch URL:", fetchUrl);
+        // console.log("Resolved Fetch URL:", fetchUrl);
 
         if (typeof window[populateCallbackName] === 'function') {
             window.handleEdit(id, fetchUrl, modalId, window[populateCallbackName]);
@@ -327,7 +327,7 @@ $(document).ready(function () {
             url: fetchUrl.replace(':id', id),
             type: 'GET',
             success: function (response) {
-                console.log("AJAX Response:", response);
+                // console.log("AJAX Response:", response);
                 if (response.success && response.data) {
                 populateCallback(response.data);
                 $('#' + modalId).modal('show');
