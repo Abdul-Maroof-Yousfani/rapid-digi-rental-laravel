@@ -107,8 +107,12 @@ class BankCrudController extends Controller
             'iban' => 'required',
         ]);
         if ($validator->fails()) {
-            $errorMessages = implode("\n", $validator->errors()->all());
-            return redirect()->back()->with('error', $errorMessages)->withInput();
+            if ($request->ajax()) {
+                return response()->json(['error' => $validator->errors()], 422);
+            } else {
+                $errorMessages = implode("\n", $validator->errors()->all());
+                return redirect()->back()->with('error', $errorMessages)->withInput();
+            }
         } else {
             try {
                 DB::beginTransaction();
@@ -123,10 +127,18 @@ class BankCrudController extends Controller
                     'notes' => $request['notes'],
                 ]);
                 DB::commit();
-                return redirect()->route('admin.bank.index')->with('success', 'Bank Updated Successfully!');
-            } catch (\Exeption $th) {
+                if ($request->ajax()) {
+                    return response()->json(['success' => 'Bank Updated Successfully!', 'data' => $bank], 200);
+                } else {
+                    return redirect()->route('admin.bank.index')->with('success', 'Bank Updated Successfully!');
+                }
+            } catch (\Exeption $exp) {
                 DB::rollBack();
-                return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
+                if ($request->ajax()) {
+                    return response()->json(['error' => $exp->getMessage()], 422);
+                } else {
+                    return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
+                }
             }
         }
     }

@@ -44,7 +44,7 @@ $(document).ready(function () {
     // Render Bank Row In Table
     window.renderBankRow = function(data, index = 0) {
         return `
-            <tr>
+            <tr data-id="${data.id}">
                 <td>${index + 1}</td>
                 <td>${data.bank_name}</td>
                 <td>${data.account_name}</td>
@@ -53,7 +53,7 @@ $(document).ready(function () {
                 <td>${data.swift_code}</td>
                 <td>${data.branch}</td>
                 <td>
-                    <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}"> <i class="far fa-edit"></i> Edit </button>
+                    <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}" data-modal-id="editBankModal"> <i class="far fa-edit"></i> Edit </button>
                     <form action="/admin/bank/${data.id}" method="POST" style="display:inline;" class="delete-form">
                         <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                         <input type="hidden" name="_method" value="DELETE">
@@ -268,6 +268,21 @@ $(document).ready(function () {
         form.find('input[name="year"]').val(data.year);
         form.find('input[name="number_plate"]').val(data.number_plate);
         form.find('input[name="status"][value="' + data.status + '"]').prop('checked', true);
+    };
+
+    // Populate Data in Bank Edit Form
+    window.populateBankForm = function (data) {
+        let form = $('#bankEditForm');
+        const urlWithId = form.data('url').replace(':id', data.id);
+        form.attr('action', urlWithId);
+        form.find('input[name="bank_name"]').val(data.bank_name);
+        form.find('input[name="account_no"]').val(data.account_number);
+        form.find('input[name="branch"]').val(data.branch);
+        form.find('input[name="swift_code"]').val(data.swift_code);
+        form.find('input[name="account_name"]').val(data.account_name);
+        form.find('input[name="iban"]').val(data.iban);
+        form.find('select[name="currency"]').val(data.currency).trigger('change');;
+        form.find('textarea[name="notes"]').val(data.notes);
     };
 
     // Populate Data in Saleperson Edit Form

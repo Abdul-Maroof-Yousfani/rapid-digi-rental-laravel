@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ajax;
 
+use App\Models\Bank;
 use App\Models\Booking;
 use App\Models\Deposit;
 use App\Models\Invoice;
@@ -140,6 +141,21 @@ class AjaxController extends Controller
         return response()->json([
             'success' => true,
             'data' => $salePerson
+        ]);
+    }
+
+    public function getBankForEditForm($id)
+    {
+        $bank= Bank::find($id);
+        if(!$bank){
+            return response()->json([
+                'success' => false,
+                'error' => 'Bank Not Found'
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $bank
         ]);
     }
 
