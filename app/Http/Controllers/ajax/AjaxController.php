@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\ajax;
 
-use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Models\BookingData;
 use App\Models\Deposit;
-use App\Models\DepositHandling;
 use App\Models\Invoice;
-use App\Models\PaymentData;
 use App\Models\Vehicle;
+use App\Models\SalePerson;
+use App\Models\BookingData;
+use App\Models\PaymentData;
 use Illuminate\Http\Request;
+use App\Models\DepositHandling;
+use App\Http\Controllers\Controller;
 
 class AjaxController extends Controller
 {
@@ -124,6 +125,21 @@ class AjaxController extends Controller
         return response()->json([
             'success' => true,
             'data' => $vehicle
+        ]);
+    }
+
+    public function getSalemanForEditForm($id)
+    {
+        $salePerson= SalePerson::find($id);
+        if(!$salePerson){
+            return response()->json([
+                'success' => false,
+                'error' => 'Sale Person Not Found'
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $salePerson
         ]);
     }
 

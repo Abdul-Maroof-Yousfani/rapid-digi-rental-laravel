@@ -51,7 +51,7 @@
                               <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
                               <td>
                                   {{-- <a href='{{ url("admin/vehicle/".$item->id."/edit") }}' class="btn btn-warning btn-sm" data-id="{{ $item->id }}"><i class="far fa-edit"></i>Edit</a> --}}
-                                    <button type="button" class="btn btn-warning btn-sm edit-vehicle-btn" data-id="{{ $item->id }}">
+                                    <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="{{ $item->id }}" data-modal-id="editVehicleModal">
                                         <i class="far fa-edit"></i> Edit
                                     </button>
                                   <form action="{{ url('admin/vehicle/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
@@ -214,9 +214,11 @@
         <div class="modal-dialog modal-lg" role="document">
             <form id="vehicleEditForm" method="POST" class="ajax-update-form"
                         data-url="{{ url('admin/vehicle') }}/:id"
+                        data-fetch-url="{{ url('get-vehicle-for-edit-form/:id') }}"
                         data-target-table="#vehicleResponseList"
                         data-render-function="renderVehicleRow"
-                        data-modal-id="editVehicleModal">
+                        data-modal-id="editVehicleModal"
+                        data-callback="populateVehicleForm">
                 @csrf
                 <input type="hidden" name="_method" value="PUT">
                 <div class="modal-content">

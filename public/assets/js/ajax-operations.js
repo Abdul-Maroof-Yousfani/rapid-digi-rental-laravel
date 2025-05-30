@@ -24,14 +24,14 @@ $(document).ready(function () {
     };
 
     // Render Sale Person Row In Table
-    window.renderSaleMenRow = function (data, index) {
+    window.renderSaleManRow = function (data, index = 0) {
         return `
-            <tr>
+            <tr data-id="${data.id}">
                 <td>${index + 1}.</td>
                 <td>${data.name}</td>
                 <td>${data.status==1 ? 'Active' : 'Inactive' }</td>
                 <td>
-                    <a href="/admin/sale-person/${data.id}/edit" class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
+                    <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}" data-modal-id="EditsaleManModal"> <i class="far fa-edit"></i> Edit </button>
                     <form action="/admin/sale-person/${data.id}" method="POST" style="display:inline;" class="delete-form">
                         <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                         <input type="hidden" name="_method" value="DELETE">
@@ -42,7 +42,7 @@ $(document).ready(function () {
     };
 
     // Render Bank Row In Table
-    window.renderBankRow = function(data, index) {
+    window.renderBankRow = function(data, index = 0) {
         return `
             <tr>
                 <td>${index + 1}</td>
@@ -53,7 +53,7 @@ $(document).ready(function () {
                 <td>${data.swift_code}</td>
                 <td>${data.branch}</td>
                 <td>
-                    <a href="/admin/bank/${data.id}/edit" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                    <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}"> <i class="far fa-edit"></i> Edit </button>
                     <form action="/admin/bank/${data.id}" method="POST" style="display:inline;" class="delete-form">
                         <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                         <input type="hidden" name="_method" value="DELETE">
@@ -76,7 +76,7 @@ $(document).ready(function () {
                 <td>${data.year}</td>
                 <td>${data.status==1 ? 'Active' : 'Inactive' }</td>
                 <td>
-                    <button type="button" class="btn btn-warning btn-sm edit-vehicle-btn" data-id="${data.id}"> <i class="far fa-edit"></i> Edit </button>
+                    <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}"> <i class="far fa-edit"></i> Edit </button>
                     <form action="/admin/vehicle/${data.id}" method="POST" style="display:inline;" class="delete-form">
                         <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                         <input type="hidden" name="_method" value="DELETE">
@@ -233,10 +233,27 @@ $(document).ready(function () {
 
 
     // Open Edit Form In Modal
-    $(document).on('click', '.edit-vehicle-btn', function (e) {
+    $(document).on('click', '.ajax-edit-btn', function (e) {
         e.preventDefault();
         let id = $(this).data('id');
-        window.handleEdit(id, '/get-vehicle-for-edit-form/:id', 'editVehicleModal', window.populateVehicleForm);
+        let modalId = $(this).data('modal-id');
+        let modalSelector = '#' + modalId;
+        let form = $(modalSelector).find('form');
+        let fetchUrl = form.data('fetch-url');
+        if (!fetchUrl) {
+           console.error('Missing data-fetch-url on form.');
+            return;
+        }
+
+        fetchUrl = fetchUrl.replace(':id', id);
+        let populateCallbackName = form.data('callback');
+        console.log("Resolved Fetch URL:", fetchUrl);
+
+        if (typeof window[populateCallbackName] === 'function') {
+            window.handleEdit(id, fetchUrl, modalId, window[populateCallbackName]);
+        } else {
+            console.error("Populate callback not defined or invalid.");
+        }
     });
 
     // Populate Data in Vehicle Edit Form
@@ -250,6 +267,15 @@ $(document).ready(function () {
         form.find('select[name="investor_id"]').val(data.investor_id).trigger('change');
         form.find('input[name="year"]').val(data.year);
         form.find('input[name="number_plate"]').val(data.number_plate);
+        form.find('input[name="status"][value="' + data.status + '"]').prop('checked', true);
+    };
+
+    // Populate Data in Saleperson Edit Form
+    window.populateSalemanForm = function (data) {
+        let form = $('#saleManEditForm');
+        const urlWithId = form.data('url').replace(':id', data.id);
+        form.attr('action', urlWithId);
+        form.find('input[name="name"]').val(data.name);
         form.find('input[name="status"][value="' + data.status + '"]').prop('checked', true);
     };
 
