@@ -85,7 +85,8 @@ class VehiclestatusController extends Controller
             'name' => 'required',
         ]);
         if($validator->fails()){
-            return redirect()->back()->withErrors($validator->messages())->withInput();
+            if ($request->ajax()) { return response()->json(['error' => $validator->errors()], 422); }
+            else { return redirect()->back()->withErrors($validator->messages())->withInput(); }
         }else{
             try {
                 DB::beginTransaction();
@@ -93,11 +94,14 @@ class VehiclestatusController extends Controller
                 $status->update([
                     'name' => $request->name,
                 ]);
-                return redirect()->route('admin.vehicle-status.index')->with('success', 'Status Updated Successfully!');
                 DB::commit();
+                if ($request->ajax()) { return response()->json(['success' => 'Status Updated Successfully!', 'data' => $status], 200); }
+                else { return redirect()->route('admin.vehicle-status.index')->with('success', 'Status Updated Successfully!'); }
+
             } catch (\Exception $exp) {
                 DB::rollBack();
-                return redirect()->back()->with('error', $exp->getMessage());
+                if ($request->ajax()) { return response()->json(['error' => $exp->getMessage()], 422); }
+                else { return redirect()->back()->with('error', $exp->getMessage()); }
             }
         }
     }

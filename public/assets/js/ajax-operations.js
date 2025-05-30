@@ -7,14 +7,14 @@ $(document).ready(function () {
     });
 
     // Render Vehicle Status Row In Table
-    window.renderVehicleStatusRow = function (data, index) {
+    window.renderVehicleStatusRow = function (data, index = 0) {
         return `
-            <tr>
+            <tr data-id="${data.id}">
                 <td>${index+1}.</td>
                 <td>${data.name}</td>
                 <td>
-                    <a href='/admin/vehicle-status/${data.id}/edit' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
-                    <form action="/admin/vehicle-status/${data.id}) }}" method="POST" style="display:inline;" class="delete-form">
+                    <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}" data-modal-id="editVehicleStatusModal"> <i class="far fa-edit"></i> Edit </button>
+                    <form action="/admin/vehicle-status/${data.id}" method="POST" style="display:inline;" class="delete-form">
                         <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
@@ -292,6 +292,14 @@ $(document).ready(function () {
         form.attr('action', urlWithId);
         form.find('input[name="name"]').val(data.name);
         form.find('input[name="status"][value="' + data.status + '"]').prop('checked', true);
+    };
+
+    // Populate Data in Vehicle Status Edit Form
+    window.populateVehicleStatusForm = function (data) {
+        let form = $('#vehicleStatusEditForm');
+        const urlWithId = form.data('url').replace(':id', data.id);
+        form.attr('action', urlWithId);
+        form.find('input[name="name"]').val(data.name);
     };
 
 

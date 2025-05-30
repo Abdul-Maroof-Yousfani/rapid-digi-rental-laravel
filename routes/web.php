@@ -84,6 +84,7 @@ Route::get('get-vehicle-by-booking/{id}/booking/{booking_id}', [AjaxController::
 Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail']);
 
 // Get Data For Edit Forms
+Route::get('get-vehicle-status-edit-form/{id}', [AjaxController::class, 'getVehicleStatusForEditForm']);
 Route::get('get-vehicle-for-edit-form/{id}', [AjaxController::class, 'getVehicleForEditForm']);
 Route::get('get-salemen-for-edit-form/{id}', [AjaxController::class, 'getSalemanForEditForm']);
 Route::get('get-bank-for-edit-form/{id}', [AjaxController::class, 'getBankForEditForm']);

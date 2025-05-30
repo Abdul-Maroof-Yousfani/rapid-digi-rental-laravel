@@ -8,6 +8,7 @@ use App\Models\Deposit;
 use App\Models\Invoice;
 use App\Models\Vehicle;
 use App\Models\SalePerson;
+use App\Models\Vehiclestatus;
 use App\Models\BookingData;
 use App\Models\PaymentData;
 use Illuminate\Http\Request;
@@ -156,6 +157,20 @@ class AjaxController extends Controller
         return response()->json([
             'success' => true,
             'data' => $bank
+        ]);
+    }
+
+    public function getVehicleStatusForEditForm($id){
+        $status= Vehiclestatus::find($id);
+        if(!$status){
+            return response()->json([
+                'success' => false,
+                'error' => 'Status Not Found'
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $status
         ]);
     }
 
