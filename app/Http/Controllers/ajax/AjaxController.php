@@ -7,11 +7,12 @@ use App\Models\Booking;
 use App\Models\Deposit;
 use App\Models\Invoice;
 use App\Models\Vehicle;
+use App\Models\Customer;
 use App\Models\SalePerson;
-use App\Models\Vehiclestatus;
 use App\Models\BookingData;
 use App\Models\PaymentData;
 use Illuminate\Http\Request;
+use App\Models\Vehiclestatus;
 use App\Models\DepositHandling;
 use App\Http\Controllers\Controller;
 
@@ -171,6 +172,21 @@ class AjaxController extends Controller
         return response()->json([
             'success' => true,
             'data' => $status
+        ]);
+    }
+
+    public function getCustomerForEditForm($id)
+    {
+        $customers= Customer::find($id);
+        if(!$customers){
+            return response()->json([
+                'success' => false,
+                'error' => 'Customer Not Found !'
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $customers
         ]);
     }
 

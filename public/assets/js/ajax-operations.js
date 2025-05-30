@@ -89,7 +89,7 @@ $(document).ready(function () {
     // Render Customer Row In Table
     window.renderCustomerRow = function(data, index){
         return `
-        <tr>
+        <tr data-id="${data.id}">
             <td>${index+1}.</td>
             <td>${data.customer_name}</td>
             <td>${data.email}</td>
@@ -97,7 +97,7 @@ $(document).ready(function () {
             <td>${data.cnic}</td>
             <td>${data.status==1 ? 'Active' : 'Inactive'}</td>
             <td>
-                <a href="/${role}/customer/${data.id}/edit" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}" data-modal-id="editCustomerModal"><i class="far fa-edit"></i> Edit </button>
                 <form action="/${role}/customer/${data.id}" method="POST" style="display:inline;" class="delete-form">
                     <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                     <input type="hidden" name="_method" value="DELETE">
@@ -281,8 +281,27 @@ $(document).ready(function () {
         form.find('input[name="swift_code"]').val(data.swift_code);
         form.find('input[name="account_name"]').val(data.account_name);
         form.find('input[name="iban"]').val(data.iban);
-        form.find('select[name="currency"]').val(data.currency).trigger('change');;
+        form.find('select[name="currency"]').val(data.currency).trigger('change');
         form.find('textarea[name="notes"]').val(data.notes);
+    };
+
+    // Populate Data in Customer Edit Form
+    window.populateCustomerForm = function (data) {
+        let form = $('#customerEditForm');
+        const urlWithId = form.data('url').replace(':id', data.id);
+        form.attr('action', urlWithId);
+        form.find('input[name="customer_name"]').val(data.customer_name);
+        form.find('input[name="email"]').val(data.email);
+        form.find('input[name="phone"]').val(data.phone);
+        form.find('input[name="licence"]').val(data.licence);
+        form.find('input[name="cnic"]').val(data.cnic);
+        form.find('input[name="dob"]').val(data.dob);
+        form.find('input[name="postal_code"]').val(data.postal_code);
+        form.find('textarea[name="address"]').val(data.address);
+        form.find('select[name="gender"]').val(data.gender).trigger('change');
+        form.find('select[name="city"]').val(data.city).trigger('change');
+        form.find('select[name="state"]').val(data.state).trigger('change');
+        form.find('select[name="country"]').val(data.country).trigger('change');
     };
 
     // Populate Data in Saleperson Edit Form

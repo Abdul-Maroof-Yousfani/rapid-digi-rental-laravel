@@ -204,7 +204,11 @@ class CustomerController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            if($request->ajax()){
+                return response()->json(['error' => $validator->errors()], 422);
+            } else {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
         }
         else{
             $customer_name= $request->customer_name;
@@ -245,10 +249,17 @@ class CustomerController extends Controller
                     'postal_code' => $postal_code,
                     'status' => $status,
                 ]);
-                return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Updated Successfully!');
-
+                if ($request->ajax()){
+                    return response()->json(['success' => 'Customer Updated Successfully!','data' => $customer], 200);
+                } else {
+                    return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Updated Successfully!');
+                }
             } catch (\Exception $exp) {
-                return redirect()->back()->with('error', $exp->getMessage());
+                if ($request->ajax()){
+                    return response()->json(['error' => $exp->getMessage()]);
+                } else {
+                    return redirect()->back()->with('error', $exp->getMessage());
+                }
             }
         }
     }

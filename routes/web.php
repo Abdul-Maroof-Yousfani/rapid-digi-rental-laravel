@@ -88,6 +88,7 @@ Route::get('get-vehicle-status-edit-form/{id}', [AjaxController::class, 'getVehi
 Route::get('get-vehicle-for-edit-form/{id}', [AjaxController::class, 'getVehicleForEditForm']);
 Route::get('get-salemen-for-edit-form/{id}', [AjaxController::class, 'getSalemanForEditForm']);
 Route::get('get-bank-for-edit-form/{id}', [AjaxController::class, 'getBankForEditForm']);
+Route::get('get-customer-for-edit-form/{id}', [AjaxController::class, 'getCustomerForEditForm']);
 
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
 Route::get('/check-status/{id}', [BookingController::class, 'checkCloseEligibility'])->name('booking.check');
