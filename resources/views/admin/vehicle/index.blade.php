@@ -11,7 +11,7 @@
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                       <h3 class="mb-0">Vehicle List</h3>
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vehicleModal">
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createVehicleModal">
                             Add Vehicle
                       </button>
                     </div>
@@ -40,7 +40,7 @@
                         <tbody>
                           @php $number=1; @endphp
                           @foreach ($vehicle as $item)
-                          <tr>
+                          <tr data-id="{{ $item->id }}">
                               <td>{{ $number }}.</td>
                               <td>{{ $item->vehicle_name ?? $item->temp_vehicle_detail }}</td>
                               <td>{{ $item->vehicletype->name }}</td>
@@ -76,9 +76,13 @@
 
 
     <!-- Create Model Code -->
-    <div class="modal fade" id="vehicleModal" tabindex="-1" role="dialog">
+    <div class="modal fade" id="createVehicleModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
-            <form class="ajax-form" data-url="{{ url('admin/vehicle') }}" data-target-table="#vehicleResponseList" data-render-function="renderVehicleRow" data-modal-id="vehicleModal">
+            <form class="ajax-form"
+                        data-url="{{ url('admin/vehicle') }}"
+                        data-target-table="#vehicleResponseList"
+                        data-render-function="renderVehicleRow"
+                        data-modal-id="createVehicleModal">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
@@ -206,19 +210,18 @@
 
 
     <!-- Edit Model Code -->
-    <div class="modal fade" id="vehicleModal" tabindex="-1" role="dialog">
+    <div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
-            <form id="vehicleEditForm" method="POST" class="ajax-form"
+            <form id="vehicleEditForm" method="POST" class="ajax-update-form"
                         data-url="{{ url('admin/vehicle') }}/:id"
-                        data-method="PUT"
                         data-target-table="#vehicleResponseList"
                         data-render-function="renderVehicleRow"
-                        data-modal-id="vehicleModal">
+                        data-modal-id="editVehicleModal">
                 @csrf
                 <input type="hidden" name="_method" value="PUT">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Vehicle</h5>
+                        <h5 class="modal-title">Edit Vehicle</h5>
                         <button type="button" class="close" data-dismiss="modal">
                             <span>&times;</span>
                         </button>
@@ -259,7 +262,7 @@
                                         <tr>
                                             <td>
                                                 <div class="form-group">
-                                                    <label>Vehicle Type  <span class="text-danger">*</span></label>
+                                                    <label>Vehicle Type  <span class="text-danger">*</span></label><br>
                                                     <select name="vehicletypes" class="form-control select2">
                                                         <option value="">Select Vehicle</option>
                                                         @foreach ($vehicletypes as $vtype)
@@ -271,7 +274,7 @@
                                             </td>
                                             <td>
                                                 <div class="form-group">
-                                                    <label>Investor  <span class="text-danger">*</span></label>
+                                                    <label>Investor  <span class="text-danger">*</span></label><br>
                                                     <select name="investor_id" class="form-control select2">
                                                         <option value="">Select Investor</option>
                                                         @foreach ($investor as $item)
@@ -313,7 +316,7 @@
                                         <tr>
                                             <td colspan="2">
                                                 <div class="form-group">
-                                                    <label class="form-label">Vehicle Status</label>
+                                                    <label class="form-label">Vehicle Status</label><br>
                                                     <div class="selectgroup w-100">
                                                         <label class="selectgroup-item">
                                                             <input type="radio" name="status" value="1" class="selectgroup-input-radio" checked>
@@ -332,6 +335,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>

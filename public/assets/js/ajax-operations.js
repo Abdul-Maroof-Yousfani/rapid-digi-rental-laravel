@@ -6,6 +6,7 @@ $(document).ready(function () {
         }
     });
 
+    // Render Vehicle Status Row In Table
     window.renderVehicleStatusRow = function (data, index) {
         return `
             <tr>
@@ -22,6 +23,7 @@ $(document).ready(function () {
             </tr>`;
     };
 
+    // Render Sale Person Row In Table
     window.renderSaleMenRow = function (data, index) {
         return `
             <tr>
@@ -39,7 +41,7 @@ $(document).ready(function () {
             </tr>`;
     };
 
-
+    // Render Bank Row In Table
     window.renderBankRow = function(data, index) {
         return `
             <tr>
@@ -61,9 +63,10 @@ $(document).ready(function () {
             </tr>`;
     };
 
-    window.renderVehicleRow = function(data, index){
+    // Render Vehicle Row In Table
+    window.renderVehicleRow = function(data, index = 0){
         return `
-            <tr>
+            <tr data-id="${data.id}">
                 <td>${index + 1}.</td>
                 <td>${data.vehicle_name ?? data.temp_vehicle_detail}</td>
                 <td>${data.vehicletype?.name}</td>
@@ -73,7 +76,7 @@ $(document).ready(function () {
                 <td>${data.year}</td>
                 <td>${data.status==1 ? 'Active' : 'Inactive' }</td>
                 <td>
-                    <a href="/admin/vehicle/${data.id}/edit" class="btn btn-warning btn-sm" data-id="${data.id}"><i class="far fa-edit"></i>Edit</a>
+                    <button type="button" class="btn btn-warning btn-sm edit-vehicle-btn" data-id="${data.id}"> <i class="far fa-edit"></i> Edit </button>
                     <form action="/admin/vehicle/${data.id}" method="POST" style="display:inline;" class="delete-form">
                         <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                         <input type="hidden" name="_method" value="DELETE">
@@ -83,6 +86,7 @@ $(document).ready(function () {
             </tr>`;
     };
 
+    // Render Customer Row In Table
     window.renderCustomerRow = function(data, index){
         return `
         <tr>
@@ -203,13 +207,6 @@ $(document).ready(function () {
                         }
                     },
                     error: function (xhr) {
-                        // console.log("XHR:", xhr);
-                        // let message = 'Server ya validation issue.';
-                        // if (xhr.responseJSON && xhr.responseJSON.error) {
-                        //     message = xhr.responseJSON.error;
-                        // }
-                        // Swal.fire('Error!', message, 'error');
-
                         console.log('AJAX Error Response:', xhr);
                         let message = 'Server ya validation issue.';
                         try {
@@ -235,51 +232,26 @@ $(document).ready(function () {
     });
 
 
-
-
-
-    // window.populateVehicleForm = function (data) {
-    //     let form = $('#vehicleEditForm');
-    //     const urlWithId = form.data('url').replace(':id', data.id);
-    //     form.attr('action', urlWithId);
-    //     form.find('input[name="vehicle_name"]').val(data.vehicle_name);
-    //     form.find('input[name="car_make"]').val(data.car_make);
-    //     form.find('select[name="vehicletypes"]').val(data.vehicletype_id).trigger('change');
-    //     form.find('select[name="investor_id"]').val(data.investor_id).trigger('change');
-    //     form.find('input[name="year"]').val(data.year);
-    //     form.find('input[name="number_plate"]').val(data.number_plate);
-    //     form.find('input[name="status"][value="' + data.status + '"]').prop('checked', true);
-    // };
-
-
-    window.populateVehicleForm = function (data) {
-    let form = $('#vehicleEditForm');
-
-    // Set the form action URL (replace :id with actual vehicle id)
-    const urlWithId = form.data('url').replace(':id', data.id);
-    form.attr('action', urlWithId);
-
-    // Populate fields
-    form.find('input[name="vehicle_name"]').val(data.vehicle_name || '');
-    form.find('input[name="car_make"]').val(data.car_make || '');
-
-    // For select dropdowns - vehicletypes and investor_id
-    form.find('select[name="vehicletypes"]').val(data.vehicletype_id || '').trigger('change');
-    form.find('select[name="investor_id"]').val(data.investor_id || '').trigger('change');
-
-    form.find('input[name="year"]').val(data.year || '');
-    form.find('input[name="number_plate"]').val(data.number_plate || '');
-
-    // Set status radio button checked, fallback to 1 if missing
-    let status = (typeof data.status !== 'undefined') ? data.status.toString() : '1';
-    form.find('input[name="status"][value="' + status + '"]').prop('checked', true);
-};
-
-
-    $(document).on('click', '.edit-vehicle-btn', function () {
+    // Open Edit Form In Modal
+    $(document).on('click', '.edit-vehicle-btn', function (e) {
+        e.preventDefault();
         let id = $(this).data('id');
-        window.handleEdit(id, '/get-vehicle-for-edit-form/:id', 'vehicleModal', window.populateVehicleForm);
+        window.handleEdit(id, '/get-vehicle-for-edit-form/:id', 'editVehicleModal', window.populateVehicleForm);
     });
+
+    // Populate Data in Vehicle Edit Form
+    window.populateVehicleForm = function (data) {
+        let form = $('#vehicleEditForm');
+        const urlWithId = form.data('url').replace(':id', data.id);
+        form.attr('action', urlWithId);
+        form.find('input[name="vehicle_name"]').val(data.vehicle_name);
+        form.find('input[name="car_make"]').val(data.car_make);
+        form.find('select[name="vehicletypes"]').val(data.vehicletypes).trigger('change');
+        form.find('select[name="investor_id"]').val(data.investor_id).trigger('change');
+        form.find('input[name="year"]').val(data.year);
+        form.find('input[name="number_plate"]').val(data.number_plate);
+        form.find('input[name="status"][value="' + data.status + '"]').prop('checked', true);
+    };
 
 
     window.handleEdit = function (id, fetchUrl, modalId, populateCallback) {
@@ -308,6 +280,65 @@ $(document).ready(function () {
             }
         });
     };
+
+
+    // Update Form Handler
+    $(".ajax-update-form").on("submit", function (e) {
+        e.preventDefault();
+
+        let form = $(this);
+        let formData = form.serialize();
+        let url = form.attr("action");
+        let targetTable = form.data("target-table");
+        let renderFunctionName = form.data("render-function");
+        let modalId = form.data("modal-id");
+
+        let submitBtn = form.find("button[type='submit']");
+        let originalText = submitBtn.html();
+        submitBtn.prop("disabled", true).html('Updating... <i class="fa fa-spinner fa-spin"></i>');
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+                    if (modalId) $('#' + modalId).modal('hide');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated',
+                        text: response.success
+                    });
+
+                    if (response.data && typeof window[renderFunctionName] === 'function') {
+                        let rowSelector = `${targetTable} tbody tr[data-id="${response.data.id}"]`;
+                        let originalIndex = $(rowSelector).index();
+                        let updatedRow = window[renderFunctionName](response.data, originalIndex);
+                        $(rowSelector).replaceWith(updatedRow);
+                    }
+
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: response.error || 'Update failed' });
+                }
+
+                submitBtn.prop("disabled", false).html(originalText);
+            },
+            error: function (xhr) {
+                let errors = xhr.responseJSON?.errors || {};
+                let errorMsg = Object.values(errors).join('\n');
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: errorMsg || 'Please check your input.'
+                });
+
+                submitBtn.prop("disabled", false).html(originalText);
+            }
+        });
+    });
+
 
 
 });

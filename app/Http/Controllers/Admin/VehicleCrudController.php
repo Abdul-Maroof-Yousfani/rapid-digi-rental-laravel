@@ -191,7 +191,11 @@ class VehicleCrudController extends Controller
         ]);
 
         if($validator->fails()){
-            return redirect()->back()->withErrors($validator->messages())->withInput();
+            if($request->ajax()){
+                return response()->json([ 'errors' => $validator->errors() ], 422);
+            } else {
+                return redirect()->back()->withErrors($validator->messages())->withInput();
+            }
         }
         else{
             try {
@@ -204,9 +208,17 @@ class VehicleCrudController extends Controller
                     'number_plate' => $request['number_plate'],
                     'status' => $request['status'],
                 ]);
-                return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Updated Against Investor Successfully!');
+                if($request->ajax()){
+                    return response()->json([ 'success' => 'Vehicle updated successfully!', 'data' => $vehicle->load('vehicletype', 'investor') ], 200);
+                } else {
+                    return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Updated Against Investor Successfully!');
+                }
             } catch (\Exception $exp) {
-                return redirect()->back()->with('error', $exp->getMessage());
+                if($request->ajax()){
+                    return response()->json([ 'error'   => 'Something went wrong: ' . $exp->getMessage() ], 422);
+                } else {
+                    return redirect()->back()->with('error', $exp->getMessage());
+                }
             }
         }
     }
