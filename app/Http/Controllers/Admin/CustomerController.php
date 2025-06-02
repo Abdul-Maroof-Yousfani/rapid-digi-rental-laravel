@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use permission;
+use Carbon\Carbon;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Services\ZohoInvoice;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\QueryException;
+use Throwable;
 
 class CustomerController extends Controller
 {
@@ -136,32 +140,39 @@ class CustomerController extends Controller
     public function syncCustomersFromZoho()
     {
         $contact= $this->zohoinvoice->getAllCustomers();
-        foreach ($contact as $customer) {
-            $exists = Customer::where('zoho_customer_id', $customer['contact_id'])->exists();
-            if ($exists) {
-                continue;
-            }
+        try {
+            DB::beginTransaction();
+            foreach ($contact as $customer) {
+                $exists = Customer::where('zoho_customer_id', $customer['contact_id'])->exists();
+                if ($exists) {
+                    continue;
+                }
 
-            $fullDetail= $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
-            $billing = $fullDetail['contact']['billing_address'] ?? [];
-            Customer::create([
-                'zoho_customer_id' => $customer['contact_id'],
-                'customer_name' => $customer['contact_name'],
-                'email' => $customer['email'] ?? null,
-                'phone' => $customer['phone'] ?? null,
-                'address' => $billing['address'] ?? null,
-                'city' => $billing['city'] ?? null,
-                'state' => $billing['state'] ?? null,
-                'country' => $billing['country'] ?? null,
-                'postal_code' => $billing['zip'] ?? null,
-                'status' => 1,
-                'gender' => null,
-                'cnic' => null,
-                'dob' => null,
-                'licence' => null,
-            ]);
+                $fullDetail= $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
+                $billing = $fullDetail['contact']['billing_address'] ?? [];
+                Customer::create([
+                    'zoho_customer_id' => $customer['contact_id'],
+                    'customer_name' => $customer['contact_name'],
+                    'email' => $customer['email'] ?? null,
+                    'phone' => $customer['phone'] ?? null,
+                    'address' => $billing['address'] ?? null,
+                    'city' => $billing['city'] ?? null,
+                    'state' => $billing['state'] ?? null,
+                    'country' => $billing['country'] ?? null,
+                    'postal_code' => $billing['zip'] ?? null,
+                    'status' => 1,
+                    'gender' => null,
+                    'cnic' => null,
+                    'dob' => null,
+                    'licence' => null,
+                ]);
+            }
+            DB::commit();
+            return redirect()->back()->with('success', 'Customers synced successfully with Rapid System.');
+        } catch (Exception $exp) {
+            DB::rollback();
+            return redirect()->back()->with('error', $exp->getMessage());
         }
-        return redirect()->back()->with('success', 'Customers synced successfully with Rapid System.');
     }
 
     /**

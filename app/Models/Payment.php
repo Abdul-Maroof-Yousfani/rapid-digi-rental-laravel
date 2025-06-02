@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Models\Booking;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Payment extends Model
 {
     use HasFactory;
+    use LogsActivity;
     protected $fillable= [
         'booking_id',
         'payment_method',
@@ -19,6 +22,31 @@ class Payment extends Model
         'pending_amount',
         'payment_status',
     ];
+
+    /**
+     * Get the options for activity logging.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'booking_id',
+                'payment_method',
+                'bank_id',
+                'receipt',
+                'booking_amount',
+                'paid_amount',
+                'pending_amount',
+                'payment_status',
+            ])
+            ->logOnlyDirty()
+            ->useLogName('Payment');
+    }
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "Payment has been {$eventName} by " . (auth()->check() ? auth()->user()->name : 'system');
+    }
 
     /**
      * Get the bookings that owns the Payment

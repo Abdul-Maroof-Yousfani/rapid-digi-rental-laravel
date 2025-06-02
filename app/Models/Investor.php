@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Investor extends Model
 {
     use HasFactory;
     use SoftDeletes;
-
+    use LogsActivity;
     protected $fillable = [
         'user_id',
         'name',
@@ -30,6 +32,35 @@ class Investor extends Model
     ];
 
     /**
+     * Get the options for activity logging.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'user_id',
+                'name',
+                'phone',
+                'address',
+                'gender',
+                'dob',
+                'cnic',
+                'postal_code',
+                'city',
+                'state',
+                'country',
+                'status',
+            ])
+            ->logOnlyDirty()
+            ->useLogName('Investor');
+    }
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "Investor has been {$eventName} by " . (auth()->check() ? auth()->user()->name : 'system');
+    }
+
+    /**
      * Get the user that owns the Investor
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -39,8 +70,8 @@ class Investor extends Model
         return $this->belongsTo(User::class);
     }
 
-    
-    
+
+
     public function vehicle(): HasMany
     {
         return $this->hasMany(Vehicle::class, 'investor_id', 'id');

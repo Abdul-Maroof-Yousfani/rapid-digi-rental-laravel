@@ -14,11 +14,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Booking extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    use LogsActivity;
     protected $fillable = [
         'customer_id',
         'agreement_no',
@@ -31,9 +34,32 @@ class Booking extends Model
         'booking_cancel',
     ];
 
-    protected $casts = [
-        'booking_cancel' => 'boolean',
-    ];
+    /**
+     * Get the options for activity logging.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'customer_id',
+                'agreement_no',
+                'notes',
+                'total_price',
+                'sale_person_id',
+                'deposit_id',
+                'booking_status',
+                'started_at',
+                'booking_cancel',
+            ])
+            ->logOnlyDirty()
+            ->useLogName('booking');
+    }
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "Booking has been {$eventName} by " . (auth()->check() ? auth()->user()->name : 'system');
+    }
+
     /**
      * Get all of the invoice for the Booking
      *

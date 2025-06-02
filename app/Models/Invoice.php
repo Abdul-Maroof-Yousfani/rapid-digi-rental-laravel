@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Invoice extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    use LogsActivity;
     protected $fillable = [
         'booking_id',
         'zoho_invoice_id',
@@ -22,6 +25,30 @@ class Invoice extends Model
         'status',
         'deposit_amount'
     ];
+
+    /**
+     * Get the options for activity logging.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'booking_id',
+                'zoho_invoice_id',
+                'zoho_invoice_number',
+                'invoice_status',
+                'total_amount',
+                'status',
+                'deposit_amount'
+            ])
+            ->logOnlyDirty()
+            ->useLogName('Invoice');
+    }
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "Invoice has been {$eventName} by " . (auth()->check() ? auth()->user()->name : 'system');
+    }
 
     /**
      * Get the booking that owns the Invoice

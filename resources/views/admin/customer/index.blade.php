@@ -443,5 +443,23 @@
         }
 
     </script>
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: `{{ session('error') }}`.replace(/\n/g, '\n'),
+            });
+        </script>
+    @endif
 
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ session('success') }}',
+            });
+        </script>
+    @endif
 @endsection
