@@ -190,4 +190,22 @@ class AjaxController extends Controller
         ]);
     }
 
+    public function bookingCancellation($id)
+    {
+        $booking = Booking::find($id);
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'data' => 'Booking not found.'
+            ], 404);
+        } else {
+            $booking->booking_cancel = '1';
+            $booking->save();
+            return response()->json([
+                'success' => true,
+                'data' => 'Booking Cancelled.'
+            ], 200);
+        }
+    }
+
 }

@@ -47,7 +47,10 @@
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
                                         <input type="number" value="{{ $booking->deposit->deposit_amount ?? 0 }}" name="deposit_amount" class="form-control" >
                                     </div>
-
+                                    <div class="form-group">
+                                        <label>Started At <span class="text-danger">*</span></label>
+                                        <input type="date" value="0" name="started_at" class="form-control" >
+                                    </div>
                                     @if ($firstInvoice->invoice_status=='sent')
                                         <div class="form-group">
                                             <label>Reason For Update. <span class="text-danger">*</span></label>

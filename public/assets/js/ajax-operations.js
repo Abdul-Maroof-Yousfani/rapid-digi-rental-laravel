@@ -409,4 +409,45 @@ $(document).ready(function () {
 
 
 
+    // Booking Cancellation
+    $(document).on('click', '.booking_cancel', function(e){
+        e.preventDefault();
+        let bookingID= $(this).data('booking-id');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you really want to cancel this booking?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, cancel it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if(result.isConfirmed){
+                $.ajax({
+                    url: '/booking-cancellation/'+bookingID,
+                    type: 'get',
+                    success:function(response){
+                        if(response.success == true){
+                            $('.booking_cancel').text('Cancelled');
+                            Swal.fire({
+                                title: 'Success',
+                                text: response.data,
+                                icon: 'success',
+                            })
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Something went wrong.',
+                                icon: 'error',
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+
+
 });

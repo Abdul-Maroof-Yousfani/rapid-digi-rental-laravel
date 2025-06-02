@@ -23,7 +23,7 @@
                 <div class="card">
                     <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover" id="" style="width:100%;">
+                        <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
                         <thead>
                             <tr>
                             <th>S.no</th>
@@ -34,6 +34,7 @@
                             <th>Booking</th>
                             <th>Payment</th>
                             <th>Total Price</th>
+                            <th>Status</th>
                             <th align="text-center">Action</th>
                             </tr>
                         </thead>
@@ -44,7 +45,11 @@
                             @endphp
                             @foreach ($booking as $item)
                             <tr>
-                                @php $firstInvoice = $item->invoice->first(); @endphp
+                                @php
+                                    $today = \Carbon\Carbon::today();
+                                    $bookingStart = \Carbon\Carbon::parse($item->started_at);
+                                    $firstInvoice = $item->invoice->first();
+                                @endphp
                                 <td>{{ $item->id }}.</td>
                                 <td>{{ $item->customer->customer_name ?? 0 }}</td>
                                 <td>{{ $item->agreement_no ?? 0 }}</td>
@@ -53,6 +58,7 @@
                                 <td>{{ $item->booking_status ?? 'overdue' }}</td>
                                 <td>{{ $item->payment->payment_status ?? "pending" }}</td>
                                 <td>{{ $firstInvoice->total_amount }}</td>
+                                <td class="booking_cancel">  @if ($item->booking_cancel) Cancelled @elseif ($bookingStart->gt($today)) Upcoming @else Active @endif</td>
                                 <td>
                                     <div class="dropdown">
                                         <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
@@ -66,8 +72,8 @@
 
                                             <a class="dropdown-item" href="{{ url('booker/booking/'. $item->id) }}"> <i class="fas fa-eye"></i> View </a>
                                             <a class="dropdown-item" href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}"> <i class="far fa-edit"></i> Edit </a>
-                                            @if (is_null($item->started_at) || \Carbon\Carbon::parse($item->started_at)->isAfter($now))
-                                            <a class="dropdown-item" href=""> <i class="fas fa-times"></i> Cancel </a>
+                                            @if (is_null($item->started_at) || (\Carbon\Carbon::parse($item->started_at)->isAfter($now) && $item->booking_cancel==0))
+                                            <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->id }}" href=""> <i class="fas fa-times"></i> Cancel </a>
                                             @endif
                                             <form action="{{ url('booker/customer-booking/'.$item->id) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this booking?')">
                                                 @csrf

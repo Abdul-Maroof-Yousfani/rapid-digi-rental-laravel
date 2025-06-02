@@ -26,9 +26,14 @@ class Booking extends Model
         'total_price',
         'sale_person_id',
         'deposit_id',
-        'booking_status'
+        'booking_status',
+        'started_at',
+        'booking_cancel',
     ];
 
+    protected $casts = [
+        'booking_cancel' => 'boolean',
+    ];
     /**
      * Get all of the invoice for the Booking
      *

@@ -85,7 +85,7 @@ class PaymentController extends Controller
                     'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
-
+\Log::info('Payment Created:', $payment->toArray());
                 $paymentDataMap = [];
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
                     $invoiceAmount= $request['invoice_amount'][$key];
@@ -125,11 +125,11 @@ class PaymentController extends Controller
                         return redirect()->route('booker.payment.index')->with('success', 'Record inserted But Not Send Because Invoice ID Not Found');
                     }
                 }
-
-                return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
                 DB::commit();
+                return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
             } catch (\Exception $exp) {
                 DB::rollback();
+                    \Log::error('Payment Store Failed: ' . $exp->getMessage());
                 return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
             }
         }

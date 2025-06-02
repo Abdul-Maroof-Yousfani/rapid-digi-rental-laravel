@@ -82,6 +82,7 @@ Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType
 Route::get('get-vehicle-detail/{id}', [AjaxController::class, 'getNoByVehicle'])->name("getNoByVehicle");
 Route::get('get-vehicle-by-booking/{id}/booking/{booking_id}', [AjaxController::class, 'getVehicleAgaistBooking']);
 Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail']);
+Route::get('booking-cancellation/{id}', [AjaxController::class, 'bookingCancellation']);
 
 // Get Data For Edit Forms
 Route::get('get-vehicle-status-edit-form/{id}', [AjaxController::class, 'getVehicleStatusForEditForm']);
