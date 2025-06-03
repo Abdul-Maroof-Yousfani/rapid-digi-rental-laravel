@@ -263,6 +263,7 @@
     <script src="{{ asset('assets/js/custom.js') }}"></script>
     <!-- Custom Ajax File -->
     <script src="{{ asset('assets/js/ajax-operations.js') }}"></script>
+    <script src="{{ asset('assets/js/custom-ajax.js') }}"></script>
     <!-- Sweet Alert CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

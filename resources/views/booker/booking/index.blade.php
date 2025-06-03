@@ -159,7 +159,7 @@
                                     cancelButtonText: 'Nahi'
                                 }).then((paymentResult) => {
                                     if (paymentResult.isConfirmed) {
-                                        window.location.href = '/booker/payment/create';
+                                        window.location.href = '/booker/payment/create?booking_id='+bookingId;
                                     } else {
                                         closeBooking();
                                     }

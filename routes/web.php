@@ -92,6 +92,7 @@ Route::get('get-bank-for-edit-form/{id}', [AjaxController::class, 'getBankForEdi
 Route::get('get-customer-for-edit-form/{id}', [AjaxController::class, 'getCustomerForEditForm']);
 
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
+Route::get('get-payment-list', [FilterviewController::class, 'getPaymentList']);
 Route::get('/check-status/{id}', [BookingController::class, 'checkCloseEligibility'])->name('booking.check');
 Route::post('/booking/force-close/{id}', [BookingController::class, 'forceCloseBooking'])->name('booker.booking.force-close');
 Route::post('/booking/close/{id}', [BookingController::class, 'closeBooking'])->name('booker.booking.close');
@@ -103,6 +104,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::resource('customer', CustomerController::class);
     Route::resource('payment', PaymentController::class);
     Route::resource('credit-note', CreditnoteController::class);
+    Route::post('pending-payment/{booking_id}', [PaymentController::class, 'pendingPayment']);
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
     Route::get('booking/{id}', [InvoiceController::class, 'index'])->name('view.invoice');
     Route::get('booking/{id}/create-invoice', [InvoiceController::class, 'create'])->name('create.invoice');

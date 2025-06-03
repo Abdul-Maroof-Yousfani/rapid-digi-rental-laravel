@@ -6,6 +6,7 @@ use App\Models\Bank;
 use App\Models\Booking;
 use App\Models\Deposit;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Vehicle;
 use App\Models\Customer;
 use App\Models\SalePerson;
@@ -56,7 +57,11 @@ class AjaxController extends Controller
             return response()->json([ 'error' => 'Data Not Found' ]);
         }
         $bookingAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
+        $payment = Payment::where('booking_id', $booking_id)->first();
+        $remainingAmount = $bookingAmount - ($payment->paid_amount ?? 0);
+        $initialDeposit = $booking->deposit->deposit_amount ?? 0;
         $deductAmount = DepositHandling::where('booking_id', $booking_id)->sum('deduct_deposit');
+        if($deductAmount){ $remainingDeposit= $initialDeposit - $deductAmount; }
         $getVehicle = BookingData::with('vehicle')->select('vehicle_id')
                     ->where('booking_id', $booking_id)->groupBy('vehicle_id')->get();
         $vehicles= [];
@@ -97,7 +102,15 @@ class AjaxController extends Controller
                 }
             }
 
+        // PaymentData se total paid amount
+        $paymentData = PaymentData::where('invoice_id', $invoice->id)->first();
+        if($paymentData){
+            $getDeposit = DepositHandling::where('payment_data_id', $paymentData->id)->first();
+        }
             return [
+                'id' => $paymentData->id ?? null, // PaymentData ID
+                'paid_amount' => $paymentData->paid_amount ?? 0,
+                'deposit_amount' => $getDeposit->deduct_deposit ?? 0,
                 'zoho_invoice_number' => $invoice->zoho_invoice_number,
                 'invoice_status' => $invoice->invoice_status,
                 'invoice_amount' => $invoice->total_amount,
@@ -107,12 +120,16 @@ class AjaxController extends Controller
         });
 
         return response()->json([
+            'id' => $payment->id ?? null, // Payment ID
+            'paid_amount' => $payment->paid_amount ?? 0,
+            'remaining_amount' => $remainingAmount,
             'booking_amount' => $bookingAmount,
-            'deposit_amount' => $booking->deposit->deposit_amount ?? 0,
-            'invoice_detail' => $invoices,
+            'deposit_amount' => $initialDeposit,
+            'deduct_amount' => $deductAmount ?? 0,
+            'remaining_deposit' => $remainingDeposit ?? 0,
             'customer' => $booking->customer->customer_name,
+            'invoice_detail' => $invoices,
             'vehicle' => $vehicles,
-            'deduct_amount' => $deductAmount ?? 0
         ]);
     }
 

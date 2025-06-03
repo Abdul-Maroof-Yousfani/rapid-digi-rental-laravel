@@ -28,8 +28,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payment= Payment::with('booking', 'paymentMethod')->where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
-        return view('booker.payment.index', compact('payment'));
+        return view('booker.payment.index');
     }
 
     /**
@@ -37,10 +36,10 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        $booking= Booking::orderBy('id', 'DESC')->get();
+        $bookings= Booking::with('payment')->orderBy('id', 'DESC')->get();
         $paymentMethod= PaymentMethod::all();
         $bank= Bank::all();
-        return view('booker.payment.create', compact('paymentMethod', 'booking', 'bank'));
+        return view('booker.payment.create', compact('paymentMethod', 'bookings', 'bank'));
     }
 
     /**
@@ -85,7 +84,7 @@ class PaymentController extends Controller
                     'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
-\Log::info('Payment Created:', $payment->toArray());
+
                 $paymentDataMap = [];
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
                     $invoiceAmount= $request['invoice_amount'][$key];
@@ -114,6 +113,7 @@ class PaymentController extends Controller
                 }
 
                 $paymentDataList = PaymentData::with('invoice')
+                    ->where('payment_id', $payment->id)
                     ->where('status', 'paid')
                     ->get();
 
@@ -129,7 +129,6 @@ class PaymentController extends Controller
                 return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
             } catch (\Exception $exp) {
                 DB::rollback();
-                    \Log::error('Payment Store Failed: ' . $exp->getMessage());
                 return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
             }
         }
@@ -165,5 +164,93 @@ class PaymentController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    // Clear Pending Payment
+    public function pendingPayment($id, Request $request)
+    {
+        // dd($request->all());
+        $payment= Payment::find($request->payment_id);
+        if(!$payment){
+                $imagePath = null;
+                if ($request->hasFile('image')) {
+                    $image = $request->file('image');
+                    $imageName = time() . '.' . $image->getClientOriginalExtension();
+                    $image->move(public_path('assets/images'), $imageName);
+                    $imagePath= 'assets/images/' . $imageName;
+                }
+                $pendingAmount= $request['booking_amount'] - $request['amount_receive'];
+                $paymentStatus= $pendingAmount==0 ? 'paid' : 'pending';
+                $payment= Payment::create([
+                    'booking_id' => $request['booking_id'],
+                    'payment_method' => $request['payment_method'],
+                    'bank_id' => $request['bank_id'] ?? null,
+                    'booking_amount' => $request['booking_amount'],
+                    'paid_amount' => $request['amount_receive'],
+                    'pending_amount' => $pendingAmount,
+                    'payment_status' => $paymentStatus,
+                    'receipt' => $imagePath,
+                ]);
+                $paymentDataMap = [];
+                foreach ($request['invoice_id'] as $key => $invoice_ids) {
+                    $invoiceAmount= $request['invoice_amount'][$key];
+                    $invPaidAmount= $request['invPaidAmount'][$key];
+                    $pendingAmount= $invoiceAmount - $invPaidAmount;
+                    $status= $invoiceAmount == $invPaidAmount ? 'paid' : 'pending';
+                    $paymentdata= PaymentData::create([
+                        'invoice_id' => $invoice_ids,
+                        'payment_id' => $payment->id,
+                        'status' => $status,
+                        'invoice_amount' => $invoiceAmount,
+                        'paid_amount' => $invPaidAmount,
+                        'pending_amount' => $pendingAmount,
+                    ]);
+                    $paymentDataMap[$key] = $paymentdata->id;
+                }
+
+                foreach ($request['addDepositAmount'] as $index => $deductAmount) {
+                    if (floatval($deductAmount) > 0) {
+                        DepositHandling::create([
+                            'payment_data_id' => $paymentDataMap[$index],
+                            'booking_id' => $request['booking_id'],
+                            'deduct_deposit' => $deductAmount,
+                        ]);
+                    }
+                }
+        } else {
+            $payment->update([
+                'pending_amount' => $request['pending_amount'],
+                'paid_amount' => $request['amount_receive'],
+                'payment_status' => $request['pending_amount']==0 ? 'paid':'pending'
+            ]);
+            foreach ($request['paymentData_id'] as $key => $paymentDataID) {
+                $paymentData= PaymentData::find($paymentDataID);
+                $invoiceAmount= $request['invoice_amount'][$key];
+                $invPaidAmount= $request['invPaidAmount'][$key];
+                $pendingAmount= $invoiceAmount-$invPaidAmount;
+                $paymentStatus= $pendingAmount==0 ? 'paid' : 'pending';
+                $paymentData->update([
+                    'paid_amount' => $invPaidAmount,
+                    'pending_amount' => $pendingAmount,
+                    'status' => $paymentStatus,
+                ]);
+            }
+        }
+
+        $paymentDataList = PaymentData::with('invoice')
+                    ->where('payment_id', $payment->id)
+                    ->where('status', 'paid')
+                    ->get();
+
+        foreach ($paymentDataList as $key => $paymentData) {
+            if ($paymentData->invoice) {
+                $invoiceID= $paymentData->invoice->zoho_invoice_id;
+                $this->zohoinvoice->markAsSent($invoiceID);
+            } else {
+                return redirect()->route('booker.payment.index')->with('success', 'Record inserted But Not Send Because Invoice ID Not Found');
+            }
+        }
+
+        return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
     }
 }
