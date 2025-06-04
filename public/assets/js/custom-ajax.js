@@ -175,13 +175,15 @@ function bookingChange(){
                 $.each(response.invoice_detail, function(index, invoice){
                     var paid = parseFloat(invoice.paid_amount) || 0;
                     var total = parseFloat(invoice.invoice_amount) || 0;
-                    var deposit = parseFloat(response.deposit_amount) || 0;
-                    $('.addDepositAmount').val(deposit);
+                    var deposit = parseFloat(invoice.deposit_amount) || 0;
+                    var remainingDeposit = parseFloat(response.remaining_deposit) || 0;
 
                     // Get PaymentData ID
                     var paymentDataID= invoice.id;
 
-                    var disableCheckbox = (deposit === 0 || paid.toFixed(2) === total.toFixed(2));
+                    // var disableCheckbox = (deposit === 0 || paid.toFixed(2) === total.toFixed(2));
+                    var disableCheckbox = (remainingDeposit === 0 || paid.toFixed(2) === total.toFixed(2));
+
 
                     // Row background color logic
                     var rowColor = '';
@@ -203,7 +205,7 @@ function bookingChange(){
                         '<td class="invoice_total">' + invoice.invoice_amount + '</td>' +
                         '<td class="text-center">'+
                             '<div class="custom-control custom-checkbox">' +
-                            '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"' +(disableCheckbox ? ' disabled' : '') + '><input type="text" class="addDepositAmount form-control" name="addDepositAmount[]" value="">' +
+                            '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"' +(disableCheckbox ? ' disabled' : '') + '><input type="text" class="addDepositAmount form-control" name="addDepositAmount[]" value="'+deposit+'">' +
                             '<label class="custom-control-label" for="depositCheck' + index + '"></label></div>'+
                         '</td>'+
                         '<td class="recieve_amount">'+

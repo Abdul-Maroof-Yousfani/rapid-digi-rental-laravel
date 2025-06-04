@@ -42,6 +42,7 @@
                                 <td>{{ $item->total_amount }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
+                                    <a href="{{ url('booker/booking/view-invoice/'.$item->id) }}" class="btn btn-primary btn-sm"> View</a>
                                     <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
                                     <form action="" method="POST" style="display:inline;" class="delete-form">
                                         @csrf

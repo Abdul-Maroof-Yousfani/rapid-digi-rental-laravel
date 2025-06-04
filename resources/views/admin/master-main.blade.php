@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    @php $userRole= Auth::user()->getRoleNames()->first(); @endphp
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <title>@yield('title', ucfirst(Auth::user()->getRoleNames()->first()." "."Portal"))</title>
@@ -183,6 +184,16 @@
                                 <li><a class="nav-link" href="{{ role_base_route('credit-note.index') }}">Credit Note list</a></li>
                             </ul>
                         </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                                    data-feather="mail"></i><span>Reports</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{ role_base_route('soaReport') }}">SOA Report</a></li>
+                            </ul>
+                        </li>
+
+
                         @endcan
 
                         @can('view reports')
@@ -191,9 +202,6 @@
                                     data-feather="mail"></i><span>Report</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{role_base_route('bookingReport')}}">Vehicles & Revenue Booking</a></li>
-                                <!-- <li><a class="nav-link" href="">Revenue</a></li>
-                                <li><a class="nav-link" href="">Upcoming Bookings</a></li> -->
-
                             </ul>
                         </li>
                         @endcan
@@ -261,11 +269,12 @@
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
     <!-- Custom JS File -->
     <script src="{{ asset('assets/js/custom.js') }}"></script>
-    <!-- Custom Ajax File -->
-    <script src="{{ asset('assets/js/ajax-operations.js') }}"></script>
-    <script src="{{ asset('assets/js/custom-ajax.js') }}"></script>
     <!-- Sweet Alert CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Custom jQuery Files -->
+    <script src="{{ asset('assets/js/ajax-operations.js') }}"></script>
+    <script src="{{ asset('assets/js/custom-ajax.js') }}"></script>
+    <script src="{{ asset('assets/js/reports.js') }}"></script>
 
 
     @yield('script')

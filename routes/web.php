@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Booker\BookingController;
 use App\Http\Controllers\Booker\InvoiceController;
 use App\Http\Controllers\Booker\PaymentController;
+use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\ajax\FilterviewController;
 use App\Http\Controllers\Admin\BookerCrudController;
 use App\Http\Controllers\Admin\SalepersonController;
@@ -77,6 +78,10 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
 });
 
+// Ajax Reports Route
+Route::get('get-soa-list', [ReportController::class, 'getSoaReportList'])->name("getSoaReportList");
+
+
 // AJAX Routes
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
 Route::get('get-vehicle-detail/{id}', [AjaxController::class, 'getNoByVehicle'])->name("getNoByVehicle");
@@ -106,6 +111,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::resource('credit-note', CreditnoteController::class);
     Route::post('pending-payment/{booking_id}', [PaymentController::class, 'pendingPayment']);
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
+    Route::get('booking/view-invoice/{invoice_id}', [InvoiceController::class, 'viewInvoice'])->name('view.invoice');
     Route::get('booking/{id}', [InvoiceController::class, 'index'])->name('view.invoice');
     Route::get('booking/{id}/create-invoice', [InvoiceController::class, 'create'])->name('create.invoice');
     Route::post('booking/{id}/create-invoice', [InvoiceController::class, 'store'])->name('store.invoice');
@@ -121,6 +127,8 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::post('assign-status/{vehicle_id}/update', [VehiclestatusController::class, 'updateAssinedVehicle'])->name('assined.vehicle.update');
     Route::get('vehicle-assigned/{vehicle_id}/delete', [VehiclestatusController::class, 'deleteAssinedVehicle'])->name('assined.vehicle.delete');
 
+    // Reports Route
+    Route::get('/reports/soa-report', [ReportController::class, 'soaReport'])->name('soaReport');
 
 
 
@@ -129,5 +137,4 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
 Route::prefix('investor')->as('investor.')->middleware(['auth', 'role:investor', 'permission:view investor dashboard'])->group(function() {
     Route::get('/dashboard', [InvestorController::class, 'index'])->name('dashboard');
    Route::get('/reports/bookingReport', [BookingController::class, 'bookingReport'])->name('bookingReport');
-
 });

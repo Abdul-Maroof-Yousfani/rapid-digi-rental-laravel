@@ -69,4 +69,10 @@ class Vehicle extends Model
     {
         return $this->belongsTo(Vehiclestatus::class, 'vehicle_status_id');
     }
+
+    public function bookingData()
+    {
+        return $this->hasMany(Comment::class, 'foreign_key', 'local_key');
+    }
+
 }

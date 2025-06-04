@@ -259,4 +259,8 @@ class InvoiceController extends Controller
         }
     }
 
+    public function viewInvoice($id){
+        return view('booker.invoice.invoice-view');
+    }
+
 }
