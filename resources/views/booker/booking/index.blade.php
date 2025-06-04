@@ -104,7 +104,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="activeBookingModal" tabindex="-1" role="dialog" aria-labelledby="activeBookingLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Active Booking Details</h5>
@@ -112,8 +112,19 @@
           <span>&times;</span>
         </button>
       </div>
-      <div class="modal-body" id="activeBookingContent">
-        <!-- Dynamic content goes here -->
+      <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="sortable-table">
+                        <thead>
+                            <tr>
+                                <th>Vehicle</th>
+                                <th>Number plate</th>
+                                <th>Remaining Period</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeBookingContent"></tbody>
+                    </table>
+                </div>
       </div>
     </div>
   </div>
@@ -156,9 +167,16 @@
             $.ajax({
                 url: '/check-bookingis-active/' + bookingId,
                 type: 'GET',
-                success: function (res) {
-                    if(res.is_active==true){
+                success: function (response) {
+                    if(response.is_active==true){
                         $('#activeBookingModal').modal('show');
+                        $('#activeBookingContent').html('');
+                        let row= '';
+                        $.each(response.vehicles, function(index, vehicle){
+                            let numberPlate = response.number_plate[index];
+                            row+='<tr><td>'+vehicle+'</td><td>'+numberPlate+'</td><td></td></tr>';
+                        });
+                        $('#activeBookingContent').append(row)
                     } else {
                         $.ajax({
                             url: '/check-status/' + bookingId,

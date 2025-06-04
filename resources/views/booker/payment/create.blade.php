@@ -47,104 +47,104 @@
                                     <div class="table-responsive">
                                         <table class="table table-striped" id="sortable-table">
                                             <tbody class="ui-sortable">
-                                            <tr>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Booking</label><br>
-                                                        <select name="booking_id" id="booking_id" onchange="bookingChange()" class="form-control select2 booking_id" required>
-                                                            <option value="">Select Booking</option>
-                                                            @foreach ($bookings as $item)
-                                                            @php
-                                                                $status = optional($item->payment)->payment_status;
-                                                                $disableOption = ($status !== 'pending' && $status !== null);
-                                                            @endphp
-                                                            <option value="{{ $item->id }}"
-                                                                {{ $disableOption ? 'disabled' : '' }}
-                                                                {{ $item->id==$bookingId ? 'selected' : '' }}>
-                                                                {{ $item->agreement_no }} | {{ $item->customer->customer_name }}
-                                                            </option>
-                                                            @endforeach
-                                                        </select><br>
-                                                        <input type="hidden" value="" name="payment_id" class="payment_id" readonly>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle p-0">
-                                                    <div class="form-group">
-                                                        <label for="">Booking Amount</label><br>
-                                                        <input type="number" value="" name="booking_amount" class="form-control booking_amount" readonly>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Customer name</label><br>
-                                                        <input type="text" value="" name="customer_name" class="form-control customer_name" disabled>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Booking</label><br>
+                                                            <select name="booking_id" id="booking_id" onchange="bookingChange()" class="form-control select2 booking_id" required>
+                                                                <option value="">Select Booking</option>
+                                                                @foreach ($bookings as $item)
+                                                                @php
+                                                                    $status = optional($item->payment)->payment_status;
+                                                                    $disableOption = ($status !== 'pending' && $status !== null);
+                                                                @endphp
+                                                                <option value="{{ $item->id }}"
+                                                                    {{ $disableOption ? 'disabled' : '' }}
+                                                                    {{ $item->id==$bookingId ? 'selected' : '' }}>
+                                                                    {{ $item->agreement_no }} | {{ $item->customer->customer_name }}
+                                                                </option>
+                                                                @endforeach
+                                                            </select><br>
+                                                            <input type="hidden" value="" name="payment_id" class="payment_id" readonly>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle p-0">
+                                                        <div class="form-group">
+                                                            <label for="">Booking Amount</label><br>
+                                                            <input type="number" value="" name="booking_amount" class="form-control booking_amount" readonly>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Customer name</label><br>
+                                                            <input type="text" value="" name="customer_name" class="form-control customer_name" disabled>
+                                                        </div>
+                                                    </td>
+                                                </tr>
 
-                                            <tr>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Payment Method</label><br>
-                                                        <select name="payment_method" class="form-control payment_method select2" required>
-                                                            <option value="">Payment method</option>
-                                                            @foreach ($paymentMethod as $item)
-                                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Bank</label><br>
-                                                        <select name="bank_id" class="form-control select2 bank_id" disabled>
-                                                            <option value="">Select Bank</option>
-                                                            @foreach ($bank as $item)
-                                                                <option value="{{ $item->id }}">{{ $item->bank_name }} | {{ $item->account_number }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Deposit Amount</label><br>
-                                                        <input type="number" value="" name="" class="form-control initial_deposit">
-                                                        <input type="hidden" value="" name="deposit_amount" class="form-control deposit_amount"  readonly>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Payment Method</label><br>
+                                                            <select name="payment_method" class="form-control payment_method select2" required>
+                                                                <option value="">Payment method</option>
+                                                                @foreach ($paymentMethod as $item)
+                                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Bank</label><br>
+                                                            <select name="bank_id" class="form-control select2 bank_id" disabled>
+                                                                <option value="">Select Bank</option>
+                                                                @foreach ($bank as $item)
+                                                                    <option value="{{ $item->id }}">{{ $item->bank_name }} | {{ $item->account_number }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Deposit Amount</label><br>
+                                                            <input type="number" value="" name="" class="form-control initial_deposit">
+                                                            <input type="hidden" value="" name="deposit_amount" class="form-control deposit_amount"  readonly>
+                                                        </div>
+                                                    </td>
+                                                </tr>
 
-                                            <tr>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="image">Upload Image</label><br>
-                                                        <input type="file" name="image" id="image" class="form-control" accept="image/*">
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Pending Amount</label><br>
-                                                        <input type="number" placeholder="" value="" name="pending_amount" class="form-control pending_amount" readonly>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Remaining Deposit</label><br>
-                                                        <input type="number" placeholder="" value="" name="" class="form-control remaining_deposit" disabled>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="align-middle">
-                                                    <div class="form-group">
-                                                        <label for="">Receive Amount</label><br>
-                                                        <input type="number" placeholder="Receive Amount" value="" name="" class="form-control amount_receive" min="0" step="0.01" required>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle already_paid">
+                                                <tr>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="image">Upload Image</label><br>
+                                                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Pending Amount</label><br>
+                                                            <input type="number" placeholder="" value="" name="pending_amount" class="form-control pending_amount" readonly>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Remaining Deposit</label><br>
+                                                            <input type="number" placeholder="" value="" name="" class="form-control remaining_deposit" disabled>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Receive Amount</label><br>
+                                                            <input type="number" placeholder="Receive Amount" value="" name="" class="form-control amount_receive" min="0" step="0.01" required>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle already_paid">
 
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>

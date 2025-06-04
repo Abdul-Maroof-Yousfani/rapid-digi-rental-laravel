@@ -405,18 +405,42 @@ public function bookingReport(Request $request)
 
     public function isBookingActive($id)
     {
-        $bookingData = BookingData::where('booking_id', $id)->first();
+        $rentMaxEndDate = BookingData::where('booking_id', $id)
+                        ->where('transaction_type',1)
+                        ->max('end_date');
+
+        $bookingData=  BookingData::where('booking_id', $id)
+                        ->whereIn('transaction_type', [1, 2])
+                        ->select('vehicle_id')
+                        ->groupBy('vehicle_id')
+                        ->get();
+
+        $rentRemainingDays = 0;
+        if ($rentMaxEndDate) {
+            $endDate = \Carbon\Carbon::parse($rentMaxEndDate);
+            $today = \Carbon\Carbon::now();
+            $rentRemainingDays = $today->diffInDays($endDate, false);
+        }
+        $vehicles=[];
+        $no_plate=[];
+        foreach ($bookingData as $data) {
+            $vehicles[]= $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail;
+            $no_plate[]= $data->vehicle->number_plate;
+        }
 
         // Check Booking is active or not
-        $activeBooking = BookingData::where('booking_id', $bid)
+        $activeBooking = BookingData::where('booking_id', $id)
             ->whereIn('transaction_type', [1, 2])
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
             ->exists();
-            return response()->json([
-                'is_active' => $activeBooking,
-                'vehicles' => $bookingData->vehicles,
-            ]);
+
+        return response()->json([
+            'is_active' => $activeBooking,
+            'vehicles' => $vehicles,
+            'number_plate' => $no_plate,
+            'rent_remaining_days' => $rentRemainingDays,
+        ]);
     }
 
 
