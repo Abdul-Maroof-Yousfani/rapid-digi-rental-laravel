@@ -14,14 +14,8 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('customer_id');
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
-
             $table->unsignedBigInteger('sale_people_id');
-            $table->foreign('sale_person_id')->references('id')->on('sale_people')->onDelete('set null');
-
             $table->unsignedBigInteger('deposit_id');
-            $table->foreign('deposit_id')->references('id')->on('deposits')->onDelete('set null');
-            
             $table->string('agreement_no', 100)->nullable()->unique();
             $table->text('notes')->nullable();
             $table->enum('status', ['paid', 'pending'])->nullable();
@@ -31,6 +25,10 @@ return new class extends Migration
             $table->dateTime('started_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
+            
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->foreign('sale_person_id')->references('id')->on('sale_people')->onDelete('set null');
+            $table->foreign('deposit_id')->references('id')->on('deposits')->onDelete('set null');
         });
     }
 

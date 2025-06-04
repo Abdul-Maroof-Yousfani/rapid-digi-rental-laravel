@@ -403,6 +403,22 @@ public function bookingReport(Request $request)
         //     }
     // }
 
+    public function isBookingActive($id)
+    {
+        $bookingData = BookingData::where('booking_id', $id)->first();
+
+        // Check Booking is active or not
+        $activeBooking = BookingData::where('booking_id', $bid)
+            ->whereIn('transaction_type', [1, 2])
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->exists();
+            return response()->json([
+                'is_active' => $activeBooking,
+                'vehicles' => $bookingData->vehicles,
+            ]);
+    }
+
 
     public function checkCloseEligibility($id)
     {

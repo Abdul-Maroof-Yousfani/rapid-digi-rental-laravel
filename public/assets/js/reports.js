@@ -23,9 +23,19 @@ $(document).ready(function(){
                         </td>
                     </tr>
                 `);
-                setTimeout(() => {
+                if(response){
                     $('#reportList').html(response);
-                }, 2000);
+                } else {
+                    $('#reportList').html(`
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                <div class="text-center">
+                                    <h3 style="color:#0d6efd;">Record Not Found</h3>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                }
             }
         });
     });

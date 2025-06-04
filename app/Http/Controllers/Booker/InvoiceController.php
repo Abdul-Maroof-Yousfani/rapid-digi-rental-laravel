@@ -47,19 +47,27 @@ class InvoiceController extends Controller
 
     public function store(Request $request)
     {
-        $validator= Validator::make($request->all(), [
+        $rules= [
             'customer_id' => 'required',
             'booking_id' => 'required',
-            // 'invoice_status' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
-            'booking_date.*' => 'required',
-            'return_date.*' => 'required',
             'quantity.*' => 'required',
             'invoice_type.*' => 'required',
             'price.*' => 'required',
-        ]);
+        ];
+        $validator= Validator::make($request->all(), $rules);
+        $validator->sometimes('booking_date.*', 'required', function($input, $key) {
+            $index = explode('.', $key)[1] ?? null;
+            return $index !== null && isset($input->invoice_type[$index]) && $input->invoice_type[$index] == 2;
+        });
+
+        $validator->sometimes('return_date.*', 'required', function($input, $key) {
+            $index = explode('.', $key)[1] ?? null;
+            return $index !== null && isset($input->invoice_type[$index]) && $input->invoice_type[$index] == 2;
+        });
+
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
@@ -72,9 +80,16 @@ class InvoiceController extends Controller
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) { continue; }
                 $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
-                $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
+                $invoiceType = $request->invoice_type[$key];
+                $invoiceTypeText = $invoiceTypes[$invoiceType];
+                if ($invoiceType == 2) {
+                    $dateRange = ($request->booking_date[$key] ?? '-') . " TO " . ($request->return_date[$key] ?? '-');
+                } else {
+                    $dateRange = '';
+                }
+
+                $description = $request->description[$key] ?? trim($dateRange);
                 if (is_array($description)) { $description = implode(', ', $description); }
-                $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description."\n".$invoiceTypeText,
@@ -89,9 +104,6 @@ class InvoiceController extends Controller
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
             $zohoLineItems = $invoiceResponse['invoice']['line_items'] ?? [];
-            // if($request->invoice_status == 'sent' && isset($zohoInvoiceId)){
-            //     $this->zohoinvoice->markAsSent($zohoInvoiceId);
-            // }
             if (!empty($zohoInvoiceId)) {
                 try {
                     DB::beginTransaction();
@@ -99,7 +111,6 @@ class InvoiceController extends Controller
                         'booking_id' => $request->booking_id,
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
-                        // 'invoice_status' => $request->invoice_status,
                         'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
                         'status' => 1,
                     ]);
@@ -110,8 +121,8 @@ class InvoiceController extends Controller
                             'booking_id' => $request->booking_id,
                             'vehicle_id' => $vehicle_id,
                             'invoice_id' => $invoice->id,
-                            'start_date' => $request['booking_date'][$key],
-                            'end_date' => $request['return_date'][$key],
+                            'start_date' => $request['booking_date'][$key] ?? null,
+                            'end_date' => $request['return_date'][$key] ?? null,
                             'price' => $request['price'][$key],
                             'transaction_type' => $request['invoice_type'][$key],
                             'description' => $lineItemData['description'],
@@ -166,17 +177,26 @@ class InvoiceController extends Controller
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
-            'booking_date.*' => 'required',
-            'return_date.*' => 'required',
             'quantity.*' => 'required',
             'invoice_type.*' => 'required',
             'price.*' => 'required',
         ];
+
+        $validator= Validator::make($request->all(),$rules);
+        $validator->sometimes('booking_date.*', 'required', function($input, $key) {
+            $index = explode('.', $key)[1] ?? null;
+            return $index !== null && isset($input->invoice_type[$index]) && $input->invoice_type[$index] == 2;
+        });
+
+        $validator->sometimes('return_date.*', 'required', function($input, $key) {
+            $index = explode('.', $key)[1] ?? null;
+            return $index !== null && isset($input->invoice_type[$index]) && $input->invoice_type[$index] == 2;
+        });
+
         $invoice= Invoice::find($id);
         if ($invoice && $invoice->invoice_status === 'sent') {
-            $rules['reason'] = 'required';
+            $validator->sometimes('reason', 'required');
         }
-        $validator= Validator::make($request->all(),$rules);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
@@ -189,9 +209,16 @@ class InvoiceController extends Controller
                 $vehicle = Vehicle::find($vehicleId);
                 if (!$vehicle) { continue; }
                 $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
-                $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
+                $invoiceType = $request->invoice_type[$key];
+                $invoiceTypeText = $invoiceTypes[$invoiceType];
+                if ($invoiceType == 2) {
+                    $dateRange = ($request->booking_date[$key] ?? '-') . " TO " . ($request->return_date[$key] ?? '-');
+                } else {
+                    $dateRange = '';
+                }
+
+                $description = $request->description[$key] ?? trim($dateRange);
                 if (is_array($description)) { $description = implode(', ', $description); }
-                $invoiceTypeText = $invoiceTypes[$request['invoice_type'][$key]];
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description."\n".$invoiceTypeText,
@@ -234,8 +261,8 @@ class InvoiceController extends Controller
                             'booking_id' => $request->booking_id,
                             'vehicle_id' => $vehicle_id,
                             'invoice_id' => $invoice->id,
-                            'start_date' => $request['booking_date'][$key],
-                            'end_date' => $request['return_date'][$key],
+                            'start_date' => $request['booking_date'][$key] ?? null,
+                            'end_date' => $request['return_date'][$key] ?? null,
                             'price' => $request['price'][$key],
                             'transaction_type' => $request['invoice_type'][$key],
                             'description' => $lineItemData['description'],

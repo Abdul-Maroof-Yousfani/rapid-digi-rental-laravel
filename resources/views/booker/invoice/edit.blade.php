@@ -146,14 +146,14 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
+                                                            <input type="date" value="{{ $item->start_date ? \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') : '' }}" name="booking_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
+                                                            <input type="date" value="{{ $item->end_date ? \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') : '' }}" name="return_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 >
                                                         </div>
@@ -359,7 +359,7 @@
                 <tr>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -370,7 +370,7 @@
 
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle">
+                            <select name="vehicle[]" class="form-control select2 vehicle" required>
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>

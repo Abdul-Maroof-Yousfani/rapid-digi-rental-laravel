@@ -63,7 +63,9 @@ class AjaxController extends Controller
         $deductAmount = DepositHandling::where('booking_id', $booking_id)->sum('deduct_deposit');
         if($deductAmount){ $remainingDeposit= $initialDeposit - $deductAmount; }
         $getVehicle = BookingData::with('vehicle')->select('vehicle_id')
-                    ->where('booking_id', $booking_id)->groupBy('vehicle_id')->get();
+                    ->where('booking_id', $booking_id)
+                    ->groupBy('vehicle_id')->get();
+
         $vehicles= [];
         foreach ($getVehicle as $value) {
             $vehicles[]= [
@@ -102,11 +104,11 @@ class AjaxController extends Controller
                 }
             }
 
-        // PaymentData se total paid amount
-        $paymentData = PaymentData::where('invoice_id', $invoice->id)->first();
-        if($paymentData){
-            $getDeposit = DepositHandling::where('payment_data_id', $paymentData->id)->first();
-        }
+            // PaymentData se total paid amount
+            $paymentData = PaymentData::where('invoice_id', $invoice->id)->first();
+            if($paymentData){
+                $getDeposit = DepositHandling::where('payment_data_id', $paymentData->id)->first();
+            }
             return [
                 'id' => $paymentData->id ?? null, // PaymentData ID
                 'paid_amount' => $paymentData->paid_amount ?? 0,

@@ -275,6 +275,7 @@
     <script src="{{ asset('assets/js/ajax-operations.js') }}"></script>
     <script src="{{ asset('assets/js/custom-ajax.js') }}"></script>
     <script src="{{ asset('assets/js/reports.js') }}"></script>
+    <script src="{{ asset('assets/js/custom-jquery.js') }}"></script>
 
 
     @yield('script')

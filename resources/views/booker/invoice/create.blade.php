@@ -139,14 +139,14 @@
                                                     <!-- Start Date -->
                                                     <td>
                                                         <div class="form-group">
-                                                            <input type="date" name="booking_date[]" class="form-control datemask" required>
+                                                            <input type="date" name="booking_date[]" class="form-control datemask">
                                                         </div>
                                                     </td>
 
                                                     <!-- Return Date -->
                                                     <td>
                                                         <div class="form-group">
-                                                            <input type="date" name="return_date[]" class="form-control datemask" required>
+                                                            <input type="date" name="return_date[]" class="form-control datemask">
                                                         </div>
                                                     </td>
 
@@ -298,17 +298,17 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <select name="invoice_type[]" class="form-control select2" id="">
+                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
                                 <option value="">Select Type</option>
                                 <option value="2">Renew</option>
                                 <option value="3">Fine</option>
@@ -398,17 +398,17 @@
 
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
+                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <select name="invoice_type[]" class="form-control select2" id="">
+                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
                                 <option value="">Select Type</option>
                                 <option value="2">Renew</option>
                                 <option value="3">Fine</option>

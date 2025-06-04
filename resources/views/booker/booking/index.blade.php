@@ -102,6 +102,24 @@
         </section>
       </div>
 
+<!-- Modal -->
+<div class="modal fade" id="activeBookingModal" tabindex="-1" role="dialog" aria-labelledby="activeBookingLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Active Booking Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="activeBookingContent">
+        <!-- Dynamic content goes here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
 @endsection
 
 
@@ -135,119 +153,241 @@
     <script>
         $('.close-booking').click(function () {
             let bookingId = $(this).data('booking-id');
-
             $.ajax({
-                url: '/check-status/' + bookingId,
+                url: '/check-bookingis-active/' + bookingId,
                 type: 'GET',
                 success: function (res) {
-                    if (res.status === 'pending_payment' || res.status === 'not_received') {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Are you sure?',
-                            text: 'Do you want to close this booking?',
-                            showCancelButton: true,
-                            confirmButtonText: 'Haan',
-                            cancelButtonText: 'Nahi'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                Swal.fire({
-                                    title: `Pending amount ${res.amount}`,
-                                    text: 'Do You want to Clear it?',
-                                    icon: 'warning',
-                                    showCancelButton: true,
-                                    confirmButtonText: 'Haan',
-                                    cancelButtonText: 'Nahi'
-                                }).then((paymentResult) => {
-                                    if (paymentResult.isConfirmed) {
-                                        window.location.href = '/booker/payment/create?booking_id='+bookingId;
-                                    } else {
-                                        closeBooking();
-                                    }
-                                });
-                            }
-                        });
-                        function closeBooking() {
-                            $.ajax({
-                                url: '/booking/force-close/' + bookingId,
-                                type: 'POST',
-                                data: {
-                                    _token: '{{ csrf_token() }}'
-                                },
-                                success: function () {
+                    if(res.is_active==true){
+                        $('#activeBookingModal').modal('show');
+                    } else {
+                        $.ajax({
+                            url: '/check-status/' + bookingId,
+                            type: 'GET',
+                            success: function (res) {
+                                if (res.status === 'pending_payment' || res.status === 'not_received') {
                                     Swal.fire({
-                                        icon: 'success',
-                                        title: 'Booking Closed!',
-                                        text: 'Booking successfully closed.',
-                                        confirmButtonText: 'OK'
-                                    }).then(() => {
-                                        location.reload();
+                                        icon: 'warning',
+                                        title: 'Are you sure?',
+                                        text: 'Do you want to close this booking?',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Haan',
+                                        cancelButtonText: 'Nahi'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            Swal.fire({
+                                                title: `Pending amount ${res.amount}`,
+                                                text: 'Do You want to Clear it?',
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                confirmButtonText: 'Yes',
+                                                cancelButtonText: 'No'
+                                            }).then((paymentResult) => {
+                                                if (paymentResult.isConfirmed) {
+                                                    window.location.href = '/booker/payment/create?booking_id='+bookingId;
+                                                } else {
+                                                    closeBooking();
+                                                }
+                                            });
+                                        }
+                                    });
+                                    function closeBooking() {
+                                        $.ajax({
+                                            url: '/booking/force-close/' + bookingId,
+                                            type: 'POST',
+                                            data: {
+                                                _token: '{{ csrf_token() }}'
+                                            },
+                                            success: function () {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Booking Closed!',
+                                                    text: 'Booking successfully closed.',
+                                                    confirmButtonText: 'OK'
+                                                }).then(() => {
+                                                    location.reload();
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
+
+
+                                else if (res.status === 'deposit_remaining') {
+                                    Swal.fire({
+                                        title: 'Deposit Remaining',
+                                        text: 'Do you want to make a credit note now?',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes',
+                                        cancelButtonText: 'No'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            window.location.href = '/booker/credit-note/create?booking_id=' + bookingId;
+                                        }
                                     });
                                 }
-                            });
-                        }
-                    }
 
 
-                    else if (res.status === 'deposit_remaining') {
-                        Swal.fire({
-                            title: 'Deposit Remaining',
-                            text: 'Do you want to make a credit note now?',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonText: 'Yes',
-                            cancelButtonText: 'No'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = '/booker/credit-note/create?booking_id=' + bookingId;
+
+
+                                else if(res. status === 'can_close') {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Are you sure?',
+                                        text: 'Do you want to close this booking?',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes, close it!',
+                                        cancelButtonText: 'No, cancel!'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            $.ajax({
+                                                url: '/booking/close/' + bookingId,
+                                                type: 'POST',
+                                                data: {
+                                                    _token: '{{ csrf_token() }}'
+                                                },
+                                                success: function () {
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: 'Booking Closed!',
+                                                        text: 'Booking successfully closed.',
+                                                        confirmButtonText: 'OK'
+                                                    }).then(() => {
+                                                        location.reload();
+                                                    });
+                                                },
+                                                error: function() {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Oops!',
+                                                        text: 'Something went wrong while closing the booking.'
+                                                    });
+                                                }
+                                            });
+                                        } else {
+                                            // User ne cancel kiya, koi action nahi
+                                        }
+                                    });
+
+                                }
                             }
                         });
-                    }
-
-
-
-
-                    else if(res. status === 'can_close') {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Are you sure?',
-                            text: 'Do you want to close this booking?',
-                            showCancelButton: true,
-                            confirmButtonText: 'Yes, close it!',
-                            cancelButtonText: 'No, cancel!'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $.ajax({
-                                    url: '/booking/close/' + bookingId,
-                                    type: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}'
-                                    },
-                                    success: function () {
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Booking Closed!',
-                                            text: 'Booking successfully closed.',
-                                            confirmButtonText: 'OK'
-                                        }).then(() => {
-                                            location.reload();
-                                        });
-                                    },
-                                    error: function() {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Oops!',
-                                            text: 'Something went wrong while closing the booking.'
-                                        });
-                                    }
-                                });
-                            } else {
-                                // User ne cancel kiya, koi action nahi
-                            }
-                        });
-
                     }
                 }
             });
+
+            // $.ajax({
+            //     url: '/check-status/' + bookingId,
+            //     type: 'GET',
+            //     success: function (res) {
+            //         if (res.status === 'pending_payment' || res.status === 'not_received') {
+            //             Swal.fire({
+            //                 icon: 'warning',
+            //                 title: 'Are you sure?',
+            //                 text: 'Do you want to close this booking?',
+            //                 showCancelButton: true,
+            //                 confirmButtonText: 'Haan',
+            //                 cancelButtonText: 'Nahi'
+            //             }).then((result) => {
+            //                 if (result.isConfirmed) {
+            //                     Swal.fire({
+            //                         title: `Pending amount ${res.amount}`,
+            //                         text: 'Do You want to Clear it?',
+            //                         icon: 'warning',
+            //                         showCancelButton: true,
+            //                         confirmButtonText: 'Haan',
+            //                         cancelButtonText: 'Nahi'
+            //                     }).then((paymentResult) => {
+            //                         if (paymentResult.isConfirmed) {
+            //                             window.location.href = '/booker/payment/create?booking_id='+bookingId;
+            //                         } else {
+            //                             closeBooking();
+            //                         }
+            //                     });
+            //                 }
+            //             });
+            //             function closeBooking() {
+            //                 $.ajax({
+            //                     url: '/booking/force-close/' + bookingId,
+            //                     type: 'POST',
+            //                     data: {
+            //                         _token: '{{ csrf_token() }}'
+            //                     },
+            //                     success: function () {
+            //                         Swal.fire({
+            //                             icon: 'success',
+            //                             title: 'Booking Closed!',
+            //                             text: 'Booking successfully closed.',
+            //                             confirmButtonText: 'OK'
+            //                         }).then(() => {
+            //                             location.reload();
+            //                         });
+            //                     }
+            //                 });
+            //             }
+            //         }
+
+
+            //         else if (res.status === 'deposit_remaining') {
+            //             Swal.fire({
+            //                 title: 'Deposit Remaining',
+            //                 text: 'Do you want to make a credit note now?',
+            //                 icon: 'warning',
+            //                 showCancelButton: true,
+            //                 confirmButtonText: 'Yes',
+            //                 cancelButtonText: 'No'
+            //             }).then((result) => {
+            //                 if (result.isConfirmed) {
+            //                     window.location.href = '/booker/credit-note/create?booking_id=' + bookingId;
+            //                 }
+            //             });
+            //         }
+
+
+
+
+            //         else if(res. status === 'can_close') {
+            //             Swal.fire({
+            //                 icon: 'warning',
+            //                 title: 'Are you sure?',
+            //                 text: 'Do you want to close this booking?',
+            //                 showCancelButton: true,
+            //                 confirmButtonText: 'Yes, close it!',
+            //                 cancelButtonText: 'No, cancel!'
+            //             }).then((result) => {
+            //                 if (result.isConfirmed) {
+            //                     $.ajax({
+            //                         url: '/booking/close/' + bookingId,
+            //                         type: 'POST',
+            //                         data: {
+            //                             _token: '{{ csrf_token() }}'
+            //                         },
+            //                         success: function () {
+            //                             Swal.fire({
+            //                                 icon: 'success',
+            //                                 title: 'Booking Closed!',
+            //                                 text: 'Booking successfully closed.',
+            //                                 confirmButtonText: 'OK'
+            //                             }).then(() => {
+            //                                 location.reload();
+            //                             });
+            //                         },
+            //                         error: function() {
+            //                             Swal.fire({
+            //                                 icon: 'error',
+            //                                 title: 'Oops!',
+            //                                 text: 'Something went wrong while closing the booking.'
+            //                             });
+            //                         }
+            //                     });
+            //                 } else {
+            //                     // User ne cancel kiya, koi action nahi
+            //                 }
+            //             });
+
+            //         }
+            //     }
+            // });
         });
 
     </script>
