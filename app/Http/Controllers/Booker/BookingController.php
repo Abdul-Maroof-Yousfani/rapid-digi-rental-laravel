@@ -405,27 +405,42 @@ public function bookingReport(Request $request)
 
     public function isBookingActive($id)
     {
-        $rentMaxEndDate = BookingData::where('booking_id', $id)
+        $rentBookingData = BookingData::where('booking_id', $id)
                         ->where('transaction_type',1)
-                        ->max('end_date');
-
-        $bookingData=  BookingData::where('booking_id', $id)
-                        ->whereIn('transaction_type', [1, 2])
-                        ->select('vehicle_id')
-                        ->groupBy('vehicle_id')
+                        ->with('vehicle')
                         ->get();
 
-        $rentRemainingDays = 0;
-        if ($rentMaxEndDate) {
-            $endDate = \Carbon\Carbon::parse($rentMaxEndDate);
-            $today = \Carbon\Carbon::now();
-            $rentRemainingDays = $today->diffInDays($endDate, false);
-        }
-        $vehicles=[];
-        $no_plate=[];
-        foreach ($bookingData as $data) {
-            $vehicles[]= $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail;
-            $no_plate[]= $data->vehicle->number_plate;
+        $today = Carbon::today();
+        $rentDetails = [];
+        foreach ($rentBookingData as $data) {
+            $bookingDataID = $data->id;
+            $vehicleName = $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail;
+            $numberPlate = $data->vehicle->number_plate ?? '';
+            $rentAmount = $data->price;
+            $returnDate = $data->end_date;
+            $startDate = Carbon::parse($data->start_date)->startOfDay();
+            $endDate = Carbon::parse($data->end_date)->endOfDay();
+
+            // Total Rent Days including both start & end dates
+            $totalRentDays = $startDate->diffInDays($endDate) + 1;
+
+            // Remaining Days = from today till end_date (including today)
+            if ($today->lte($endDate)) {
+                $remainingDays = $today->diffInDays($endDate) + 1;
+            } else {
+                $remainingDays = 0; // Booking expired
+            }
+
+            $remainingDays = \Carbon\Carbon::now()->diffInDays($endDate, false);
+            $rentDetails[] = [
+                'bookingDataID' => $bookingDataID,
+                'end_date' => $returnDate,
+                'vehicle_name' => $vehicleName,
+                'number_plate' => $numberPlate,
+                'rent_amount' => $rentAmount,
+                'total_rent_days' => $totalRentDays,
+                'rent_remaining_days' => $remainingDays,
+            ];
         }
 
         // Check Booking is active or not
@@ -437,9 +452,7 @@ public function bookingReport(Request $request)
 
         return response()->json([
             'is_active' => $activeBooking,
-            'vehicles' => $vehicles,
-            'number_plate' => $no_plate,
-            'rent_remaining_days' => $rentRemainingDays,
+            'rent_details' => $rentDetails,
         ]);
     }
 

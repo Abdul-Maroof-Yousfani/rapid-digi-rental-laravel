@@ -96,6 +96,7 @@ Route::get('get-vehicle-for-edit-form/{id}', [AjaxController::class, 'getVehicle
 Route::get('get-salemen-for-edit-form/{id}', [AjaxController::class, 'getSalemanForEditForm']);
 Route::get('get-bank-for-edit-form/{id}', [AjaxController::class, 'getBankForEditForm']);
 Route::get('get-customer-for-edit-form/{id}', [AjaxController::class, 'getCustomerForEditForm']);
+Route::post('booking-convert-partial', [AjaxController::class, 'bookingConvertPartial']);
 
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
 Route::get('get-payment-list', [FilterviewController::class, 'getPaymentList']);
