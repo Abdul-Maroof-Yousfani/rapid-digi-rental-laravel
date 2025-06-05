@@ -13,12 +13,19 @@ use App\Models\SalePerson;
 use App\Models\BookingData;
 use App\Models\PaymentData;
 use Illuminate\Http\Request;
+use App\Services\ZohoInvoice;
 use App\Models\Vehiclestatus;
 use App\Models\DepositHandling;
 use App\Http\Controllers\Controller;
 
 class AjaxController extends Controller
 {
+
+    protected $zohoinvoice;
+    public function __construct(ZohoInvoice $zohoinvoice){
+        $this->zohoinvoice= $zohoinvoice;
+    }
+
     public function getVehicleByType($id)
     {
         $vehicle= Vehicle::where('vehicletypes', $id)->where('vehicle_status_id', 1)->get();
@@ -227,12 +234,103 @@ class AjaxController extends Controller
         }
     }
 
+
+
+
     public function bookingConvertPartial(Request $request)
     {
-        dd($request->all());
-        // foreach ($request->bookingDataID as $key => $bookingData) {
-        //     $booking_data=find($bookingData);
-        // }
+        $updatedRecords = [];
+        $invoiceUpdates = [];
+
+        foreach ($request->bookingDataID as $key => $bookingDataID) {
+            $booking_data = BookingData::with(['invoice', 'vehicle'])->find($bookingDataID);
+
+            if ($booking_data && $booking_data->invoice) {
+                // Step 1: Update Local DB
+                $booking_data->update([
+                    'end_date' => $request['end_date'][$key],
+                    'price' => $request['new_rent_amount'][$key],
+                ]);
+
+                $invoiceId = $booking_data->invoice->zoho_invoice_id;
+
+                // Use fallback for vehicle name
+                $vehicleName = $booking_data->vehicle->vehicle_name ?? $booking_data->vehicle->temp_vehicle_detail ?? '';
+                $description = $booking_data->description ?? '';
+                $newRate = $request['new_rent_amount'][$key];
+
+                $invoiceUpdates[$invoiceId][] = [
+                    'name' => $vehicleName,
+                    'description' => $description,
+                    'rate' => $newRate,
+                ];
+
+                $updatedRecords[] = $booking_data;
+            }
+        }
+
+        $zohoResponses = [];
+
+        foreach ($invoiceUpdates as $invoiceId => $updates) {
+            $invoiceData = $this->zohoinvoice->getInvoice($invoiceId);
+
+            if (!isset($invoiceData['invoice'])) continue;
+
+            $originalInvoice = $invoiceData['invoice'];
+            $lineItems = $originalInvoice['line_items'];
+
+            foreach ($lineItems as &$lineItem) {
+                foreach ($updates as $update) {
+                    if (
+                        strtolower(trim($lineItem['name'])) === strtolower(trim($update['name'])) &&
+                        strtolower(trim($lineItem['description'])) === strtolower(trim($update['description']))
+                    ) {
+                        $lineItem['rate'] = $update['rate'];
+                        $lineItem['item_total'] = $update['rate'] * $lineItem['quantity']; // Optional
+                    }
+                }
+            }
+
+            $updatePayload = [
+                'customer_id' => $originalInvoice['customer_id'],
+                'currency_code' => $originalInvoice['currency_code'],
+                'notes' => $originalInvoice['notes'] ?? '',
+                'line_items' => $lineItems,
+            ];
+
+            $response = $this->zohoinvoice->updateInvoice($invoiceId, $updatePayload);
+            \Log::info("Zoho Invoice Updated [$invoiceId]", $response);
+
+            $zohoResponses[$invoiceId] = $response;
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $updatedRecords,
+            'zoho_response' => $zohoResponses,
+        ]);
     }
+
+
+
+
+
+
+
+    // public function bookingConvertPartial(Request $request)
+    // {
+    //     $updatedRecords= [];
+    //     foreach ($request->bookingDataID as $key => $bookingData) {
+    //         $booking_data= BookingData::find($bookingData);
+    //         if($booking_data){
+    //             $booking_data->update([
+    //                 'end_date' => $request['end_date'][$key],
+    //                 'price' => $request['new_rent_amount'][$key],
+    //             ]);
+    //         }
+    //         $updatedRecords[]= $booking_data;
+    //     }
+    //     return response()->json(['success' => true, 'data' => $updatedRecords]);
+    // }
 
 }
