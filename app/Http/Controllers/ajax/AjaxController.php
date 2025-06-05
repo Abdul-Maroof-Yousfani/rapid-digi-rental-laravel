@@ -227,4 +227,12 @@ class AjaxController extends Controller
         }
     }
 
+    public function bookingConvertPartial(Request $request)
+    {
+        dd($request->all());
+        // foreach ($request->bookingDataID as $key => $bookingData) {
+        //     $booking_data=find($bookingData);
+        // }
+    }
+
 }

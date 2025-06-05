@@ -405,18 +405,55 @@ public function bookingReport(Request $request)
 
     public function isBookingActive($id)
     {
-        $bookingData = BookingData::where('booking_id', $id)->first();
+        $rentBookingData = BookingData::where('booking_id', $id)
+                        ->where('transaction_type',1)
+                        ->with('vehicle')
+                        ->get();
+
+        $today = Carbon::today();
+        $rentDetails = [];
+        foreach ($rentBookingData as $data) {
+            $bookingDataID = $data->id;
+            $vehicleName = $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail;
+            $numberPlate = $data->vehicle->number_plate ?? '';
+            $rentAmount = $data->price;
+            $returnDate = $data->end_date;
+            $startDate = Carbon::parse($data->start_date)->startOfDay();
+            $endDate = Carbon::parse($data->end_date)->endOfDay();
+
+            // Total Rent Days including both start & end dates
+            $totalRentDays = $startDate->diffInDays($endDate) + 1;
+
+            // Remaining Days = from today till end_date (including today)
+            if ($today->lte($endDate)) {
+                $remainingDays = $today->diffInDays($endDate) + 1;
+            } else {
+                $remainingDays = 0; // Booking expired
+            }
+
+            $remainingDays = \Carbon\Carbon::now()->diffInDays($endDate, false);
+            $rentDetails[] = [
+                'bookingDataID' => $bookingDataID,
+                'end_date' => $returnDate,
+                'vehicle_name' => $vehicleName,
+                'number_plate' => $numberPlate,
+                'rent_amount' => $rentAmount,
+                'total_rent_days' => $totalRentDays,
+                'rent_remaining_days' => $remainingDays,
+            ];
+        }
 
         // Check Booking is active or not
-        $activeBooking = BookingData::where('booking_id', $bid)
+        $activeBooking = BookingData::where('booking_id', $id)
             ->whereIn('transaction_type', [1, 2])
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
             ->exists();
-            return response()->json([
-                'is_active' => $activeBooking,
-                'vehicles' => $bookingData->vehicles,
-            ]);
+
+        return response()->json([
+            'is_active' => $activeBooking,
+            'rent_details' => $rentDetails,
+        ]);
     }
 
 

@@ -112,8 +112,15 @@
           <span>&times;</span>
         </button>
       </div>
-      <div class="modal-body" id="activeBookingContent">
-        <!-- Dynamic content goes here -->
+      <div class="modal-body">
+        <div class="table-responsive">
+            <form id="partialBookingForm">
+                <table class="table">
+                    <tbody id="activeBookingContent"></tbody>
+                </table>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+        </div>
       </div>
     </div>
   </div>
@@ -156,9 +163,120 @@
             $.ajax({
                 url: '/check-bookingis-active/' + bookingId,
                 type: 'GET',
-                success: function (res) {
-                    if(res.is_active==true){
+                success: function (response) {
+                    if(response.is_active==true){
                         $('#activeBookingModal').modal('show');
+                        $('#activeBookingContent').html('');
+                        let row= '';
+                        $.each(response.rent_details, function(index, item) {
+                            const formattedEndDate = item.end_date.split(' ')[0];
+                            row += `
+                                <tr style="background-color: #fcfcfc;">
+                                    <td rowspan="2" class="text-left align-top">
+                                        <br><h5>${item.vehicle_name}</h5>
+                                        <input type="hidden" value="${item.bookingDataID}" name="bookingDataID[]" class="bookingDataID">
+                                    </td>
+                                    <td class="align-middle p-0">
+                                        <div class="form-group">
+                                            <label>Remaining Days</label><br>
+                                            <input type="number" value="${item.rent_remaining_days}" class="form-control rent_remaining_days" readonly>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Total Days</label><br>
+                                            <input type="text" value="${item.total_rent_days}" class="form-control total_rent_days" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Rent Amount</label><br>
+                                            <input type="text" value="${item.rent_amount}" class="form-control rent_amount" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Return Date</label><br>
+                                            <input type="date" value="${formattedEndDate}" name="end_date[]" class="form-control" readonly>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="background-color: #fcfcfc;">
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Less Days</label><br>
+                                            <input type="text" name="less_days" value="" class="form-control less_days">
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Used Days</label><br>
+                                            <input type="text" name="use_days" value="" class="form-control use_days" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle p-0">
+                                        <div class="form-group">
+                                            <label>Less Amount</label><br>
+                                            <input type="number" value="" name="less_rent_amount" class="form-control less_rent_amount" readonly>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>New Amount</label><br>
+                                            <input type="text" value="${item.rent_amount}" name="new_rent_amount[]" class="form-control new_rent_amount" readonly>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="background-color: transparent;"><td colspan="4" style="height:20px;"></td></tr>
+                            `;
+                        });
+                        $('#activeBookingContent').append(row);
+
+                        $('#activeBookingContent').on('input', '.less_days', function () {
+                            const $row = $(this).closest('tr').prev(); // get the first row of the pair
+                            const totalDays = parseFloat($row.find('.total_rent_days').val()) || 0;
+                            const rentAmount = parseFloat($row.find('.rent_amount').val()) || 0;
+                            const lessDays = parseFloat($(this).val()) || 0;
+
+                            const $secondRow = $(this).closest('tr');
+                            const $usedDaysInput = $secondRow.find('.use_days');
+                            const $lessAmountInput = $secondRow.find('.less_rent_amount');
+                            const $newAmountInput = $secondRow.find('.new_rent_amount');
+
+                            // Validation: lessDays should not exceed totalDays
+                            if (lessDays > totalDays) {
+                                $(this).addClass('is-invalid'); // Bootstrap red border
+                                $usedDaysInput.val('');
+                                $lessAmountInput.val('');
+                                $newAmountInput.val('');
+                                return;
+                            } else {
+                                $(this).removeClass('is-invalid');
+                            }
+
+                            const usedDays = totalDays - lessDays;
+                            const rentPerDay = rentAmount / totalDays;
+                            const newAmount = Math.round(rentPerDay * usedDays); // round for cleaner display
+                            const lessAmount = Math.round(rentPerDay * lessDays);
+
+                            $usedDaysInput.val(usedDays);
+                            $lessAmountInput.val(lessAmount);
+                            $newAmountInput.val(newAmount);
+                        });
+
+                        $(document).on('submit', '#partialBookingForm', function(e){
+                            e.preventDefault();
+                            let formData= $(this).serialize();
+                            $.ajax({
+                                url: '/booking-convert-partial',
+                                type: 'post',
+                                data: formData,
+                                success:function(response){
+                                    console.log(response);
+                                }
+                            });
+                        });
+
                     } else {
                         $.ajax({
                             url: '/check-status/' + bookingId,
