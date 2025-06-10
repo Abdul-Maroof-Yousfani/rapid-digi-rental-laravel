@@ -1,3 +1,4 @@
+```blade
 @extends('admin.master-main')
 @section('title', ucfirst(Auth::user()->getRoleNames()->first() . ' ' . 'Portal'))
 @section('content')
@@ -20,7 +21,58 @@
                 width: 100%;
             }
 
-            /* Optional: Hide sidebar, navbar, etc. by class if needed */
+            /* Ensure background colors are printed */
+            .thead-light {
+                background-color: #2F81B7 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .thead-light th {
+                color: #ffffff !important;
+                background-color: #2F81B7 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Target the Balance Due row specifically */
+            tr.bg-light {
+                background-color: #f8f9fa !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            tr.bg-light th,
+            tr.bg-light td {
+                background-color: #f8f9fa !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                padding-right: 0 !important;
+                /* Remove padding to minimize gap */
+                padding-left: 0 !important;
+                /* Remove padding to minimize gap */
+                margin: 0 !important;
+                /* Ensure no margins */
+            }
+
+            /* Ensure table layout is tight */
+            .row.justify-content-end .table {
+                border-spacing: 0 !important;
+                border-collapse: collapse !important;
+            }
+
+            /* Optional: Adjust column widths to bring text closer */
+            tr.bg-light th {
+                width: auto !important;
+                min-width: 0 !important;
+            }
+
+            tr.bg-light td {
+                width: auto !important;
+                min-width: 0 !important;
+            }
+
+            /* Hide sidebar, navbar, etc. */
             .sidebar,
             .navbar,
             .btn,
@@ -48,8 +100,6 @@
                         <h5 class="font-weight-bold text-dark">PKR1,001.00</h5>
                     </div>
                 </div>
-
-
 
                 <!-- Bill To & Invoice Info -->
                 <div class="row mb-3">
@@ -109,11 +159,11 @@
                     <div class="col-md-6">
                         <table class="table">
                             <tr>
-                                <td class="text-right">Sub Total</th>
+                                <td class="text-right">Sub Total</td>
                                 <td class="text-right">910.00</td>
                             </tr>
                             <tr>
-                                <td class="text-right">VAT (10%)</th>
+                                <td class="text-right">VAT (10%)</td>
                                 <td class="text-right">91.00</td>
                             </tr>
                             <tr>
@@ -141,7 +191,6 @@
 
 @endsection
 
-
 @section('script')
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function() {
@@ -167,7 +216,6 @@
             });
         });
 
-
         document.addEventListener('DOMContentLoaded', function() {
             const deleteButtons = document.querySelectorAll('.status-confirm');
             deleteButtons.forEach(button => {
@@ -191,5 +239,5 @@
             });
         });
     </script>
-
 @endsection
+```
