@@ -358,96 +358,96 @@
                 $(this).closest('tr').remove();
                 if ($('#vehicleTableBody tr').length == 0) {
                     let defaultRow = `
-                <tr>
-                    <td>
-                        <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
-                                <option value="">Select Vehicle type</option>
-                                @foreach ($vehicletypes as $vtype)
-                                    <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </td>
+                    <tr>
+                        <td>
+                            <div class="form-group"><br>
+                                <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                                    <option value="">Select Vehicle type</option>
+                                    @foreach ($vehicletypes as $vtype)
+                                        <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </td>
 
-                    <td class="text-truncate"><br>
-                        <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle" required>
-                                <option value="">Select Vehicle</option>
-                            </select>
-                        </div>
-                    </td>
+                        <td class="text-truncate"><br>
+                            <div class="form-group">
+                                <select name="vehicle[]" class="form-control select2 vehicle" required>
+                                    <option value="">Select Vehicle</option>
+                                </select>
+                            </div>
+                        </td>
 
-                    <td class="text-truncate"><br>
-                        <div class="form-group">
-                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
-                        </div>
-                    </td>
+                        <td class="text-truncate"><br>
+                            <div class="form-group">
+                                <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
+                            </div>
+                        </td>
 
-                    <td class="align-middle investor"><br>
-                    </td>
+                        <td class="align-middle investor"><br>
+                        </td>
 
-                    <td class="align-middle no_plate"><br>
-                    </td>
+                        <td class="align-middle no_plate"><br>
+                        </td>
 
-                    <td class="align-middle booking_status"><br>
-                    </td>
+                        <td class="align-middle booking_status"><br>
+                        </td>
 
-                    <td class="align-middle status"><br>
-                    </td>
+                        <td class="align-middle status"><br>
+                        </td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
-                                <option value="">Select Type</option>
-                                <option value="2">Renew</option>
-                                <option value="3">Fine</option>
-                                <option value="4">Salik</option>
-                            </select>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="number" value="" name="quantity[]" class="form-control quantity" >
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <input type="hidden" name="tax_percent[]" value="" class="tax">
-                        <div class="form-group">
-                                <select name="tax[]"
-                                class="form-control select2 zohotax" required>
-                                <option value="">Select Tax</option>
-                                @foreach ($taxlist['taxes'] as $item)
-                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
-                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="number" value="" name="price[]" class="form-control price" >
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="number" value="" name="amount[]" class="form-control amount" disabled>
-                        </div>
-                    </td>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
+                            </div>
+                        </td>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
+                            </div>
+                        </td>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                    <option value="">Select Type</option>
+                                    <option value="2">Renew</option>
+                                    <option value="3">Fine</option>
+                                    <option value="4">Salik</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <input type="number" value="" name="quantity[]" class="form-control quantity" >
+                            </div>
+                        </td>
+                        <td class="align-middle"><br>
+                            <input type="hidden" name="tax_percent[]" value="" class="tax">
+                            <div class="form-group">
+                                    <select name="tax[]"
+                                    class="form-control select2 zohotax" required>
+                                    <option value="">Select Tax</option>
+                                    @foreach ($taxlist['taxes'] as $item)
+                                        <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                            {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </td>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <input type="number" value="" name="price[]" class="form-control price" >
+                            </div>
+                        </td>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                            </div>
+                        </td>
 
-                    <th><button type="button" class="btn btn-danger btn-md removeRow">X</button></th>
-                </tr>`;
+                        <th><button type="button" class="btn btn-danger btn-md removeRow">X</button></th>
+                    </tr>`;
                     $("#vehicleTableBody").append(defaultRow);
                     $('.select2').select2({
                         width: '100%'

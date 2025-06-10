@@ -163,7 +163,15 @@
         // Update Booking Line Items in BookingData table
         $(document).on('submit', '#partialBookingForm', function(e){
             e.preventDefault();
-            let formData= $(this).serialize();
+            // Clone the form and remove rows that don't have .bookingDataID.updated
+            const formClone = $('#partialBookingForm').clone();
+            formClone.find('.bookingDataID').not('.updated').each(function () {
+                $(this).closest('tr').next().remove(); // remove paired second row
+                $(this).closest('tr').remove();        // remove this row
+            });
+
+            let formData = formClone.serialize();
+            // let formData= $(this).serialize();
             $.ajax({
                 url: '/booking-convert-partial',
                 type: 'post',
@@ -185,6 +193,8 @@
                         $('#activeBookingModal').modal('show');
                         $('#activeBookingContent').html('');
                         let row= '';
+
+                        // Render Rent Details in Modal
                         $.each(response.rent_details, function(index, item) {
                             const formattedEndDate = item.end_date.split(' ')[0];
                             row += `
@@ -240,15 +250,89 @@
                                     <td class="align-middle">
                                         <div class="form-group">
                                             <label>New Amount</label><br>
-                                            <input type="text" value="${item.rent_amount}" name="new_rent_amount[]" class="form-control new_rent_amount" readonly>
+                                            <input type="text" value="${item.rent_amount}" name="new_amount[]" class="form-control new_rent_amount" readonly>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr style="background-color: transparent;"><td colspan="4" style="height:20px;"></td></tr>
                             `;
                         });
+
+                        // row+= '<br><tr style="background-color: transparent;"><td colspan="5" style="height:20px; text-align: center;"><h3>Renew Vehicles</h3></td></tr><br>';
+
+
+                        // Render Renew Details in Modal
+                        $.each(response.renew_details, function(index, item) {
+                            const formattedEndDate = item.end_date.split(' ')[0];
+                            row += `
+                                <tr style="background-color: #fcfcfc;">
+                                    <td rowspan="2" class="text-left align-top">
+                                        <br><h5>${item.vehicle_name}</h5>
+                                        <input type="hidden" value="${item.bookingDataID}" name="bookingDataID[]" class="bookingDataID">
+                                    </td>
+                                    <td class="align-middle p-0">
+                                        <div class="form-group">
+                                            <label>Remaining Days</label><br>
+                                            <input type="number" value="${item.renew_remaining_days}" class="form-control renew_remaining_days" readonly>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Total Days</label><br>
+                                            <input type="text" value="${item.total_renew_days}" class="form-control total_renew_days" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Rent Amount</label><br>
+                                            <input type="text" value="${item.renew_amount}" class="form-control renew_amount" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Return Date</label><br>
+                                            <input type="date" value="${formattedEndDate}" name="end_date[]" class="form-control" data-original-end="${formattedEndDate}" readonly>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="background-color: #fcfcfc;">
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Less Days</label><br>
+                                            <input type="text" value="" class="form-control renew_less_days">
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Used Days</label><br>
+                                            <input type="text" value="" class="form-control renew_use_days" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle p-0">
+                                        <div class="form-group">
+                                            <label>Less Amount</label><br>
+                                            <input type="number" value="" class="form-control less_renew_amount" readonly>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>New Amount</label><br>
+                                            <input type="text" value="${item.renew_amount}" name="new_amount[]" class="form-control new_renew_amount" readonly>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="background-color: transparent;"><td colspan="4" style="height:20px;"></td></tr>
+                            `;
+                        });
+
                         $('#activeBookingContent').append(row);
 
+                        $('#activeBookingContent').on('input', '.less_days, .renew_less_days', function () {
+                            const $formGroup = $(this).closest('tr').prev().find('.bookingDataID');
+                            $formGroup.addClass('updated'); // Mark this booking as changed
+                        });
+
+                        // Less Rent Days Calculation
                         $('#activeBookingContent').on('input', '.less_days', function () {
                             const $row = $(this).closest('tr').prev(); // get the first row of the pair
                             const totalDays = parseFloat($row.find('.total_rent_days').val()) || 0;
@@ -276,6 +360,49 @@
                             const rentPerDay = rentAmount / totalDays;
                             const newAmount = Math.round(rentPerDay * usedDays); // round for cleaner display
                             const lessAmount = Math.round(rentPerDay * lessDays);
+
+                            $usedDaysInput.val(usedDays);
+                            $lessAmountInput.val(lessAmount);
+                            $newAmountInput.val(newAmount);
+
+                            // Update end_date[] using data-original-end
+                            const originalEndDateStr = $endDateInput.data('original-end');
+                            const originalEndDate = new Date(originalEndDateStr);
+                            if (!isNaN(originalEndDate.getTime())) {
+                                const updatedEndDate = new Date(originalEndDate);
+                                updatedEndDate.setDate(updatedEndDate.getDate() - lessDays);
+                                const newDateStr = updatedEndDate.toISOString().split('T')[0];
+                                $endDateInput.val(newDateStr);
+                            }
+                        });
+
+                        // Less Renew Days Calculation
+                        $('#activeBookingContent').on('input', '.renew_less_days', function () {
+                            const $row = $(this).closest('tr').prev(); // get the first row of the pair
+                            const totalDays = parseFloat($row.find('.total_renew_days').val()) || 0;
+                            const renewAmount = parseFloat($row.find('.renew_amount').val()) || 0;
+                            const lessDays = parseFloat($(this).val()) || 0;
+                            const $secondRow = $(this).closest('tr');
+                            const $usedDaysInput = $secondRow.find('.renew_use_days');
+                            const $lessAmountInput = $secondRow.find('.less_renew_amount');
+                            const $newAmountInput = $secondRow.find('.new_renew_amount');
+                            const $endDateInput = $row.find('input[name="end_date[]"]');
+
+                            // Validation: lessDays should not exceed totalDays
+                            if (lessDays > totalDays) {
+                                $(this).addClass('is-invalid'); // Bootstrap red border
+                                $usedDaysInput.val('');
+                                $lessAmountInput.val('');
+                                $newAmountInput.val('');
+                                return;
+                            } else {
+                                $(this).removeClass('is-invalid');
+                            }
+
+                            const usedDays = totalDays - lessDays;
+                            const renewPerDay = renewAmount / totalDays;
+                            const newAmount = Math.round(renewPerDay * usedDays); // round for cleaner display
+                            const lessAmount = Math.round(renewPerDay * lessDays);
 
                             $usedDaysInput.val(usedDays);
                             $lessAmountInput.val(lessAmount);
