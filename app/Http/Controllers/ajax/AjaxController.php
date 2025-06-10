@@ -234,9 +234,6 @@ class AjaxController extends Controller
         }
     }
 
-
-
-
     public function bookingConvertPartial(Request $request)
     {
         $updatedRecords = [];
@@ -249,7 +246,7 @@ class AjaxController extends Controller
                 // Step 1: Update Local DB
                 $booking_data->update([
                     'end_date' => $request['end_date'][$key],
-                    'price' => $request['new_rent_amount'][$key],
+                    'price' => $request['new_amount'][$key],
                 ]);
 
                 $invoiceId = $booking_data->invoice->zoho_invoice_id;
@@ -257,7 +254,7 @@ class AjaxController extends Controller
                 // Use fallback for vehicle name
                 $vehicleName = $booking_data->vehicle->vehicle_name ?? $booking_data->vehicle->temp_vehicle_detail ?? '';
                 $description = $booking_data->description ?? '';
-                $newRate = $request['new_rent_amount'][$key];
+                $newRate = $request['new_amount'][$key];
 
                 $invoiceUpdates[$invoiceId][] = [
                     'name' => $vehicleName,
@@ -310,27 +307,4 @@ class AjaxController extends Controller
             'zoho_response' => $zohoResponses,
         ]);
     }
-
-
-
-
-
-
-
-    // public function bookingConvertPartial(Request $request)
-    // {
-    //     $updatedRecords= [];
-    //     foreach ($request->bookingDataID as $key => $bookingData) {
-    //         $booking_data= BookingData::find($bookingData);
-    //         if($booking_data){
-    //             $booking_data->update([
-    //                 'end_date' => $request['end_date'][$key],
-    //                 'price' => $request['new_rent_amount'][$key],
-    //             ]);
-    //         }
-    //         $updatedRecords[]= $booking_data;
-    //     }
-    //     return response()->json(['success' => true, 'data' => $updatedRecords]);
-    // }
-
 }

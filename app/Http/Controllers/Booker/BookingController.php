@@ -171,29 +171,29 @@ class BookingController extends Controller
 
 
 
-public function bookingReport(Request $request)
-{
-    $query = Booking::with(['bookingData.vehicle', 'customer', 'invoice']);
+    public function bookingReport(Request $request)
+    {
+        $query = Booking::with(['bookingData.vehicle', 'customer', 'invoice']);
 
-    $query->whereHas('bookingData.vehicle.investor', function ($q) {
-        $q->where('user_id', Auth::id());
-    });
-    if ($request->filled('from_date') && $request->filled('to_date')) {
-        $from = Carbon::parse($request->from_date)->startOfDay(); // 00:00:00
-        $to = Carbon::parse($request->to_date)->endOfDay();       // 23:59:59
+        $query->whereHas('bookingData.vehicle.investor', function ($q) {
+            $q->where('user_id', Auth::id());
+        });
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $from = Carbon::parse($request->from_date)->startOfDay(); // 00:00:00
+            $to = Carbon::parse($request->to_date)->endOfDay();       // 23:59:59
 
-        $query->whereBetween('created_at', [$from, $to]);
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+
+        // Filter by customer
+        if ($request->filled('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        $bookings = $query->get();
+
+        return view('reports.report_booking', compact('bookings'));
     }
-
-    // Filter by customer
-    if ($request->filled('customer_id')) {
-        $query->where('customer_id', $request->customer_id);
-    }
-
-    $bookings = $query->get();
-
-    return view('reports.report_booking', compact('bookings'));
-}
 
     /**
      * Show the form for editing the specified resource.
@@ -407,6 +407,7 @@ public function bookingReport(Request $request)
     {
         $today = Carbon::today();
 
+        // Check rent booking active detail
         $rentBookingData = BookingData::where('booking_id', $id)
                         ->where('transaction_type',1)
                         ->whereDate('end_date', '>=', $today)
@@ -425,7 +426,6 @@ public function bookingReport(Request $request)
 
             // Total Rent Days including both start & end dates
             $totalRentDays = $startDate->diffInDays($endDate) + 1;
-
             // Remaining Days = from today till end_date (including today)
             if ($today->lte($endDate)) {
                 $remainingDays = $today->diffInDays($endDate) + 1;
@@ -445,6 +445,44 @@ public function bookingReport(Request $request)
             ];
         }
 
+        // Check Renew booking active detail
+        $renewBookingData = BookingData::where('booking_id', $id)
+                        ->where('transaction_type',2)
+                        ->whereDate('end_date', '>=', $today)
+                        ->with('vehicle')
+                        ->get();
+
+        $renewDetial = [];
+        foreach ($renewBookingData as $data) {
+            $bookingDataID = $data->id;
+            $vehicleName = $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail;
+            $numberPlate = $data->vehicle->number_plate ?? '';
+            $renewAmount = $data->price;
+            $returnDate = $data->end_date;
+            $startDate = Carbon::parse($data->start_date)->startOfDay();
+            $endDate = Carbon::parse($data->end_date)->endOfDay();
+
+            // Total Rent Days including both start & end dates
+            $totalRenewDays = $startDate->diffInDays($endDate) + 1;
+            // Remaining Days = from today till end_date (including today)
+            if ($today->lte($endDate)) {
+                $remainingDays = $today->diffInDays($endDate) + 1;
+            } else {
+                $remainingDays = 0; // Booking expired
+            }
+
+            $remainingDays = \Carbon\Carbon::now()->diffInDays($endDate, false);
+            $renewDetial[] = [
+                'bookingDataID' => $bookingDataID,
+                'end_date' => $returnDate,
+                'vehicle_name' => $vehicleName,
+                'number_plate' => $numberPlate,
+                'renew_amount' => $renewAmount,
+                'total_renew_days' => $totalRenewDays,
+                'renew_remaining_days' => $remainingDays,
+            ];
+        }
+
         // Check Booking is active or not
         $activeBooking = BookingData::where('booking_id', $id)
             ->whereIn('transaction_type', [1, 2])
@@ -455,6 +493,7 @@ public function bookingReport(Request $request)
         return response()->json([
             'is_active' => $activeBooking,
             'rent_details' => $rentDetails,
+            'renew_details' => $renewDetial,
         ]);
     }
 
