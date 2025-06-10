@@ -158,6 +158,23 @@
     </script>
 
     <script>
+
+
+        // Update Booking Line Items in BookingData table
+        $(document).on('submit', '#partialBookingForm', function(e){
+            e.preventDefault();
+            let formData= $(this).serialize();
+            $.ajax({
+                url: '/booking-convert-partial',
+                type: 'post',
+                data: formData,
+                success:function(response){
+                    console.log(response);
+                    $('#activeBookingModal').modal('hide');
+                }
+            });
+        });
+
         $('.close-booking').click(function () {
             let bookingId = $(this).data('booking-id');
             $.ajax({
@@ -197,7 +214,7 @@
                                     <td class="align-middle">
                                         <div class="form-group">
                                             <label>Return Date</label><br>
-                                            <input type="date" value="${formattedEndDate}" name="end_date[]" class="form-control" readonly>
+                                            <input type="date" value="${formattedEndDate}" name="end_date[]" class="form-control" data-original-end="${formattedEndDate}" readonly>
                                         </div>
                                     </td>
                                 </tr>
@@ -205,19 +222,19 @@
                                     <td class="align-middle">
                                         <div class="form-group">
                                             <label>Less Days</label><br>
-                                            <input type="text" name="less_days" value="" class="form-control less_days">
+                                            <input type="text" value="" class="form-control less_days">
                                         </div>
                                     </td>
                                     <td class="align-middle">
                                         <div class="form-group">
                                             <label>Used Days</label><br>
-                                            <input type="text" name="use_days" value="" class="form-control use_days" disabled>
+                                            <input type="text" value="" class="form-control use_days" disabled>
                                         </div>
                                     </td>
                                     <td class="align-middle p-0">
                                         <div class="form-group">
                                             <label>Less Amount</label><br>
-                                            <input type="number" value="" name="less_rent_amount" class="form-control less_rent_amount" readonly>
+                                            <input type="number" value="" class="form-control less_rent_amount" readonly>
                                         </div>
                                     </td>
                                     <td class="align-middle">
@@ -242,6 +259,7 @@
                             const $usedDaysInput = $secondRow.find('.use_days');
                             const $lessAmountInput = $secondRow.find('.less_rent_amount');
                             const $newAmountInput = $secondRow.find('.new_rent_amount');
+                            const $endDateInput = $row.find('input[name="end_date[]"]');
 
                             // Validation: lessDays should not exceed totalDays
                             if (lessDays > totalDays) {
@@ -262,19 +280,16 @@
                             $usedDaysInput.val(usedDays);
                             $lessAmountInput.val(lessAmount);
                             $newAmountInput.val(newAmount);
-                        });
 
-                        $(document).on('submit', '#partialBookingForm', function(e){
-                            e.preventDefault();
-                            let formData= $(this).serialize();
-                            $.ajax({
-                                url: '/booking-convert-partial',
-                                type: 'post',
-                                data: formData,
-                                success:function(response){
-                                    console.log(response);
-                                }
-                            });
+                            // Update end_date[] using data-original-end
+                            const originalEndDateStr = $endDateInput.data('original-end');
+                            const originalEndDate = new Date(originalEndDateStr);
+                            if (!isNaN(originalEndDate.getTime())) {
+                                const updatedEndDate = new Date(originalEndDate);
+                                updatedEndDate.setDate(updatedEndDate.getDate() - lessDays);
+                                const newDateStr = updatedEndDate.toISOString().split('T')[0];
+                                $endDateInput.val(newDateStr);
+                            }
                         });
 
                     } else {

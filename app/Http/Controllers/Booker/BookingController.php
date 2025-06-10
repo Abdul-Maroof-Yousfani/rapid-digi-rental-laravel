@@ -405,12 +405,14 @@ public function bookingReport(Request $request)
 
     public function isBookingActive($id)
     {
+        $today = Carbon::today();
+
         $rentBookingData = BookingData::where('booking_id', $id)
                         ->where('transaction_type',1)
+                        ->whereDate('end_date', '>=', $today)
                         ->with('vehicle')
                         ->get();
 
-        $today = Carbon::today();
         $rentDetails = [];
         foreach ($rentBookingData as $data) {
             $bookingDataID = $data->id;
