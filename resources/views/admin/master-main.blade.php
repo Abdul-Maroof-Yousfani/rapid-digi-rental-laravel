@@ -1,8 +1,8 @@
+@php $userRole= Auth::user()->getRoleNames()->first(); @endphp
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    @php $userRole= Auth::user()->getRoleNames()->first(); @endphp
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <title>@yield('title', ucfirst(Auth::user()->getRoleNames()->first()." "."Portal"))</title>

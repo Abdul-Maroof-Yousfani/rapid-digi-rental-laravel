@@ -244,9 +244,6 @@ class BookingController extends Controller
             'price.*' => 'required',
         ];
         $invoice = Invoice::where('booking_id', $id)->first();
-        // if ($invoice && $invoice->invoice_status === 'sent') {
-        //     $rules['reason'] = 'required';
-        // }
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
@@ -331,6 +328,10 @@ class BookingController extends Controller
                             'tax_percent' => $request['tax_percent'][$key] ?? 0,
                             'item_total' => $lineItemData['item_total'],
                             'tax_name' => $lineItemData['tax_name'] ?? null,
+                        ]);
+
+                        Vehicle::where('id', $vehicle_id)->update([
+                            'vehicle_status_id' => 33 // yahaan '2' booked wali ID honi chahiye
                         ]);
                     }
 
@@ -426,17 +427,21 @@ class BookingController extends Controller
 
             // Total Rent Days including both start & end dates
             $totalRentDays = $startDate->diffInDays($endDate) + 1;
-            // Remaining Days = from today till end_date (including today)
-            if ($today->lte($endDate)) {
+
+            if ($startDate->gte($today)) {
+                $remainingDays = $startDate->diffInDays($endDate) + 1;
+            } elseif ($endDate->gte($today)) {
                 $remainingDays = $today->diffInDays($endDate) + 1;
             } else {
-                $remainingDays = 0; // Booking expired
+                $remainingDays = 0;
             }
 
-            $remainingDays = \Carbon\Carbon::now()->diffInDays($endDate, false);
+
+
             $rentDetails[] = [
                 'bookingDataID' => $bookingDataID,
                 'end_date' => $returnDate,
+                'start_date' => $data->start_date,
                 'vehicle_name' => $vehicleName,
                 'number_plate' => $numberPlate,
                 'rent_amount' => $rentAmount,
@@ -452,6 +457,7 @@ class BookingController extends Controller
                         ->with('vehicle')
                         ->get();
 
+
         $renewDetial = [];
         foreach ($renewBookingData as $data) {
             $bookingDataID = $data->id;
@@ -464,17 +470,19 @@ class BookingController extends Controller
 
             // Total Rent Days including both start & end dates
             $totalRenewDays = $startDate->diffInDays($endDate) + 1;
-            // Remaining Days = from today till end_date (including today)
-            if ($today->lte($endDate)) {
+
+            if ($startDate->gte($today)) {
+                $remainingDays = $startDate->diffInDays($endDate) + 1;
+            } elseif ($endDate->gte($today)) {
                 $remainingDays = $today->diffInDays($endDate) + 1;
             } else {
-                $remainingDays = 0; // Booking expired
+                $remainingDays = 0;
             }
 
-            $remainingDays = \Carbon\Carbon::now()->diffInDays($endDate, false);
             $renewDetial[] = [
                 'bookingDataID' => $bookingDataID,
                 'end_date' => $returnDate,
+                'start_date' => $data->start_date,
                 'vehicle_name' => $vehicleName,
                 'number_plate' => $numberPlate,
                 'renew_amount' => $renewAmount,

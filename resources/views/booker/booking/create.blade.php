@@ -49,7 +49,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
-                                        <input type="number" value="0" name="deposit_amount" class="form-control" >
+                                        <input type="number" value="0" name="deposit_amount" class="form-control deposit_amount" >
                                     </div>
                                     <div class="form-group">
                                         <label>Started At <span class="text-danger">*</span></label>
@@ -98,6 +98,8 @@
                                         <table class="table table-striped" id="vehicleTable">
                                             <thead>
                                                 <tr>
+                                                    <th>Start Date <span class="text-danger">*</span></th>
+                                                    <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Vehicle Type <span class="text-danger">*</span></th>
                                                     <th>Vehicle Name <span class="text-danger">*</span></th>
                                                     <th>Description </th>
@@ -105,8 +107,6 @@
                                                     <th>No. Plate</th>
                                                     <th>Booking Status</th>
                                                     <th>Status</th>
-                                                    <th>Start Date <span class="text-danger">*</span></th>
-                                                    <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
@@ -116,10 +116,23 @@
                                             </thead>
                                             <tbody id="vehicleTableBody">
                                                 <tr>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="date" value="" name="booking_date[]"
+                                                                class="form-control datemask booking-date" placeholder="YYYY/MM/DD" required>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="date" value="" name="return_date[]"
+                                                                class="form-control datemask return-date" placeholder="YYYY/MM/DD" required>
+                                                        </div>
+                                                    </td>
+
                                                     <td>
                                                         <div class="form-group"><br>
                                                             <select name="vehicletypes[]"
-                                                                class="form-control select2 vehicletypes" required>
+                                                                class="form-control select2 vehicletypes" disabled required>
                                                                 <option value="">Select Vehicle type</option>
                                                                 @foreach ($vehicletypes as $vtype)
                                                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}
@@ -158,18 +171,6 @@
 
                                                     <td class="align-middle status"><br>
 
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="date" value="" name="booking_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD" required>
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="date" value="" name="return_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD" required>
-                                                        </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                     <input type="hidden" name="tax_percent[]" value="" class="tax">
@@ -254,13 +255,7 @@
     <script>
         $(document).ready(function() {
 
-            $(document).on('keypress', '.agreement_no', function (e) {
-                if (e.key === '-' || e.which === 45) {
-                    e.preventDefault();
-                }
-            });
-
-            $(document).on('keypress', '.price', function (e) {
+            $(document).on('keypress', '.agreement_no, .price, .deposit_amount', function (e) {
                 if (e.key === '-' || e.which === 45) {
                     e.preventDefault();
                 }
@@ -269,6 +264,16 @@
             $('#addRow').click(function() {
                 let newRow = `
                 <tr>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="booking_date[]"class="form-control booking-date" placeholder="YYYY/MM/DD" disabled required>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="return_date[]" class="form-control return-date" placeholder="YYYY/MM/DD" disabled required>
+                        </div>
+                    </td>
                     <td>
                         <div class="form-group"><br>
                             <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
@@ -302,16 +307,6 @@
 
                     <td class="align-middle status"><br></td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
-                        </div>
-                    </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <select name="tax[]"
@@ -351,9 +346,19 @@
                 if ($('#vehicleTableBody tr').length == 0) {
                     let defaultRow = `
                 <tr>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="booking_date[]"class="form-control booking-date" placeholder="YYYY/MM/DD" required>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="return_date[]" class="form-control return-date" placeholder="YYYY/MM/DD" required>
+                        </div>
+                    </td>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -364,7 +369,7 @@
 
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle" required>
+                            <select name="vehicle[]" class="form-control select2 vehicle" disabled required>
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
@@ -388,16 +393,6 @@
                     <td class="align-middle status"><br>
                     </td>
 
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD" required>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD" required>
-                        </div>
-                    </td>
                     <td class="align-middle"><br>
                         <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
@@ -433,30 +428,81 @@
                 }
             });
 
+            // Listen for changes using class selectors
+            $('table').on('change', '.booking-date, .return-date', function () {
+                let row = $(this).closest('tr');
+                let bookingDate = row.find('.booking-date').val();
+                let returnDate = row.find('.return-date').val();
+                let vehicleSelect = row.find('.vehicletypes');
+
+                if (bookingDate && returnDate) {
+                    vehicleSelect.prop('disabled', false);
+                } else {
+                    vehicleSelect.prop('disabled', true);
+                }
+            });
+
+
+            // $(document).on('change', '.vehicletypes', function() {
+            //     let id = $(this).val();
+            //     let $row = $(this).closest('tr');
+            //     let $vehicleSelect = $row.find('select[name="vehicle[]"]');
+
+            //     $vehicleSelect.empty().append('<option value="">Loading...</option>');
+
+            //     $.ajax({
+            //         url: '/get-vehicle-by-Type/' + id,
+            //         type: 'GET',
+            //         success: function(response) {
+            //             $vehicleSelect.empty().append(
+            //                 '<option value="">Select Vehicle</option>');
+            //             $.each(response, function(key, vehicle) {
+            //                 $vehicleSelect.append(
+            //                     '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
+            //                     (vehicle.temp_vehicle_detail ?? vehicle
+            //                         .vehicle_name) +
+            //                     '</option>'
+            //                 );
+            //             });
+            //         }
+            //     });
+            // });
+
+
             $(document).on('change', '.vehicletypes', function() {
-                let id = $(this).val();
                 let $row = $(this).closest('tr');
+                let typeId = $(this).val();
+                let bookingDate = $row.find('.booking-date').val();
+                let returnDate = $row.find('.return-date').val();
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
+
+                if (!bookingDate || !returnDate) {
+                    alert("Please select booking and return date first");
+                    return;
+                }
 
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
                 $.ajax({
-                    url: '/get-vehicle-by-Type/' + id,
+                    url: `/get-vehicle-by-Type/${typeId}`,
                     type: 'GET',
+                    data: {
+                        start_date: bookingDate,
+                        end_date: returnDate
+                    },
                     success: function(response) {
-                        $vehicleSelect.empty().append(
-                            '<option value="">Select Vehicle</option>');
+                        $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
                             $vehicleSelect.append(
-                                '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
-                                (vehicle.temp_vehicle_detail ?? vehicle
-                                    .vehicle_name) +
-                                '</option>'
+                                `<option value="${vehicle.id}">${vehicle.number_plate} | ${vehicle.temp_vehicle_detail ?? vehicle.vehicle_name}</option>`
                             );
                         });
                     }
                 });
             });
+
+
+
 
             $(document).on('change', '.vehicle', function() {
                 let id = $(this).val();

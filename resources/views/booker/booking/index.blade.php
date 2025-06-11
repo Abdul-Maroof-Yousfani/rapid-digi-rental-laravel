@@ -104,7 +104,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="activeBookingModal" tabindex="-1" role="dialog" aria-labelledby="activeBookingLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Active Booking Details</h5>
@@ -160,25 +160,66 @@
     <script>
 
 
-        // Update Booking Line Items in BookingData table
-        $(document).on('submit', '#partialBookingForm', function(e){
+        // // Update Booking Line Items in BookingData table
+        // $(document).on('submit', '#partialBookingForm', function(e){
+        //     e.preventDefault();
+        //     // Clone the form and remove rows that don't have .bookingDataID.updated
+        //     const formClone = $('#partialBookingForm').clone();
+        //     formClone.find('.bookingDataID').not('.updated').each(function () {
+        //         $(this).closest('tr').next().remove(); // remove paired second row
+        //         $(this).closest('tr').remove();        // remove this row
+        //     });
+
+        //     let formData = formClone.serialize();
+        //     // let formData= $(this).serialize();
+        //     $.ajax({
+        //         url: '/booking-convert-partial',
+        //         type: 'post',
+        //         data: formData,
+        //         success:function(response){
+        //             console.log(response);
+        //             $('#activeBookingModal').modal('hide');
+        //             Swal.fire({
+        //                 icon: 'success',
+        //                 title: 'Processing...',
+        //                 text: 'Your request has been queued and will be updated in Zoho shortly!',
+        //                 confirmButtonText: 'OK'
+        //             });
+        //         }
+        //     });
+        // });
+
+
+        $('#partialBookingForm').on('submit', function(e) {
             e.preventDefault();
-            // Clone the form and remove rows that don't have .bookingDataID.updated
+
             const formClone = $('#partialBookingForm').clone();
             formClone.find('.bookingDataID').not('.updated').each(function () {
-                $(this).closest('tr').next().remove(); // remove paired second row
-                $(this).closest('tr').remove();        // remove this row
+                $(this).closest('tr').next().remove();
+                $(this).closest('tr').remove();
             });
 
             let formData = formClone.serialize();
-            // let formData= $(this).serialize();
+
+            // Hide modal *immediately*
+            $('#activeBookingModal').modal('hide');
+
+            // Show sweet alert
+            Swal.fire({
+                icon: 'success',
+                title: 'Invoice is being updated...',
+                text: 'The data has been submitted and is being processed in background.',
+                timer: 3000,
+                showConfirmButton: false
+            });
+
             $.ajax({
                 url: '/booking-convert-partial',
-                type: 'post',
+                type: 'POST',
                 data: formData,
-                success:function(response){
-                    console.log(response);
-                    $('#activeBookingModal').modal('hide');
+                success: function(response) {
+                    console.log("Submitted successfully");
+                    // Optionally handle further updates
                 }
             });
         });
@@ -197,6 +238,7 @@
                         // Render Rent Details in Modal
                         $.each(response.rent_details, function(index, item) {
                             const formattedEndDate = item.end_date.split(' ')[0];
+                            const formattedStartDate = item.start_date.split(' ')[0];
                             row += `
                                 <tr style="background-color: #fcfcfc;">
                                     <td rowspan="2" class="text-left align-top">
@@ -211,7 +253,7 @@
                                     </td>
                                     <td class="align-middle">
                                         <div class="form-group">
-                                            <label>Total Days</label><br>
+                                            <label>Total Rent Days</label><br>
                                             <input type="text" value="${item.total_rent_days}" class="form-control total_rent_days" disabled>
                                         </div>
                                     </td>
@@ -219,6 +261,12 @@
                                         <div class="form-group">
                                             <label>Rent Amount</label><br>
                                             <input type="text" value="${item.rent_amount}" class="form-control rent_amount" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Start Date</label><br>
+                                            <input type="date" value="${formattedStartDate}" name="" class="form-control" readonly>
                                         </div>
                                     </td>
                                     <td class="align-middle">
@@ -247,9 +295,9 @@
                                             <input type="number" value="" class="form-control less_rent_amount" readonly>
                                         </div>
                                     </td>
-                                    <td class="align-middle">
+                                    <td colspan='2' class="align-middle">
                                         <div class="form-group">
-                                            <label>New Amount</label><br>
+                                            <label>New Rent Amount</label><br>
                                             <input type="text" value="${item.rent_amount}" name="new_amount[]" class="form-control new_rent_amount" readonly>
                                         </div>
                                     </td>
@@ -264,6 +312,7 @@
                         // Render Renew Details in Modal
                         $.each(response.renew_details, function(index, item) {
                             const formattedEndDate = item.end_date.split(' ')[0];
+                            const formattedStartDate = item.start_date.split(' ')[0];
                             row += `
                                 <tr style="background-color: #fcfcfc;">
                                     <td rowspan="2" class="text-left align-top">
@@ -278,14 +327,20 @@
                                     </td>
                                     <td class="align-middle">
                                         <div class="form-group">
-                                            <label>Total Days</label><br>
+                                            <label>Total Renew Days</label><br>
                                             <input type="text" value="${item.total_renew_days}" class="form-control total_renew_days" disabled>
                                         </div>
                                     </td>
                                     <td class="align-middle">
                                         <div class="form-group">
-                                            <label>Rent Amount</label><br>
+                                            <label>Renew Amount</label><br>
                                             <input type="text" value="${item.renew_amount}" class="form-control renew_amount" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Start Date</label><br>
+                                            <input type="date" value="${formattedStartDate}" name="" class="form-control" readonly>
                                         </div>
                                     </td>
                                     <td class="align-middle">
@@ -314,9 +369,9 @@
                                             <input type="number" value="" class="form-control less_renew_amount" readonly>
                                         </div>
                                     </td>
-                                    <td class="align-middle">
+                                    <td colspan='2' class="align-middle">
                                         <div class="form-group">
-                                            <label>New Amount</label><br>
+                                            <label>New Renew Amount</label><br>
                                             <input type="text" value="${item.renew_amount}" name="new_amount[]" class="form-control new_renew_amount" readonly>
                                         </div>
                                     </td>

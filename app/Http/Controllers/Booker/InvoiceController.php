@@ -287,7 +287,11 @@ class InvoiceController extends Controller
     }
 
     public function viewInvoice($id){
-        return view('booker.invoice.invoice-view');
+        $invoice= Invoice::with('bookingData', 'booking')->find($id);
+        if(!$invoice){
+            return redirect()->back()->with('error', 'Invoice Not Found');
+        }
+        return view('booker.invoice.invoice-view', compact('invoice'));
     }
 
 }

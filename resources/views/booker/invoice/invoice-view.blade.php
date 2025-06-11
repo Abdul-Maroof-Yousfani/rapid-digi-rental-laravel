@@ -1,8 +1,7 @@
-```blade
 @extends('admin.master-main')
 @section('title', ucfirst(Auth::user()->getRoleNames()->first() . ' ' . 'Portal'))
 @section('content')
-
+@php  $userRole= Auth::user()->getRoleNames()->first();   @endphp
     <style>
         @media print {
             body * {
@@ -95,9 +94,9 @@
                     </div>
                     <div class="col text-right">
                         <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">Invoice</h3>
-                        <p class="mb-0 font-weight-bold text-dark"># INV-000236</p>
+                        <p class="mb-0 font-weight-bold text-dark"># {{ $invoice->zoho_invoice_number }}</p>
                         <p class="mb-0 font-weight-bold text-dark">Balance Due</p>
-                        <h5 class="font-weight-bold text-dark">PKR1,001.00</h5>
+                        <h5 class="font-weight-bold text-dark">{{ number_format($invoice->total_amount, 2) }}</h5>
                     </div>
                 </div>
 
@@ -105,14 +104,15 @@
                 <div class="row mb-3">
                     <div class="col">
                         <p class="mb-0 text-dark">Bill To</p>
-                        <p class="mb-0 font-weight-bold text-dark">Nerate Sampson</p>
-                        <p class="mb-0 text-dark">Commodo quo id quis</p>
-                        <p class="mb-0 text-dark">Rawalpindi</p>
-                        <p class="mb-0 text-dark">14-Mar-1970 Balochistan</p>
-                        <p class="mb-0 text-dark">China</p>
+                        @php $customer= $invoice->booking->customer @endphp
+                        <p class="mb-0 text-dark"><a href="{{ route($userRole.'.customer.index') }}" class="font-weight-bold">{{ $customer->customer_name }}</a></p>
+                        <p class="mb-0 text-dark">{{ $customer->address }}</p>
+                        <p class="mb-0 text-dark">{{ $customer->city }}</p>
+                        <p class="mb-0 text-dark">{{ $customer->state }}</p>
+                        <p class="mb-0 text-dark">{{ $customer->country }}</p>
                     </div>
                     <div class="col text-right">
-                        <p class="text-dark"><strong>Invoice Date:</strong> 04 Jun 2025</p>
+                        <p class="text-dark"><strong>Invoice Date:</strong> {{  $invoice->created_at }}</p>
                         <p class="text-dark"><strong>Terms:</strong> Net 15</p>
                         <p class="text-dark"><strong>Due Date:</strong> 19 Jun 2025</p>
                     </div>
@@ -130,27 +130,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr style="border-bottom: 2px solid #ADADAD;">
-                            <td class="text-left">1</td>
-                            <td class="text-left">
-                                KAIYI X3 PRO <br>
-                                <small>2025-06-04 TO 2025-06-30</small>
-                            </td>
-                            <td class="text-right">1.00</td>
-                            <td class="text-right">560.00</td>
-                            <td class="text-right">560.00</td>
-                        </tr>
-
-                        <tr style="border-bottom: 2px solid #ADADAD;">
-                            <td class="text-left">2</td>
-                            <td class="text-left">
-                                Geely Engrand 2025 <br>
-                                <small>2025-06-04 TO 2025-06-30</small>
-                            </td>
-                            <td class="text-right">1.00</td>
-                            <td class="text-right">350.00</td>
-                            <td class="text-right">350.00</td>
-                        </tr>
+                        @php $subtot=0; @endphp
+                        @foreach ($invoice->bookingData as $item)
+                            <tr style="border-bottom: 2px solid #ADADAD;">
+                                <td class="text-left">1</td>
+                                <td class="text-left">
+                                    {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }} <br>
+                                    <small>{{ $item->description }}</small>
+                                </td>
+                                <td class="text-right">{{ $item->quantity }}</td>
+                                <td class="text-right">{{ number_format($item->price, 2) }}</td>
+                                <td class="text-right">{{ number_format($item->item_total, 2) }}</td>
+                            </tr>
+                        @php $subtot= $item->item_total + $subtot ; @endphp
+                        @endforeach
                     </tbody>
                 </table>
 
@@ -160,7 +153,7 @@
                         <table class="table">
                             <tr>
                                 <td class="text-right">Sub Total</td>
-                                <td class="text-right">910.00</td>
+                                <td class="text-right">{{ $subtot }}</td>
                             </tr>
                             <tr>
                                 <td class="text-right">VAT (10%)</td>
@@ -168,11 +161,11 @@
                             </tr>
                             <tr>
                                 <th class="text-right">Total</th>
-                                <td class="text-right font-weight-bold">PKR1,001.00</td>
+                                <td class="text-right font-weight-bold">{{ number_format($invoice->total_amount, 2) }}</td>
                             </tr>
                             <tr class="bg-light text-dark">
                                 <th class="text-right">Balance Due</th>
-                                <td class="text-right font-weight-bold">PKR1,001.00</td>
+                                <td class="text-right font-weight-bold">{{ number_format($invoice->total_amount, 2) }}</td>
                             </tr>
                         </table>
                     </div>
