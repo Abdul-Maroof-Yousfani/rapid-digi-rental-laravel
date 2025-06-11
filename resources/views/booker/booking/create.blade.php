@@ -53,7 +53,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Started At <span class="text-danger">*</span></label>
-                                        <input type="date" value="0" name="started_at" class="form-control" >
+                                        <input type="date" value="0" name="started_at" class="form-control started_at" >
                                     </div>
                                 </div>
                             </div>
@@ -253,12 +253,31 @@
 
 @section('script')
     <script>
+
+            // Line items vehicles booking end date equals to Started at
+            function applyMinDateToAllDateFields(startedAt) {
+                if (startedAt) {
+                    $('.booking-date').each(function () {
+                        $(this).attr('min', startedAt);
+                    });
+                    $('.return-date').each(function () {
+                        $(this).attr('min', startedAt);
+                    });
+                }
+            }
+
         $(document).ready(function() {
 
+            // Not Enter Minus Values in These Fields
             $(document).on('keypress', '.agreement_no, .price, .deposit_amount', function (e) {
                 if (e.key === '-' || e.which === 45) {
                     e.preventDefault();
                 }
+            });
+
+            $('.started_at').on('change', function () {
+                let startedAt = $(this).val();
+                applyMinDateToAllDateFields(startedAt);
             });
 
             $('#addRow').click(function() {
@@ -266,17 +285,17 @@
                 <tr>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control booking-date" placeholder="YYYY/MM/DD" disabled required>
+                            <input type="date" value="" name="booking_date[]"class="form-control booking-date" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control return-date" placeholder="YYYY/MM/DD" disabled required>
+                            <input type="date" value="" name="return_date[]" class="form-control return-date" placeholder="YYYY/MM/DD" required>
                         </div>
                     </td>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -339,13 +358,16 @@
                 $('.select2').select2({
                     width: '100%'
                 });
+
+                let startedAt = $('.started_at').val();
+                applyMinDateToAllDateFields(startedAt);
             });
 
             $(document).on('click', '.removeRow', function() {
                 $(this).closest('tr').remove();
                 if ($('#vehicleTableBody tr').length == 0) {
                     let defaultRow = `
-                <tr>
+                    <tr>
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <input type="date" value="" name="booking_date[]"class="form-control booking-date" placeholder="YYYY/MM/DD" required>
@@ -369,7 +391,7 @@
 
                     <td class="text-truncate"><br>
                         <div class="form-group">
-                            <select name="vehicle[]" class="form-control select2 vehicle" disabled required>
+                            <select name="vehicle[]" class="form-control select2 vehicle" required>
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
@@ -420,11 +442,14 @@
                     </td>
 
                     <th><button type="button" class="btn btn-danger btn-md removeRow">X</button></th>
-                </tr>`;
+                    </tr>`;
                     $("#vehicleTableBody").append(defaultRow);
                     $('.select2').select2({
                         width: '100%'
                     });
+
+                    let startedAt = $('.started_at').val();
+                    applyMinDateToAllDateFields(startedAt);
                 }
             });
 
@@ -437,45 +462,20 @@
 
                 if (bookingDate && returnDate) {
                     vehicleSelect.prop('disabled', false);
+                    vehicleSelect.trigger('change');
                 } else {
                     vehicleSelect.prop('disabled', true);
                 }
             });
 
 
-            // $(document).on('change', '.vehicletypes', function() {
-            //     let id = $(this).val();
-            //     let $row = $(this).closest('tr');
-            //     let $vehicleSelect = $row.find('select[name="vehicle[]"]');
-
-            //     $vehicleSelect.empty().append('<option value="">Loading...</option>');
-
-            //     $.ajax({
-            //         url: '/get-vehicle-by-Type/' + id,
-            //         type: 'GET',
-            //         success: function(response) {
-            //             $vehicleSelect.empty().append(
-            //                 '<option value="">Select Vehicle</option>');
-            //             $.each(response, function(key, vehicle) {
-            //                 $vehicleSelect.append(
-            //                     '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
-            //                     (vehicle.temp_vehicle_detail ?? vehicle
-            //                         .vehicle_name) +
-            //                     '</option>'
-            //                 );
-            //             });
-            //         }
-            //     });
-            // });
-
-
             $(document).on('change', '.vehicletypes', function() {
                 let $row = $(this).closest('tr');
                 let typeId = $(this).val();
-                let bookingDate = $row.find('.booking-date').val();
-                let returnDate = $row.find('.return-date').val();
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
+                let bookingDate = $row.find('.booking-date').val();
+                let returnDate = $row.find('.return-date').val();
                 if (!bookingDate || !returnDate) {
                     alert("Please select booking and return date first");
                     return;

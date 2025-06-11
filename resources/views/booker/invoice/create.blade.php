@@ -48,21 +48,6 @@
                             </div>
                         </div>
 
-                        {{-- <div class="col-12 col-md-6 col-lg-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Payment Status <span class="text-danger">*</span></label>
-                                        <select name="invoice_status" class="form-control" required readonly>
-                                            <option value="">Select Status</option>
-                                            <option value="draft" selected>Unpaid</option>
-                                            <option value="sent">Paid</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> --}}
-
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
@@ -81,6 +66,9 @@
                                         <table class="table table-striped" id="vehicleTable">
                                             <thead>
                                                 <tr>
+                                                    <th>Type <span class="text-danger">*</span></th>
+                                                    <th>Start Date <span class="text-danger">*</span></th>
+                                                    <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Vehicle Type <span class="text-danger">*</span></th>
                                                     <th>Vehicle Name <span class="text-danger">*</span></th>
                                                     <th>Description</th>
@@ -88,9 +76,6 @@
                                                     <th>No. Plate</th>
                                                     <th>Booking Status</th>
                                                     <th>Status</th>
-                                                    <th>Start Date <span class="text-danger">*</span></th>
-                                                    <th>Return Date <span class="text-danger">*</span></th>
-                                                    <th>Type <span class="text-danger">*</span></th>
                                                     <th>Quantity <span class="text-danger">*</span></th>
                                                     <th>Tax (%)</th>
                                                     <th>Price (AED) <span class="text-danger">*</span></th>
@@ -102,10 +87,38 @@
                                             </thead>
                                             <tbody id="vehicleTableBody">
                                                 <tr>
+
+                                                    <!-- Invoice Type -->
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <select name="invoice_type[]" class="form-control select2 invoice_type">
+                                                                <option value="">Select Type</option>
+                                                                <option value="2">Renew</option>
+                                                                {{-- <option value="1">Rent</option> --}}
+                                                                <option value="3">Fine</option>
+                                                                <option value="4">Salik</option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Start Date -->
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="date" name="booking_date[]" class="form-control datemask booking-date">
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Return Date -->
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="date" name="return_date[]" class="form-control datemask return-date">
+                                                        </div>
+                                                    </td>
+
                                                     <!-- Vehicle Type -->
                                                     <td>
                                                         <div class="form-group">
-                                                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                                                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
                                                                 <option value="">Select Vehicle type</option>
                                                                 @foreach ($vehicletypes as $vtype)
                                                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -136,37 +149,10 @@
                                                     <td class="align-middle booking_status"></td>
                                                     <td class="align-middle status"></td>
 
-                                                    <!-- Start Date -->
-                                                    <td>
-                                                        <div class="form-group">
-                                                            <input type="date" name="booking_date[]" class="form-control datemask">
-                                                        </div>
-                                                    </td>
-
-                                                    <!-- Return Date -->
-                                                    <td>
-                                                        <div class="form-group">
-                                                            <input type="date" name="return_date[]" class="form-control datemask">
-                                                        </div>
-                                                    </td>
-
-                                                    <!-- Invoice Type -->
-                                                    <td>
-                                                        <div class="form-group">
-                                                            <select name="invoice_type[]" class="form-control select2 invoice_type">
-                                                                <option value="">Select Type</option>
-                                                                <option value="2">Renew</option>
-                                                                {{-- <option value="1">Rent</option> --}}
-                                                                <option value="3">Fine</option>
-                                                                <option value="4">Salik</option>
-                                                            </select>
-                                                        </div>
-                                                    </td>
-
                                                     <!-- Quantity -->
                                                     <td>
                                                         <div class="form-group">
-                                                            <input type="number" name="quantity[]" class="form-control quantity">
+                                                            <input type="number" name="quantity[]" value="1" class="form-control quantity">
                                                         </div>
                                                     </td>
 
@@ -174,7 +160,7 @@
                                                     <td>
                                                         <input type="hidden" name="tax_percent[]" class="tax">
                                                         <div class="form-group">
-                                                            <select name="tax[]" class="form-control select2 zohotax" required>
+                                                            <select name="tax[]" class="form-control select2 zohotax">
                                                                 <option value="">Select Tax</option>
                                                                 @foreach ($taxlist['taxes'] as $item)
                                                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
@@ -263,9 +249,30 @@
             $('#addRow').click(function() {
                 let newRow = `
                 <tr>
+
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                <option value="">Select Type</option>
+                                <option value="2">Renew</option>
+                                <option value="3">Fine</option>
+                                <option value="4">Salik</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="booking_date[]"class="form-control datemask booking-date" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
                     <td>
                         <div class="form-group"><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                     <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -295,37 +302,16 @@
                     <td class="align-middle booking_status"><br></td>
 
                     <td class="align-middle status"><br></td>
-
                     <td class="align-middle"><br>
                         <div class="form-group">
-                            <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
-                                <option value="">Select Type</option>
-                                <option value="2">Renew</option>
-                                <option value="3">Fine</option>
-                                <option value="4">Salik</option>
-                            </select>
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="number" value="" name="quantity[]" class="form-control quantity" >
+                            <input type="number" value="" name="quantity[]" value="1" class="form-control quantity" >
                         </div>
                     </td>
                     <td class="align-middle"><br>
                         <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
                                 <select name="tax[]"
-                                class="form-control select2 zohotax" required>
+                                class="form-control select2 zohotax">
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
@@ -352,6 +338,7 @@
                 $('.select2').select2({
                     width: '100%'
                 });
+                $('#vehicleTableBody tr:last .invoice_type').trigger('change');
             });
 
             $(document).on('click', '.removeRow', function() {
@@ -359,9 +346,29 @@
                 if ($('#vehicleTableBody tr').length == 0) {
                     let defaultRow = `
                     <tr>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
+                                    <option value="">Select Type</option>
+                                    <option value="2">Renew</option>
+                                    <option value="3">Fine</option>
+                                    <option value="4">Salik</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <input type="date" value="" name="booking_date[]"class="form-control datemask booking-date" placeholder="YYYY/MM/DD">
+                            </div>
+                        </td>
+                        <td class="align-middle"><br>
+                            <div class="form-group">
+                                <input type="date" value="" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD">
+                            </div>
+                        </td>
                         <td>
                             <div class="form-group"><br>
-                                <select name="vehicletypes[]" class="form-control select2 vehicletypes" required>
+                                <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
                                     <option value="">Select Vehicle type</option>
                                     @foreach ($vehicletypes as $vtype)
                                         <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -398,34 +405,14 @@
 
                         <td class="align-middle"><br>
                             <div class="form-group">
-                                <input type="date" value="" name="booking_date[]"class="form-control datemask" placeholder="YYYY/MM/DD">
-                            </div>
-                        </td>
-                        <td class="align-middle"><br>
-                            <div class="form-group">
-                                <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                            </div>
-                        </td>
-                        <td class="align-middle"><br>
-                            <div class="form-group">
-                                <select name="invoice_type[]" class="form-control select2 invoice_type" id="">
-                                    <option value="">Select Type</option>
-                                    <option value="2">Renew</option>
-                                    <option value="3">Fine</option>
-                                    <option value="4">Salik</option>
-                                </select>
-                            </div>
-                        </td>
-                        <td class="align-middle"><br>
-                            <div class="form-group">
-                                <input type="number" value="" name="quantity[]" class="form-control quantity" >
+                                <input type="number" value="" name="quantity[]" value="1" class="form-control quantity" >
                             </div>
                         </td>
                         <td class="align-middle"><br>
                             <input type="hidden" name="tax_percent[]" value="" class="tax">
                             <div class="form-group">
                                     <select name="tax[]"
-                                    class="form-control select2 zohotax" required>
+                                    class="form-control select2 zohotax">
                                     <option value="">Select Tax</option>
                                     @foreach ($taxlist['taxes'] as $item)
                                         <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
@@ -452,6 +439,21 @@
                     $('.select2').select2({
                         width: '100%'
                     });
+                }
+            });
+
+            // Listen for changes using class selectors
+            $('table').on('change', '.booking-date, .return-date', function () {
+                let row = $(this).closest('tr');
+                let bookingDate = row.find('.booking-date').val();
+                let returnDate = row.find('.return-date').val();
+                let vehicleSelect = row.find('.vehicletypes');
+
+                if (bookingDate && returnDate) {
+                    vehicleSelect.prop('disabled', false);
+                    vehicleSelect.trigger('change');
+                } else {
+                    vehicleSelect.prop('disabled', true);
                 }
             });
 
