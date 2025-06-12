@@ -322,7 +322,7 @@
                 <table class="print-footer-table">
                     <tr>
                         <td class="footer-table-data-head">Total Amount as per rental period</td>
-                        <td><span id="printTotalAmount">19,828</span></td>
+                        <td><span id="printTotalAmount"></span></td>
                     </tr>
                     <tr>
                         <td class="footer-table-data-head">Amount after service fee deduction 20%</td>

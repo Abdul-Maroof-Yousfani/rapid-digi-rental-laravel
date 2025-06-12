@@ -254,17 +254,17 @@
 @section('script')
     <script>
 
-            // Line items vehicles booking end date equals to Started at
-            function applyMinDateToAllDateFields(startedAt) {
-                if (startedAt) {
-                    $('.booking-date').each(function () {
-                        $(this).attr('min', startedAt);
-                    });
-                    $('.return-date').each(function () {
-                        $(this).attr('min', startedAt);
-                    });
-                }
+        // Line items vehicles booking end date equals to Started at
+        function applyMinDateToAllDateFields(startedAt) {
+            if (startedAt) {
+                $('.booking-date').each(function () {
+                    $(this).attr('min', startedAt);
+                });
+                $('.return-date').each(function () {
+                    $(this).attr('min', startedAt);
+                });
             }
+        }
 
         $(document).ready(function() {
 
@@ -362,6 +362,7 @@
                 let startedAt = $('.started_at').val();
                 applyMinDateToAllDateFields(startedAt);
             });
+
 
             $(document).on('click', '.removeRow', function() {
                 $(this).closest('tr').remove();

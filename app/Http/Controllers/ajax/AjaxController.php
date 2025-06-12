@@ -73,13 +73,35 @@ class AjaxController extends Controller
         }
     }
 
-    public function getVehicleAgaistBooking($vehicleTypeId, $bookingId)
+    public function getVehicleAgaistBooking(Request $request, $vehicleTypeId, $bookingId)
     {
-        $bookedVehicleIds = BookingData::where('booking_id', $bookingId)->pluck('vehicle_id')->unique();
-        $vehicles = Vehicle::where('vehicletypes', $vehicleTypeId)
-            ->whereIn('id', $bookedVehicleIds)
-            ->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
+        // $bookedVehicleIds = BookingData::where('booking_id', $bookingId)->pluck('vehicle_id')->unique();
+        // $vehicles = Vehicle::where('vehicletypes', $vehicleTypeId)
+        //     ->whereIn('id', $bookedVehicleIds)
+        //     ->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
+        // return response()->json($vehicles);
 
+
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+        $invoiceType = $request->invoice_type;
+        $bookedVehicleIds = BookingData::where('booking_id', $bookingId)->pluck('vehicle_id')->unique();
+        $query = Vehicle::where('vehicletypes', $vehicleTypeId)
+            ->whereIn('id', $bookedVehicleIds);
+
+        if($invoiceType == 2 && $startDate && $endDate){
+            $bookedInRange = BookingData::where(function ($q) use ($startDate, $endDate){
+                $q->whereBetween('start_date', [$startDate, $endDate])
+                  ->orWhereBetween('end_date', [$startDate, $endDate])
+                  ->orWhere(function ($q) use ($startDate, $endDate) {
+                        $q->where('start_date', '<=', $startDate)
+                            ->where('end_date', '>=', $endDate);
+                    });
+            })->pluck('vehicle_id')->unique();
+            $query->whereNotIn('id', $bookedInRange);
+        }
+
+        $vehicles = $query->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
         return response()->json($vehicles);
     }
 
@@ -143,7 +165,7 @@ class AjaxController extends Controller
                 $getDeposit = DepositHandling::where('payment_data_id', $paymentData->id)->first();
             }
             return [
-                'id' => $paymentData->id ?? null, // PaymentData ID
+                'id' => $paymentData->id ?? null, // PaymentData Primary Key
                 'paid_amount' => $paymentData->paid_amount ?? 0,
                 'deposit_amount' => $getDeposit->deduct_deposit ?? 0,
                 'zoho_invoice_number' => $invoice->zoho_invoice_number,
@@ -155,7 +177,7 @@ class AjaxController extends Controller
         });
 
         return response()->json([
-            'id' => $payment->id ?? null, // Payment ID
+            'id' => $payment->id ?? null, // Payment Primary Key
             'paid_amount' => $payment->paid_amount ?? 0,
             'remaining_amount' => $remainingAmount,
             'booking_amount' => $bookingAmount,
@@ -304,10 +326,6 @@ class AjaxController extends Controller
             'zoho_response' => $zohoResponses,
         ]);
     }
-
-
-
-
 
 
     // public function bookingConvertPartial(Request $request)

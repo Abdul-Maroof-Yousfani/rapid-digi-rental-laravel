@@ -49,7 +49,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Started At <span class="text-danger">*</span></label>
-                                        <input type="date" value="0" name="started_at" class="form-control" >
+                                        <input type="date" name="started_at" value="{{ \Carbon\Carbon::parse($booking->started_at)->format('Y-m-d') }}" class="form-control started_at" >
                                     </div>
                                     @if ($firstInvoice->invoice_status=='sent')
                                         <div class="form-group">
@@ -100,6 +100,8 @@
                                         <table class="table table-striped" id="vehicleTable">
                                             <thead>
                                                 <tr>
+                                                    <th>Start Date <span class="text-danger">*</span></th>
+                                                    <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Vehicle Type <span class="text-danger">*</span></th>
                                                     <th>Vehicle Name <span class="text-danger">*</span></th>
                                                     <th>Description </th>
@@ -107,8 +109,6 @@
                                                     <th>No. Plate</th>
                                                     <th>Booking Status</th>
                                                     <th>Status</th>
-                                                    <th>Start Date <span class="text-danger">*</span></th>
-                                                    <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
@@ -125,6 +125,20 @@
                                                     $vehicleObj = $vehicles->where('id', $selectedVehicleId)->first();
                                                 @endphp
                                                 <tr>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
+                                                                class="form-control datemask booking-date" placeholder="YYYY/MM/DD"
+                                                                >
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle"><br>
+                                                        <div class="form-group">
+                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
+                                                                class="form-control datemask return-date" placeholder="YYYY/MM/DD"
+                                                                >
+                                                        </div>
+                                                    </td>
                                                     <td>
                                                         <div class="form-group"><br>
                                                             <select name="vehicletypes[]" class="form-control select2 vehicletypes">
@@ -173,20 +187,6 @@
 
                                                     <td class="align-middle status"><br>
                                                         {{ $vehicleObj->status === null ? 'N/A' :  ($vehicleObj->status==1 ? 'Active' : 'Inactive') }}
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD"
-                                                                >
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
-                                                                class="form-control datemask" placeholder="YYYY/MM/DD"
-                                                                >
-                                                        </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <input type="hidden" name="tax_percent[]" value="{{ $item->tax_percent }}" class="tax">
@@ -273,23 +273,54 @@
 
 @section('script')
     <script>
+
+        // Line items vehicles booking end date equals to Started at
+        function applyMinDateToAllDateFields(startedAt) {
+            if (startedAt) {
+                $('.booking-date').each(function () {
+                    $(this).attr('min', startedAt);
+
+                    // Force reset if current value is less than new min
+                    if ($(this).val() < startedAt) {
+                        $(this).val('');
+                    }
+                });
+                $('.return-date').each(function () {
+                    $(this).attr('min', startedAt);
+
+                    if ($(this).val() < startedAt) {
+                        $(this).val('');
+                    }
+                });
+            }
+        }
+
         $(document).ready(function() {
 
-            $(document).on('keypress', '.agreement_no', function (e) {
+            $(document).on('keypress', '.agreement_no, .price', function (e) {
                 if (e.key === '-' || e.which === 45) {
                     e.preventDefault();
                 }
             });
 
-            $(document).on('keypress', '.price', function (e) {
-                if (e.key === '-' || e.which === 45) {
-                    e.preventDefault();
-                }
-            });
+                let startedAt = $('.started_at').val();
+                applyMinDateToAllDateFields(startedAt);
+
+                $('.started_at').trigger('change');
 
             $('#addRow').click(function() {
                 let newRow = `
                 <tr>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="booking_date[]" class="form-control datemask booking-date" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
                     <td>
                         <div class="form-group"><br>
                             <select name="vehicletypes[]" class="form-control select2 vehicletypes">
@@ -324,20 +355,9 @@
                     <td class="align-middle status"><br></td>
 
                     <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="booking_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
                         <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
-                            <select name="tax[]"
-                                class="form-control select2 zohotax" required>
+                            <select name="tax[]" class="form-control select2 zohotax">
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
@@ -364,6 +384,9 @@
                 $('.select2').select2({
                     width: '100%'
                 });
+
+                let startedAt = $('.started_at').val();
+                applyMinDateToAllDateFields(startedAt);
             });
 
             $(document).on('click', '.removeRow', function() {
@@ -371,6 +394,16 @@
                 if ($('#vehicleTableBody tr').length == 0) {
                     let defaultRow = `
                 <tr>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="booking_date[]" class="form-control datemask booking-date" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
                     <td>
                         <div class="form-group"><br>
                             <select name="vehicletypes[]" class="form-control select2 vehicletypes">
@@ -409,16 +442,6 @@
                     </td>
 
                     <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="booking_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
-                        <div class="form-group">
-                            <input type="date" value="" name="return_date[]" class="form-control datemask" placeholder="YYYY/MM/DD">
-                        </div>
-                    </td>
-                    <td class="align-middle"><br>
                         <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
                             <select name="tax[]"
@@ -449,28 +472,38 @@
                     $('.select2').select2({
                         width: '100%'
                     });
+
+                    let startedAt = $('.started_at').val();
+                    applyMinDateToAllDateFields(startedAt);
                 }
             });
 
             $(document).on('change', '.vehicletypes', function() {
-                let id = $(this).val();
                 let $row = $(this).closest('tr');
+                let typeId = $(this).val();
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
+
+                let bookingDate = $row.find('.booking-date').val();
+                let returnDate = $row.find('.return-date').val();
+                if (!bookingDate || !returnDate) {
+                    alert("Please select booking and return date first");
+                    return;
+                }
 
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
                 $.ajax({
-                    url: '/get-vehicle-by-Type/' + id,
+                    url: `/get-vehicle-by-Type/${typeId}`,
                     type: 'GET',
+                    data: {
+                        start_date: bookingDate,
+                        end_date: returnDate
+                    },
                     success: function(response) {
-                        $vehicleSelect.empty().append(
-                            '<option value="">Select Vehicle</option>');
+                        $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
                             $vehicleSelect.append(
-                                '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
-                                (vehicle.temp_vehicle_detail ?? vehicle
-                                    .vehicle_name) +
-                                '</option>'
+                                `<option value="${vehicle.id}">${vehicle.number_plate} | ${vehicle.temp_vehicle_detail ?? vehicle.vehicle_name}</option>`
                             );
                         });
                     }

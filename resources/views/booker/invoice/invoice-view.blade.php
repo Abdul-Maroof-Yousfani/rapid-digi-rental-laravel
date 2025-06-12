@@ -112,7 +112,7 @@
                         <p class="mb-0 text-dark">{{ $customer->country }}</p>
                     </div>
                     <div class="col text-right">
-                        <p class="text-dark"><strong>Invoice Date:</strong> {{  $invoice->created_at }}</p>
+                        <p class="text-dark"><strong>Invoice Date:</strong> {{  \Carbon\Carbon::Parse($invoice->created_at)->format('d-M-Y') }}</p>
                         <p class="text-dark"><strong>Terms:</strong> Net 15</p>
                         <p class="text-dark"><strong>Due Date:</strong> 19 Jun 2025</p>
                     </div>

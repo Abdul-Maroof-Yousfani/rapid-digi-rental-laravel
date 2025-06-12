@@ -25,6 +25,19 @@ $(document).ready(function(){
                 `);
                 if(response){
                     $('#reportList').html(response);
+
+                    // After content is loaded, calculate totals
+                    let total = 0;
+                    $('.rental-amount').each(function(){
+                        total += parseFloat($(this).text().replace(/,/g, '')) || 0;
+                    });
+
+                    let net = total * 0.8;
+                    $('#totalAmount').text(total.toFixed(2));
+                    $('#netAmount').text(net.toFixed(2));
+                    $('#printTotalAmount').text(total.toFixed(2));
+                    $('#printNetAmount').text(net.toFixed(2));
+                    
                 } else {
                     $('#reportList').html(`
                         <tr>

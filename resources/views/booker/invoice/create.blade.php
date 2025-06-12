@@ -457,26 +457,52 @@
                 }
             });
 
+            // Date only enable and disable on invoice type change
+            $(document).on('change', '.invoice_type', function() {
+                const row = $(this).closest('tr');
+                const dateInputs = row.find('.datemask');
+                const vehicleType = row.find('.vehicletypes');
+
+                if ($(this).val() === '2') {
+                    dateInputs.prop('required', true);
+                    dateInputs.prop('disabled', false);
+                    vehicleType.prop('disabled', true);
+                } else {
+                    dateInputs.prop('required', false);
+                    dateInputs.prop('disabled', true);
+                    vehicleType.prop('disabled', false);
+                    dateInputs.val('');
+
+                }
+            });
+
+            $('.invoice_type').trigger('change');
+
             $(document).on('change', '.vehicletypes', function() {
                 let id = $(this).val();
-                let bookingId = $('.booking_id').val();
                 let $row = $(this).closest('tr');
+                let bookingId = $('.booking_id').val();
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
+
+                let invoiceType = $row.find('.invoice_type').val();
+                let bookingDate = $row.find('.booking-date').val();
+                let returnDate = $row.find('.return-date').val();
 
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
                 $.ajax({
-                    url: '/get-vehicle-by-booking/' + id + '/booking/' + bookingId,
+                    url: `/get-vehicle-by-booking/${id}/booking/${bookingId}`,
                     type: 'GET',
+                    data: {
+                        start_date: bookingDate,
+                        end_date: returnDate,
+                        invoice_type: invoiceType
+                    },
                     success: function(response) {
-                        $vehicleSelect.empty().append(
-                            '<option value="">Select Vehicle</option>');
+                        $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
                             $vehicleSelect.append(
-                                '<option value="' + vehicle.id + '">'+vehicle.number_plate+' | ' +
-                                (vehicle.temp_vehicle_detail ?? vehicle
-                                    .vehicle_name) +
-                                '</option>'
+                                `<option value="${vehicle.id}">${vehicle.number_plate} | ${(vehicle.temp_vehicle_detail ?? vehicle.vehicle_name)}</option>`
                             );
                         });
                     }
@@ -498,7 +524,7 @@
                     return;
                 }
                 $.ajax({
-                    url: '/get-vehicle-detail/' + id,
+                    url: `/get-vehicle-detail/${id}`,
                     type: 'GET',
                     success: function(response) {
                         if (response && Object.keys(response).length > 0) {

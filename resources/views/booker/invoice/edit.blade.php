@@ -146,14 +146,14 @@
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="date" value="{{ $item->start_date ? \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') : '' }}" name="booking_date[]"
+                                                            <input type="date" value="{{ $item->start_date ? \Carbon\Carbon::parse($item->start_date)->format('d-M-Y') : '' }}" name="booking_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 >
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
-                                                            <input type="date" value="{{ $item->end_date ? \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') : '' }}" name="return_date[]"
+                                                            <input type="date" value="{{ $item->end_date ? \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') : '' }}" name="return_date[]"
                                                                 class="form-control datemask" placeholder="YYYY/MM/DD"
                                                                 >
                                                         </div>
