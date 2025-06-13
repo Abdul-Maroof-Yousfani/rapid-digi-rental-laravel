@@ -27,10 +27,31 @@ class AjaxController extends Controller
         $this->zohoinvoice= $zohoinvoice;
     }
 
-    // public function getVehicleByType($id)
+    // public function getVehicleByType(Request $request, $id)
     // {
-    //     $vehicle= Vehicle::where('vehicletypes', $id)->where('vehicle_status_id', 1)->get();
-    //     return response()->json($vehicle);
+    //     $startDate = $request->start_date;
+    //     $endDate = $request->end_date;
+    //     $bookingID = $request->bookingID;
+
+    //     $bookedVehicleIds = BookingData::where(function ($query) use ($startDate, $endDate) {
+    //         $query->whereBetween('start_date', [$startDate, $endDate])
+    //             ->orWhereBetween('end_date', [$startDate, $endDate])
+    //             ->orWhere(function ($query) use ($startDate, $endDate) {
+    //                 $query->where('start_date', '<=', $startDate)
+    //                         ->where('end_date', '>=', $endDate);
+    //             });
+    //     })
+    //     ->when($bookingID, function($query) use ($bookingID){
+    //         $query->where('booking_id', '!=', $bookingID);
+    //     })
+    //     ->pluck('vehicle_id');
+
+    //     $vehicles = Vehicle::where('vehicletypes', $id)
+    //         ->whereNotIn('id', $bookedVehicleIds)
+    //         ->where('vehicle_status_id', 1) // available wali status
+    //         ->get();
+
+    //     return response()->json($vehicles);
     // }
 
     public function getVehicleByType(Request $request, $id)
@@ -38,6 +59,11 @@ class AjaxController extends Controller
         $startDate = $request->start_date;
         $endDate = $request->end_date;
         $bookingID = $request->bookingID;
+
+        $currentVehicleId = null;
+        if ($bookingID) {
+            $currentVehicleId = BookingData::where('booking_id', $bookingID)->value('vehicle_id');
+        }
 
         $bookedVehicleIds = BookingData::where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('start_date', [$startDate, $endDate])
@@ -48,14 +74,23 @@ class AjaxController extends Controller
                 });
         })
         ->when($bookingID, function($query) use ($bookingID){
-            // Exclude vehicles already booked in this current booking
             $query->where('booking_id', '!=', $bookingID);
         })
         ->pluck('vehicle_id');
 
         $vehicles = Vehicle::where('vehicletypes', $id)
-            ->whereNotIn('id', $bookedVehicleIds)
-            ->where('vehicle_status_id', 1) // available wali status
+            ->where(function ($q) use ($bookedVehicleIds, $currentVehicleId) {
+                $q->whereNotIn('id', $bookedVehicleIds);
+                if ($currentVehicleId) {
+                    $q->orWhere('id', $currentVehicleId);
+                }
+            })
+            ->where(function ($q) use ($currentVehicleId) {
+                $q->where('vehicle_status_id', 1);
+                if ($currentVehicleId) {
+                    $q->orWhere('id', $currentVehicleId);
+                }
+            })
             ->get();
 
         return response()->json($vehicles);

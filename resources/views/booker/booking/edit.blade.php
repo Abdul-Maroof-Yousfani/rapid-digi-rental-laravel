@@ -107,8 +107,6 @@
                                                     <th>Description </th>
                                                     <th>Investor</th>
                                                     <th>No. Plate</th>
-                                                    <th>Booking Status</th>
-                                                    <th>Status</th>
                                                     <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
@@ -181,13 +179,6 @@
                                                         {{ $vehicleObj->number_plate ?? 'N/A' }}
                                                     </td>
 
-                                                    <td class="align-middle booking_status"><br>
-                                                        {{ $vehicleObj->booking_status === null ? 'N/A' : ($vehicleObj->booking_status==1 ? 'Available' : 'Not Available') }}
-                                                    </td>
-
-                                                    <td class="align-middle status"><br>
-                                                        {{ $vehicleObj->status === null ? 'N/A' :  ($vehicleObj->status==1 ? 'Active' : 'Inactive') }}
-                                                    </td>
                                                     <td class="align-middle"><br>
                                                         <input type="hidden" name="tax_percent[]" value="{{ $item->tax_percent }}" class="tax">
                                                         <div class="form-group">
@@ -350,10 +341,6 @@
 
                     <td class="align-middle no_plate"><br></td>
 
-                    <td class="align-middle booking_status"><br></td>
-
-                    <td class="align-middle status"><br></td>
-
                     <td class="align-middle"><br>
                         <input type="hidden" name="tax_percent[]" value="" class="tax">
                         <div class="form-group">
@@ -433,12 +420,6 @@
                     </td>
 
                     <td class="align-middle no_plate"><br>
-                    </td>
-
-                    <td class="align-middle booking_status"><br>
-                    </td>
-
-                    <td class="align-middle status"><br>
                     </td>
 
                     <td class="align-middle"><br>
