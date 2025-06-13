@@ -21,21 +21,18 @@ class ReportController extends Controller
     {
         $month = $request['month'];
         $investorId = $request['investor_id'];
-        $bookingData= BookingData::with('vehicle')
-            ->when($investorId, function($query) use ($investorId){
-                $query->whereHas('vehicle', function($q) use ($investorId){
-                    $q->where('investor_id', $investorId);
-                });
-            })
-            ->when($month, function($query) use ($month) {
-                $from = Carbon::parse($month)->startOfMonth();
-                $to = Carbon::parse($month)->endOfMonth();
-                $query->where(function ($q) use ($from, $to) {
-                    $q->where('start_date', '<=', $to)
-                      ->where('end_date', '>=', $from);
-                });
-            })->get();
-        return view('reports.reportlist.get-soa-list', compact('bookingData'));
+        $from = Carbon::parse($month)->startOfMonth();
+        $to = Carbon::parse($month)->endOfMonth();
+
+        $vehicles = Vehicle::with(['bookingData' => function ($q) use ($from, $to) {
+            $q->where('start_date', '<=', $to)
+            ->where('end_date', '>=', $from);
+        }])
+        ->when($investorId, function ($query) use ($investorId) {
+            $query->where('investor_id', $investorId);
+        })
+        ->get();
+
+        return view('reports.reportlist.get-soa-list', compact('vehicles', 'from', 'to', 'month'));
     }
 }
-

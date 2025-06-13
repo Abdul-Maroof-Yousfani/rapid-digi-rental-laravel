@@ -72,7 +72,7 @@ class Vehicle extends Model
 
     public function bookingData()
     {
-        return $this->hasMany(Comment::class, 'foreign_key', 'local_key');
+        return $this->hasMany(bookingData::class, 'vehicle_id', 'id');
     }
 
 }

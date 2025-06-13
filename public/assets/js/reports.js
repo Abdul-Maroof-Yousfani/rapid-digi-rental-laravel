@@ -24,7 +24,9 @@ $(document).ready(function(){
                     </tr>
                 `);
                 if(response){
-                    $('#reportList').html(response);
+                    setTimeout(() => {
+                        $('#reportList').html(response);
+                    }, 1000);
 
                     // After content is loaded, calculate totals
                     let total = 0;
@@ -37,7 +39,7 @@ $(document).ready(function(){
                     $('#netAmount').text(net.toFixed(2));
                     $('#printTotalAmount').text(total.toFixed(2));
                     $('#printNetAmount').text(net.toFixed(2));
-                    
+
                 } else {
                     $('#reportList').html(`
                         <tr>

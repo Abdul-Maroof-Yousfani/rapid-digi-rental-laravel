@@ -37,8 +37,8 @@ class AjaxController extends Controller
     {
         $startDate = $request->start_date;
         $endDate = $request->end_date;
+        $bookingID = $request->bookingID;
 
-        // Step 1: already booked vehicles in selected date range
         $bookedVehicleIds = BookingData::where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('start_date', [$startDate, $endDate])
                 ->orWhereBetween('end_date', [$startDate, $endDate])
@@ -46,9 +46,13 @@ class AjaxController extends Controller
                     $query->where('start_date', '<=', $startDate)
                             ->where('end_date', '>=', $endDate);
                 });
-        })->pluck('vehicle_id');
+        })
+        ->when($bookingID, function($query) use ($bookingID){
+            // Exclude vehicles already booked in this current booking
+            $query->where('booking_id', '!=', $bookingID);
+        })
+        ->pluck('vehicle_id');
 
-        // Step 2: get available vehicles by type excluding booked ones
         $vehicles = Vehicle::where('vehicletypes', $id)
             ->whereNotIn('id', $bookedVehicleIds)
             ->where('vehicle_status_id', 1) // available wali status

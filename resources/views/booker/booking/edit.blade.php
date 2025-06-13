@@ -13,18 +13,18 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ role_base_url('customer-booking/'.$booking->id) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ role_base_url('customer-booking/'.$invoice->id) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card-body">
                                 <div class="col-md-6">
-                                    @php $firstInvoice= $booking->invoice->first(); @endphp
+                                    {{-- @php $firstInvoice= $booking->invoice->first(); @endphp
                                     @foreach($booking->invoice as $inv)
                                         {{ $inv->booking_id }}<br>
-                                    @endforeach
-                                    <h3>Edit Booking  #{{ $firstInvoice->zoho_invoice_number }}</h3>
+                                    @endforeach --}}
+                                    <h3>Edit Booking  #{{ $invoice->zoho_invoice_number }}</h3>
                                 </div>
                             </div>
                         </div>
@@ -38,20 +38,20 @@
                                         <select name="customer_id" class="form-control select2" required>
                                             <option value="">Select Customer</option>
                                             @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}" {{ $booking->customer_id==$customer->id ? 'selected' : '' }} >{{ $customer->customer_name }}</option>
+                                                <option value="{{ $customer->id }}" {{ $invoice->booking->customer_id==$customer->id ? 'selected' : '' }} >{{ $customer->customer_name }}</option>
                                             @endforeach
                                         </select>
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
-                                        <input type="number" value="{{ $booking->deposit->deposit_amount ?? 0 }}" name="deposit_amount" class="form-control" >
+                                        <input type="number" value="{{ $invoice->booking->deposit->deposit_amount ?? 0 }}" name="deposit_amount" class="form-control" >
                                     </div>
                                     <div class="form-group">
                                         <label>Started At <span class="text-danger">*</span></label>
-                                        <input type="date" name="started_at" value="{{ \Carbon\Carbon::parse($booking->started_at)->format('Y-m-d') }}" class="form-control started_at" >
+                                        <input type="date" name="started_at" value="{{ \Carbon\Carbon::parse($invoice->booking->started_at)->format('Y-m-d') }}" class="form-control started_at" >
                                     </div>
-                                    @if ($firstInvoice->invoice_status=='sent')
+                                    @if ($invoice->invoice_status=='sent')
                                         <div class="form-group">
                                             <label>Reason For Update. <span class="text-danger">*</span></label>
                                             <input type="text" value="" name="reason" class="form-control" required>
@@ -69,14 +69,14 @@
                                         <select name="sale_person_id" class="form-control select2" required>
                                             <option value="">Select Sale Person</option>
                                             @foreach ($salePerson as $item)
-                                                <option value="{{ $item->id }}" {{ $item->id==$booking->sale_person_id ? 'Selected' : '' }}>{{ $item->name }}</option>
+                                                <option value="{{ $item->id }}" {{ $item->id==$invoice->booking->sale_person_id ? 'Selected' : '' }}>{{ $item->name }}</option>
                                             @endforeach
                                         </select>
                                         @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="form-group">
                                         <label>Agreement No. <span class="text-danger">*</span></label>
-                                        <input type="text" value="{{ $booking->agreement_no }}" name="agreement_no" class="form-control agreement_no" >
+                                        <input type="text" value="{{ $invoice->booking->agreement_no }}" name="agreement_no" class="form-control agreement_no" >
                                     </div>
                                 </div>
                             </div>
@@ -230,7 +230,7 @@
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="form-group">
                                 <label>Invoice Notes <span class="text-danger">*</span></label>
-                                <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ $booking->notes }}</textarea>
+                                <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ $invoice->booking->notes }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -478,11 +478,27 @@
                 }
             });
 
+            // Listen for changes using class selectors
+            $('table').on('change', '.booking-date, .return-date', function () {
+                let row = $(this).closest('tr');
+                let bookingDate = row.find('.booking-date').val();
+                let returnDate = row.find('.return-date').val();
+                let vehicleSelect = row.find('.vehicletypes');
+
+                if (bookingDate && returnDate) {
+                    vehicleSelect.prop('disabled', false);
+                    vehicleSelect.trigger('change');
+                } else {
+                    vehicleSelect.prop('disabled', true);
+                }
+            });
+
             $(document).on('change', '.vehicletypes', function() {
                 let $row = $(this).closest('tr');
                 let typeId = $(this).val();
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
+                let bookingID = {{ $invoice->booking->id }};
                 let bookingDate = $row.find('.booking-date').val();
                 let returnDate = $row.find('.return-date').val();
                 if (!bookingDate || !returnDate) {
@@ -497,7 +513,8 @@
                     type: 'GET',
                     data: {
                         start_date: bookingDate,
-                        end_date: returnDate
+                        end_date: returnDate,
+                        bookingID: bookingID
                     },
                     success: function(response) {
                         $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
