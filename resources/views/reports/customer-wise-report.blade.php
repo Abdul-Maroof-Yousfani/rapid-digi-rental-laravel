@@ -23,11 +23,19 @@
             <!-- Filters -->
             <form method="get" id="customerWiseSalesreportForm" class="mb-4">
                 <div class="form-row align-items-end">
-                    <div class="col-md-3">
-                        <label for="month">Month</label>
-                        <input type="month" name="month" id="month" class="form-control" value="">
+                    <div class="col-md-2">
+                        <label for="fromDate">From Date</label>
+                        <input type="date" name="fromDate" id="fromDate" class="form-control" value="">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label for="">.</label>
+                        <input type="text" placeholder="Between" class="form-control" disabled>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="toDate">To Date</label>
+                        <input type="date" name="toDate" id="toDate" class="form-control" value="">
+                    </div>
+                    <div class="col-md-2">
                         <label for="customer_id">Customer</label>
                         <select name="customer_id" class="form-control select2" id="customer_id">
                             <option value="">Select Customer</option>
@@ -49,11 +57,12 @@
                         <div class="card-body">
                             <div class="table-scroll">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-hover" id="" style="width:100%;">
+                                    <table class="table table-bordered table-hover p-0" id="" style="width:100%;">
                                         <thead>
                                             <tr>
+                                                <th>S No.</th>
                                                 <th>Customer.</th>
-                                                <th>Booking #</th>
+                                                <th>Booking no.#</th>
                                                 <th>Total Amount</th>
                                                 <th>Paid Amount</th>
                                                 <th>Pending Amount</th>
@@ -61,6 +70,7 @@
                                         </thead>
                                         <tbody id="customerWiseSalesReportList">
                                             <tr>
+                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>

@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Reports;
 
-use Carbon\Carbon;
-use App\Models\Vehicle;
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\BookingData;
 use App\Models\Customer;
 use App\Models\Investor;
-use App\Models\BookingData;
+use App\Models\Vehicle;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class ReportController extends Controller
 {
@@ -48,7 +49,26 @@ class ReportController extends Controller
 
     public function getCustomerWiseSaleReportList(Request $request)
     {
-        return view('reports.reportlist.get-customer-wise-list');
+        $fromDate= $request['fromDate'];
+        $toDate= $request['toDate'];
+        $customerID= $request['customer_id'];
+        $booking = Booking::with('bookingData', 'customer')
+                ->withSum('bookingData as total_price', 'price')
+                ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate){
+                    $query->whereBetween('created_at', [$fromDate, $toDate]);
+                })
+                ->when($customerID, function ($query) use ($customerID){
+                    $query->whereHas('customer', function($q) use ($customerID){
+                        $q->where('id', $customerID);
+                    });
+                })
+                ->get()
+                ->map(function ($booking) {
+                    $booking->total_price = $booking->bookingData->sum('price');
+                    return $booking;
+                });
+
+        return view('reports.reportlist.get-customer-wise-list', compact('booking'));
     }
 
 }

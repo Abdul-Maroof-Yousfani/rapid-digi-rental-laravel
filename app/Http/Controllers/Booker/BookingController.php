@@ -209,31 +209,6 @@ class BookingController extends Controller
      */
     public function edit(string $id)
     {
-        // $booking= Booking::find($id);
-        // if(!$booking){
-        //     return redirect()->back()->with('error', 'Booking not Found');
-        // }else{
-        //     $invoiceID= Invoice::where('booking_id', $id)->first();
-        //     $zohocolumn = $this->zohoinvoice->getInvoice($invoiceID->zoho_invoice_id);
-        //     $booking_data= BookingData::where('booking_id', $booking->id)->where('transaction_type', 1)->orderBy('id', 'ASC')->get();
-        //     $customers= Customer::all();
-        //     $vehicletypes= Vehicletype::all();
-        //     $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
-        //     $vehicleTypeMap = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))
-        //     ->pluck('vehicletypes', 'id');
-        //     $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
-        //     $salePerson= SalePerson::all();
-        //     $taxlist= $this->zohoinvoice->taxList();
-
-        //     return view('booker.booking.edit', compact('zohocolumn', 'customers', 'vehicletypes', 'booking',
-        //     'taxlist',
-        //     'salePerson',
-        //     'booking_data',
-        //     'vehicles',
-        //     'vehicleTypeMap',
-        //     'vehiclesByType'));
-
-
         $invoice= Invoice::with('booking')->find($id);
         if(!$invoice){
             return redirect()->back()->with('error', 'Booking not Found');
