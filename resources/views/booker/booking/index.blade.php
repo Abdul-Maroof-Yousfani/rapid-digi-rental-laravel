@@ -301,7 +301,7 @@
                         $('#activeBookingContent').html('');
                         let row= '';
 
-                        // Render Rent Details in Modal
+                        // Render Rent Details Section in Modal
                         $.each(response.rent_details, function(index, item) {
                             const formattedEndDate = item.end_date.split(' ')[0];
                             const formattedStartDate = item.start_date.split(' ')[0];
@@ -375,7 +375,7 @@
                         // row+= '<br><tr style="background-color: transparent;"><td colspan="5" style="height:20px; text-align: center;"><h3>Renew Vehicles</h3></td></tr><br>';
 
 
-                        // Render Renew Details in Modal
+                        // Render Renew Details Section in Modal
                         $.each(response.renew_details, function(index, item) {
                             const formattedEndDate = item.end_date.split(' ')[0];
                             const formattedStartDate = item.start_date.split(' ')[0];

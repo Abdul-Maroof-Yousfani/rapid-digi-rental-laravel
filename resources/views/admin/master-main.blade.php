@@ -190,9 +190,9 @@
                                     data-feather="mail"></i><span>Reports</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ role_base_route('soaReport') }}">SOA Report</a></li>
+                                <li><a class="nav-link" href="{{ role_base_route('customerWiseReport') }}">Customer Wise Sales Report</a></li>
                             </ul>
                         </li>
-
 
                         @endcan
 

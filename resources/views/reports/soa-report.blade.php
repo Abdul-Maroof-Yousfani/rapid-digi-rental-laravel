@@ -251,7 +251,7 @@
                 </div>
 
                 <!-- Filters -->
-                <form method="get" id="reportForm" class="mb-4">
+                <form method="get" id="soaReportForm" class="mb-4">
                     <div class="form-row align-items-end">
                         <div class="col-md-3">
                             <label for="month">Month</label>
@@ -287,7 +287,7 @@
                                                 <th>Rental Amount</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="reportList">
+                                        <tbody id="soaReportList">
                                             <tr>
                                                 <td></td>
                                                 <td></td>

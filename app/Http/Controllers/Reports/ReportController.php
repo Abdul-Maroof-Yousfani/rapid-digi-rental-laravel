@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Reports;
 
 use Carbon\Carbon;
 use App\Models\Vehicle;
+use App\Models\Customer;
 use App\Models\Investor;
 use App\Models\BookingData;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use App\Http\Controllers\Controller;
 
 class ReportController extends Controller
 {
+
+    // SOA Report Functions
     public function soaReport()
     {
         $investor= Investor::all();
@@ -35,4 +38,17 @@ class ReportController extends Controller
 
         return view('reports.reportlist.get-soa-list', compact('vehicles', 'from', 'to', 'month'));
     }
+
+    // customer wise sales reports function
+    public function customerWiseReport()
+    {
+        $customers= Customer::all();
+        return view('reports.customer-wise-report', compact('customers'));
+    }
+
+    public function getCustomerWiseSaleReportList(Request $request)
+    {
+        return view('reports.reportlist.get-customer-wise-list');
+    }
+
 }

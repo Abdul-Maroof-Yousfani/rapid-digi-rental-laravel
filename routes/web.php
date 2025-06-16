@@ -80,7 +80,7 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
 
 // Ajax Reports Route
 Route::get('get-soa-list', [ReportController::class, 'getSoaReportList'])->name("getSoaReportList");
-
+Route::get('get-customer-wise-sales-list', [ReportController::class, 'getCustomerWiseSaleReportList'])->name("getSoaReportList");
 
 // AJAX Routes
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
@@ -131,6 +131,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
 
     // Reports Route
     Route::get('/reports/soa-report', [ReportController::class, 'soaReport'])->name('soaReport');
+    Route::get('/reports/customer-wise-report', [ReportController::class, 'customerWiseReport'])->name('customerWiseReport');
 
 
 

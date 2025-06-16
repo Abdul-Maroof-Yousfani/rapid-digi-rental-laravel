@@ -49,8 +49,7 @@ class BookingController extends Controller
                     })
                     ->whereHas('booking', function($query){
                         $query->where('created_at', '>=', Carbon::now()->subDays(15));
-                    })
-                    ->orderBy('id', 'desc')->get();
+                    })->orderBy('id', 'desc')->get();
         return view('booker.booking.index', compact('booking'));
     }
 
@@ -579,8 +578,13 @@ class BookingController extends Controller
 
     public function closeBooking($id)
     {
-        $booking = Booking::find($id);
+        $booking = Booking::with('bookingData')->find($id);
+        if (!$booking) {
+            return response()->json(['success' => false, 'message' => 'Booking not found']);
+        }
         $booking->update(['booking_status' => 'closed']);
+        $vehicleIds = $booking->bookingData->pluck('vehicle_id')->unique();
+        Vehicle::whereIn('id', $vehicleIds)->update(['vehicle_status_id' => 1]);
         return response()->json(['success' => true]);
     }
 
@@ -588,6 +592,8 @@ class BookingController extends Controller
     {
         $booking = Booking::find($id);
         $booking->update(['booking_status' => 'closed']);
+        $vehicleIds = $booking->bookingData->pluck('vehicle_id')->unique();
+        Vehicle::whereIn('id', $vehicleIds)->update(['vehicle_status_id' => 1]);
         return response()->json(['success' => true]);
     }
 }
