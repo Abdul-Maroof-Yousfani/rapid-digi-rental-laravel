@@ -127,14 +127,14 @@
                                                         <div class="form-group">
                                                             <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
                                                                 class="form-control datemask booking-date" placeholder="YYYY/MM/DD"
-                                                                >
+                                                                data-default="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}">
                                                         </div>
                                                     </td>
                                                     <td class="align-middle"><br>
                                                         <div class="form-group">
                                                             <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
                                                                 class="form-control datemask return-date" placeholder="YYYY/MM/DD"
-                                                                >
+                                                                data-default="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}">
                                                         </div>
                                                     </td>
                                                     <td>
@@ -149,10 +149,14 @@
                                                             </select>
                                                         </div>
                                                     </td>
-
+                                                    @php
+                                                        $selectedVehicleText = ($item->vehicle->vehicle_name) ?? ($item->vehicle->number_plate.' | '.$item->vehicle->temp_vehicle_detail);
+                                                    @endphp
                                                     <td class="text-truncate"><br>
                                                         <div class="form-group">
-                                                            <select name="vehicle[]" class="form-control select2 vehicle">
+                                                            <select name="vehicle[]" class="form-control select2 vehicle"
+                                                                data-selected="{{ $selectedVehicleId }}"
+                                                                data-selected-text="{{ $selectedVehicleText }}">
                                                                 <option value="">Select Vehicle</option>
                                                                 @foreach ($filteredVehicles as $vehicle)
                                                                 @php $disable= $vehicle->status==0 ? 'disabled' : ''; @endphp
@@ -479,6 +483,11 @@
                 let typeId = $(this).val();
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
+                let selectedVehicleId = $vehicleSelect.data('selected');
+                let selectedVehicleText = $vehicleSelect.data('selected-text') || 'Selected vehicle';
+                let defaultStart = $row.find('.booking-date').data('default');
+                let defaultEnd = $row.find('.return-date').data('default');
+
                 let bookingID = {{ $invoice->booking->id }};
                 let bookingDate = $row.find('.booking-date').val();
                 let returnDate = $row.find('.return-date').val();
@@ -486,6 +495,8 @@
                     alert("Please select booking and return date first");
                     return;
                 }
+
+                let dateChanged = bookingDate !== defaultStart || returnDate !== defaultEnd;
 
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
@@ -495,15 +506,23 @@
                     data: {
                         start_date: bookingDate,
                         end_date: returnDate,
-                        bookingID: bookingID
+                        bookingID: bookingID,
+                        selectedVehicleId: !dateChanged ? selectedVehicleId : null
                     },
                     success: function(response) {
+                        let found = false;
                         $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
+                            let selected = (vehicle.id == selectedVehicleId) ? 'selected' : '';
+                            if (selected) found = true;
                             $vehicleSelect.append(
                                 `<option value="${vehicle.id}">${vehicle.number_plate} | ${vehicle.temp_vehicle_detail ?? vehicle.vehicle_name}</option>`
                             );
                         });
+
+                        if (!found && selectedVehicleId && !dateChanged) {
+                            $vehicleSelect.append(`<option value="${selectedVehicleId}" selected>${selectedVehicleText} (Booked)</option>`);
+                        }
                     }
                 });
             });

@@ -27,74 +27,48 @@ class AjaxController extends Controller
         $this->zohoinvoice= $zohoinvoice;
     }
 
-    // public function getVehicleByType(Request $request, $id)
-    // {
-    //     $startDate = $request->start_date;
-    //     $endDate = $request->end_date;
-    //     $bookingID = $request->bookingID;
-
-    //     $bookedVehicleIds = BookingData::where(function ($query) use ($startDate, $endDate) {
-    //         $query->whereBetween('start_date', [$startDate, $endDate])
-    //             ->orWhereBetween('end_date', [$startDate, $endDate])
-    //             ->orWhere(function ($query) use ($startDate, $endDate) {
-    //                 $query->where('start_date', '<=', $startDate)
-    //                         ->where('end_date', '>=', $endDate);
-    //             });
-    //     })
-    //     ->when($bookingID, function($query) use ($bookingID){
-    //         $query->where('booking_id', '!=', $bookingID);
-    //     })
-    //     ->pluck('vehicle_id');
-
-    //     $vehicles = Vehicle::where('vehicletypes', $id)
-    //         ->whereNotIn('id', $bookedVehicleIds)
-    //         ->where('vehicle_status_id', 1) // available wali status
-    //         ->get();
-
-    //     return response()->json($vehicles);
-    // }
 
     public function getVehicleByType(Request $request, $id)
     {
         $startDate = $request->start_date;
         $endDate = $request->end_date;
         $bookingID = $request->bookingID;
-
-        $currentVehicleId = null;
-        if ($bookingID) {
-            $currentVehicleId = BookingData::where('booking_id', $bookingID)->value('vehicle_id');
-        }
+        $selectedVehicleId = $request->selectedVehicleId;
 
         $bookedVehicleIds = BookingData::where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('start_date', [$startDate, $endDate])
                 ->orWhereBetween('end_date', [$startDate, $endDate])
                 ->orWhere(function ($query) use ($startDate, $endDate) {
                     $query->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
+                        ->where('end_date', '>=', $endDate);
                 });
         })
-        ->when($bookingID, function($query) use ($bookingID){
+        ->when($bookingID, function ($query) use ($bookingID) {
             $query->where('booking_id', '!=', $bookingID);
         })
         ->pluck('vehicle_id');
 
+        // $vehicles = Vehicle::where('vehicletypes', $id)
+        // ->whereNotIn('id', $bookedVehicleIds)
+        // ->where('vehicle_status_id', 1) // available wali status
+        // ->get();
+
         $vehicles = Vehicle::where('vehicletypes', $id)
-            ->where(function ($q) use ($bookedVehicleIds, $currentVehicleId) {
-                $q->whereNotIn('id', $bookedVehicleIds);
-                if ($currentVehicleId) {
-                    $q->orWhere('id', $currentVehicleId);
-                }
-            })
-            ->where(function ($q) use ($currentVehicleId) {
-                $q->where('vehicle_status_id', 1);
-                if ($currentVehicleId) {
-                    $q->orWhere('id', $currentVehicleId);
-                }
-            })
-            ->get();
+                    ->where(function ($query) use ($bookedVehicleIds, $selectedVehicleId) {
+                        $query->where(function ($q) use ($bookedVehicleIds) {
+                            $q->whereNotIn('id', $bookedVehicleIds);
+                            // ->where('vehicle_status_id', 1);
+                        });
+
+                        if (!empty($selectedVehicleId)) {
+                            $query->orWhere('id', $selectedVehicleId); // booked vehicle bhi lani hai agar dates change nahi hui
+                        }
+                    })->get();
 
         return response()->json($vehicles);
     }
+
+
 
 
     public function getNoByVehicle($id)
