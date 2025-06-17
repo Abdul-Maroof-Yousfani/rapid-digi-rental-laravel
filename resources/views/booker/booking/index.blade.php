@@ -57,7 +57,17 @@
                                 <td>{{ $item->booking->booking_status ?? 'overdue' }}</td>
                                 <td>{{ $item->booking->payment->payment_status ?? "pending" }}</td>
                                 <td>{{ $item->total_amount }}</td>
-                                <td class="booking_cancel">  @if ($item->booking->booking_cancel) Cancelled @elseif ($bookingStart->gt($today)) Upcoming @else Active @endif</td>
+                                <td class="booking_status_td">
+                                    @if ($item->booking->booking_cancel==1)
+                                        Cancelled
+                                    @elseif ($bookingStart->gt($today))
+                                        Upcoming
+                                    @elseif ($item->booking->booking_status == 'closed')
+                                        -
+                                    @else
+                                        Active
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="dropdown">
                                         <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">

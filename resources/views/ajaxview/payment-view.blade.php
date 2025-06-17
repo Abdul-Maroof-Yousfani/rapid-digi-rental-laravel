@@ -8,14 +8,14 @@
         <td>{{ $item->booking_amount }}</td>
         <td>{{ $item->paid_amount }}</td>
         <td>{{ $item->pending_amount ?? 0 }}</td>
-        <td>
+        {{-- <td>
             <a href="" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
             <form action="" method="" style="display:inline;" class="delete-form">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>Delete</button>
             </form>
-        </td>
+        </td> --}}
     </tr>
 @php $number++; @endphp
 @endforeach

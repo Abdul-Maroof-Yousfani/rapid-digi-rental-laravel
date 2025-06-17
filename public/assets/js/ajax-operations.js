@@ -412,7 +412,7 @@ $(document).ready(function () {
     // Booking Cancellation
     $(document).on('click', '.booking_cancel', function(e){
         e.preventDefault();
-        let bookingID= $(this).data('booking-id');
+        let bookingID = $(this).data('booking-id');
         Swal.fire({
             title: 'Are you sure?',
             text: 'Do you really want to cancel this booking?',
@@ -429,12 +429,12 @@ $(document).ready(function () {
                     type: 'get',
                     success:function(response){
                         if(response.success == true){
-                            $('.booking_cancel').text('Cancelled');
                             Swal.fire({
                                 title: 'Success',
                                 text: response.data,
                                 icon: 'success',
                             })
+                            location.reload();
                         } else {
                             Swal.fire({
                                 title: 'Error',

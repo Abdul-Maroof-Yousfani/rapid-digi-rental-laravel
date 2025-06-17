@@ -90,7 +90,7 @@
                                                     <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Refund Date  <span class="text-danger">*</span></label><br>
-                                                            <input type="date" value="" name="refund_date" class="form-control refund_date" required>
+                                                            <input type="date" value="{{ \Carbon\Carbon::now()->toDateString() }}" name="refund_date" class="form-control refund_date" required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle">

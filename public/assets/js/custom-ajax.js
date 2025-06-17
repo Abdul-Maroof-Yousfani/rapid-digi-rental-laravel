@@ -144,8 +144,8 @@ function bookingChange(){
         $('#booking_detail').html('');
             if(response){
                 $('.booking_amount').val(response.booking_amount);
-                $('.deposit_amount').val(response.deposit_amount);
                 $('.initial_deposit').val(response.deposit_amount);
+                $('.deposit_amount').val(response.remaining_deposit);
                 $('.remaining_deposit').val(response.remaining_deposit);
                 $('.customer_name').val(response.customer);
                 $('.pending_amount').val(response.remaining_amount);

@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Vehicle;
 use App\Models\Customer;
+use App\Models\CreditNote;
 use App\Models\SalePerson;
 use App\Models\BookingData;
 use App\Models\PaymentData;
@@ -17,6 +18,7 @@ use App\Models\Vehiclestatus;
 use App\Services\ZohoInvoice;
 use App\Models\DepositHandling;
 use App\Jobs\UpdateZohoInvoiceJob;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 class AjaxController extends Controller
@@ -127,9 +129,27 @@ class AjaxController extends Controller
         $bookingAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
         $payment = Payment::where('booking_id', $booking_id)->first();
         $remainingAmount = $bookingAmount - ($payment->paid_amount ?? 0);
+
+        // Calculate Remaining Deposit Amount
         $initialDeposit = $booking->deposit->deposit_amount ?? 0;
         $deductAmount = DepositHandling::where('booking_id', $booking_id)->sum('deduct_deposit');
-        if($deductAmount){ $remainingDeposit= $initialDeposit - $deductAmount; }
+        $creditNote = $booking->creditNote; // will be null if not exists
+        $refundAmount = $creditNote->refund_amount ?? 0;
+        $adjustedInitialDeposit = $initialDeposit - $refundAmount;
+        $deductAmount = DepositHandling::where('booking_id', $booking_id)->sum('deduct_deposit') ?? 0;
+        $remainingDeposit = $adjustedInitialDeposit - $deductAmount;
+        // if($deductAmount){ $remainingDeposit= $initialDeposit - $deductAmount; }
+
+        $creditNoteDetail = [];
+        if ($creditNote) {
+            $creditNoteDetail[] = [
+                'id' => $creditNote->id,
+                'CN_no' => $creditNote->credit_note_no,
+                'refund_amount' => $creditNote->refund_amount,
+            ];
+        }
+
+
         $getVehicle = BookingData::with('vehicle')->select('vehicle_id')
                     ->where('booking_id', $booking_id)
                     ->groupBy('vehicle_id')->get();
@@ -195,8 +215,9 @@ class AjaxController extends Controller
             'remaining_amount' => $remainingAmount,
             'booking_amount' => $bookingAmount,
             'deposit_amount' => $initialDeposit,
+            'credit_note_detail' => $creditNoteDetail,
             'deduct_amount' => $deductAmount ?? 0,
-            'remaining_deposit' => $remainingDeposit ?? 0,
+            'remaining_deposit' => $remainingDeposit,
             'customer' => $booking->customer->customer_name,
             'invoice_detail' => $invoices,
             'vehicle' => $vehicles,
