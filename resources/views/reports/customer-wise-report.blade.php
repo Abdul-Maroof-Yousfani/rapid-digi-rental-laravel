@@ -57,8 +57,9 @@
                         <div class="card-body">
                             <div class="table-scroll">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-hover p-0" id="" style="width:100%;">
-                                        <thead>
+                                    {{-- <table class="table table-bordered table-hover p-0" id="" style="width:100%;"> --}}
+                                    <table class="table table-bordered table-sm" style="width:100%;">
+                                        <thead  style="background: #f8f8f8">
                                             <tr>
                                                 <th>S No.</th>
                                                 <th>Customer.</th>

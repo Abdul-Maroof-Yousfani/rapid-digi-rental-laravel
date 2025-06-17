@@ -1,35 +1,71 @@
-@php $number = 1; @endphp
+@php
+    $number = 1;
+    $subtot = 0;
+    $subamt = 0;
+    $subpnd = 0;
+@endphp
 @foreach ($booking as $item)
-    @php $childCount = $item->bookingData->count(); @endphp
+    @php
+        $childCount = $item->bookingData->count();
+        $totalPrice = $item->total_price ?? 0;
+        $paidAmount = $item->payment->paid_amount ?? 0;
+        $pendingAmount = $item->payment->pending_amount ?? 0;
+
+        $subtot += $totalPrice;
+        $subamt += $paidAmount;
+        $subpnd += $pendingAmount;
+    @endphp
 
     {{-- Parent Row --}}
     <tr>
         {{-- S. No with rowspan --}}
         <td rowspan="{{ $childCount + 1 }}" class="align-middle">{{ $number }}.</td>
-        <td>{{ $item->customer->customer_name }}</td>
+        <td>{{ $item->customer->customer_name ?? 'N/A' }}</td>
         <td>{{ $item->id }}</td>
-        <td>{{ $item->total_price }}</td>
-        <td>{{ $item->payment->paid_amount ?? 0 }}</td>
-        <td>{{ $item->payment->pending_amount ?? 0 }}</td>
+        <td class="text-right">{{ number_format($totalPrice, 2) }}</td>
+        <td class="text-right">{{ number_format($paidAmount, 2) }}</td>
+        <td class="text-right">{{ number_format($pendingAmount, 2) }}</td>
     </tr>
+
 
     {{-- Child Rows --}}
     @foreach ($item->bookingData as $bd)
         <tr>
             {{-- Empty <td> removed because rowspan is handling S. No --}}
-            <td class="px-5" colspan="2">Vehicle: {{ $bd->vehicle->vehicle_name ?? $bd->vehicle->temp_vehicle_detail }}</td>
-            <td>Price: {{ $bd->price }}</td>
-            <td>Qty: {{ $bd->quantity }}</td>
-            <td>
-                @switch($bd->transaction_type)
-                    @case(1) Rent @break
-                    @case(2) Renew @break
-                    @case(3) Fine @break
-                    @case(4) Salik @break
-                @endswitch
+            <td class="px-5" colspan="2">
+                <div class="d-flex justify-content-between">
+                    <span>
+                        {{ $bd->vehicle->vehicle_name ?? $bd->vehicle->temp_vehicle_detail }}
+                    </span>
+
+                    <span>
+                        @switch($bd->transaction_type)
+                            @case(1) Rent @break
+                            @case(2) Renew @break
+                            @case(3) Fine &nbsp; Qty:{{ $bd->quantity }} @break
+                            @case(4) Salik &nbsp; Qty:{{ $bd->quantity }} @break
+                        @endswitch
+                    </span>
+
+                </div>
+
             </td>
+            <td class="text-right">Price: {{ $bd->price }}</td>
+            <td class="text-right"></td>
+            <td class="text-right"></td>
         </tr>
     @endforeach
 
+    <tr>
+        <td style="background: #f8f8f8" class="text-light" colspan="6">.</td>
+    </tr>
     @php $number++; @endphp
 @endforeach
+
+{{-- Footer total row --}}
+<tr class="text-right">
+    <td colspan="3"><b>Total</b></td>
+    <td>{{ number_format($subtot, 2) }}</td>
+    <td>{{ number_format($subamt, 2) }}</td>
+    <td>{{ number_format($subpnd, 2) }}</td>
+</tr>
