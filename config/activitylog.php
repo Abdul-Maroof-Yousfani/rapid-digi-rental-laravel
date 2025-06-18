@@ -23,7 +23,7 @@ return [
      * You can specify an auth driver here that gets user models.
      * If this is null we'll use the current Laravel auth driver.
      */
-    'default_auth_driver' => 2,
+    'default_auth_driver' => 'web',
 
     /*
      * If set to true, the subject returns soft deleted models.
@@ -50,4 +50,3 @@ return [
      */
     'database_connection' => env('ACTIVITY_LOGGER_DB_CONNECTION'),
 ];
-
