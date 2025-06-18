@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
-use App\Models\Vehiclestatus;
+use App\Models\VehicleStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -16,7 +16,7 @@ class VehiclestatusController extends Controller
      */
     public function index()
     {
-        $status= Vehiclestatus::orderBy('id', 'DESC')->get();
+        $status= VehicleStatus::orderBy('id', 'DESC')->get();
         return view('admin.vehicle.status.index', compact('status'));
     }
 
@@ -42,7 +42,7 @@ class VehiclestatusController extends Controller
         }else{
             try {
                 DB::beginTransaction();
-                $vstatus = Vehiclestatus::create([
+                $vstatus = VehicleStatus::create([
                     'name' => $request->name,
                 ]);
                 DB::commit();
@@ -69,7 +69,7 @@ class VehiclestatusController extends Controller
      */
     public function edit(string $id)
     {
-        $status= Vehiclestatus::find($id);
+        $status= VehicleStatus::find($id);
         if(!$status){
             return redirect()->route('admin.vehicle-status.index')->with('error', 'Status Not Found');
         }
@@ -90,7 +90,7 @@ class VehiclestatusController extends Controller
         }else{
             try {
                 DB::beginTransaction();
-                $status= Vehiclestatus::find($id);
+                $status= VehicleStatus::find($id);
                 $status->update([
                     'name' => $request->name,
                 ]);
@@ -111,7 +111,7 @@ class VehiclestatusController extends Controller
      */
     public function destroy(string $id)
     {
-        $status= Vehiclestatus::find($id);
+        $status= VehicleStatus::find($id);
         if(!$status){
             return response()->json(['error' => 'Status Not Found']);
             // return redirect()->back()->with('error', 'Status Not Found');
@@ -123,7 +123,7 @@ class VehiclestatusController extends Controller
     }
 
     public function StatusForm(){
-        $status= Vehiclestatus::all();
+        $status= VehicleStatus::all();
         $vehicle= Vehicle::where('vehicle_status_id', null)->get();
         return view('booker.assignstatus.create', compact('status', 'vehicle'));
     }
@@ -139,7 +139,7 @@ class VehiclestatusController extends Controller
         }
         $vehicle= Vehicle::find($request->vehicle_id);
         if($vehicle){
-            $status= Vehiclestatus::find($request->status);
+            $status= VehicleStatus::find($request->status);
             $vehicle->update([
                 'vehicle_status_id' => $request->status
             ]);
@@ -158,7 +158,7 @@ class VehiclestatusController extends Controller
     public function editAssinedVehicle($id)
     {
         $vehicle= Vehicle::find($id);
-        $status= Vehiclestatus::all();
+        $status= VehicleStatus::all();
         return view('booker.assignstatus.edit', compact('status', 'vehicle'));
     }
 

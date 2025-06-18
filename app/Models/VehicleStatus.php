@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Vehiclestatus extends Model
+class VehicleStatus extends Model
 {
     // use SoftDeletes;
     use HasFactory;

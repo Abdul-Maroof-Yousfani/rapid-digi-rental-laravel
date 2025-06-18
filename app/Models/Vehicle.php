@@ -67,7 +67,7 @@ class Vehicle extends Model
 
     public function vehiclestatus()
     {
-        return $this->belongsTo(Vehiclestatus::class, 'vehicle_status_id');
+        return $this->belongsTo(VehicleStatus::class, 'vehicle_status_id');
     }
 
     public function bookingData()
