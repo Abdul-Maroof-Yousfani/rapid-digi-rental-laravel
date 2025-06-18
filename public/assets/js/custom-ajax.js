@@ -200,12 +200,12 @@ function bookingChange(){
                         '<td>' + invoice.summary.salik_qty + ' | ' + invoice.summary.salik_amount + '</td>' +
                         '<td>' + invoice.summary.fine_qty + ' | ' + invoice.summary.fine_amount + '</td>' +
                         '<td>' + invoice.summary.renew_amount + '</td>' +
-                        '<td>' + invoice.summary.rent_amount + '</td>' +
+                        '<td>' + (invoice.summary.rent_amount).toFixed(2) + '</td>' +
                         '<td>' + invoice.invoice_status + '</td>' +
                         '<td class="invoice_total">' + invoice.invoice_amount + '</td>' +
                         '<td class="text-center">'+
                             '<div class="custom-control custom-checkbox">' +
-                            '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"' +(disableCheckbox ? ' disabled' : '') + '><input type="text" class="addDepositAmount form-control" name="addDepositAmount[]" value="'+deposit+'">' +
+                            '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"' +(disableCheckbox ? ' disabled' : '') + '><input type="hidden" class="addDepositAmount form-control" name="addDepositAmount[]" value="'+deposit+'">' +
                             '<label class="custom-control-label" for="depositCheck' + index + '"></label></div>'+
                         '</td>'+
                         '<td class="recieve_amount">'+

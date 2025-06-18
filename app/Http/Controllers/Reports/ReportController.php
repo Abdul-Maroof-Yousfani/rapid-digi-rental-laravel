@@ -53,7 +53,7 @@ class ReportController extends Controller
         $toDate= $request['toDate'];
         $customerID= $request['customer_id'];
         $booking = Booking::with('bookingData', 'customer')
-                ->withSum('bookingData as total_price', 'price')
+                ->withSum('bookingData as item_total', 'item_total')
                 ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate){
                     $query->whereBetween('created_at', [$fromDate, $toDate]);
                 })

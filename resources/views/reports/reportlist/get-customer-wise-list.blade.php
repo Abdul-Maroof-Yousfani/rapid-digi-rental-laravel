@@ -7,11 +7,11 @@
 @foreach ($booking as $item)
     @php
         $childCount = $item->bookingData->count();
-        $totalPrice = $item->total_price ?? 0;
+        $itemTotal = $item->item_total ?? 0;
         $paidAmount = $item->payment->paid_amount ?? 0;
         $pendingAmount = $item->payment->pending_amount ?? 0;
 
-        $subtot += $totalPrice;
+        $subtot += $itemTotal;
         $subamt += $paidAmount;
         $subpnd += $pendingAmount;
     @endphp
@@ -20,9 +20,9 @@
     <tr>
         {{-- S. No with rowspan --}}
         <td rowspan="{{ $childCount + 1 }}" class="align-middle">{{ $number }}.</td>
-        <td>{{ $item->customer->customer_name ?? 'N/A' }}</td>
+        <td>{{ $item->customer->customer_name ?? 'N/A' }} | {{ $item->agreement_no }}</td>
         <td>{{ $item->id }}</td>
-        <td class="text-right">{{ number_format($totalPrice, 2) }}</td>
+        <td class="text-right">{{ number_format($itemTotal, 2) }}</td>
         <td class="text-right">{{ number_format($paidAmount, 2) }}</td>
         <td class="text-right">{{ number_format($pendingAmount, 2) }}</td>
     </tr>
@@ -50,7 +50,7 @@
                 </div>
 
             </td>
-            <td class="text-right">Price: {{ $bd->price }}</td>
+            <td class="text-right">Price: {{ number_format($bd->item_total, 2) }}</td>
             <td class="text-right"></td>
             <td class="text-right"></td>
         </tr>
@@ -64,7 +64,7 @@
 
 {{-- Footer total row --}}
 <tr class="text-right">
-    <td colspan="3"><b>Total</b></td>
+    <td colspan="3"><b>Sub Total</b></td>
     <td>{{ number_format($subtot, 2) }}</td>
     <td>{{ number_format($subamt, 2) }}</td>
     <td>{{ number_format($subpnd, 2) }}</td>

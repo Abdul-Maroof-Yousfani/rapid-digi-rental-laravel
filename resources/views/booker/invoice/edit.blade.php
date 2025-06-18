@@ -177,7 +177,7 @@
                                                         <input type="hidden" name="tax_percent[]" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" class="tax">
                                                         <div class="form-group">
                                                                 <select name="tax[]"
-                                                                class="form-control select2 zohotax" required>
+                                                                class="form-control select2 zohotax">
                                                                 <option value="">Select Tax</option>
                                                                 @foreach ($taxlist['taxes'] as $taxes)
                                                                     <option value="{{ $taxes['tax_id'] }}"
@@ -325,7 +325,7 @@
                         <input type="hidden" name="tax_percent[]" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" class="tax">
                         <div class="form-group">
                                 <select name="tax[]"
-                                class="form-control select2 zohotax" required>
+                                class="form-control select2 zohotax">
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
@@ -426,7 +426,7 @@
                         <input type="hidden" name="tax_percent[]" value="{{ $zohocolumn['invoice']['line_items'][$index]['tax_percentage'] ?? '' }}" class="tax">
                         <div class="form-group">
                                 <select name="tax[]"
-                                class="form-control select2 zohotax" required>
+                                class="form-control select2 zohotax">
                                 <option value="">Select Tax</option>
                                 @foreach ($taxlist['taxes'] as $item)
                                     <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">

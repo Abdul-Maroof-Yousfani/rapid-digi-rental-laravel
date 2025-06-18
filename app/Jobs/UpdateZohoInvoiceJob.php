@@ -40,7 +40,7 @@ class UpdateZohoInvoiceJob implements ShouldQueue
                     strtolower(trim($lineItem['description'])) === strtolower(trim($update['description']))
                 ) {
                     $lineItem['rate'] = $update['rate'];
-                    $lineItem['item_total'] = $update['rate'] * $lineItem['quantity'];
+                    // $lineItem['item_total'] = $update['rate'] * $lineItem['quantity'];
                 }
             }
         }
@@ -52,7 +52,13 @@ class UpdateZohoInvoiceJob implements ShouldQueue
             'line_items' => $lineItems,
         ];
 
-        $zoho->updateInvoice($this->invoiceId, $updatePayload);
-        Log::info("Zoho Invoice updated in background for Invoice ID: {$this->invoiceId}");
+        // Add reason if invoice status is sent
+        if (isset($originalInvoice['status']) && strtolower($originalInvoice['status']) === 'sent') {
+            $updatePayload['reason'] = 'Invoice updated due to partial return';
+        }
+
+        // Log::info("Zoho Invoice updated in background for Invoice ID: {$this->invoiceId}");
+        $zoho_response = $zoho->updateInvoice($this->invoiceId, $updatePayload);
+        $zohoResponses[$this->invoiceId] = $zoho_response;
     }
 }

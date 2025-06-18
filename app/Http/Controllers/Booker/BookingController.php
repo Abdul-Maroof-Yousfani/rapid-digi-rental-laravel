@@ -311,16 +311,6 @@ class BookingController extends Controller
                         'sale_person_id' => $request['sale_person_id'],
                     ]);
 
-                    // $invoice= Invoice::updateOrCreate(
-                    //     ['booking_id' => $booking->id],
-                    //     [
-                    //         'zoho_invoice_id' => $zohoInvoiceId,
-                    //         'zoho_invoice_number' => $zohoInvoiceNumber,
-                    //         'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
-                    //         'status' => 1,
-                    //     ]
-                    // );
-
                     $invoice->update(
                         [
                             'zoho_invoice_id' => $zohoInvoiceId,
@@ -333,6 +323,16 @@ class BookingController extends Controller
                     // BookingData::where('booking_id', $booking->id)->where('invoice_id', $invoice->id)->forceDelete();
                     BookingData::where('invoice_id', $invoice->id)->forceDelete();
                     foreach ($request->vehicle as $key => $vehicle_id) {
+
+                        $price = $request['price'][$key];
+                        $quantity = 1;
+                        $taxPercent = $request['tax_percent'][$key] ?? 0;
+
+                        // Tax Add Calculation in Item Total
+                        $subTotal = $price * $quantity;
+                        $taxAmount = ($subTotal * $taxPercent) / 100;
+                        $itemTotal = $subTotal + $taxAmount;
+
                         $lineItemData= $zohoLineItems[$key] ?? [];
                         $booking_data= BookingData::create([
                             'booking_id' => $booking->id,
@@ -340,12 +340,12 @@ class BookingController extends Controller
                             'invoice_id' => $invoice->id,
                             'start_date' => $request['booking_date'][$key],
                             'end_date' => $request['return_date'][$key],
-                            'price' => $request['price'][$key],
+                            'price' => $price,
                             'transaction_type' => 1,
                             'description' => $lineItemData['description'],
-                            'quantity' => 1,
-                            'tax_percent' => $request['tax_percent'][$key] ?? 0,
-                            'item_total' => $lineItemData['item_total'],
+                            'quantity' => $quantity,
+                            'tax_percent' => $taxPercent,
+                            'item_total' =>  number_format($itemTotal, 2),
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
 
@@ -439,7 +439,9 @@ class BookingController extends Controller
             $bookingDataID = $data->id;
             $vehicleName = $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail;
             $numberPlate = $data->vehicle->number_plate ?? '';
-            $rentAmount = $data->price;
+            $grossRentAmount = $data->price;
+            $taxPercent = $data->tax_percent;
+            $rentAmount = $data->item_total;
             $returnDate = $data->end_date;
             $startDate = Carbon::parse($data->start_date)->startOfDay();
             $endDate = Carbon::parse($data->end_date)->endOfDay();
@@ -463,6 +465,8 @@ class BookingController extends Controller
                 'start_date' => $data->start_date,
                 'vehicle_name' => $vehicleName,
                 'number_plate' => $numberPlate,
+                'gross_rent_amount' => $grossRentAmount,
+                'tax_percent' => $taxPercent,
                 'rent_amount' => $rentAmount,
                 'total_rent_days' => $totalRentDays,
                 'rent_remaining_days' => $remainingDays,

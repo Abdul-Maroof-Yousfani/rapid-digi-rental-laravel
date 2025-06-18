@@ -116,6 +116,16 @@ class InvoiceController extends Controller
                     ]);
 
                     foreach ($request->vehicle as $key => $vehicle_id) {
+
+                        $price = $request['price'][$key];
+                        $quantity = $request['quantity'][$key];
+                        $taxPercent = $request['tax_percent'][$key] ?? 0;
+
+                        // Tax Add Calculation in Item Total
+                        $subTotal = $price * $quantity;
+                        $taxAmount = ($subTotal * $taxPercent) / 100;
+                        $itemTotal = $subTotal + $taxAmount;
+
                         $lineItemData= $zohoLineItems[$key] ?? [];
                         $booking_data= BookingData::create([
                             'booking_id' => $request->booking_id,
@@ -123,12 +133,12 @@ class InvoiceController extends Controller
                             'invoice_id' => $invoice->id,
                             'start_date' => $request['booking_date'][$key] ?? null,
                             'end_date' => $request['return_date'][$key] ?? null,
-                            'price' => $request['price'][$key],
+                            'price' => $price,
                             'transaction_type' => $request['invoice_type'][$key],
                             'description' => $lineItemData['description'],
-                            'quantity' => $request['quantity'][$key],
-                            'tax_percent' => $request['tax_percent'][$key] ?? 0,
-                            'item_total' => $lineItemData['item_total'],
+                            'quantity' => $quantity,
+                            'tax_percent' => $taxPercent,
+                            'item_total' =>  number_format($itemTotal, 2),
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
                     }
@@ -195,7 +205,9 @@ class InvoiceController extends Controller
 
         $invoice= Invoice::find($id);
         if ($invoice && $invoice->invoice_status === 'sent') {
-            $validator->sometimes('reason', 'required');
+            $validator->sometimes('reason', 'required', function () {
+                return true;
+            });
         }
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
@@ -256,6 +268,16 @@ class InvoiceController extends Controller
 
                     BookingData::where('booking_id', $request->booking_id)->where('invoice_id', $invoice->id)->forceDelete();
                     foreach ($request->vehicle as $key => $vehicle_id) {
+
+                        $price = $request['price'][$key];
+                        $quantity = $request['quantity'][$key];
+                        $taxPercent = $request['tax_percent'][$key] ?? 0;
+
+                        // Tax Add Calculation in Item Total
+                        $subTotal = $price * $quantity;
+                        $taxAmount = ($subTotal * $taxPercent) / 100;
+                        $itemTotal = $subTotal + $taxAmount;
+
                         $lineItemData= $zohoLineItems[$key] ?? [];
                         $booking_data= BookingData::create([
                             'booking_id' => $request->booking_id,
@@ -263,12 +285,12 @@ class InvoiceController extends Controller
                             'invoice_id' => $invoice->id,
                             'start_date' => $request['booking_date'][$key] ?? null,
                             'end_date' => $request['return_date'][$key] ?? null,
-                            'price' => $request['price'][$key],
+                            'price' => $price,
                             'transaction_type' => $request['invoice_type'][$key],
                             'description' => $lineItemData['description'],
-                            'quantity' => $request['quantity'][$key],
-                            'tax_percent' => $request['tax_percent'][$key] ?? 0,
-                            'item_total' => $lineItemData['item_total'],
+                            'quantity' => $quantity,
+                            'tax_percent' => $taxPercent,
+                            'item_total' =>  number_format($itemTotal, 2),
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
                     }
@@ -288,10 +310,14 @@ class InvoiceController extends Controller
 
     public function viewInvoice($id){
         $invoice= Invoice::with('bookingData', 'booking')->find($id);
+        $tax= BookingData::where('invoice_id', $id)
+                ->select('tax_name', 'tax_percent')
+                ->groupBy('tax_name', 'tax_percent')
+                ->get();
         if(!$invoice){
             return redirect()->back()->with('error', 'Invoice Not Found');
         }
-        return view('booker.invoice.invoice-view', compact('invoice'));
+        return view('booker.invoice.invoice-view', compact('invoice', 'tax'));
     }
 
 }

@@ -269,6 +269,12 @@
                                     </td>
                                     <td class="align-middle">
                                         <div class="form-group">
+                                            <label>Gross Amount</label><br>
+                                            <input type="text" value="${item.gross_rent_amount}" class="form-control gross_rent_amount" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
                                             <label>Rent Amount</label><br>
                                             <input type="text" value="${item.rent_amount}" class="form-control rent_amount" disabled>
                                         </div>
@@ -305,7 +311,19 @@
                                             <input type="number" value="" class="form-control less_rent_amount" readonly>
                                         </div>
                                     </td>
-                                    <td colspan='2' class="align-middle">
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>New Gross Amount</label><br>
+                                            <input type="text" value="${item.gross_rent_amount}" name="new_gross_rent_amount[]" class="form-control new_gross_rent_amount" readonly>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Tax (%)</label><br>
+                                            <input type="text" value="${item.tax_percent}" class="form-control taxPercent" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
                                         <div class="form-group">
                                             <label>New Rent Amount</label><br>
                                             <input type="text" value="${item.rent_amount}" name="new_amount[]" class="form-control new_rent_amount" readonly>
@@ -423,12 +441,20 @@
 
                             const usedDays = totalDays - lessDays;
                             const rentPerDay = rentAmount / totalDays;
-                            const newAmount = Math.round(rentPerDay * usedDays); // round for cleaner display
+                            const newAmount = (rentPerDay * usedDays).toFixed(2); // round for cleaner display
                             const lessAmount = Math.round(rentPerDay * lessDays);
 
                             $usedDaysInput.val(usedDays);
                             $lessAmountInput.val(lessAmount);
                             $newAmountInput.val(newAmount);
+
+                            // NEW: Gross Amount Calculation
+                            const grossAmount = parseFloat($row.find('.gross_rent_amount').val()) || 0;
+                            const grossPerDay = grossAmount / totalDays;
+                            const newGrossAmount = (grossPerDay * usedDays).toFixed(2);
+
+                            $secondRow.find('.new_gross_rent_amount').val(newGrossAmount);
+
 
                             // Update end_date[] using data-original-end
                             const originalEndDateStr = $endDateInput.data('original-end');

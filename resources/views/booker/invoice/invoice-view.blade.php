@@ -155,10 +155,12 @@
                                 <td class="text-right">Sub Total</td>
                                 <td class="text-right">{{ $subtot }}</td>
                             </tr>
+                            @foreach ($tax as $item)
                             <tr>
-                                <td class="text-right">VAT (10%)</td>
-                                <td class="text-right">91.00</td>
+                                <td class="text-right">{{ $item->tax_name }} ({{ $item->tax_percent }})</td>
+                                <td class="text-right">{{ 91.00 }}</td>
                             </tr>
+                            @endforeach
                             <tr>
                                 <th class="text-right">Total</th>
                                 <td class="text-right font-weight-bold">{{ number_format($invoice->total_amount, 2) }}</td>
@@ -233,4 +235,3 @@
         });
     </script>
 @endsection
-```

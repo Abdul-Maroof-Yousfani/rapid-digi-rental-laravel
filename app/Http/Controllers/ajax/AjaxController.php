@@ -318,9 +318,9 @@ class AjaxController extends Controller
 
     public function bookingConvertPartial(Request $request)
     {
+        // dd($request->all());
         $updatedRecords = [];
         $invoiceUpdates = [];
-
         foreach ($request->bookingDataID as $key => $bookingDataID) {
             $booking_data = BookingData::with(['invoice', 'vehicle'])->find($bookingDataID);
 
@@ -328,7 +328,8 @@ class AjaxController extends Controller
                 // Step 1: Update Local DB
                 $booking_data->update([
                     'end_date' => $request['end_date'][$key],
-                    'price' => $request['new_amount'][$key],
+                    'price' => $request['new_gross_rent_amount'][$key],
+                    'item_total' => $request['new_amount'][$key],
                 ]);
 
                 $invoiceId = $booking_data->invoice->zoho_invoice_id;
@@ -336,7 +337,7 @@ class AjaxController extends Controller
                 // Use fallback for vehicle name
                 $vehicleName = $booking_data->vehicle->vehicle_name ?? $booking_data->vehicle->temp_vehicle_detail ?? '';
                 $description = $booking_data->description ?? '';
-                $newRate = $request['new_amount'][$key];
+                $newRate = $request['new_gross_rent_amount'][$key];
 
                 $invoiceUpdates[$invoiceId][] = [
                     'name' => $vehicleName,
@@ -348,7 +349,7 @@ class AjaxController extends Controller
             }
         }
 
-        $zohoResponses = [];
+        // $zohoResponses = [];
 
         foreach ($invoiceUpdates as $invoiceId => $updates) {
             UpdateZohoInvoiceJob::dispatch($invoiceId, $updates);
@@ -357,7 +358,7 @@ class AjaxController extends Controller
         return response()->json([
             'success' => true,
             'data' => $updatedRecords,
-            'zoho_response' => $zohoResponses,
+            // 'zoho_response' => $zohoResponses,
         ]);
     }
 

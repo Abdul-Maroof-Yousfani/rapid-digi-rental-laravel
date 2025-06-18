@@ -77,7 +77,7 @@ $(document).ready(function(){
                 if(response){
                     setTimeout(() => {
                         $('#customerWiseSalesReportList').html(response);
-                    }, 1000);
+                    }, 500);
 
                     // After content is loaded, calculate totals
                     let total = 0;
