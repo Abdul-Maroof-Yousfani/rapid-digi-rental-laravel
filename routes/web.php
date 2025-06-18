@@ -52,6 +52,18 @@ Route::get('/', function () {
 Auth::routes();
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/redirect-by-role', function () {
+        $user = auth()->user();
+        if ($user->hasRole('admin')) {
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->hasRole('booker')) {
+            return redirect()->route('booker.dashboard');
+        } elseif ($user->hasRole('investor')) {
+            return redirect()->route('investor.dashboard');
+        }
+        return abort(403); // Unauthorized
+    });
+
 Route::get('/zoho/callback', function (Request $request) {
     return "Authorization Code. ". $request->query('code');
 });
