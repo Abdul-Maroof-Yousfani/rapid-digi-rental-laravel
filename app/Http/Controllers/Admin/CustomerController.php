@@ -101,7 +101,7 @@ class CustomerController extends Controller
                 $customerId = $customerResponse['contact']['contact_id'];
             }
             if(isset($customerId)){
-                try {
+                // try {
                     $customer = Customer::create([
                         'zoho_customer_id' => $customerId,
                         'customer_name' => $customer_name,
@@ -123,13 +123,13 @@ class CustomerController extends Controller
                     } else {
                         return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Added Successfully!');
                     }
-                } catch (\Exception $exp) {
-                    if ($request->ajax()){
-                        return response()->json(['error' => $exp->getMessage()]);
-                    } else {
-                        return redirect()->back()->with('error', $exp->getMessage());
-                    }
-                }
+                // } catch (\Exception $exp) {
+                //     if ($request->ajax()){
+                //         return response()->json(['error' => $exp->getMessage()]);
+                //     } else {
+                //         return redirect()->back()->with('error', $exp->getMessage());
+                //     }
+                // }
             } else {
                 return redirect()->back()->withErrors('error', 'Customer ID Not Fetch')->withInput();
             }
