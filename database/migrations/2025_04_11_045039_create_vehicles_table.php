@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('number_plate')->unique();
             $table->enum('status', [1, 0])->nullable()->default(1);
             $table->unsignedBigInteger('vehicle_status_id')->nullable();
-            $table->foreign('vehicle_status_id')->references('id')->on('vehiclestatuses')->onDelete('set null');
+            $table->foreign('vehicle_status_id')->references('id')->on('vehicle_statuses')->onDelete('set null');
             $table->timestamps();
         });
     }
