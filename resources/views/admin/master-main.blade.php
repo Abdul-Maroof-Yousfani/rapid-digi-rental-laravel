@@ -171,7 +171,7 @@
                                 <li><a class="nav-link" href="{{ role_base_route('customer-booking.create') }}">Add Booking</a></li>
                                 <li><a class="nav-link" href="{{ role_base_route('customer-booking.index') }}">Booking list</a></li>
                                 <li><a class="nav-link" href="{{ role_base_route('status.form') }}">Assign Status</a></li>
-                                <li><a class="nav-link" href="{{ role_base_route('assined.vehicle') }}">Assined Vehicles</a></li>
+                                <li><a class="nav-link" href="{{ role_base_route('assined.vehicle') }}">Assigned Vehicles</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">

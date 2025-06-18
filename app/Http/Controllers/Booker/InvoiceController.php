@@ -310,14 +310,10 @@ class InvoiceController extends Controller
 
     public function viewInvoice($id){
         $invoice= Invoice::with('bookingData', 'booking')->find($id);
-        $tax= BookingData::where('invoice_id', $id)
-                ->select('tax_name', 'tax_percent')
-                ->groupBy('tax_name', 'tax_percent')
-                ->get();
         if(!$invoice){
             return redirect()->back()->with('error', 'Invoice Not Found');
         }
-        return view('booker.invoice.invoice-view', compact('invoice', 'tax'));
+        return view('booker.invoice.invoice-view', compact('invoice'));
     }
 
 }

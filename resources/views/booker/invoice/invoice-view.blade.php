@@ -125,8 +125,10 @@
                             <th class="text-white text-left">#</th>
                             <th class="text-white text-left">Item & Description</th>
                             <th class="text-white text-right">Qty</th>
-                            <th class="text-white text-right">Rate</th>
-                            <th class="text-white text-right">Amount</th>
+                            <th class="text-white text-right">Unit rate</th>
+                            <th class="text-white text-right">Total</th>
+                            <th class="text-white text-right">Tax</th>
+                            <th class="text-white text-right">Net Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -140,6 +142,8 @@
                                 </td>
                                 <td class="text-right">{{ $item->quantity }}</td>
                                 <td class="text-right">{{ number_format($item->price, 2) }}</td>
+                                <td class="text-right">{{ number_format($item->price * $item->quantity, 2) }}</td>
+                                <td class="text-right">{{ $item->tax_name }} {{ $item->tax_percent }}%</td>
                                 <td class="text-right">{{ number_format($item->item_total, 2) }}</td>
                             </tr>
                         @php $subtot= $item->item_total + $subtot ; @endphp
@@ -154,16 +158,6 @@
                             <tr>
                                 <td class="text-right">Sub Total</td>
                                 <td class="text-right">{{ $subtot }}</td>
-                            </tr>
-                            @foreach ($tax as $item)
-                            <tr>
-                                <td class="text-right">{{ $item->tax_name }} ({{ $item->tax_percent }})</td>
-                                <td class="text-right">{{ 91.00 }}</td>
-                            </tr>
-                            @endforeach
-                            <tr>
-                                <th class="text-right">Total</th>
-                                <td class="text-right font-weight-bold">{{ number_format($invoice->total_amount, 2) }}</td>
                             </tr>
                             <tr class="bg-light text-dark">
                                 <th class="text-right">Balance Due</th>
