@@ -12,7 +12,7 @@ class VehicleStatus extends Model
     // use SoftDeletes;
     use HasFactory;
 
-    protected $table = 'vehiclestatuses';
+    // protected $table = 'vehiclestatuses';
     protected $fillable= [
         'name',
     ];

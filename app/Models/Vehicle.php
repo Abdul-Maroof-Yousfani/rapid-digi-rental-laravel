@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\Investor;
 use App\Models\User;
-use App\Models\Vehiclestatus;
+use App\Models\VehicleStatus;
 use App\Models\Vehicletype;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
