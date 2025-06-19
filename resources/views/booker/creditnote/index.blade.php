@@ -40,10 +40,10 @@
                                     @foreach ($creditNote as $item)
                                     <tr>
                                         <td>{{ $item->credit_note_no }}</td>
-                                        <td>{{ $item->booking->customer->customer_name }}</td>
-                                        <td>{{ $item->booking->agreement_no }}</td>
-                                        <td>{{ $item->paymentMethod->name }}</td>
-                                        <td>{{ $item->booking->deposit->deposit_amount }}</td>
+                                        <td>{{ $item->booking->customer->customer_name ?? 'N/A' }}</td>
+                                        <td>{{ $item->booking->agreement_no ?? 'N/A' }}</td>
+                                        <td>{{ $item->paymentMethod->name ?? 'N/A' }}</td>
+                                        <td>{{ $item->booking->deposit->deposit_amount ?? 0 }}</td>
                                         <td>{{ $item->remaining_deposit }}</td>
                                         <td>{{ $item->refund_amount }}</td>
                                         <td>

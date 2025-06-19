@@ -63,6 +63,6 @@ class CreditNote extends Model
 
     public function booking()
     {
-        return $this->belongsTo(Booking::class, 'booking_id', 'id');
+        return $this->belongsTo(Booking::class);
     }
 }

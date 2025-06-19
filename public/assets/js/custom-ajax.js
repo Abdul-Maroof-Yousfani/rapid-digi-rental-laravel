@@ -148,7 +148,7 @@ function bookingChange(){
                 $('.deposit_amount').val(response.remaining_deposit);
                 $('.remaining_deposit').val(response.remaining_deposit);
                 $('.customer_name').val(response.customer);
-                $('.pending_amount').val(response.remaining_amount);
+                $('.pending_amount').val(parseFloat(response.remaining_amount).toFixed(2));
 
                 // Get Payment ID
                 $('.payment_id').val(response.id);

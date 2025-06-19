@@ -37,9 +37,17 @@ class PaymentController extends Controller
     public function create()
     {
         $bookings= Booking::with('payment')->orderBy('id', 'DESC')->get();
+        $bookingsPartial = Booking::with('payment')
+            ->whereDoesntHave('payment')
+            ->orderBy('id', 'DESC')
+            ->get();
         $paymentMethod= PaymentMethod::all();
         $bank= Bank::all();
-        return view('booker.payment.create', compact('paymentMethod', 'bookings', 'bank'));
+        return view('booker.payment.create', compact(
+            'paymentMethod',
+            'bookings',
+            'bookingsPartial',
+            'bank'));
     }
 
     /**
