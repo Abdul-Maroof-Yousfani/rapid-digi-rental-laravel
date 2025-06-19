@@ -524,8 +524,8 @@
                                         title: 'Are you sure?',
                                         text: 'Do you want to close this booking?',
                                         showCancelButton: true,
-                                        confirmButtonText: 'Haan',
-                                        cancelButtonText: 'Nahi'
+                                        confirmButtonText: 'Yes',
+                                        cancelButtonText: 'No'
                                     }).then((result) => {
                                         if (result.isConfirmed) {
                                             Swal.fire({
@@ -533,8 +533,8 @@
                                                 text: 'Do You want to Clear it?',
                                                 icon: 'warning',
                                                 showCancelButton: true,
-                                                confirmButtonText: 'Yes',
-                                                cancelButtonText: 'No'
+                                                confirmButtonText: 'Recieve Remaining Amount',
+                                                cancelButtonText: 'Close Booking'
                                             }).then((paymentResult) => {
                                                 if (paymentResult.isConfirmed) {
                                                     window.location.href = '/booker/payment/create?booking_id='+bookingId;
