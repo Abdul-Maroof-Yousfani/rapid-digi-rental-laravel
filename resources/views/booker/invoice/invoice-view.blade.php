@@ -96,7 +96,7 @@
                         <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">Invoice</h3>
                         <p class="mb-0 font-weight-bold text-dark"># {{ $invoice->zoho_invoice_number }}</p>
                         <p class="mb-0 font-weight-bold text-dark">Balance Due</p>
-                        <h5 class="font-weight-bold text-dark">{{ number_format($invoice->total_amount, 2) }}</h5>
+                        <h5 class="font-weight-bold text-dark">AED{{ number_format($invoice->total_amount, 2) }}</h5>
                     </div>
                 </div>
 
@@ -157,11 +157,11 @@
                         <table class="table">
                             <tr>
                                 <td class="text-right">Sub Total</td>
-                                <td class="text-right">{{ $subtot }}</td>
+                                <td class="text-right">AED{{ $subtot }}</td>
                             </tr>
                             <tr class="bg-light text-dark">
                                 <th class="text-right">Balance Due</th>
-                                <td class="text-right font-weight-bold">{{ number_format($invoice->total_amount, 2) }}</td>
+                                <td class="text-right font-weight-bold">AED{{ number_format($invoice->total_amount, 2) }}</td>
                             </tr>
                         </table>
                     </div>
