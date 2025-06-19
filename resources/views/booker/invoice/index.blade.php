@@ -43,7 +43,16 @@
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
                                     <a href="{{ url('booker/booking/view-invoice/'.$item->id) }}" class="btn btn-primary btn-sm"> View</a>
-                                    <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                                    @php
+                                        $hasNonType1 = $item->bookingData->where('transaction_type', '!=', 1)->count() > 0;
+                                    @endphp
+
+                                    @if ($hasNonType1)
+                                        <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                                    @else
+                                        <a href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}" class="btn btn-warning btn-sm"> <i class="far fa-edit"></i> Edit </a>
+                                    @endif
+
                                     <form action="" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
