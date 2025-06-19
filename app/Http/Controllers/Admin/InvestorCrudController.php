@@ -119,7 +119,7 @@ class InvestorCrudController extends Controller
         $validator= Validator::make($request->all(), [
             'investor_name' =>  'required',
             'email' =>  'required|email|unique:users,email,'. $investor->user_id,
-            'password' => 'nullable|min:8',
+            'password' => 'nullable|min:8|confirmed',
             'phone' =>  'required|unique:investors,phone,'. $id,
             'gender' => 'required',
             'cnic' => 'required',
@@ -132,11 +132,6 @@ class InvestorCrudController extends Controller
 
         else{
             try {
-                // $user->update([
-                //     'name' => $request['investor_name'],
-                //     'email' => $request['email'],
-                // ]);
-
                 $updateData = [
                     'name' => $request->investor_name,
                     'email' => $request->email,

@@ -8,7 +8,10 @@
     <td>{{ $item->cnic }}</td>
     <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
     <td>
-        <a href='@can('manage customers') {{ role_base_url("customer/".$item->id."/edit") }} @endcan' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+        {{-- <a href='@can('manage customers') {{ role_base_url("customer/".$item->id."/edit") }} @endcan' class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a> --}}
+        <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="{{ $item->id }}" data-modal-id="editCustomerModal">
+            <i class="far fa-edit"></i> Edit
+        </button>
         <form action="{{ auth()->user()->hasRole('admin') ? url('admin/customer/'.$item->id) : url('booker/customer/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
             @csrf
             @method('DELETE')

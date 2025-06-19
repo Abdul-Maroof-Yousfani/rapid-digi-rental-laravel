@@ -115,7 +115,7 @@ class BookerCrudController extends Controller
         $validator= Validator::make($request->all(), [
             'booker_name' =>  'required',
             'email' =>  'required|email|unique:users,email,'. $booker->user_id,
-            'password' => 'nullable|min:8',
+            'password' => 'nullable|min:8|confirmed',
             'phone' =>  'required|unique:bookers,phone,'. $id,
             'gender' => 'required',
             'cnic' => 'required',
