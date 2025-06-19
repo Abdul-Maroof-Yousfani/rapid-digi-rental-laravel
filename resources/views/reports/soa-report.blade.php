@@ -1,6 +1,10 @@
 @extends('admin.master-main')
 @section('content')
     <style>
+        .table-scroll {
+            max-height: 800px;
+            overflow-y: auto;
+        }
         .spinner-border.custom-blue {
             width: 3rem;
             height: 3rem;
@@ -13,6 +17,10 @@
 
         /* Print-specific styles */
         @media print {
+            .table-scroll {
+                max-height: none !important;
+                overflow: visible !important;
+            }
             .print-heading {
                 display: block !important;
                 margin-top: 5px !important;
@@ -277,34 +285,36 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
-                                        <thead>
-                                            <tr>
-                                                <th>Plate no.</th>
-                                                <th>Car Make - Model & Year</th>
-                                                <th>Rental Period</th>
-                                                <th>Rental Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="soaReportList">
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="table-scroll">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Plate no.</th>
+                                                    <th>Car Make - Model & Year</th>
+                                                    <th>Rental Period</th>
+                                                    <th>Rental Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="soaReportList">
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
 
-                                    <div class="totals">
-                                        <p>Total Amount as per rental period: <span id="totalAmount"></span></p>
-                                        <p>Amount after service fee deduction 20%: <span id="netAmount"></span></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="totals">
+                    <p>Total Amount as per rental period: <span id="totalAmount"></span></p>
+                    <p>Amount after service fee deduction 20%: <span id="netAmount"></span></p>
                 </div>
 
                 <!-- Print Footer: Shown only when printing -->
