@@ -122,7 +122,7 @@
                                                     <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Deposit Amount</label><br>
-                                                            <input type="number" value="" name="" class="form-control initial_deposit">
+                                                            <input type="number" value="" name="" class="form-control initial_deposit" readonly>
                                                             <input type="hidden" value="" name="deposit_amount" class="form-control deposit_amount"  readonly>
                                                         </div>
                                                     </td>
