@@ -25,7 +25,7 @@ return new class extends Migration
             $table->dateTime('started_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
-            
+
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->foreign('sale_person_id')->references('id')->on('sale_people')->onDelete('set null');
             $table->foreign('deposit_id')->references('id')->on('deposits')->onDelete('set null');

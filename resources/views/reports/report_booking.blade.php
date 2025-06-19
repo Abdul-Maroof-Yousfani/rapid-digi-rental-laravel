@@ -54,7 +54,7 @@
                                                         </td>
                                                         @php $first = false; @endphp
                                                     @endif
-                                                    <td>{{ $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail }}</td>
+                                                    <td>{{ $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail }} | {{ $data->vehicle->number_plate }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($data->start_date)->format('d M Y') }} to {{ \Carbon\Carbon::parse($data->end_date)->format('d M Y') }}</td>
                                                     <td>{{ $data->price }}</td>
                                                     <td>
