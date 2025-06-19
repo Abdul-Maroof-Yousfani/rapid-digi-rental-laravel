@@ -49,6 +49,18 @@
                               @error('email') <span class="text-danger">{{ $message }}</span> @enderror
                           </div>
 
+                          <div class="form-group">
+                            <label>Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">
+                                      <i class="fas fa-lock"></i>
+                                  </div>
+                                </div>
+                                <input id="password" type="password" name="password" class="form-control"  autocomplete="new-password">
+                            </div>
+                            @error('password') <span class="text-danger">{{ $message }}</span> @enderror
+                          </div>
 
                           <div class="form-group">
                               <label>Phone Number <span class="text-danger">*</span></label>
@@ -63,22 +75,6 @@
                               @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
                           </div>
 
-                        <div class="form-group">
-                            <label>Gender  <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                              <div class="input-group-prepend">
-                                  <div class="input-group-text">
-                                      <i class="fas fa-venus-mars"></i>
-                                  </div>
-                              </div>
-                              <select name="gender" class="form-control">
-                                  <option value="">Select Gender</option>
-                                  <option value="male" {{ $investor->gender=="male" ? "selected" : "" }}>Male</option>
-                                  <option value="female" {{ $investor->gender=="female" ? "selected" : "" }}>Female</option>
-                              </select>
-                          </div>
-                            @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
-                          </div>
 
                         <div class="form-group">
                           <label>C-NIC  <span class="text-danger">*</span></label>
@@ -104,7 +100,7 @@
                 <div class="col-12 col-md-6 col-lg-6">
                     <div class="card">
                     <div class="card-body">
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label>City </label>
                             <select name="city" class="form-control select2">
                                 <option value="">Select City</option>
@@ -124,7 +120,7 @@
                                 <option>KPK</option>
                                 <option>Balochistan</option>
                             </select>
-                        </div>
+                        </div> --}}
                         <div class="form-group">
                             <label>Country </label>
                             <select name="country" class="form-control select2">
@@ -147,6 +143,23 @@
                           <label>Address  <span class="text-danger">*</span></label>
                           <textarea name="address" cols="30" class="form-control" rows="10">{{  $investor->address }}</textarea>
                           @error('address') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gender  <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                  <div class="input-group-text">
+                                      <i class="fas fa-venus-mars"></i>
+                                  </div>
+                              </div>
+                              <select name="gender" class="form-control">
+                                  <option value="">Select Gender</option>
+                                  <option value="male" {{ $investor->gender=="male" ? "selected" : "" }}>Male</option>
+                                  <option value="female" {{ $investor->gender=="female" ? "selected" : "" }}>Female</option>
+                              </select>
+                          </div>
+                            @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group">
@@ -178,7 +191,7 @@
             </form>
           </div>
         </section>
-        
+
       </div>
 
 

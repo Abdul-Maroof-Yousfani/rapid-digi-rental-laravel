@@ -172,7 +172,7 @@
                             </div>
                             @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label">Customer Status</label>
                             <div class="selectgroup w-100">

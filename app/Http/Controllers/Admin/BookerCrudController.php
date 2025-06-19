@@ -58,7 +58,7 @@ class BookerCrudController extends Controller
                 ]);
 
                 $user->assignRole('booker');
-    
+
                 Booker::create([
                     'user_id' => $user->id,
                     'name' => $request['booker_name'],
@@ -107,6 +107,7 @@ class BookerCrudController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        dd($request->all());
         $booker= Booker::find($id);
         if(!$booker){
             return redirect()->route('admin.booker.index')->with('error', 'Booker Not Found');
@@ -115,6 +116,7 @@ class BookerCrudController extends Controller
         $validator= Validator::make($request->all(), [
             'booker_name' =>  'required',
             'email' =>  'required|email|unique:users,email,'. $booker->user_id,
+            'password' => 'nullable|min:8',
             'phone' =>  'required|unique:bookers,phone,'. $id,
             'gender' => 'required',
             'cnic' => 'required',
@@ -124,12 +126,30 @@ class BookerCrudController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         } else{
-            $user->update([
-                'name' => $request['booker_name'],
-                'email' => $request['email'],
-            ]);
+            // // Handle password update
+            // if ($request->filled('password')) {
+            //     $data['password'] = bcrypt($request->password);
+            // }
+            // $user->update([
+            //     'name' => $request['booker_name'],
+            //     'email' => $request['email'],
+            //     'password' => bcrypt($request->password),
+            // ]);
+
+
+            $updateData = [
+                'name' => $request->booker_name,
+                'email' => $request->email,
+            ];
+
+            if ($request->filled('password')) {
+                $updateData['password'] = bcrypt($request->password);
+            }
+
+            $user->update($updateData);
 
             $user->assignRole('booker');
+
             $booker->update([
                 'user_id' => $user->id,
                 'name' => $request['booker_name'],

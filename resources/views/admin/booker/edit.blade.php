@@ -57,16 +57,6 @@
 
 
                       <div class="form-group">
-                        <label>Gender  <span class="text-danger">*</span></label>
-                        <select name="gender" class="form-control">
-                            <option value="">Select Gender</option>
-                            <option value="male" {{  $booker->gender=='male' ? 'selected' : '' }}>Male</option>
-                            <option value="female" {{  $booker->gender=='female' ? 'selected' : '' }}>Female</option>
-                        </select>
-                        @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
-                      </div>
-
-                      <div class="form-group">
                         <label>C-NIC  <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -89,7 +79,7 @@
                         <label>Date Of Birth </label>
                         <input type="date" value="{{ $booker->dob }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
                       </div>
-                      <div class="form-group">
+                      {{-- <div class="form-group">
                           <label>City </label>
                           <select name="city" class="form-control select2">
                               <option value="">Select City</option>
@@ -109,7 +99,7 @@
                               <option>KPK</option>
                               <option>Balochistan</option>
                           </select>
-                      </div>
+                      </div> --}}
                       <div class="form-group">
                           <label>Country </label>
                           <select name="country" class="form-control select2">
@@ -132,6 +122,17 @@
                         <label>Address  <span class="text-danger">*</span></label>
                         <textarea name="address" cols="30" class="form-control" rows="10">{{  $booker->address  }}</textarea>
                         @error('address') <span class="text-danger">{{ $message }}</span> @enderror
+                      </div>
+
+
+                      <div class="form-group">
+                        <label>Gender  <span class="text-danger">*</span></label>
+                        <select name="gender" class="form-control">
+                            <option value="">Select Gender</option>
+                            <option value="male" {{  $booker->gender=='male' ? 'selected' : '' }}>Male</option>
+                            <option value="female" {{  $booker->gender=='female' ? 'selected' : '' }}>Female</option>
+                        </select>
+                        @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
                       </div>
 
                       <div class="form-group">
@@ -163,7 +164,7 @@
           </form>
           </div>
         </section>
-        
+
       </div>
 
 
