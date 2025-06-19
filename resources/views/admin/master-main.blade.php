@@ -41,7 +41,7 @@
                         <li><a href="#" class="nav-link nav-link-lg fullscreen-btn">
                                 <i data-feather="maximize"></i>
                             </a></li>
-                        <li>
+                        {{-- <li>
                             <form class="form-inline mr-auto">
                                 <div class="search-element">
                                     <input class="form-control" type="search" placeholder="Search" aria-label="Search"
@@ -51,7 +51,7 @@
                                     </button>
                                 </div>
                             </form>
-                        </li>
+                        </li> --}}
                     </ul>
                 </div>
                 <ul class="navbar-nav navbar-right">
@@ -62,14 +62,14 @@
                                 class="d-sm-none d-lg-inline-block"></span></a>
                         <div class="dropdown-menu dropdown-menu-right pullDown">
                             <div class="dropdown-title">{{ Auth::user()->name }}</div>
-                            <a href="#" class="dropdown-item has-icon"> <i
+                            {{-- <a href="#" class="dropdown-item has-icon"> <i
                                     class="far
 										fa-user"></i> Profile
                             </a> <a href="#" class="dropdown-item has-icon"> <i class="fas fa-bolt"></i>
                                 Activities
                             </a> <a href="#" class="dropdown-item has-icon"> <i class="fas fa-cog"></i>
                                 Settings
-                            </a>
+                            </a> --}}
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item has-icon text-danger" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

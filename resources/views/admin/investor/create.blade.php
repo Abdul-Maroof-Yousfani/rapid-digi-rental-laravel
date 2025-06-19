@@ -87,22 +87,6 @@
                           </div>
 
 
-                        <div class="form-group">
-                          <label>Gender  <span class="text-danger">*</span></label>
-                          <div class="input-group">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    <i class="fas fa-venus-mars"></i>
-                                </div>
-                            </div>
-                            <select name="gender" class="form-control">
-                                <option value="">Select Gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                        </div>
-                          @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
 
                         <div class="form-group">
                           <label>C-NIC  <span class="text-danger">*</span></label>
@@ -127,7 +111,7 @@
                           <label>Date Of Birth  </label>
                           <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
                         </div>
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label>City </label>
                             <select name="city" class="form-control select2">
                                 <option value="">Select City</option>
@@ -147,7 +131,7 @@
                                 <option>KPK</option>
                                 <option>Balochistan</option>
                             </select>
-                        </div>
+                        </div> --}}
                         <div class="form-group">
                             <label>Country </label>
                             <select name="country" class="form-control select2">
@@ -172,6 +156,23 @@
                           @error('address') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
 
+                        <div class="form-group">
+                            <label>Gender  <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fas fa-venus-mars"></i>
+                                    </div>
+                                </div>
+                                <select name="gender" class="form-control">
+                                    <option value="">Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                            @error('gender') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+                        
                         <div class="form-group">
                             <label class="form-label">Customer Status</label>
                             <div class="selectgroup w-100">

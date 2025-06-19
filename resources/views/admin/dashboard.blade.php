@@ -43,7 +43,7 @@
                   <div class="card-content">
                     <h5 class="font-15"> Customers</h5>
                     <h2 class="mb-3 font-18">{{ $customers }}</h2>
-                    <p class="mb-0"><span class="col-orange">09%</span> Decrease</p>
+                    {{-- <p class="mb-0"><span class="col-orange">09%</span> Decrease</p> --}}
                   </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -65,8 +65,7 @@
                   <div class="card-content">
                     <h5 class="font-15">Receivable</h5>
                     <h2 class="mb-3 font-18">AED {{ number_format($receiveable, 0) }}</h2>
-                    <p class="mb-0"><span class="col-green">18%</span>
-                      Increase</p>
+                    {{-- <p class="mb-0"><span class="col-green">18%</span> Increase</p> --}}
                   </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -88,7 +87,7 @@
                   <div class="card-content">
                     <h5 class="font-15">Revenue</h5>
                     <h2 class="mb-3 font-18">AED {{ number_format($revenue, 0) }}</h2>
-                    <p class="mb-0"><span class="col-green">42%</span> Increase</p>
+                    {{-- <p class="mb-0"><span class="col-green">42%</span> Increase</p> --}}
                   </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
