@@ -134,7 +134,8 @@
                                                 <td>
                                                     <div class="form-group">
                                                         <label>Phone Number <span class="text-danger">*</span></label>
-                                                        <input type="number" value="{{ old('phone') }}" name="phone" class="form-control">
+                                                        {{-- <input type="number" value="{{ old('phone') }}" name="phone" class="form-control"> --}}
+                                                        <input type="tel" value="" id="uaePhone" name="phone" class="form-control" placeholder="+971-xx-xxxxxxx" maxlength="17" required>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -285,7 +286,7 @@
                                                 <td>
                                                     <div class="form-group">
                                                         <label>Customer name <span class="text-danger">*</span></label>
-                                                        <input type="text" value="{{ old('customer_name') }}" name="customer_name" class="form-control">
+                                                        <input type="text" value="{{ old('customer_name') }}" name="customer_name" class="form-control" required>
                                                     </div>
                                                 </td>
                                                 <td>
@@ -297,7 +298,8 @@
                                                 <td>
                                                     <div class="form-group">
                                                         <label>Phone Number <span class="text-danger">*</span></label>
-                                                        <input type="number" value="{{ old('phone') }}" name="phone" class="form-control">
+                                                        {{-- <input type="number" value="{{ old('phone') }}" name="phone" class="form-control"> --}}
+                                                        <input type="tel" value="" id="uaePhone" name="phone" class="form-control" placeholder="+971-xx-xxxxxxx" maxlength="17" required>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -305,19 +307,19 @@
                                                 <td>
                                                     <div class="form-group">
                                                         <label>Driving Licence <span class="text-danger">*</span></label>
-                                                        <input type="number" value="{{ old('licence') }}" name="licence" class="form-control licence">
+                                                        <input type="number" value="{{ old('licence') }}" name="licence" class="form-control licence" required>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div class="form-group">
                                                         <label>C-NIC <span class="text-danger">*</span></label>
-                                                        <input type="number" value="{{ old('cnic') }}" name="cnic" class="form-control cnic">
+                                                        <input type="number" value="{{ old('cnic') }}" name="cnic" class="form-control cnic" required>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div class="form-group">
                                                         <label>Date Of Birth <span class="text-danger">*</span></label>
-                                                        <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
+                                                        <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -325,7 +327,7 @@
                                                 <td>
                                                     <div class="form-group">
                                                         <label>Gender <span class="text-danger">*</span></label>
-                                                        <select name="gender" class="form-control">
+                                                        <select name="gender" class="form-control" required>
                                                             <option value="">Select Gender</option>
                                                             <option value="male">Male</option>
                                                             <option value="female">Female</option>
@@ -382,7 +384,7 @@
                                                 <td>
                                                     <div class="form-group">
                                                         <label>Address <span class="text-danger">*</span></label>
-                                                        <textarea name="address" cols="30" class="form-control" rows="10">{{ old('address') }}</textarea>
+                                                        <textarea name="address" cols="30" class="form-control" rows="10" required>{{ old('address') }}</textarea>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -422,6 +424,7 @@
 
 
 @section('script')
+    <script src="{{ asset('assets/js/forms-format.js') }}"></script>
     <script type="text/javascript">
 
         function filterdata(){

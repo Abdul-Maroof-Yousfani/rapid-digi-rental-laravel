@@ -88,8 +88,9 @@
                                                     <i class="fas fa-phone"></i>
                                                 </div>
                                             </div>
-                                            <input type="number" value="{{ old('phone') }}" name="phone"
-                                                class="form-control">
+                                            {{-- <input type="number" value="{{ old('phone') }}" name="phone" class="form-control"> --}}
+                                            <input type="tel" value="{{ old('phone') }}" id="uaePhone" name="phone" class="form-control" placeholder="+971-xx-xxxxxxx" maxlength="17">
+
                                         </div>
                                         @error('phone')
                                             <span class="text-danger">{{ $message }}</span>
@@ -221,4 +222,11 @@
             </div>
         </section>
     </div>
+@endsection
+
+
+@section('script')
+
+    <script src="{{ asset('assets/js/forms-format.js') }}"></script>
+
 @endsection

@@ -185,9 +185,19 @@ class BookingController extends Controller
     {
         $query = Booking::with(['bookingData.vehicle', 'customer', 'invoice']);
 
-        $query->whereHas('bookingData.vehicle.investor', function ($q) {
-            $q->where('user_id', Auth::user()->id);
+        // $query->whereHas('bookingData.vehicle.investor', function ($q) {
+        //     $q->where('user_id', Auth::user()->id);
+        // });
+
+        $query->whereHas('bookingData', function ($q) {
+            $q->whereHas('vehicle', function ($q2) {
+                $q2->whereHas('investor', function ($q3) {
+                    $q3->where('user_id', Auth::id());
+                });
+            });
         });
+
+
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $from = Carbon::parse($request->from_date)->startOfDay(); // 00:00:00
             $to = Carbon::parse($request->to_date)->endOfDay();       // 23:59:59

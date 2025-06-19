@@ -51,7 +51,8 @@
                                     <i class="fas fa-phone"></i>
                                     </div>
                                 </div>
-                                <input type="number" value="{{ $customers->phone }}" name="phone" class="form-control">
+                                {{-- <input type="number" value="{{ $customers->phone }}" name="phone" class="form-control"> --}}
+                                <input type="tel" id="uaePhone" name="phone" class="form-control" placeholder="+971-xx-xxxxxxx" maxlength="17">
                             </div>
                             @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
@@ -175,9 +176,15 @@
             </form>
           </div>
         </section>
-        
+
       </div>
 
 
+
+@endsection
+
+@section('script')
+
+    <script src="{{ asset('assets/js/forms-format.js') }}"></script>
 
 @endsection
