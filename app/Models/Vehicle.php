@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use App\Models\Investor;
 use App\Models\User;
-use App\Models\VehicleStatus;
+use App\Models\Investor;
+use App\Models\BookingData;
 use App\Models\Vehicletype;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\VehicleStatus;
 use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Vehicle extends Model
 {
@@ -72,7 +73,7 @@ class Vehicle extends Model
 
     public function bookingData()
     {
-        return $this->hasMany(bookingData::class, 'vehicle_id', 'id');
+        return $this->hasMany(BookingData::class, 'vehicle_id', 'id');
     }
 
 }
