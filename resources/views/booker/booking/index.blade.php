@@ -49,7 +49,7 @@
                                         $today = \Carbon\Carbon::today();
                                         $bookingStart = \Carbon\Carbon::parse($item->booking->started_at);
                                     @endphp
-                                    <td>{{ $item->booking->id }}.</td>
+                                    <td>{{ $number }}.</td>
                                     <td>{{ $item->booking->customer->customer_name ?? 0 }}</td>
                                     <td>{{ $item->booking->agreement_no ?? 0 }}</td>
                                     <td>{{ $item->booking->salePerson->name ?? 'N/A' }}</td>

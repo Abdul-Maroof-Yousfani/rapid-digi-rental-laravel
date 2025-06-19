@@ -1,13 +1,44 @@
+@php
+    $userRole = Auth::user()->getRoleNames()->first();
 
+    if ($userRole == 'investor') {
+        $investorId = Auth::id();
+
+        $revenue = \App\Models\BookingData::whereHas('vehicle', function ($q) use ($investorId) {
+                $q->where('investor_id', $investorId);
+            })
+            ->whereHas('invoice', function ($q) {
+                $q->where('invoice_status', 'sent');
+            })
+            ->whereHas('invoice.paymentData', function ($q) {
+                $q->where('status', 'paid');
+            })
+            ->with(['invoice.paymentData' => function ($q) {
+                $q->where('status', 'paid');
+            }])
+            ->get()
+            ->sum(function ($bookingData) {
+                return $bookingData->invoice->paymentData->sum('paid_amount');
+            });
+
+    } else {
+        // Admin ya Booker
+        $revenue = \App\Models\Payment::sum('paid_amount');
+    }
+
+    $booking = \App\Models\Booking::count();
+    $customers = \App\Models\Customer::count();
+    $receiveable = \App\Models\Payment::sum('pending_amount');
+@endphp
 
 @extends('admin.master-main')
 @section('content')
-@php
+{{-- @php
     $booking= App\Models\Booking::count();
     $customers= App\Models\Customer::count();
     $revenue= App\Models\Payment::sum('paid_amount');
     $receiveable= App\Models\Payment::sum('pending_amount');
-@endphp
+@endphp --}}
 <!-- Main Content -->
 <div class="main-content">
   <section class="section">

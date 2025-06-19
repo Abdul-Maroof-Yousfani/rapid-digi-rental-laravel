@@ -51,6 +51,19 @@ class BookingController extends Controller
                         $query->where('created_at', '>=', Carbon::now()->subDays(15));
                         $query->where('booking_cancel', '0');
                     })->orderBy('id', 'desc')->get();
+
+        // $booking = Invoice::with('booking', 'bookingData')
+        //             ->whereHas('bookingData', function($query){
+        //                 $query->where('transaction_type', 1);
+        //             })
+        //             ->whereHas('booking', function($query){
+        //                 $query->where('created_at', '>=', Carbon::now()->subDays(15));
+        //                 $query->where('booking_cancel', '0');
+        //             })
+        //             ->join('bookings', 'bookings.id', '=', 'invoices.booking_id')
+        //             ->orderBy('bookings.id', 'desc')
+        //             ->select('invoices.*') // important to avoid column collision
+        //             ->get();
         return view('booker.booking.index', compact('booking'));
     }
 

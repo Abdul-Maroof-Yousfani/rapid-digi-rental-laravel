@@ -69,4 +69,10 @@ class Invoice extends Model
     {
         return $this->hasMany(BookingData::class, 'invoice_id', 'id');
     }
+
+
+    public function paymentData()
+    {
+        return $this->hasMany(PaymentData::class);
+    }
 }
