@@ -107,7 +107,6 @@ class BookerCrudController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        dd($request->all());
         $booker= Booker::find($id);
         if(!$booker){
             return redirect()->route('admin.booker.index')->with('error', 'Booker Not Found');

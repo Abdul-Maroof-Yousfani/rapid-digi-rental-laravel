@@ -41,6 +41,18 @@
                             </div>
                             @error('email') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
+                        <div class="form-group">
+                            <label>Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">
+                                      <i class="fas fa-lock"></i>
+                                  </div>
+                                </div>
+                                <input id="password" type="password" name="password" class="form-control"  autocomplete="new-password">
+                            </div>
+                            @error('password') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
 
                         <div class="form-group">
                             <label>Phone Number <span class="text-danger">*</span></label>
