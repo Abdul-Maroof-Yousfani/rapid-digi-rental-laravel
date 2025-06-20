@@ -3,6 +3,18 @@
 @php $userRole= Auth::user()->getRoleNames()->first(); @endphp
 @section('content')
 
+<style>
+    .spinner-border.custom-blue {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.4rem;
+    border-top-color: #0d6efd;
+    border-right-color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    border-left-color: rgba(13, 110, 253, 0.25);
+}
+</style>
+
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
@@ -797,6 +809,16 @@
         $(document).ready(function () {
              $('#search').on('keyup', function () {
                 let search = $(this).val();
+                // 🌀 Show loader while data is loading
+                $('#customerList').html(`
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `);
                 $.ajax({
                     url:'/search-customer',
                     method: 'get',
