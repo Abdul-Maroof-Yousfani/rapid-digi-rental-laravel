@@ -52,18 +52,6 @@ class BookingController extends Controller
                         $query->where('booking_cancel', '0');
                     })->orderBy('id', 'desc')->get();
 
-        // $booking = Invoice::with('booking', 'bookingData')
-        //             ->whereHas('bookingData', function($query){
-        //                 $query->where('transaction_type', 1);
-        //             })
-        //             ->whereHas('booking', function($query){
-        //                 $query->where('created_at', '>=', Carbon::now()->subDays(15));
-        //                 $query->where('booking_cancel', '0');
-        //             })
-        //             ->join('bookings', 'bookings.id', '=', 'invoices.booking_id')
-        //             ->orderBy('bookings.id', 'desc')
-        //             ->select('invoices.*') // important to avoid column collision
-        //             ->get();
         return view('booker.booking.index', compact('booking'));
     }
 
@@ -151,6 +139,16 @@ class BookingController extends Controller
                     ]);
 
                     foreach ($request->vehicle as $key => $vehicle_id) {
+
+                        $price = $request['price'][$key];
+                        $quantity = 1;
+                        $taxPercent = $request['tax_percent'][$key] ?? 0;
+
+                        // Tax Add Calculation in Item Total
+                        $subTotal = $price * $quantity;
+                        $taxAmount = ($subTotal * $taxPercent) / 100;
+                        $itemTotal = $subTotal + $taxAmount;
+
                         $lineItemData= $zohoLineItems[$key] ?? [];
                         $booking_data= BookingData::create([
                             'booking_id' => $booking->id,
@@ -158,12 +156,12 @@ class BookingController extends Controller
                             'invoice_id' => $invoice->id,
                             'start_date' => $request['booking_date'][$key],
                             'end_date' => $request['return_date'][$key],
-                            'price' => $request['price'][$key],
+                            'price' => $price,
                             'transaction_type' => 1,
                             'description' => $lineItemData['description'],
-                            'quantity' => 1,
-                            'tax_percent' => $request['tax_percent'][$key] ?? 0,
-                            'item_total' => $lineItemData['item_total'],
+                            'quantity' => $quantity,
+                            'tax_percent' => $taxPercent,
+                            'item_total' => number_format($itemTotal, 2),
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
                     }

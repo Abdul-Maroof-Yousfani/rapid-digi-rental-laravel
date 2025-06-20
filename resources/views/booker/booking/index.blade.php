@@ -55,7 +55,13 @@
                                     <td>{{ $item->booking->deposit->deposit_amount ?? 0 }}</td>
                                     <td>{{ $item->booking->booking_status ?? 'overdue' }}</td>
                                     <td>{{ $item->booking->payment->payment_status ?? "pending" }}</td>
-                                    <td>{{ $item->total_amount }}</td>
+                                    <td>
+                                        {{-- {{ $item->total_amount }} --}}
+                                        @php
+                                            $bookingTotal= App\Models\Invoice::where('booking_id', $item->booking->id)->sum('total_amount');
+                                        @endphp
+                                        {{ $bookingTotal }}
+                                    </td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
@@ -63,7 +69,7 @@
                                             </button>
                                             <div class="dropdown-menu">
 
-                                                <button class="dropdown-item close-booking" data-booking-id="{{ $item->booking->id }}" {{ $item->booking_status=='closed' ? 'disabled' : '' }}>
+                                                <button class="dropdown-item close-booking" data-booking-id="{{ $item->booking->id }}" {{ $item->booking->booking_status=='closed' ? 'disabled' : '' }}>
                                                     <i class="fas fa-lock"></i> Close Booking
                                                 </button>
                                                 @if ($item->booking->payment && $item->booking->payment->pending_amount!=0)
