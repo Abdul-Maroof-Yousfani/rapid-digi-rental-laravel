@@ -33,7 +33,7 @@
                                 <th>Deposit</th>
                                 <th>Booking Status</th>
                                 <th>Payment</th>
-                                <th>Total Price</th>
+                                <th>Total Amount</th>
                                 <th align="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -519,7 +519,9 @@
                                         text: 'Do you want to close this booking?',
                                         showCancelButton: true,
                                         confirmButtonText: 'Yes',
-                                        cancelButtonText: 'No'
+                                        cancelButtonText: 'No',
+                                        allowOutsideClick: false,
+                                        allowEscapeKey: false
                                     }).then((result) => {
                                         if (result.isConfirmed) {
                                             Swal.fire({
@@ -528,7 +530,9 @@
                                                 icon: 'warning',
                                                 showCancelButton: true,
                                                 confirmButtonText: 'Recieve Remaining Amount',
-                                                cancelButtonText: 'Close Booking'
+                                                cancelButtonText: 'Close Booking',
+                                                allowOutsideClick: false,
+                                                allowEscapeKey: false
                                             }).then((paymentResult) => {
                                                 if (paymentResult.isConfirmed) {
                                                     window.location.href = '/booker/payment/create?booking_id='+bookingId;
