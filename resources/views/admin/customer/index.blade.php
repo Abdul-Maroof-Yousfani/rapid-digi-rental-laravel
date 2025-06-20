@@ -794,6 +794,50 @@
     <script src="{{ asset('assets/js/forms-format.js') }}"></script>
     <script type="text/javascript">
 
+        $(document).ready(function () {
+             $('#search').on('keyup', function () {
+                let search = $(this).val();
+                $.ajax({
+                    url:'/search-customer',
+                    method: 'get',
+                    data: { search : search },
+                    success:function(response){
+                        let html = '';
+                        let number = 1;
+                        if (response.customers.length > 0) {
+                            $.each(response.customers, function (index, data) {
+                                html += `
+                                    <tr data-id="${data.id}">
+                                        <td>${number}.</td>
+                                        <td>${data.customer_name}</td>
+                                        <td>${data.email}</td>
+                                        <td>${data.phone}</td>
+                                        <td>${data.cnic}</td>
+                                        <td>${data.status == 1 ? 'Active' : 'Inactive'}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}" data-modal-id="editCustomerModal">
+                                                <i class="far fa-edit"></i> Edit
+                                            </button>
+                                            <form action="/admin/customer/${data.id}" method="POST" style="display:inline;" class="delete-form">
+                                                <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                                <input type="hidden" name="_method" value="DELETE">
+                                                <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                `;
+                                number++;
+                            });
+                        } else {
+                            html = `<tr><td colspan="7" class="text-center">No results found</td></tr>`;
+                        }
+
+                        $('#customerList').html(html);
+                    }
+                });
+             });
+        });
+
         function filterdata(){
             let fromDate= $('#fromDate').val();
             let toDate= $('#toDate').val();

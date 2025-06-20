@@ -436,4 +436,21 @@ class AjaxController extends Controller
     //         'zoho_response' => $zohoResponses,
     //     ]);
     // }
+
+    public function searchCustomer(Request $request)
+    {
+        $search= strtolower($request->search);
+        $customers= Customer::when($search, function($query, $search){
+            $query->whereRaw('LOWER(customer_name) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(licence) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(cnic) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(country) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(phone) LIKE ?', ["%{$search}%"]);
+        })->get();
+
+        return response()->json([
+            'customers' => $customers
+        ]);
+    }
 }

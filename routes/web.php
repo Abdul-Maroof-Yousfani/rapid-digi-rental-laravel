@@ -110,6 +110,7 @@ Route::get('get-bank-for-edit-form/{id}', [AjaxController::class, 'getBankForEdi
 Route::get('get-customer-for-edit-form/{id}', [AjaxController::class, 'getCustomerForEditForm']);
 Route::post('booking-convert-partial', [AjaxController::class, 'bookingConvertPartial']);
 
+Route::get('search-customer', [AjaxController::class, 'searchCustomer']);
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
 Route::get('get-payment-list', [FilterviewController::class, 'getPaymentList']);
 Route::get('/check-status/{id}', [BookingController::class, 'checkCloseEligibility'])->name('booking.check');
