@@ -129,6 +129,10 @@ class PaymentController extends Controller
                     if ($paymentData->invoice) {
                         $invoiceID= $paymentData->invoice->zoho_invoice_id;
                         $this->zohoinvoice->markAsSent($invoiceID);
+                        $invoice = Invoice::find($paymentData->invoice->id);
+                        $invoice->update([
+                            'invoice_status' => 'sent'
+                        ]);
                     } else {
                         return redirect()->route('booker.payment.index')->with('success', 'Record inserted But Not Send Because Invoice ID Not Found');
                     }

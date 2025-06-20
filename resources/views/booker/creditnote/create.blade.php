@@ -84,7 +84,7 @@
                                                     <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Refund Amount  <span class="text-danger">*</span></label><br>
-                                                            <input type="number" placeholder="Refund Amount" value="" name="refund_amount" class="form-control refund_amount" min="0" step="0.01" required>
+                                                            <input type="number" placeholder="Refund Amount" value="" name="refund_amount" class="form-control refund_amount" min="0" step="0.01" required readonly>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle">
@@ -223,6 +223,7 @@
                             remainingDeposit= response.deposit_amount - response.deduct_amount;
                             $('.booking_amount').val(response.booking_amount);
                             $('.deposit_amount').val(response.deposit_amount);
+                            $('.refund_amount').val(remainingDeposit);
                             $('.remaining_deposit').val(remainingDeposit);
                             let subtotal = 0;
                             $.each(response.invoice_detail, function(index, invoice){
