@@ -81,7 +81,9 @@
                                                 <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->booking->id }}" href=""> <i class="fas fa-times"></i> Cancel </a>
                                                 @endif
 
+                                                @if ($item->booking->booking_status != 'closed')
                                                 <a class="dropdown-item" href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}"> <i class="far fa-edit"></i> Edit </a>
+                                                @endif
                                                 <form action="{{ url('booker/customer-booking/'.$item->id) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this booking?')">
                                                     @csrf
                                                     @method('DELETE')

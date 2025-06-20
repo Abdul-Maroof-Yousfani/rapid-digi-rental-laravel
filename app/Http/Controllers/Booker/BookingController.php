@@ -232,27 +232,31 @@ class BookingController extends Controller
     public function edit(string $id)
     {
         $invoice= Invoice::with('booking')->find($id);
-        if(!$invoice){
-            return redirect()->back()->with('error', 'Booking not Found');
-        }else{
-            $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
-            $booking_data= BookingData::where('invoice_id', $invoice->id)->where('transaction_type', 1)->orderBy('id', 'ASC')->get();
-            $customers= Customer::all();
-            $vehicletypes= Vehicletype::all();
-            $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
-            $vehicleTypeMap = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))
-            ->pluck('vehicletypes', 'id');
-            $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
-            $salePerson= SalePerson::all();
-            $taxlist= $this->zohoinvoice->taxList();
+        if($invoice->booking->booking_status != 'closed'){
+            if(!$invoice){
+                return redirect()->back()->with('error', 'Booking not Found');
+            }else{
+                $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
+                $booking_data= BookingData::where('invoice_id', $invoice->id)->where('transaction_type', 1)->orderBy('id', 'ASC')->get();
+                $customers= Customer::all();
+                $vehicletypes= Vehicletype::all();
+                $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
+                $vehicleTypeMap = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))
+                ->pluck('vehicletypes', 'id');
+                $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
+                $salePerson= SalePerson::all();
+                $taxlist= $this->zohoinvoice->taxList();
 
-            return view('booker.booking.edit', compact('zohocolumn', 'customers', 'vehicletypes', 'invoice',
-            'taxlist',
-            'salePerson',
-            'booking_data',
-            'vehicles',
-            'vehicleTypeMap',
-            'vehiclesByType'));
+                return view('booker.booking.edit', compact('zohocolumn', 'customers', 'vehicletypes', 'invoice',
+                'taxlist',
+                'salePerson',
+                'booking_data',
+                'vehicles',
+                'vehicleTypeMap',
+                'vehiclesByType'));
+            }
+        } else {
+            return redirect()->back()->with('error', 'This booking is closed. You cannot edit it.');
         }
     }
 
