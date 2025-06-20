@@ -120,32 +120,74 @@
                                         <div class="card-body">
                                             <div class="form-group">
                                                 <label>Customer name <span class="text-danger">*</span></label>
-                                                <input type="text" value="{{ old('customer_name') }}" name="customer_name" class="form-control">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-user"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" value="{{ old('customer_name') }}" name="customer_name" class="form-control" required>
+                                                </div>
                                             </div>
                                             <div class="form-group">
                                                 <label>Email (Optional)</label>
-                                                <input type="email" value="{{ old('email') }}" name="email" class="form-control email">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-envelope"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="email" value="{{ old('email') }}" name="email" class="form-control email">
+                                                </div>
                                             </div>
                                             <div class="form-group">
                                                 <label>Phone Number <span class="text-danger">*</span></label>
-                                                {{-- <input type="number" value="{{ old('phone') }}" name="phone" class="form-control"> --}}
-                                                <input type="tel" value="" id="uaePhone" name="phone" class="form-control" placeholder="+971-xx-xxxxxxx" maxlength="17" required>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-phone"></i>
+                                                        </div>
+                                                    </div>
+                                                    {{-- <input type="number" value="{{ old('phone') }}" name="phone" class="form-control"> --}}
+                                                    <input type="tel" value="" id="uaePhone" name="phone" class="form-control" placeholder="+971-xx-xxxxxxx" maxlength="17" required>
+                                                </div>
                                             </div>
 
                                             <div class="form-group">
                                                 <label>Driving Licence <span class="text-danger">*</span></label>
-                                                <input type="number" value="{{ old('licence') }}" name="licence" class="form-control licence">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-address-card"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="number" value="{{ old('licence') }}" name="licence" class="form-control licence">
+                                                </div>
                                             </div>
 
 
                                             <div class="form-group">
                                                 <label>C-NIC <span class="text-danger">*</span></label>
-                                                <input type="number" value="{{ old('cnic') }}" name="cnic" class="form-control cnic">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-id-card"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="number" value="{{ old('cnic') }}" name="cnic" class="form-control cnic">
+                                                </div>
                                             </div>
 
                                             <div class="form-group">
                                                 <label>Date Of Birth <span class="text-danger">*</span></label>
-                                                <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-birthday-cake"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -365,11 +407,18 @@
 
                                             <div class="form-group">
                                                 <label>Gender <span class="text-danger">*</span></label>
-                                                <select name="gender" class="form-control">
-                                                    <option value="">Select Gender</option>
-                                                    <option value="male">Male</option>
-                                                    <option value="female">Female</option>
-                                                </select>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-venus-mars"></i>
+                                                        </div>
+                                                    </div>
+                                                    <select name="gender" class="form-control">
+                                                        <option value="">Select Gender</option>
+                                                        <option value="male">Male</option>
+                                                        <option value="female">Female</option>
+                                                    </select>
+                                                </div>
                                             </div>
 
                                             <div class="form-group">
