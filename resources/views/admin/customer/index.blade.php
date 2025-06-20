@@ -28,9 +28,9 @@
                 <div class="col-12">
                     <div class="card">
                     <div class="card-body">
-                        {{-- <form class="filterForm">
+                        <form class="filterForm">
                             <div class="row">
-                                <div class="col-2">
+                                {{-- <div class="col-2">
                                     <label for="">From Date</label>
                                     <input type="date" class="form-control" id="fromDate">
                                 </div>
@@ -46,9 +46,13 @@
                                     <button type="button" class="btn btn-primary" onclick="filterdata()">
                                         Filter Data
                                     </button>
+                                </div> --}}
+
+                                <div class="col-3 ml-auto">
+                                    <input type="text" placeholder="Search" class="form-control" id="search">
                                 </div>
                             </div><br>
-                        </form> --}}
+                        </form>
 
                         <div class="table-responsive">
                             <table class="table table-striped table-hover" id="customerResponseList" style="width:100%;">
@@ -92,6 +96,8 @@
                                     @endforeach
                                 </tbody>
                             </table>
+
+                            {{ $customers->links('pagination::bootstrap-4') }}
                         </div>
                     </div>
                     </div>

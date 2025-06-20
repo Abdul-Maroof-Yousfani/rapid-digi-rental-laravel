@@ -38,7 +38,8 @@ class CustomerController extends Controller
             }
         }
         $shouldEnableSync = count($missing) > 0;
-        $customers= Customer::where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
+        // $customers= Customer::where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
+        $customers = Customer::orderBy('id', 'DESC')->paginate(4);
         return view('admin.customer.index', compact('customers', 'shouldEnableSync'));
     }
 
