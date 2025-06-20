@@ -28,13 +28,31 @@ class CreditnoteController extends Controller
      */
     public function create()
     {
-        $booking= Booking::whereHas('deposit', function ($query){
-            $query->where('deposit_amount', '>', 0);
-        })->with('deposit', 'customer', 'depositHandling')->orderBy('id', 'DESC')->get();
+        // $booking= Booking::whereHas('deposit', function ($query){
+        //     $query->where('deposit_amount', '>', 0);
+        // })->with('deposit', 'customer', 'depositHandling')->orderBy('id', 'DESC')->get();
 
-        $filterBooking= $booking->filter(function($booking){
+        // $filterBooking= $booking->filter(function($booking){
+        //     $totalDeducted = $booking->depositHandling->sum('deduct_deposit');
+        //     return $booking->deposit->deposit_amount > $totalDeducted;
+        // });
+
+        // Get all booking IDs which already have a credit note
+        $creditNoteBookingIds = CreditNote::pluck('booking_id')->toArray();
+
+        $booking = Booking::whereHas('deposit', function ($query) {
+            $query->where('deposit_amount', '>', 0);
+        })
+        ->with('deposit', 'customer', 'depositHandling')
+        ->orderBy('id', 'DESC')
+        ->get();
+
+        $filterBooking = $booking->filter(function ($booking) use ($creditNoteBookingIds) {
             $totalDeducted = $booking->depositHandling->sum('deduct_deposit');
-            return $booking->deposit->deposit_amount > $totalDeducted;
+
+            // Only allow bookings that have deposit left AND no credit note created yet
+            return $booking->deposit->deposit_amount > $totalDeducted
+                && !in_array($booking->id, $creditNoteBookingIds);
         });
         $refundMethod= PaymentMethod::all();
         $bank= Bank::all();
