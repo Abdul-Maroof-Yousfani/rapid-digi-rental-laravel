@@ -95,8 +95,6 @@
                                             </div>
                                         </div>
                                     </td>
-
-
                                 </tr>
                                 @php $number++; @endphp
                                 @endforeach
@@ -201,6 +199,28 @@
 
         $('#partialBookingForm').on('submit', function(e) {
             e.preventDefault();
+
+            let isValid = true;
+            $('.less_days').removeClass('is-invalid').next('.invalid-feedback').remove();
+            $('.less_days').each(function () {
+                const $lessDaysInput = $(this);
+                const $row = $lessDaysInput.closest('tr').prev();
+                const totalDays = parseFloat($row.find('.total_rent_days').val()) || 0;
+                const lessDays = parseFloat($lessDaysInput.val()) || 0;
+
+                if (lessDays > totalDays) {
+                    isValid = false;
+                    $lessDaysInput.addClass('is-invalid');
+
+                    if ($lessDaysInput.next('.invalid-feedback').length === 0) {
+                        $lessDaysInput.after('<div class="invalid-feedback">Days are greater than total days</div>');
+                    }
+                }
+            });
+
+            if (!isValid) {
+                return;
+            }
 
             const formClone = $('#partialBookingForm').clone();
             formClone.find('.bookingDataID').not('.updated').each(function () {
@@ -333,9 +353,6 @@
                             `;
                         });
 
-                        // row+= '<br><tr style="background-color: transparent;"><td colspan="5" style="height:20px; text-align: center;"><h3>Renew Vehicles</h3></td></tr><br>';
-
-
                         // Render Renew Details Section in Modal
                         $.each(response.renew_details, function(index, item) {
                             const formattedEndDate = item.end_date.split(' ')[0];
@@ -427,16 +444,23 @@
                             const $newAmountInput = $secondRow.find('.new_rent_amount');
                             const $endDateInput = $row.find('input[name="end_date[]"]');
 
-                            // Validation: lessDays should not exceed totalDays
-                            if (lessDays > totalDays) {
-                                $(this).addClass('is-invalid'); // Bootstrap red border
-                                $usedDaysInput.val('');
-                                $lessAmountInput.val('');
-                                $newAmountInput.val('');
-                                return;
-                            } else {
-                                $(this).removeClass('is-invalid');
-                            }
+                            // // Validation: lessDays should not exceed totalDays
+                            // if (lessDays > totalDays) {
+                            //     $(this).addClass('is-invalid'); // Bootstrap red border
+
+                            //     // Show custom error message
+                            //     if ($(this).next('.invalid-feedback').length === 0) {
+                            //         $(this).after('<div class="invalid-feedback">Your days are greater than total days</div>');
+                            //     }
+
+                            //     $usedDaysInput.val('');
+                            //     $lessAmountInput.val('');
+                            //     $newAmountInput.val('');
+                            //     return;
+                            // } else {
+                            //     $(this).removeClass('is-invalid');
+                            //     $(this).next('.invalid-feedback').remove(); // Remove error message if exists
+                            // }
 
                             const usedDays = totalDays - lessDays;
                             const rentPerDay = rentAmount / totalDays;

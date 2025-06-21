@@ -157,11 +157,11 @@
                         <table class="table">
                             <tr>
                                 <td class="text-right">Sub Total</td>
-                                <td class="text-right">AED{{ $subtot }}</td>
+                                <td class="text-right">AED{{ number_format($subtot, 2) }}</td>
                             </tr>
                             <tr class="bg-light text-dark">
                                 <th class="text-right">Balance Due</th>
-                                <td class="text-right font-weight-bold">AED{{ number_format($invoice->total_amount, 2) }}</td>
+                                <td class="text-right font-weight-bold">AED{{ number_format($subtot, 2) }}</td>
                             </tr>
                         </table>
                     </div>

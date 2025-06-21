@@ -1,44 +1,21 @@
-@php
-    $userRole = Auth::user()->getRoleNames()->first();
-
-    if ($userRole == 'investor') {
-        $investorId = Auth::id();
-
-        $revenue = \App\Models\BookingData::whereHas('vehicle', function ($q) use ($investorId) {
-                $q->where('investor_id', $investorId);
-            })
-            ->whereHas('invoice', function ($q) {
-                $q->where('invoice_status', 'sent');
-            })
-            ->whereHas('invoice.paymentData', function ($q) {
-                $q->where('status', 'paid');
-            })
-            ->with(['invoice.paymentData' => function ($q) {
-                $q->where('status', 'paid');
-            }])
-            ->get()
-            ->sum(function ($bookingData) {
-                return $bookingData->invoice->paymentData->sum('paid_amount');
-            });
-
-    } else {
-        // Admin ya Booker
-        $revenue = \App\Models\Payment::sum('paid_amount');
-    }
-
-    $booking = \App\Models\Booking::count();
-    $customers = \App\Models\Customer::count();
-    $receiveable = \App\Models\Payment::sum('pending_amount');
-@endphp
-
 @extends('admin.master-main')
 @section('content')
-{{-- @php
+@php
     $booking= App\Models\Booking::count();
     $customers= App\Models\Customer::count();
     $revenue= App\Models\Payment::sum('paid_amount');
     $receiveable= App\Models\Payment::sum('pending_amount');
-@endphp --}}
+
+    $totalAmount= App\Models\BookingData::with('vehicle', 'invoice')
+            ->whereHas('invoice', function($q){
+                $q->where('invoice_status', 'sent');
+            })
+            ->whereHas('vehicle.investor', function($q){
+                $q->where('user_id', Auth::user()->id);
+            })
+            ->whereIn('transaction_type', ['1', '2'])->sum('price');
+
+@endphp
 <!-- Main Content -->
 <div class="main-content">
   <section class="section">
@@ -117,7 +94,12 @@
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                   <div class="card-content">
                     <h5 class="font-15">Revenue</h5>
-                    <h2 class="mb-3 font-18">AED {{ number_format($revenue, 0) }}</h2>
+                    <h2 class="mb-3 font-18">
+                        @if (Auth::user()->getRoleNames()->first() == 'investor')
+                            AED {{ number_format($totalAmount, 0) }}</h2>
+                        @else
+                            AED {{ number_format($revenue, 0) }}</h2>
+                        @endif
                     {{-- <p class="mb-0"><span class="col-green">42%</span> Increase</p> --}}
                   </div>
                 </div>
@@ -131,6 +113,47 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="row" style="display: none;">
+        <div class="col-md-12">
+            @php
+                $lineItems= App\Models\BookingData::with('vehicle', 'invoice')
+                            ->whereHas('invoice', function($q){
+                                $q->where('invoice_status', 'sent');
+                            })
+                            ->whereHas('vehicle.investor', function($q){
+                                $q->where('user_id', Auth::user()->id);
+                            })
+                            ->whereIn('transaction_type', ['1', '2'])->get();
+            @endphp
+            <div class="card">
+                <div class="card-header">
+                    {{ $totalAmount }}
+                </div>
+                <div class="card-body">
+                    <table class="table table-stripped table-hover" id="tableExport">
+                        <thead>
+                            <tr>
+                                <td>Invoice</td>
+                                <td>Vehicle</td>
+                                <td>price</td>
+                                <td>Investor</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($lineItems as $item)
+                            <tr>
+                                <td>{{ $item->invoice->zoho_invoice_number }}</td>
+                                <td>{{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }}</td>
+                                <td>{{ $item->price }}</td>
+                                <td>{{ $item->vehicle->investor->name }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
 
