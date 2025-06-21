@@ -349,6 +349,12 @@ class AjaxController extends Controller
             }
         }
 
+        $totalAmount = BookingData::where('invoice_id', $request->invoice_id)->sum('item_total');
+        $setInvocieTotal= Invoice::find($request->invoice_id);
+        $setInvocieTotal->update([
+            'total_amount' => $totalAmount,
+        ]);
+
         // $zohoResponses = [];
 
         foreach ($invoiceUpdates as $invoiceId => $updates) {

@@ -3,7 +3,12 @@
 @php
     $booking= App\Models\Booking::count();
     $customers= App\Models\Customer::count();
-    $revenue= App\Models\Payment::sum('paid_amount');
+    // $revenue= App\Models\Payment::sum('paid_amount');
+    $revenue= App\Models\BookingData::with('vehicle', 'invoice')
+            ->whereHas('invoice', function($q){
+                $q->where('invoice_status', 'sent');
+            })->sum('price');
+
     $receiveable= App\Models\Payment::sum('pending_amount');
 
     $totalAmount= App\Models\BookingData::with('vehicle', 'invoice')

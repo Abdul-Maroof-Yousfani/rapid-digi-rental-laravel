@@ -1,7 +1,13 @@
 @extends('admin.master-main')
 @section('title', ucfirst(Auth::user()->getRoleNames()->first() . ' ' . 'Portal'))
 @section('content')
-@php  $userRole= Auth::user()->getRoleNames()->first();   @endphp
+@php
+    $userRole= Auth::user()->getRoleNames()->first();
+    $subtot = 0;
+    foreach ($invoice->bookingData as $item) {
+        $subtot += $item->item_total;
+    }
+@endphp
     <style>
         @media print {
             body * {
@@ -96,7 +102,7 @@
                         <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">Invoice</h3>
                         <p class="mb-0 font-weight-bold text-dark"># {{ $invoice->zoho_invoice_number }}</p>
                         <p class="mb-0 font-weight-bold text-dark">Balance Due</p>
-                        <h5 class="font-weight-bold text-dark">AED{{ number_format($invoice->total_amount, 2) }}</h5>
+                        <h5 class="font-weight-bold text-dark">AED{{ number_format($subtot, 2) }}</h5>
                     </div>
                 </div>
 
@@ -132,7 +138,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php $subtot=0; @endphp
                         @foreach ($invoice->bookingData as $item)
                             <tr style="border-bottom: 2px solid #ADADAD;">
                                 <td class="text-left">1</td>
@@ -146,7 +151,6 @@
                                 <td class="text-right">{{ $item->tax_name }} {{ $item->tax_percent }}%</td>
                                 <td class="text-right">{{ number_format($item->item_total, 2) }}</td>
                             </tr>
-                        @php $subtot= $item->item_total + $subtot ; @endphp
                         @endforeach
                     </tbody>
                 </table>

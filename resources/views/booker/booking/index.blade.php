@@ -69,20 +69,32 @@
                                             </button>
                                             <div class="dropdown-menu">
 
-                                                <button class="dropdown-item close-booking" data-booking-id="{{ $item->booking->id }}" {{ $item->booking->booking_status=='closed' ? 'disabled' : '' }}>
+                                                <button class="dropdown-item close-booking"
+                                                    data-booking-id="{{ $item->booking->id }}"
+                                                    data-invoice-id="{{ $item->id }}"
+                                                    {{ $item->booking->booking_status=='closed' ? 'disabled' : '' }}>
                                                     <i class="fas fa-lock"></i> Close Booking
                                                 </button>
                                                 @if ($item->booking->payment && $item->booking->payment->pending_amount!=0)
-                                                <a class="dropdown-item" href="{{ url('booker/payment/create?booking_id='.$item->booking->id) }}"> <i class="far fa-edit"></i> Pending Payment </a>
+                                                    <a class="dropdown-item" href="{{ url('booker/payment/create?booking_id='.$item->booking->id) }}">
+                                                        <i class="far fa-edit"></i> Pending Payment
+                                                    </a>
                                                 @endif
 
-                                                <a class="dropdown-item" href="{{ url('booker/booking/'. $item->booking->id) }}"> <i class="fas fa-eye"></i> View </a>
+                                                <a class="dropdown-item" href="{{ url('booker/booking/'. $item->booking->id) }}">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+
                                                 @if (is_null($item->booking->started_at) || (\Carbon\Carbon::parse($item->booking->started_at)->isAfter($now) && $item->booking_cancel==0))
-                                                <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->booking->id }}" href=""> <i class="fas fa-times"></i> Cancel </a>
+                                                    <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->booking->id }}" href="">
+                                                        <i class="fas fa-times"></i> Cancel
+                                                    </a>
                                                 @endif
 
                                                 @if ($item->booking->booking_status != 'closed')
-                                                <a class="dropdown-item" href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}"> <i class="far fa-edit"></i> Edit </a>
+                                                    <a class="dropdown-item" href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}">
+                                                        <i class="far fa-edit"></i> Edit
+                                                    </a>
                                                 @endif
                                                 <form action="{{ url('booker/customer-booking/'.$item->id) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this booking?')">
                                                     @csrf
@@ -122,6 +134,7 @@
       <div class="modal-body">
         <div class="table-responsive">
             <form id="partialBookingForm">
+                <input type="hidden" name="invoice_id" id="invoice_id" value="">
                 <table class="table">
                     <tbody id="activeBookingContent"></tbody>
                 </table>
@@ -255,6 +268,8 @@
 
         $('.close-booking').click(function () {
             let bookingId = $(this).data('booking-id');
+            let invoiceId = $(this).data('invoice-id');
+            let setInvoiceId = $("#invoice_id").val(invoiceId);
             $.ajax({
                 url: '/check-bookingis-active/' + bookingId,
                 type: 'GET',
@@ -443,24 +458,6 @@
                             const $lessAmountInput = $secondRow.find('.less_rent_amount');
                             const $newAmountInput = $secondRow.find('.new_rent_amount');
                             const $endDateInput = $row.find('input[name="end_date[]"]');
-
-                            // // Validation: lessDays should not exceed totalDays
-                            // if (lessDays > totalDays) {
-                            //     $(this).addClass('is-invalid'); // Bootstrap red border
-
-                            //     // Show custom error message
-                            //     if ($(this).next('.invalid-feedback').length === 0) {
-                            //         $(this).after('<div class="invalid-feedback">Your days are greater than total days</div>');
-                            //     }
-
-                            //     $usedDaysInput.val('');
-                            //     $lessAmountInput.val('');
-                            //     $newAmountInput.val('');
-                            //     return;
-                            // } else {
-                            //     $(this).removeClass('is-invalid');
-                            //     $(this).next('.invalid-feedback').remove(); // Remove error message if exists
-                            // }
 
                             const usedDays = totalDays - lessDays;
                             const rentPerDay = rentAmount / totalDays;
