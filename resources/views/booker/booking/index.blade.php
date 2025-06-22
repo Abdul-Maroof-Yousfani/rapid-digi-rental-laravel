@@ -96,6 +96,7 @@
                                                         <i class="far fa-edit"></i> Edit
                                                     </a>
                                                 @endif
+
                                                 <form action="{{ url('booker/customer-booking/'.$item->id) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this booking?')">
                                                     @csrf
                                                     @method('DELETE')

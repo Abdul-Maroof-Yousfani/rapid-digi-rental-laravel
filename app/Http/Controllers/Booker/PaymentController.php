@@ -7,6 +7,7 @@ use App\Models\Bank;
 use App\Models\Booking;
 use App\Models\DepositHandling;
 use App\Models\Invoice;
+use App\Models\BookingPaymentHistory;
 use App\Models\Payment;
 use App\Models\PaymentData;
 use App\Models\PaymentMethod;
@@ -91,6 +92,12 @@ class PaymentController extends Controller
                     'pending_amount' => $pendingAmount,
                     'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
+                ]);
+
+                BookingPaymentHistory::create([
+                    'booking_id' => $request['booking_id'],
+                    'payment_id' => $payment->id,
+                    'paid_amount' => $request['amount_receive'],
                 ]);
 
                 $paymentDataMap = [];
@@ -183,6 +190,7 @@ class PaymentController extends Controller
     {
         // dd($request->all());
         $payment= Payment::find($request->payment_id);
+        $beforeUpdateAmount=$payment->paid_amount;
         if(!$payment){
                 $imagePath = null;
                 if ($request->hasFile('image')) {
@@ -203,6 +211,13 @@ class PaymentController extends Controller
                     'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
+
+                BookingPaymentHistory::create([
+                    'booking_id' => $request['booking_id'],
+                    'payment_id' => $payment->id,
+                    'paid_amount' => $beforeUpdateAmount,
+                ]);
+
                 $paymentDataMap = [];
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
                     $invoiceAmount= $request['invoice_amount'][$key];
@@ -235,6 +250,13 @@ class PaymentController extends Controller
                 'paid_amount' => $request['amount_receive'],
                 'payment_status' => $request['pending_amount']==0 ? 'paid':'pending'
             ]);
+
+            BookingPaymentHistory::create([
+                'booking_id' => $request['booking_id'],
+                'payment_id' => $payment->id,
+                'paid_amount' => ($request['amount_receive'] - $beforeUpdateAmount),
+            ]);
+
             foreach ($request['paymentData_id'] as $key => $paymentDataID) {
                 $paymentData= PaymentData::find($paymentDataID);
                 $invoiceAmount= $request['invoice_amount'][$key];
