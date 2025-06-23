@@ -125,6 +125,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::resource('payment', PaymentController::class);
     Route::resource('credit-note', CreditnoteController::class);
     Route::post('pending-payment/{booking_id}', [PaymentController::class, 'pendingPayment']);
+    Route::post('payment-history/{payment_id}', [PaymentController::class, 'paymentHistory']);
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
     Route::get('booking/view-invoice/{invoice_id}', [InvoiceController::class, 'viewInvoice'])->name('view.invoice');
     Route::get('booking/{id}', [InvoiceController::class, 'index'])->name('view.invoice');

@@ -291,4 +291,11 @@ class PaymentController extends Controller
 
         return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
     }
+
+    public function paymentHistory($paymentID)
+    {
+        $paymentHistory= BookingPaymentHistory::with('payment')->where('payment_id', $paymentID)->get();
+        return view('booker.payment.view-payment-history', compact('paymentHistory'));
+    }
+
 }
