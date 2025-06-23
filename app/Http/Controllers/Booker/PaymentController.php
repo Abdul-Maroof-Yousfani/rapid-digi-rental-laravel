@@ -93,7 +93,6 @@ class PaymentController extends Controller
                     'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
-                dd($request->all());
 
                 BookingPaymentHistory::create([
                     'booking_id' => $request['booking_id'],
@@ -128,6 +127,7 @@ class PaymentController extends Controller
                         ]);
                     }
                 }
+                dd($request->all());
 
                 $paymentDataList = PaymentData::with('invoice')
                     ->where('payment_id', $payment->id)
