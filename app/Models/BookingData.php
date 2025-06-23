@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\BookingData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class BookingData extends Model
 {
@@ -41,6 +42,11 @@ class BookingData extends Model
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class, 'invoice_id', 'id');
+    }
+
+    public function bookingData(): BelongsTo
+    {
+        return $this->belongsTo(BookingData::class);
     }
 
 

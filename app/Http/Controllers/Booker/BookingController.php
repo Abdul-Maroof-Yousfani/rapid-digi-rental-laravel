@@ -222,7 +222,6 @@ class BookingController extends Controller
         }
 
         $bookings = $query->get();
-
         return view('reports.report_booking', compact('bookings'));
     }
 
