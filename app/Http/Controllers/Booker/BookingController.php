@@ -465,8 +465,8 @@ class BookingController extends Controller
             $vehicleName = $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail;
             $numberPlate = $data->vehicle->number_plate ?? '';
             $grossRentAmount = $data->price;
-            $taxPercent = $data->tax_percent;
             $rentAmount = $data->item_total;
+            $taxPercent = $data->tax_percent;
             $returnDate = $data->end_date;
             $startDate = Carbon::parse($data->start_date)->startOfDay();
             $endDate = Carbon::parse($data->end_date)->endOfDay();
@@ -481,8 +481,6 @@ class BookingController extends Controller
             } else {
                 $remainingDays = 0;
             }
-
-
 
             $rentDetails[] = [
                 'bookingDataID' => $bookingDataID,
@@ -505,13 +503,14 @@ class BookingController extends Controller
                         ->with('vehicle')
                         ->get();
 
-
         $renewDetial = [];
         foreach ($renewBookingData as $data) {
             $bookingDataID = $data->id;
             $vehicleName = $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail;
             $numberPlate = $data->vehicle->number_plate ?? '';
-            $renewAmount = $data->price;
+            $grossRenewAmount = $data->price;
+            $renewAmount = $data->item_total;
+            $taxPercent = $data->tax_percent;
             $returnDate = $data->end_date;
             $startDate = Carbon::parse($data->start_date)->startOfDay();
             $endDate = Carbon::parse($data->end_date)->endOfDay();
@@ -533,6 +532,8 @@ class BookingController extends Controller
                 'start_date' => $data->start_date,
                 'vehicle_name' => $vehicleName,
                 'number_plate' => $numberPlate,
+                'gross_renew_amount' => $grossRenewAmount,
+                'tax_percent' => $taxPercent,
                 'renew_amount' => $renewAmount,
                 'total_renew_days' => $totalRenewDays,
                 'renew_remaining_days' => $remainingDays,

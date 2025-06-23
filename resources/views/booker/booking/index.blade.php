@@ -369,6 +369,7 @@
                             `;
                         });
 
+
                         // Render Renew Details Section in Modal
                         $.each(response.renew_details, function(index, item) {
                             const formattedEndDate = item.end_date.split(' ')[0];
@@ -389,6 +390,12 @@
                                         <div class="form-group">
                                             <label>Total Renew Days</label><br>
                                             <input type="text" value="${item.total_renew_days}" class="form-control total_renew_days" disabled>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>Gross Amount</label><br>
+                                            <input type="text" value="${item.gross_renew_amount}" class="form-control gross_renew_amount" disabled>
                                         </div>
                                     </td>
                                     <td class="align-middle">
@@ -429,7 +436,19 @@
                                             <input type="number" value="" class="form-control less_renew_amount" readonly>
                                         </div>
                                     </td>
-                                    <td colspan='2' class="align-middle">
+                                    <td class="align-middle">
+                                        <div class="form-group">
+                                            <label>New Gross Amount</label><br>
+                                            <input type="number" value="${item.gross_renew_amount}" name="new_gross_rent_amount[]" class="form-control new_gross_renew_amount" readonly>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle p-0">
+                                        <div class="form-group">
+                                            <label>Tax (%)</label><br>
+                                            <input type="number" value="${item.tax_percent}" class="form-control taxPercent" readonly>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
                                         <div class="form-group">
                                             <label>New Renew Amount</label><br>
                                             <input type="text" value="${item.renew_amount}" name="new_amount[]" class="form-control new_renew_amount" readonly>
@@ -494,31 +513,35 @@
                             const totalDays = parseFloat($row.find('.total_renew_days').val()) || 0;
                             const renewAmount = parseFloat($row.find('.renew_amount').val()) || 0;
                             const lessDays = parseFloat($(this).val()) || 0;
+
                             const $secondRow = $(this).closest('tr');
                             const $usedDaysInput = $secondRow.find('.renew_use_days');
                             const $lessAmountInput = $secondRow.find('.less_renew_amount');
                             const $newAmountInput = $secondRow.find('.new_renew_amount');
                             const $endDateInput = $row.find('input[name="end_date[]"]');
 
-                            // Validation: lessDays should not exceed totalDays
-                            if (lessDays > totalDays) {
-                                $(this).addClass('is-invalid'); // Bootstrap red border
-                                $usedDaysInput.val('');
-                                $lessAmountInput.val('');
-                                $newAmountInput.val('');
-                                return;
-                            } else {
-                                $(this).removeClass('is-invalid');
-                            }
 
                             const usedDays = totalDays - lessDays;
                             const renewPerDay = renewAmount / totalDays;
-                            const newAmount = Math.round(renewPerDay * usedDays); // round for cleaner display
+                            const newAmount = (renewPerDay * usedDays).toFixed(2); // round for cleaner display
                             const lessAmount = Math.round(renewPerDay * lessDays);
+
+                            // const usedDays = totalDays - lessDays;
+                            // const renewPerDay = renewAmount / totalDays;
+                            // const newAmount = Math.round(renewPerDay * usedDays); // round for cleaner display
+                            // const lessAmount = Math.round(renewPerDay * lessDays);
 
                             $usedDaysInput.val(usedDays);
                             $lessAmountInput.val(lessAmount);
                             $newAmountInput.val(newAmount);
+
+                            // NEW: Gross Amount Calculation
+                            const grossAmount = parseFloat($row.find('.gross_renew_amount').val()) || 0;
+                            const grossPerDay = grossAmount / totalDays;
+                            const newGrossAmount = (grossPerDay * usedDays).toFixed(2);
+
+                            $secondRow.find('.new_gross_renew_amount').val(newGrossAmount);
+
 
                             // Update end_date[] using data-original-end
                             const originalEndDateStr = $endDateInput.data('original-end');
