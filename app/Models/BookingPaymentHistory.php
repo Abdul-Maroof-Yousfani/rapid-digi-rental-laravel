@@ -14,7 +14,7 @@ class BookingPaymentHistory extends Model
         'invoice_id',
         'payment_id',
         'paid_amount',
-        'payment_method_name',
+        'payment_method_id',
         'user_id',
     ];
 
@@ -36,5 +36,10 @@ class BookingPaymentHistory extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class);
     }
 }

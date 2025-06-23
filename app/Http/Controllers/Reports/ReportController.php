@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\Booking;
-use App\Models\BookingData;
+use App\Models\Invoice;
+use App\Models\Vehicle;
 use App\Models\Customer;
 use App\Models\Investor;
-use App\Models\Vehicle;
-use Carbon\Carbon;
+use App\Models\BookingData;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ReportController extends Controller
 {
@@ -70,5 +71,25 @@ class ReportController extends Controller
 
         return view('reports.reportlist.get-customer-wise-list', compact('booking'));
     }
+
+    // customer wise receivable reports function
+    public function customerWiseReceivable()
+    {
+        $customers= Customer::all();
+        $bookings= Booking::all();
+        return view('reports.customer-wise-receivable', compact('bookings', 'customers'));
+    }
+
+    public function getCustomerWiseReceivableList(Request $request)
+    {
+        $customerID= $request->customer_id;
+        $booking = Booking::with('invoice', 'payment')
+                    ->when($customerID, function ($query) use ($customerID){
+                        $query->where('customer_id', $customerID);
+                    })
+                    ->get();
+        return view('reports.reportlist.get-customer-wise-receivable-list', compact('booking'));
+    }
+
 
 }

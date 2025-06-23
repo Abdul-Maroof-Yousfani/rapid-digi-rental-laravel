@@ -44,13 +44,13 @@ view-payment-history
                             <th>Method</th>
                           </tr>
                         </thead>
-                        @php $number= 0; @endphp
+                        @php $number= 1; @endphp
                         @foreach ($paymentHistory as $item)
                         <tbody>
                             <tr>
                                 <td>{{ $number }}.</td>
                                 <td>{{ $item->paid_amount }}</td>
-                                <td>cash</td>
+                                <td>{{ $item->paymentMethod->name }}</td>
                             </tr>
                         </tbody>
                         @php $number++ @endphp

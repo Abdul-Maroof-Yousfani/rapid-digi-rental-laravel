@@ -73,6 +73,6 @@ class Invoice extends Model
 
     public function paymentData()
     {
-        return $this->hasMany(PaymentData::class);
+        return $this->hasOne(PaymentData::class);
     }
 }

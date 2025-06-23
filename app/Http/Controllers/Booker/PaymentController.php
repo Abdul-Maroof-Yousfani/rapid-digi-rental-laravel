@@ -97,6 +97,7 @@ class PaymentController extends Controller
                 BookingPaymentHistory::create([
                     'booking_id' => $request['booking_id'],
                     'payment_id' => $payment->id,
+                    'payment_method_id' => $request['payment_method'],
                     'paid_amount' => $request['amount_receive'],
                 ]);
 
@@ -215,6 +216,7 @@ class PaymentController extends Controller
                 BookingPaymentHistory::create([
                     'booking_id' => $request['booking_id'],
                     'payment_id' => $payment->id,
+                    'payment_method_id' => $request['payment_method'],
                     'paid_amount' => $beforeUpdateAmount,
                 ]);
 
@@ -254,6 +256,7 @@ class PaymentController extends Controller
             BookingPaymentHistory::create([
                 'booking_id' => $request['booking_id'],
                 'payment_id' => $payment->id,
+                'payment_method_id' => $request['payment_method'],
                 'paid_amount' => ($request['amount_receive'] - $beforeUpdateAmount),
             ]);
 
@@ -294,8 +297,7 @@ class PaymentController extends Controller
 
     public function paymentHistory($paymentID)
     {
-        $paymentHistory= BookingPaymentHistory::with('payment')->where('payment_id', $paymentID)->get();
+        $paymentHistory= BookingPaymentHistory::with('payment', 'paymentMethod')->where('payment_id', $paymentID)->get();
         return view('booker.payment.view-payment-history', compact('paymentHistory'));
     }
-
 }
