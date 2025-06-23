@@ -93,7 +93,7 @@ class PaymentController extends Controller
                     'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
-                echo $payment->id;
+                echo $payment->id.'-----'.$request['booking_id'].'-----'.$request['payment_method'].'--------'.$request['amount_receive'];
                 die();
 
                 BookingPaymentHistory::create([
