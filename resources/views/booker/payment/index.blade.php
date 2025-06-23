@@ -45,7 +45,7 @@
                             <th>Booking Amount</th>
                             <th>Paid Amount</th>
                             <th>Pending Amount</th>
-                            {{-- <th>Action</th> --}}
+                            <th>History</th>
                           </tr>
                         </thead>
                         <tbody id="paymentList"></tbody>

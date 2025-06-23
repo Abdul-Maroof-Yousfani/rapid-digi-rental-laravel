@@ -9,7 +9,7 @@
         <td>{{ $item->paid_amount }}</td>
         <td>{{ $item->pending_amount ?? 0 }}</td>
         <td>
-            <a href="" class="btn btn-primary btn-sm"><i class="far fa-eye"></i> View History</a>
+            <a href="{{ url($userRole.'/payment-history/'.$payment) }}" class="btn btn-primary btn-sm"><i class="far fa-eye"></i> View History</a>
         </td>
     </tr>
 @php $number++; @endphp
