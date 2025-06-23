@@ -93,8 +93,8 @@ class PaymentController extends Controller
                     'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
-                echo $payment->id.'-----'.$request['booking_id'].'-----'.$request['payment_method'].'--------'.$request['amount_receive'];
-                die();
+                // echo $payment->id.'-----'.$request['booking_id'].'-----'.$request['payment_method'].'--------'.$request['amount_receive'];
+                // die();
 
                 BookingPaymentHistory::create([
                     'booking_id' => $request['booking_id'],
@@ -103,6 +103,7 @@ class PaymentController extends Controller
                     'paid_amount' => $request['amount_receive'],
                 ]);
                 // dd($request->all());
+                die();
 
                 $paymentDataMap = [];
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
