@@ -14,6 +14,8 @@ class BookingPaymentHistory extends Model
 {
     use HasFactory;
 
+    protected $table= 'booking_payment_histories';
+
     protected $fillable = [
         'booking_id',
         'invoice_id',

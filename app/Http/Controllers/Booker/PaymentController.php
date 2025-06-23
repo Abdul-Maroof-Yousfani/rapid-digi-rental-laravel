@@ -103,7 +103,7 @@ class PaymentController extends Controller
                     'paid_amount' => $request['amount_receive'],
                 ]);
                 // dd($request->all());
-                die();
+
 
                 $paymentDataMap = [];
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
