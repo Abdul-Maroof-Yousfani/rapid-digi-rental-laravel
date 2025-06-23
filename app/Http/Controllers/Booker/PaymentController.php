@@ -94,12 +94,13 @@ class PaymentController extends Controller
                     'receipt' => $imagePath,
                 ]);
 
-                BookingPaymentHistory::create([
-                    'booking_id' => $request['booking_id'],
-                    'payment_id' => $payment->id,
-                    'payment_method_id' => $request['payment_method'],
-                    'paid_amount' => $request['amount_receive'],
-                ]);
+                // BookingPaymentHistory::create([
+                //     'booking_id' => $request['booking_id'],
+                //     'payment_id' => $payment->id,
+                //     'payment_method_id' => $request['payment_method'],
+                //     'paid_amount' => $request['amount_receive'],
+                // ]);
+                // dd($request->all());
 
                 $paymentDataMap = [];
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
@@ -127,7 +128,6 @@ class PaymentController extends Controller
                         ]);
                     }
                 }
-                dd($request->all());
 
                 $paymentDataList = PaymentData::with('invoice')
                     ->where('payment_id', $payment->id)
