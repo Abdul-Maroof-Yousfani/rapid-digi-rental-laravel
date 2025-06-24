@@ -99,6 +99,7 @@ class PaymentController extends Controller
                     'payment_id' => $payment->id,
                     'payment_method_id' => $request['payment_method'],
                     'paid_amount' => $request['amount_receive'],
+                    'user_id' => Auth::user()->id,
                 ]);
 
 

@@ -18,7 +18,6 @@ class BookingPaymentHistory extends Model
 
     protected $fillable = [
         'booking_id',
-        'invoice_id',
         'payment_id',
         'paid_amount',
         'payment_method_id',
