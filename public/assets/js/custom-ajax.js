@@ -31,6 +31,8 @@ $(document).ready(function(){
     }
 
     $(document).on('input', '.amount_receive', function () {
+        var enteredValue = parseFloat($(this).val());
+        var restrictValue = parseFloat($('.restrict').val());
         if (!$(this).val()) {
             $('.pending_amount').val('');
             $('.remaining_amount').val('');
@@ -43,6 +45,13 @@ $(document).ready(function(){
             });
             return;
         }
+
+        // Agar entered value, restrict se zyada hai
+        if (enteredValue > restrictValue) {
+            $(this).val(restrictValue); // Automatically restrict it
+            enteredValue = restrictValue; // Optional: update local variable too
+        }
+
         let remainingAmount = parseFloat($(this).val()) || 0;
         let depositAmount = parseFloat($('.deposit_amount').val()) || 0;
         $('#booking_detail tr').each(function () {
@@ -53,7 +62,6 @@ $(document).ready(function(){
             let invoiceTotal = parseFloat(invoiceTotalCell.text()) || 0;
             let inputField = $(this).find('.invPaidAmount');
             let depositCheckbox = $(this).find('.add_deposit');
-
             let originalPaid = parseFloat(inputField.attr('data-original')) || 0;
 
             // Already fully paid — skip
@@ -149,6 +157,7 @@ function bookingChange(){
                 $('.remaining_deposit').val(response.remaining_deposit);
                 $('.customer_name').val(response.customer);
                 $('.pending_amount').val(parseFloat(response.remaining_amount).toFixed(2));
+                $('.restrict').val(parseFloat(response.remaining_amount).toFixed(2));
 
                 // Get Payment ID
                 $('.payment_id').val(response.id);
@@ -217,7 +226,7 @@ function bookingChange(){
                 });
                 $('#booking_detail').append('<tr><td colspan="8" class="text-right">Sub total</td>'+
                     '<td><input type="number" value="" name="amount_receive" class="form-control insubtot" readonly></td></tr>'+
-                    '<tr><td colspan="8" class="text-right">Remaining Amount</td>'+
+                    '<tr style="display: none"><td colspan="8" class="text-right">Remaining Amount</td>'+
                     '<td><input type="number" value="" name="" class="form-control remaining_amount" readonly></td></tr>');
             }
         }

@@ -30,7 +30,7 @@
                 <div class="row">
                     <div class="col-12 col-md-12 col-lg-12">
                         <div class="card-body">
-                            <h3 class="mb-0">Payment Recieve Form</h3>
+                            <h3 class="mb-0">Payment Voucher</h3>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,6 @@
                                                                         $disableOption = ($status !== 'pending' && $status !== null);
                                                                     @endphp
                                                                     <option value="{{ $item->id }}"
-                                                                        {{-- {{ $disableOption ? 'disabled' : '' }} --}}
                                                                         {{ $item->id==$bookingId ? 'selected' : '' }}>
                                                                         {{ $item->agreement_no }} | {{ $item->customer->customer_name }}
                                                                     </option>
@@ -139,6 +138,7 @@
                                                         <div class="form-group">
                                                             <label for="">Pending Amount</label><br>
                                                             <input type="number" placeholder="" value="" name="pending_amount" class="form-control pending_amount" readonly>
+                                                            <input type="hidden" class="form-control restrict">
                                                         </div>
                                                     </td>
                                                     <td class="align-middle">
@@ -152,7 +152,7 @@
                                                     <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Receive Amount</label><br>
-                                                            <input type="number" placeholder="Receive Amount" value="" name="" class="form-control amount_receive" min="0" step="0.01" required>
+                                                            <input type="number" placeholder="Receive Amount" value="0" name="" class="form-control amount_receive" min="0" step="0.01" required>
                                                         </div>
                                                     </td>
                                                     <td class="align-middle already_paid">
@@ -198,7 +198,7 @@
                     </div>
 
 
-                    <div class="row">
+                    <div class="row" style="display: none">
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-body">

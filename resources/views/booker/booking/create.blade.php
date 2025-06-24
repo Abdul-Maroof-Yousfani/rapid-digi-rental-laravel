@@ -103,10 +103,10 @@
                                                     <th>Vehicle Type <span class="text-danger">*</span></th>
                                                     <th>Vehicle Name <span class="text-danger">*</span></th>
                                                     <th>Description </th>
-                                                    <th>Investor</th>
-                                                    <th>No. Plate</th>
-                                                    <th>Booking Status</th>
-                                                    <th>Status</th>
+                                                    <th style="display: none">Investor</th>
+                                                    <th style="display: none">No. Plate</th>
+                                                    <th style="display: none">Booking Status</th>
+                                                    <th style="display: none">Status</th>
                                                     <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
@@ -157,19 +157,19 @@
                                                         </div>
                                                     </td>
 
-                                                    <td class="align-middle investor"><br>
+                                                    <td style="display: none" class="align-middle investor"><br>
 
                                                     </td>
 
-                                                    <td class="align-middle no_plate"><br>
+                                                    <td style="display: none" class="align-middle no_plate"><br>
 
                                                     </td>
 
-                                                    <td class="align-middle booking_status"><br>
+                                                    <td style="display: none" class="align-middle booking_status"><br>
 
                                                     </td>
 
-                                                    <td class="align-middle status"><br>
+                                                    <td style="display: none" class="align-middle status"><br>
 
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -266,6 +266,33 @@
             }
         }
 
+        // Multiple line item not selected same vehicle
+        function updateVehicleOptions() {
+            // Step 1: Collect all selected vehicle IDs
+            let selectedVehicleIds = [];
+            $('select[name="vehicle[]"]').each(function () {
+                let val = $(this).val();
+                if (val) selectedVehicleIds.push(val);
+            });
+
+            // Step 2: Loop over each vehicle dropdown
+            $('select[name="vehicle[]"]').each(function () {
+                let currentSelect = $(this);
+                let currentVal = currentSelect.val();
+
+                // Re-enable all options first
+                currentSelect.find('option').prop('disabled', false);
+
+                // Step 3: Disable options that are selected in other rows
+                selectedVehicleIds.forEach(function (val) {
+                    if (val !== currentVal) {
+                        currentSelect.find(`option[value="${val}"]`).prop('disabled', true);
+                    }
+                });
+            });
+        }
+
+
         $(document).ready(function() {
 
             // Not Enter Minus Values in These Fields
@@ -318,13 +345,13 @@
                         </div>
                     </td>
 
-                    <td class="align-middle investor"><br></td>
+                    <td style="display: none" class="align-middle investor"><br></td>
 
-                    <td class="align-middle no_plate"><br></td>
+                    <td style="display: none" class="align-middle no_plate"><br></td>
 
-                    <td class="align-middle booking_status"><br></td>
+                    <td style="display: none" class="align-middle booking_status"><br></td>
 
-                    <td class="align-middle status"><br></td>
+                    <td style="display: none" class="align-middle status"><br></td>
 
                     <td class="align-middle"><br>
                         <div class="form-group">
@@ -362,7 +389,6 @@
                 let startedAt = $('.started_at').val();
                 applyMinDateToAllDateFields(startedAt);
             });
-
 
             $(document).on('click', '.removeRow', function() {
                 $(this).closest('tr').remove();
@@ -404,16 +430,16 @@
                         </div>
                     </td>
 
-                    <td class="align-middle investor"><br>
+                    <td style="display: none" class="align-middle investor"><br>
                     </td>
 
-                    <td class="align-middle no_plate"><br>
+                    <td style="display: none" class="align-middle no_plate"><br>
                     </td>
 
-                    <td class="align-middle booking_status"><br>
+                    <td style="display: none" class="align-middle booking_status"><br>
                     </td>
 
-                    <td class="align-middle status"><br>
+                    <td style="display: none" class="align-middle status"><br>
                     </td>
 
                     <td class="align-middle"><br>
@@ -498,6 +524,7 @@
                                 `<option value="${vehicle.id}">${vehicle.number_plate} | ${vehicle.temp_vehicle_detail ?? vehicle.vehicle_name}</option>`
                             );
                         });
+                        updateVehicleOptions();
                     }
                 });
             });

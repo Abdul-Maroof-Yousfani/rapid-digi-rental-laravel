@@ -105,8 +105,8 @@
                                                     <th>Vehicle Type <span class="text-danger">*</span></th>
                                                     <th>Vehicle Name <span class="text-danger">*</span></th>
                                                     <th>Description </th>
-                                                    <th>Investor</th>
-                                                    <th>No. Plate</th>
+                                                    <th style="display: none">Investor</th>
+                                                    <th style="display: none">No. Plate</th>
                                                     <th>Tax (%) &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-danger"></span></th>
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
@@ -175,11 +175,11 @@
                                                         </div>
                                                     </td>
 
-                                                    <td class="align-middle investor"><br>
+                                                    <td style="display: none" class="align-middle investor"><br>
                                                         {{ $vehicleObj->investor->name ?? 'N/A' }}
                                                     </td>
 
-                                                    <td class="align-middle no_plate"><br>
+                                                    <td style="display: none" class="align-middle no_plate"><br>
                                                         {{ $vehicleObj->number_plate ?? 'N/A' }}
                                                     </td>
 
@@ -341,9 +341,9 @@
                         </div>
                     </td>
 
-                    <td class="align-middle investor"><br></td>
+                    <td style="display: none" class="align-middle investor"><br></td>
 
-                    <td class="align-middle no_plate"><br></td>
+                    <td style="display: none" class="align-middle no_plate"><br></td>
 
                     <td class="align-middle"><br>
                         <input type="hidden" name="tax_percent[]" value="" class="tax">
@@ -420,10 +420,10 @@
                         </div>
                     </td>
 
-                    <td class="align-middle investor"><br>
+                    <td style="display: none" class="align-middle investor"><br>
                     </td>
 
-                    <td class="align-middle no_plate"><br>
+                    <td style="display: none" class="align-middle no_plate"><br>
                     </td>
 
                     <td class="align-middle"><br>
