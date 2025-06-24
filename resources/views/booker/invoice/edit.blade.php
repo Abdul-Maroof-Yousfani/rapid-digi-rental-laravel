@@ -76,10 +76,10 @@
                                                     <th>Vehicle Type <span class="text-danger">*</span></th>
                                                     <th>Vehicle Name <span class="text-danger">*</span></th>
                                                     <th>Description </th>
-                                                    <th>Investor</th>
-                                                    <th>No. Plate</th>
-                                                    <th>Booking Status</th>
-                                                    <th>Status</th>
+                                                    <th style="display: none;">Investor</th>
+                                                    <th style="display: none;">No. Plate</th>
+                                                    <th style="display: none;">Booking Status</th>
+                                                    <th style="display: none;">Status</th>
                                                     <th>Start Date <span class="text-danger">*</span></th>
                                                     <th>Return Date <span class="text-danger">*</span></th>
                                                     <th>Type <span class="text-danger">*</span></th>
@@ -129,19 +129,19 @@
                                                         </div>
                                                     </td>
 
-                                                    <td class="align-middle investor"><br>
+                                                    <td style="display: none;" class="align-middle investor"><br>
                                                         {{ $vehicleObj->investor->name ?? 'N/A' }}
                                                     </td>
 
-                                                    <td class="align-middle no_plate"><br>
+                                                    <td style="display: none;" class="align-middle no_plate"><br>
                                                         {{ $vehicleObj->number_plate ?? 'N/A' }}
                                                     </td>
 
-                                                    <td class="align-middle booking_status"><br>
+                                                    <td style="display: none;" class="align-middle booking_status"><br>
                                                         {{ $vehicleObj->vehiclestatus->name }}
                                                     </td>
 
-                                                    <td class="align-middle status"><br>
+                                                    <td style="display: none;" class="align-middle status"><br>
                                                         {{ $vehicleObj->status === null ? 'N/A' :  ($vehicleObj->status==1 ? 'Active' : 'Inactive') }}
                                                     </td>
                                                     <td class="align-middle"><br>
@@ -287,13 +287,13 @@
                         </div>
                     </td>
 
-                    <td class="align-middle investor"><br></td>
+                    <td style="display: none;" class="align-middle investor"><br></td>
 
-                    <td class="align-middle no_plate"><br></td>
+                    <td style="display: none;" class="align-middle no_plate"><br></td>
 
-                    <td class="align-middle booking_status"><br></td>
+                    <td style="display: none;" class="align-middle booking_status"><br></td>
 
-                    <td class="align-middle status"><br></td>
+                    <td style="display: none;" class="align-middle status"><br></td>
 
                     <td class="align-middle"><br>
                         <div class="form-group">
@@ -384,16 +384,16 @@
                         </div>
                     </td>
 
-                    <td class="align-middle investor"><br>
+                    <td style="display: none;" class="align-middle investor"><br>
                     </td>
 
-                    <td class="align-middle no_plate"><br>
+                    <td style="display: none;" class="align-middle no_plate"><br>
                     </td>
 
-                    <td class="align-middle booking_status"><br>
+                    <td style="display: none;" class="align-middle booking_status"><br>
                     </td>
 
-                    <td class="align-middle status"><br>
+                    <td style="display: none;" class="align-middle status"><br>
                     </td>
 
                     <td class="align-middle"><br>

@@ -297,7 +297,7 @@
 
                     <td style="display: none" class="align-middle booking_status"><br></td>
 
-                    <td class="align-middle status"><br></td>
+                    <td style="display: none" class="align-middle status"><br></td>
                     <td class="align-middle"><br>
                         <div class="form-group">
                             <input type="number" value="" name="quantity[]" value="1" class="form-control quantity" >
