@@ -195,35 +195,36 @@ class BookingController extends Controller
 
     public function bookingReport(Request $request)
     {
-        $query = Booking::with(['bookingData.vehicle', 'customer', 'invoice']);
+        // $query = Booking::with(['bookingData.vehicle.investor', 'customer', 'invoice']);
 
         // $query->whereHas('bookingData.vehicle.investor', function ($q) {
         //     $q->where('user_id', Auth::user()->id);
         // });
 
-        $query->whereHas('bookingData', function ($q) {
-            $q->whereHas('vehicle', function ($q2) {
-                $q2->whereHas('investor', function ($q3) {
-                    $q3->where('user_id', Auth::id());
-                });
-            });
-        });
+        // if ($request->filled('from_date') && $request->filled('to_date')) {
+        //     $from = Carbon::parse($request->from_date)->startOfDay(); // 00:00:00
+        //     $to = Carbon::parse($request->to_date)->endOfDay();       // 23:59:59
 
+        //     $query->whereBetween('created_at', [$from, $to]);
+        // }
 
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $from = Carbon::parse($request->from_date)->startOfDay(); // 00:00:00
-            $to = Carbon::parse($request->to_date)->endOfDay();       // 23:59:59
+        // // Filter by customer
+        // if ($request->filled('customer_id')) {
+        //     $query->where('customer_id', $request->customer_id);
+        // }
 
-            $query->whereBetween('created_at', [$from, $to]);
-        }
+        // $bookings = $query->get();
 
-        // Filter by customer
-        if ($request->filled('customer_id')) {
-            $query->where('customer_id', $request->customer_id);
-        }
+        $query= BookingData::with('vehicle.investor', 'booking')
+                  ->whereHas('vehicle', function($query1){
+                    $query1->whereHas('investor', function($query2){
+                        $query2->where('user_id', Auth::user()->id);
+                    });
+                  });
 
-        $bookings = $query->get();
-        return view('reports.report_booking', compact('bookings'));
+        $booking= $query->get();
+
+        return view('reports.report_booking', compact('booking'));
     }
 
     /**

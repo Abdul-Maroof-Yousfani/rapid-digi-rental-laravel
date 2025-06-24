@@ -23,6 +23,7 @@
         <td>
             {{ $item->agreement_no }}
         </td>
+        <td>{{ $item->customer->customer_name }}</td>
         <td align="right">{{ number_format($itemBookingTotal, 2) }}</td>
         <td align="right">{{ number_format($itemPaidTotal, 2) }}</td>
         <td align="right">{{ number_format($itemReceivableTotal, 2) }}</td>
@@ -31,7 +32,7 @@
 @endforeach
 
 <tr>
-    <td colspan="2" align="right"><b>Sub Total</b></td>
+    <td colspan="3" align="right"><b>Sub Total</b></td>
     <td align="right"><b>{{ $bookingtotal }}</b></td>
     <td align="right"><b>{{ $paidtotal }}</b></td>
     <td align="right"><b>{{ $receivabletotal }}</b></td>

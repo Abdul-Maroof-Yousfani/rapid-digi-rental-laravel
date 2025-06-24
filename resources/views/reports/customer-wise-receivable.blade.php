@@ -51,6 +51,7 @@
                                             <tr>
                                                 <th>S No.</th>
                                                 <th>Agreement no.</th>
+                                                <th>Customer</th>
                                                 <th class="text-center">Booking Total</th>
                                                 <th class="text-center">Paid </th>
                                                 <th class="text-center">Receivable</th>
