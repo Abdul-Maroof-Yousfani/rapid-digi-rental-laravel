@@ -131,9 +131,9 @@
                             <th class="text-white text-left">#</th>
                             <th class="text-white text-left">Item & Description</th>
                             <th class="text-white text-right">Qty</th>
-                            <th class="text-white text-right">Unit rate</th>
                             <th class="text-white text-right">Total</th>
                             <th class="text-white text-right">Tax</th>
+                            <th class="text-white text-right">Tax Amount</th>
                             <th class="text-white text-right">Net Total</th>
                         </tr>
                     </thead>
@@ -146,9 +146,15 @@
                                     <small>{{ $item->description }}</small>
                                 </td>
                                 <td class="text-right">{{ $item->quantity }}</td>
-                                <td class="text-right">{{ number_format($item->price, 2) }}</td>
                                 <td class="text-right">{{ number_format($item->price * $item->quantity, 2) }}</td>
                                 <td class="text-right">{{ $item->tax_name }} {{ $item->tax_percent }}%</td>
+                                <td class="text-right">
+                                    @php
+                                        $subTotal = $item->price * $item->quantity;
+                                        $taxAmount = ($subTotal * $item->tax_percent) / 100;
+                                    @endphp
+                                    {{ number_format($taxAmount, 2) }}
+                                </td>
                                 <td class="text-right">{{ number_format($item->item_total, 2) }}</td>
                             </tr>
                         @endforeach

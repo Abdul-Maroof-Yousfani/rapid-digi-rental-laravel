@@ -33,7 +33,6 @@
                                         <th>Initial Deposit</th>
                                         <th>Remaining</th>
                                         <th>Refund</th>
-                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,14 +45,14 @@
                                         <td>{{ $item->booking->deposit->deposit_amount ?? 0 }}</td>
                                         <td>{{ $item->remaining_deposit }}</td>
                                         <td>{{ $item->refund_amount }}</td>
-                                        <td>
+                                        {{-- <td>
                                             <a href="" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
                                             <form action="" method="" style="display:inline;" class="delete-form">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>Delete</button>
                                             </form>
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                     @endforeach
                                 </tbody>

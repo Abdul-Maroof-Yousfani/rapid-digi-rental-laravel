@@ -11,9 +11,11 @@
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 class="mb-0">Invoices for Booking #{{$booking->id}}</h3>
-                        <a href="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" class="btn btn-primary">
-                            Create Invoice
-                        </a>
+                        @if ($booking->booking_status != 'closed')
+                            <a href="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" class="btn btn-primary">
+                                Create Invoice
+                            </a>
+                        @endif
                     </div>
                   </div>
                 </div>
@@ -42,17 +44,19 @@
                                 <td>{{ $item->total_amount }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
+                                    <button type="button" class="btn btn-success btn-sm invDetail" data-invoice-id="{{ $item->id }}" data-toggle="modal" data-target="#invoiceModal">
+                                        Detail
+                                    </button>
+
                                     <a href="{{ url('booker/booking/view-invoice/'.$item->id) }}" class="btn btn-primary btn-sm"> View</a>
-                                    @php
-                                        $hasNonType1 = $item->bookingData->where('transaction_type', '!=', 1)->count() > 0;
-                                    @endphp
-
-                                    @if ($hasNonType1)
-                                        <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                    @else
-                                        <a href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}" class="btn btn-warning btn-sm"> <i class="far fa-edit"></i> Edit </a>
+                                    @if ($booking->booking_status != 'closed')
+                                        @php $hasNonType1 = $item->bookingData->where('transaction_type', '!=', 1)->count() > 0; @endphp
+                                        @if ($hasNonType1)
+                                            <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
+                                        @else
+                                            <a href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}" class="btn btn-warning btn-sm"> <i class="far fa-edit"></i> Edit </a>
+                                        @endif
                                     @endif
-
                                     <form action="" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
@@ -73,6 +77,22 @@
         </section>
       </div>
 
+        <!-- Create Model Code -->
+        <div class="modal fade" id="invoiceModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Invoice Detail</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                </div>
+            </div>
+        </div>
 @endsection
 
 
@@ -125,6 +145,61 @@
           });
       });
 
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = date.toLocaleString('default', { month: 'long' }); // Full month name
+        const year = date.getFullYear();
+        return `${day} ${month} ${year}`;
+    }
+
+    $(document).on('click', '.invDetail', function (e) {
+        e.preventDefault();
+        var invoiceId = $(this).data('invoice-id');
+
+        $.ajax({
+            url: '/get-invoice-detail/' + invoiceId,
+            type: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    let invoice = response.data.invoice;
+                    let bookingData = response.data.booking_data;
+
+                    let html = `<hr>`;
+                    html += `<table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Vehicle</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                    $.each(bookingData, function (index, item) {
+                        html += `<tr>
+                                    <td>${index + 1}</td>
+                                    <td>
+                                        ${item.vehicle ? (item.vehicle.vehicle_name ?? item.vehicle.temp_vehicle_detail ?? 'N/A') : 'N/A'}
+                                    </td>
+                                    <td>${formatDate(item.start_date)}</td>
+                                    <td>${formatDate(item.end_date)}</td>
+                                </tr>`;
+                    });
+
+                    html += `</tbody></table>`;
+
+                    $('#invoiceModal .modal-body').html(html);
+                    $('#invoiceModal').modal('show');
+                } else {
+                    $('#invoiceModal .modal-body').html('<p class="text-danger">Invoice not found</p>');
+                    $('#invoiceModal').modal('show');
+                }
+            }
+        });
+    });
   </script>
 
 @endsection

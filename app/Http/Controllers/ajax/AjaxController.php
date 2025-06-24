@@ -224,6 +224,26 @@ class AjaxController extends Controller
         ]);
     }
 
+    public function getInvoiceDetail($invoice_id)
+    {
+        // $invoice= Invoice::find($invoice_id);
+        $invoice = Invoice::with('bookingData.vehicle')->find($invoice_id);
+        if(!$invoice){
+            return response()->json([
+                'success' => false,
+                'data' => 'Invoice Not Found'
+            ]);
+        } else {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'invoice' => $invoice,
+                    'booking_data' => $invoice->bookingData
+                ]
+            ]);
+        }
+    }
+
     public function getVehicleForEditForm($id)
     {
         $vehicle = Vehicle::with('vehicletype', 'investor')->find($id);
