@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Booker;
 
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\Bank;
 use App\Models\Booking;
-use App\Models\DepositHandling;
 use App\Models\Invoice;
-use App\Models\BookingPaymentHistory;
 use App\Models\Payment;
 use App\Models\PaymentData;
+use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
 use App\Services\ZohoInvoice;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Models\DepositHandling;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\BookingPaymentHistory;
 use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends Controller
