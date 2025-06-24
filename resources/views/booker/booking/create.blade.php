@@ -49,11 +49,11 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Deposit Amount <span class="text-danger">*</span></label>
-                                        <input type="number" value="0" name="deposit_amount" class="form-control deposit_amount" >
+                                        <input type="number" value="0" name="deposit_amount" class="form-control deposit_amount" required>
                                     </div>
                                     <div class="form-group">
                                         <label>Started At <span class="text-danger">*</span></label>
-                                        <input type="date" value="0" name="started_at" class="form-control started_at" >
+                                        <input type="date" value="0" name="started_at" class="form-control started_at" required>
                                     </div>
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Agreement No. <span class="text-danger">*</span></label>
-                                        <input type="text" value="" name="agreement_no" class="form-control agreement_no">
+                                        <input type="text" value="" name="agreement_no" class="form-control agreement_no" required>
                                     </div>
                                 </div>
                             </div>
