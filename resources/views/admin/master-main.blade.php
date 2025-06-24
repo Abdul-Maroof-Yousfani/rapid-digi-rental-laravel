@@ -107,7 +107,7 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="user"></i><span>Customer</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}">Add Customer</a></li>
+                                {{-- <li><a class="nav-link" href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}">Add Customer</a></li> --}}
                                 <li><a class="nav-link" href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.index') : route('booker.customer.index') }}">Customer list</a></li>
                             </ul>
                         </li>
@@ -137,7 +137,7 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="truck"></i><span>Vehicle</span></a>
                             <ul class="dropdown-menu">
-                                <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.create') }}">Add Vehicle Type</a></li>
+                                {{-- <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.create') }}">Add Vehicle Type</a></li> --}}
                                 <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.index') }}">Vehicle Type list</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.vehicle.create') }}">Add Vehicle</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.vehicle.index') }}">Vehicle list</a></li>
