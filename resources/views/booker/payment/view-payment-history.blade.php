@@ -23,10 +23,7 @@ view-payment-history
                 <div class="col-12 col-md-12 col-lg-12">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">Payment List</h3>
-                        <a href="{{ role_base_route('payment.create') }}" class="btn btn-primary">
-                            Create Payment
-                        </a>
+                        <h3 class="mb-0">Payment History</h3>
                     </div>
                   </div>
                 </div>
@@ -36,7 +33,7 @@ view-payment-history
                 <div class="card">
                   <div class="card-body">
                     <div class="table-responsive">
-                      <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
+                      <table class="table table-striped table-hover" style="width:100%;">
                         <thead>
                           <tr>
                             <th>S. No</th>

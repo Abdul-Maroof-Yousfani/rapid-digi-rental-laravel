@@ -194,7 +194,7 @@ class PaymentController extends Controller
     {
         // dd($request->all());
         $payment= Payment::find($request->payment_id);
-        $beforeUpdateAmount=$payment->paid_amount;
+        $beforeUpdateAmount=$payment->paid_amount ?? 0;
         if(!$payment){
                 $imagePath = null;
                 if ($request->hasFile('image')) {

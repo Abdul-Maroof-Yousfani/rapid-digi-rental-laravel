@@ -17,6 +17,11 @@
             white-space: nowrap
         }
     </style>
+
+@php
+    $selectedBookingId = request()->query('booking_id');
+@endphp
+
     <!-- Main Content -->
     <div class="main-content">
         <section class="section">
@@ -49,7 +54,7 @@
                                                             <select name="booking_id" id="booking_id" class="form-control select2 booking_id" required>
                                                                 <option value="">Select Booking</option>
                                                                 @foreach ($filterBooking as $item)
-                                                                    <option value="{{ $item->id }}">
+                                                                    <option value="{{ $item->id }}" {{ $selectedBookingId == $item->id ? 'selected' : '' }}>
                                                                         {{ $item->agreement_no }} | {{ $item->customer->customer_name }}
                                                                     </option>
                                                                 @endforeach
@@ -199,6 +204,7 @@
 @section('script')
     <script>
         $(document).ready(function(){
+
             $(document).on('change', '.refund_method', function(){
                 var refundMethod= $(this).val();
                 if(refundMethod==3){
@@ -211,6 +217,12 @@
                 }
             });
 
+            const selectedID = $('.booking_id').val();
+            if(selectedID){
+                setTimeout(function() {
+                    $('.booking_id').trigger('change');
+                }, 300);
+            }
             $(document).on('change', '.booking_id', function(){
                 $('.amount_receive').removeAttr('disabled');
                 var bookingID= $(this).val();
