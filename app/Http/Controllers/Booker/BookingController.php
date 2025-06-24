@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers\Booker;
 
-use App\Http\Controllers\Api\ZohoController;
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\Booking;
-use App\Models\BookingData;
-use App\Models\CreditNote;
-use App\Models\Customer;
 use App\Models\Deposit;
-use App\Models\DepositHandling;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SalePerson;
 use App\Models\Vehicle;
+use App\Models\Customer;
+use App\Models\CreditNote;
+use App\Models\SalePerson;
+use App\Models\BookingData;
 use App\Models\Vehicletype;
-use App\Services\ZohoInvoice;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Services\ZohoInvoice;
+use App\Models\DepositHandling;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Api\ZohoController;
 
 class BookingController extends Controller
 {
@@ -102,7 +103,7 @@ class BookingController extends Controller
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description,
-                    'rate' => (float) $request->price[$key],
+                    'rate' => (float) str_replace(',', '', $request->price[$key]),
                     'quantity' => 1,
                     'tax_id' => $request->tax[$key]
                 ];
@@ -161,7 +162,7 @@ class BookingController extends Controller
                             'description' => $lineItemData['description'],
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
-                            'item_total' => number_format($itemTotal, 2),
+                            'item_total' => $itemTotal,
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
                     }
@@ -295,7 +296,7 @@ class BookingController extends Controller
                 $lineitems[]= [
                     'name' => $vehicleName,
                     'description' => $description,
-                    'rate' => (float) $request->price[$key],
+                    'rate' => (float) str_replace(',', '', $request->price[$key]),
                     'quantity' => 1,
                     'tax_id' => $request->tax[$key]
                 ];
@@ -369,7 +370,7 @@ class BookingController extends Controller
                             'description' => $lineItemData['description'],
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
-                            'item_total' =>  number_format($itemTotal, 2),
+                            'item_total' =>  $itemTotal,
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
 
