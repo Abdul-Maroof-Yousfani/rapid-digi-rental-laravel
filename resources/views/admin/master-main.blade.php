@@ -175,7 +175,7 @@
                             <ul class="dropdown-menu">
                                 {{-- <li><a class="nav-link" href="{{ role_base_route('customer-booking.create') }}">Add Booking</a></li> --}}
                                 <li><a class="nav-link" href="{{ role_base_route('customer-booking.index') }}">Booking list</a></li>
-                                <li><a class="nav-link" href="{{ role_base_route('status.form') }}">Assign Status</a></li>
+                                {{-- <li><a class="nav-link" href="{{ role_base_route('status.form') }}">Assign Status</a></li> --}}
                                 <li><a class="nav-link" href="{{ role_base_route('assined.vehicle') }}">Assigned Vehicles</a></li>
                             </ul>
                         </li>
@@ -183,9 +183,9 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="file-text"></i><span>Payments</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ role_base_route('payment.create') }}">Recieve Payment</a></li>
+                                {{-- <li><a class="nav-link" href="{{ role_base_route('payment.create') }}">Recieve Payment</a></li> --}}
                                 <li><a class="nav-link" href="{{ role_base_route('payment.index') }}">Payment list</a></li>
-                                <li><a class="nav-link" href="{{ role_base_route('credit-note.create') }}">Add Credit Note</a></li>
+                                {{-- <li><a class="nav-link" href="{{ role_base_route('credit-note.create') }}">Add Credit Note</a></li> --}}
                                 <li><a class="nav-link" href="{{ role_base_route('credit-note.index') }}">Credit Note list</a></li>
                             </ul>
                         </li>
