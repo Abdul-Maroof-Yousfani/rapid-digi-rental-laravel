@@ -172,6 +172,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Vehicle</th>
+                                        <th>No Plate</th>
                                         <th>From</th>
                                         <th>To</th>
                                     </tr>
@@ -184,6 +185,7 @@
                                     <td>
                                         ${item.vehicle ? (item.vehicle.vehicle_name ?? item.vehicle.temp_vehicle_detail ?? 'N/A') : 'N/A'}
                                     </td>
+                                    <td>${item.vehicle.number_plate}</td>
                                     <td>${formatDate(item.start_date)}</td>
                                     <td>${formatDate(item.end_date)}</td>
                                 </tr>`;

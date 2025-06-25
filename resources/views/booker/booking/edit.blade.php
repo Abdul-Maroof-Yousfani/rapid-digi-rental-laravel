@@ -564,15 +564,36 @@
                 });
             });
 
-            $(document).on('change', '.price, .zohotax', function(){
-                var row = $(this).closest('tr');
-                var zohotax = row.find('.zohotax option:selected').data('percentage') || 0;
-                row.find('.tax').val(zohotax);
-                var price = parseFloat(row.find('.price').val()) || null;
-                var tax = parseFloat(row.find('.tax').val()) || null;
-                var taxAmount= (tax/100) * price;
-                var total= price + taxAmount;
-                row.find('.amount').val(total);
+            // $(document).on('change', '.price, .zohotax', function(){
+            //     var row = $(this).closest('tr');
+            //     var zohotax = row.find('.zohotax option:selected').data('percentage') || 0;
+            //     row.find('.tax').val(zohotax);
+            //     var price = parseFloat(row.find('.price').val()) || null;
+            //     var tax = parseFloat(row.find('.tax').val()) || null;
+            //     var taxAmount = (tax/100) * price;
+            //     var total = price + taxAmount;
+            //     row.find('.amount').val(total);
+            // });
+
+
+        });
+        $(document).on('change', '.price, .zohotax', function(){
+            var row = $(this).closest('tr');
+            calculateRowTotal(row);
+        });
+        function calculateRowTotal(row) {
+            var zohotax = row.find('.zohotax option:selected').data('percentage') || 0;
+            row.find('.tax').val(zohotax);
+            var price = parseFloat(row.find('.price').val()) || null;
+            var tax = parseFloat(row.find('.tax').val()) || null;
+            var taxAmount = (tax/100) * price;
+            var total = price + taxAmount;
+            row.find('.amount').val(total);
+        }
+
+        $(document).ready(function () {
+            $('tr').each(function () {
+                calculateRowTotal($(this));
             });
         });
     </script>
