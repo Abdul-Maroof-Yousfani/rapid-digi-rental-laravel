@@ -171,7 +171,7 @@
                                                 <th>Rent</th>
                                                 <th>Status</th>
                                                 <th>Total Amount</th>
-                                                <th>Add Deposit</th>
+                                                <th style="display: none">Add Deposit</th>
                                                 <th>Receive Amount</th>
                                             </tr>
                                             </thead>
@@ -183,25 +183,6 @@
                         </div>
                     </div>
 
-
-                    <div class="row" style="display: none">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Vehicle</th>
-                                        <th scope="col">Type</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="vehicles"> </tbody>
-                                </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">

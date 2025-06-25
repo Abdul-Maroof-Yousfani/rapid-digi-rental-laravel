@@ -62,9 +62,7 @@ $(document).ready(function(){
             let invoiceTotal = parseFloat(invoiceTotalCell.text()) || 0;
             let inputField = $(this).find('.invPaidAmount');
             let depositCheckbox = $(this).find('.add_deposit');
-            // let originalPaid = parseFloat(inputField.attr('data-original')) || 0;
-            let originalPaid = (parseFloat(inputField.attr('data-original')) || 0) + (parseFloat(inputField.data('applied-deposit')) || 0);
-
+            let originalPaid = parseFloat(inputField.attr('data-original')) || 0;
 
             // Already fully paid — skip
             if (originalPaid.toFixed(2) === invoiceTotal.toFixed(2)) {
@@ -143,153 +141,7 @@ $(document).ready(function(){
 });
 
 
-
-
-
-function bookingChange() {
-    $('.amount_receive').removeAttr('disabled');
-    var bookingID = $('#booking_id').val();
-    $.ajax({
-        url: '/get-booking-detail/' + bookingID,
-        type: 'GET',
-        success: function (response) {
-            $('#vehicles').html('');
-            $('#booking_detail').html('');
-
-            if (response) {
-                $('.booking_amount').val(response.booking_amount);
-                $('.initial_deposit').val(response.deposit_amount);
-                $('.deposit_amount').val(response.remaining_deposit);
-                $('.remaining_deposit').val(response.remaining_deposit);
-                $('.customer_name').val(response.customer);
-
-
-                let bookingAmount = parseFloat(response.booking_amount) || 0;
-                let depositRemaining = parseFloat(response.remaining_deposit) || 0;
-                let alreadyPaid = parseFloat(response.paid_amount) || 0;
-                let pending = bookingAmount - depositRemaining - alreadyPaid;
-                $('.pending_amount').val(pending.toFixed(2));
-                $('.restrict').val(pending.toFixed(2));
-
-
-                $('.payment_id').val(response.payment_id);
-
-                if (response.paid_amount > 0) {
-                    $('.already_paid').html(
-                        '<div class="form-group">' +
-                        '<label for="">Already Paid</label><br>' +
-                        '<input type="number" placeholder="" value="' + response.paid_amount + '" name="" class="form-control" min="0" step="0.01">' +
-                        '</div>'
-                    );
-                } else {
-                    $('.already_paid').html('');
-                }
-
-                $.each(response.vehicle, function (index, vehicles) {
-                    var row = '<tr>' +
-                        '<th scope="row">' + (index + 1) + '</th>' +
-                        '<td>' + vehicles.name + '</td>' +
-                        '<td>' + vehicles.type + '</td>' +
-                        '</tr>';
-                    $('#vehicles').append(row);
-                });
-
-                let subtotal = 0;
-                $.each(response.invoice_detail, function (index, invoice) {
-                    var paid = parseFloat(invoice.paid_amount) || 0;
-                    var total = parseFloat(invoice.invoice_amount) || 0;
-                    var deposit = parseFloat(invoice.deposit_amount) || 0;
-                    var remainingDeposit = parseFloat(response.remaining_deposit) || 0;
-                    var paymentDataID = invoice.payment_data_id;
-
-                    var disableCheckbox = (remainingDeposit === 0 || paid.toFixed(2) === total.toFixed(2));
-
-                    var rowColor = '';
-                    if (paid > 0) {
-                        rowColor = (paid.toFixed(2) === total.toFixed(2)) ? 'background-color:#d4edda;' : 'background-color:#fff3cd;';
-                    }
-
-                    var row = '<tr style="' + rowColor + '">' +
-                        '<td><input type="hidden" name="paymentData_id[]" value="' + paymentDataID + '">' + invoice.zoho_invoice_number + '</td>' +
-                        '<td>' + invoice.summary.salik_qty + ' | ' + invoice.summary.salik_amount + '</td>' +
-                        '<td>' + invoice.summary.fine_qty + ' | ' + invoice.summary.fine_amount + '</td>' +
-                        '<td>' + invoice.summary.renew_amount + '</td>' +
-                        '<td>' + (invoice.summary.rent_amount).toFixed(2) + '</td>' +
-                        '<td>' + invoice.invoice_status + '</td>' +
-                        '<td class="invoice_total">' + total + '</td>' +
-                        '<td class="text-center" style="display: none;">' +
-                        '<div class="custom-control custom-checkbox">' +
-                        '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"' + (disableCheckbox ? ' disabled' : '') + '>' +
-                        '<input type="hidden" class="addDepositAmount form-control" name="addDepositAmount[]" value="0">' +
-                        '<label class="custom-control-label" for="depositCheck' + index + '"></label></div>' +
-                        '</td>' +
-                        '<td class="recieve_amount">' +
-                        '<input type="hidden" name="invoice_id[]" value="' + invoice.invoice_id + '">' +
-                        '<input type="hidden" name="invoice_amount[]" value="' + total + '">' +
-                        '<input type="text" name="invPaidAmount[]" value="' + paid.toFixed(2) + '" data-original="' + paid.toFixed(2) + '" class="form-control invPaidAmount" readonly>' +
-                        '</td></tr>';
-                    $('#booking_detail').append(row);
-                });
-
-                $('#booking_detail').append('<tr><td colspan="7" class="text-right">Sub total</td>' +
-                    '<td><input type="number" value="" name="amount_receive" class="form-control insubtot" readonly></td></tr>' +
-                    '<tr style="display: none"><td colspan="7" class="text-right">Remaining Amount</td>' +
-                    '<td><input type="number" value="" name="" class="form-control remaining_amount" readonly></td></tr>');
-
-                // ===================== Auto Apply Deposit START =====================
-                let autoDeposit = parseFloat(response.remaining_deposit) || 0;
-                $('#booking_detail tr').each(function () {
-                    let row = $(this);
-                    let invoiceTotalCell = row.find('.invoice_total');
-                    if (invoiceTotalCell.length === 0) return;
-
-                    let invoiceTotal = parseFloat(invoiceTotalCell.text()) || 0;
-                    let inputField = row.find('.invPaidAmount');
-                    let depositCheckbox = row.find('.add_deposit');
-                    let depositInputHidden = row.find('.addDepositAmount');
-
-                    let alreadyPaid = parseFloat(inputField.val()) || 0;
-                    let remainingInvoice = invoiceTotal - alreadyPaid;
-
-                    if (autoDeposit <= 0 || remainingInvoice <= 0) return;
-
-                    let applyAmount = (autoDeposit >= remainingInvoice) ? remainingInvoice : autoDeposit;
-
-                    // Apply deposit
-                    let newPaidAmount = alreadyPaid + applyAmount;
-                    inputField.val(newPaidAmount.toFixed(2));
-                    depositInputHidden.val(applyAmount.toFixed(2));
-                    depositCheckbox.prop('checked', true);
-                    inputField.data('applied-deposit', applyAmount);
-
-                    // Background coloring
-                    if (newPaidAmount.toFixed(2) === invoiceTotal.toFixed(2)) {
-                        row.css('background-color', '#d4edda');
-                    } else {
-                        row.css('background-color', '#fff3cd');
-                    }
-
-                    autoDeposit -= applyAmount;
-                });
-
-                $('.deposit_amount').val(autoDeposit.toFixed(2));
-                $('.remaining_deposit').val(autoDeposit.toFixed(2));
-                // ===================== Auto Apply Deposit END =====================
-            }
-        }
-    });
-}
-
-
-
-
-
-
-
-
-
-
-function bookingChangessss(){
+function bookingChange(){
     $('.amount_receive').removeAttr('disabled');
     var bookingID= $('#booking_id').val();
     $.ajax({
@@ -320,7 +172,14 @@ function bookingChangessss(){
                 } else {
                     $('.already_paid').html('');
                 }
-
+                $.each(response.vehicle, function(index, vehicles) {
+                    var row = '<tr>' +
+                                '<th scope="row">' + (index + 1) + '</th>' +
+                                '<td>' + vehicles.name + '</td>' +
+                                '<td>' + vehicles.type + '</td>' +
+                            '</tr>';
+                    $('#vehicles').append(row);
+                });
                 let subtotal = 0;
                 $.each(response.invoice_detail, function(index, invoice){
                     var paid = parseFloat(invoice.paid_amount) || 0;
@@ -372,12 +231,7 @@ function bookingChangessss(){
             }
         }
     });
-      }
-
-
-
-
-///////////////////////////////////
+}
 
 
 
@@ -387,6 +241,59 @@ function bookingChangessss(){
 
 
 
+// function bookingChange(){
+//     $('.amount_receive').removeAttr('disabled');
+//     var bookingID= $('#booking_id').val();
+//     $.ajax({
+//         url : '/get-booking-detail/'+bookingID,
+//         type: 'GET',
+//         success:function(response){
+//         $('#vehicles').html('');
+//         $('#booking_detail').html('');
+//             if(response){
+//                 $('.booking_amount').val(response.booking_amount);
+//                 $('.deposit_amount').val(response.deposit_amount);
+//                 $('.customer_name').val(response.customer);
+//                 $('.pending_amount').val(response.remaining_amount);
+//                 $.each(response.vehicle, function(index, vehicles) {
+//                     var row = '<tr>' +
+//                                 '<th scope="row">' + (index + 1) + '</th>' +
+//                                 '<td>' + vehicles.name + '</td>' +
+//                                 '<td>' + vehicles.type + '</td>' +
+//                             '</tr>';
+//                     $('#vehicles').append(row);
+//                 });
+//                 let subtotal = 0;
+//                 $.each(response.invoice_detail, function(index, invoice){
+//                     var paid = parseFloat(invoice.paid_amount) || 0;
+//                     var row = '<tr>' +
+//                         '<td>' + invoice.zoho_invoice_number + '</td>' +
+//                         '<td>' + invoice.summary.salik_qty + ' | ' + invoice.summary.salik_amount + '</td>' +
+//                         '<td>' + invoice.summary.fine_qty + ' | ' + invoice.summary.fine_amount + '</td>' +
+//                         '<td>' + invoice.summary.renew_amount + '</td>' +
+//                         '<td>' + invoice.summary.rent_amount + '</td>' +
+//                         '<td>' + invoice.invoice_status + '</td>' +
+//                         '<td class="invoice_total">' + invoice.invoice_amount + '</td>' +
+//                         '<td class="text-center">'+
+//                             '<div class="custom-control custom-checkbox">' +
+//                             '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"><input type="hidden" class="addDepositAmount form-control" name="addDepositAmount[]" value="">' +
+//                             '<label class="custom-control-label" for="depositCheck' + index + '"></label></div>'+
+//                         '</td>'+
+//                         '<td class="recieve_amount">'+
+//                             '<input type="hidden" name="invoice_id[]" value="'+invoice.invoice_id+'">'+
+//                             '<input type="hidden" name="invoice_amount[]" value="'+invoice.invoice_amount+'">'+
+//                             '<input type="text" name="invPaidAmount[]" value="' + paid.toFixed(2) + ' class="form-control invPaidAmount" readonly>'+
+//                         '</td></tr>';
+//                     $('#booking_detail').append(row);
+//                 });
+//                 $('#booking_detail').append('<tr><td colspan="8" class="text-right">Sub total</td>'+
+//                     '<td><input type="number" value="" name="amount_receive" class="form-control insubtot" readonly></td></tr>'+
+//                     '<tr><td colspan="8" class="text-right">Remaining Amount</td>'+
+//                     '<td><input type="number" value="" name="" class="form-control remaining_amount" readonly></td></tr>');
+//             }
+//         }
+//     });
+// }
 
 
 
@@ -395,26 +302,46 @@ function bookingChangessss(){
 
 
 
+    // $(document).on('input', '.amount_receive', function () {
+    //     if (!$(this).val()) {
+    //         $('.pending_amount').val('');
+    //         $('.remaining_amount').val('');
+    //         $('.insubtot').val('');
+    //         $('.invPaidAmount').val(0);
+    //         $('#booking_detail tr').each(function () {
+    //             if ($(this).find('.invoice_total').length > 0) {
+    //                 $(this).css('background-color', '');
+    //             }
+    //         });
+    //         return;
+    //     }
+    //     let remainingAmount = parseFloat($(this).val()) || 0;
+    //     $('#booking_detail tr').each(function () {
+    //         let invoiceTotalCell = $(this).find('.invoice_total');
+    //         if (invoiceTotalCell.length === 0) {
+    //             return;
+    //         }
+    //         let invoiceAmount = parseFloat($(this).find('.invoice_total').text()) || 0;
+    //         let inputField = $(this).find('.invPaidAmount');
+    //         let depositCheckbox = $(this).find('.add_deposit');
+    //         if (remainingAmount >= invoiceAmount) {
+    //             inputField.val(invoiceAmount.toFixed(2));
+    //             remainingAmount -= invoiceAmount;
+    //             $(this).css('background-color', '#d4edda');
+    //             depositCheckbox.prop('disabled', true);
+    //         } else if (remainingAmount > 0) {
+    //             inputField.val(remainingAmount.toFixed(2));
+    //             remainingAmount = 0;
+    //             $(this).css('background-color', '#fff3cd');
+    //             depositCheckbox.prop('disabled', false);
+    //         } else {
+    //             inputField.val(0);
+    //             $(this).css('background-color', '#fff3cd');
+    //             depositCheckbox.prop('disabled', false);
+    //         }
+    //     });
+    //     recalculateTotals();
+    //     $('.remaining_amount').val(remainingAmount.toFixed(2));
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // });

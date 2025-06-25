@@ -34,8 +34,15 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-body">
+                    <form class="filterForm" style="display: none">
+                        <div class="row">
+                            <div class="col-3 ml-auto">
+                                <input type="text" placeholder="Search" class="form-control" id="search">
+                            </div>
+                        </div><br>
+                    </form>
                     <div class="table-responsive">
-                      <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
+                      <table class="table table-striped table-hover" style="width:100%;">
                         <thead>
                           <tr>
                             <th>S. No</th>
@@ -105,14 +112,15 @@
       });
 
       $(document).ready(function(){
+
         $('#paymentList').html(`
-            <tr>
-            <td colspan="8" class="text-center">
-                <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </td>
-        </tr>
+                <tr>
+                    <td colspan="8" class="text-center">
+                        <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
         `);
         $.ajax({
             url: '/get-payment-list',
@@ -124,6 +132,59 @@
                 console.error('Error fetching payment list:', xhr.responseText);
             }
         });
+
+
+        $('#search').on('keyup', function () {
+            let search = $(this).val();
+            // Show loader while data is loading
+            $('#paymentList').html(`
+                <tr>
+                    <td colspan="8" class="text-center">
+                        <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+            `);
+            $.ajax({
+                url:'/search-payment',
+                method: 'get',
+                data: { search : search },
+                success:function(response){
+                    let html = '';
+                    let number = 1;
+                    if (response.payments.length > 0) {
+                        $.each(response.payments, function (index, data) {
+                            html += `
+                                    <tr>
+                                        <td>${data.id}.</td>
+                                        <td>${data}</td>
+                                        <td>${data}</td>
+                                        <td>${data}</td>
+                                        <td>${data.booking_amount}</td>
+                                        <td>${data.paid_amount}</td>
+                                        <td>${data.pending_amount ?? 0}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-success btn-sm paymentHistory" data-payment-id="${data.id}" data-toggle="modal" data-target="#paymentHistoryModal">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                            `;
+                            number++;
+                        });
+
+                        $('#paymentList').html(html);
+
+                    } else {
+                        html = `<tr><td colspan="7" class="text-center">No results found</td></tr>`;
+                    }
+                }
+            });
+        });
+
+
+
       });
 
     $(document).on('click', '.paymentHistory', function (e) {

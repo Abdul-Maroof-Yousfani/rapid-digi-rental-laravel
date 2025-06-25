@@ -99,6 +99,10 @@ class PaymentController extends Controller
                         'payment_status' => $paymentStatus,
                         'receipt' => $imagePath,
                     ]);
+                    // echo '<pre>';
+                    // echo $payment;
+                    // echo '</pre>';
+                    // die();
                 } else {
                     $payment= Payment::create([
                         'booking_id' => $request['booking_id'],

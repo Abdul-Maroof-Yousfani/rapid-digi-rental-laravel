@@ -84,6 +84,9 @@ class ReportController extends Controller
     {
         $customerID= $request->customer_id;
         $booking = Booking::with('invoice', 'payment')
+                    ->whereHas('payment', function($q1){
+                        $q1->where('pending_amount', '!==', null);
+                    })
                     ->when($customerID, function ($query) use ($customerID){
                         $query->where('customer_id', $customerID);
                     })

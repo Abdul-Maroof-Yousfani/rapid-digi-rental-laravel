@@ -489,4 +489,27 @@ class AjaxController extends Controller
             'customers' => $customers
         ]);
     }
+
+    public function searchPayment(Request $request)
+    {
+        $search= $request->search;
+        $payments= Payment::with('booking.customer', 'paymentMethod')
+                    ->whereHas('booking', function($q1) use ($search){
+                        $q1->whereRaw('LOWER(agreement_no) LIKE ?', ["%{$search}%"]);
+                        $q1->whereHas('customer', function($q2) use ($search){
+                            $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%{$search}%"]);
+                        });
+                    })
+                    ->when($search, function($query, $search){
+                        $query->where(function($q) use ($search) {
+                            $q->where('paid_amount', 'LIKE', "%$search%")
+                            ->orWhere('pending_amount', 'LIKE', "%$search%")
+                            ->orWhere('booking_amount', 'LIKE', "%$search%");
+                        });
+                    })->get();
+
+        return response()->json([
+            'payments' => $payments
+        ]);
+    }
 }

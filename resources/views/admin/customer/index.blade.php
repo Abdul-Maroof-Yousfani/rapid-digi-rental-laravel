@@ -819,65 +819,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                {{-- <div class="col-12">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover" style="width:100%;">
-                                            <tr>
-                                                <td>
-                                                </td>
-                                                <td>
-                                                </td>
-                                                <td>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-
-                                                </td>
-                                                <td>
-
-                                                </td>
-                                                <td>
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-
-                                                </td>
-                                                <td>
-
-                                                </td>
-                                                <td>
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-
-                                                </td>
-                                                <td colspan="2">
-
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div> --}}
                             </div>
                         </div>
                         <div class="modal-footer">
