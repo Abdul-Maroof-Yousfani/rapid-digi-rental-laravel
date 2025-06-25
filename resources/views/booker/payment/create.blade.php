@@ -49,10 +49,9 @@
                                             <tbody class="ui-sortable">
                                                 <tr>
                                                     <td class="align-middle">
-                                                        @if (request()->query('booking_id'))
                                                             <div class="form-group">
                                                                 <label for="">Booking</label><br>
-                                                                <select name="booking_id" id="booking_id" onchange="bookingChange()" class="form-control select2 booking_id" disabled>
+                                                                <select name="booking_id" id="booking_id" onchange="bookingChange()" class="form-control select2 booking_id">
                                                                     <option value="">Select Booking</option>
                                                                     @foreach ($bookings as $item)
                                                                     @php
@@ -60,26 +59,13 @@
                                                                         $disableOption = ($status !== 'pending' && $status !== null);
                                                                     @endphp
                                                                     <option value="{{ $item->id }}"
-                                                                        {{ $item->id==$bookingId ? 'selected' : '' }}>
+                                                                        {{ $disableOption ? 'disabled' : '' }}>
                                                                         {{ $item->agreement_no }} | {{ $item->customer->customer_name }}
                                                                     </option>
                                                                     @endforeach
                                                                 </select><br>
                                                                 <input type="hidden" value="" name="payment_id" class="payment_id" readonly>
                                                             </div>
-                                                        @else
-                                                        <div class="form-group">
-                                                            <label for="">Booking</label><br>
-                                                            <select name="booking_id" id="booking_id" onchange="bookingChange()" class="form-control select2 booking_id" required>
-                                                                <option value="">Select Booking</option>
-                                                                @foreach ($bookingsPartial as $item)
-                                                                <option value="{{ $item->id }}" {{ $item->id==$bookingId ? 'selected' : '' }}>
-                                                                    {{ $item->id }}# {{ $item->customer->customer_name }} | {{ $item->agreement_no }}
-                                                                </option>
-                                                                @endforeach
-                                                            </select><br>
-                                                        </div>
-                                                        @endif
                                                     </td>
                                                     <td class="align-middle p-0">
                                                         <div class="form-group">

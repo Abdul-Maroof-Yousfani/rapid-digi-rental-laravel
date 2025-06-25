@@ -198,7 +198,7 @@ class AjaxController extends Controller
                 $getDeposit = DepositHandling::where('payment_data_id', $paymentData->id)->first();
             }
             return [
-                'id' => $paymentData->id ?? null, // PaymentData Primary Key
+                'payment_data_id' => $paymentData->id ?? null, // PaymentData Primary Key
                 'paid_amount' => $paymentData->paid_amount ?? 0,
                 'deposit_amount' => $getDeposit->deduct_deposit ?? 0,
                 'zoho_invoice_number' => $invoice->zoho_invoice_number,
@@ -210,7 +210,7 @@ class AjaxController extends Controller
         });
 
         return response()->json([
-            'id' => $payment->id ?? null, // Payment Primary Key
+            'payment_id' => $payment->id ?? null, // Payment Primary Key
             'paid_amount' => $payment->paid_amount ?? 0,
             'remaining_amount' => $remainingAmount,
             'booking_amount' => $bookingAmount,

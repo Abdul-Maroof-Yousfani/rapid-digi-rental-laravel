@@ -160,7 +160,7 @@ function bookingChange(){
                 $('.restrict').val(parseFloat(response.remaining_amount).toFixed(2));
 
                 // Get Payment ID
-                $('.payment_id').val(response.id);
+                $('.payment_id').val(response.payment_id);
 
                 if(response.paid_amount > 0){
                     $('.already_paid').html('');
@@ -188,7 +188,7 @@ function bookingChange(){
                     var remainingDeposit = parseFloat(response.remaining_deposit) || 0;
 
                     // Get PaymentData ID
-                    var paymentDataID= invoice.id;
+                    var paymentDataID= invoice.payment_data_id;
 
                     // var disableCheckbox = (deposit === 0 || paid.toFixed(2) === total.toFixed(2));
                     var disableCheckbox = (remainingDeposit === 0 || paid.toFixed(2) === total.toFixed(2));

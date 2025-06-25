@@ -84,25 +84,41 @@ class PaymentController extends Controller
                 }
                 $pendingAmount= $request['booking_amount'] - $request['amount_receive'];
                 $paymentStatus= $pendingAmount==0 ? 'paid' : 'pending';
-                $payment= Payment::create([
-                    'booking_id' => $request['booking_id'],
-                    'payment_method' => $request['payment_method'],
-                    'bank_id' => $request['bank_id'] ?? null,
-                    'booking_amount' => $request['booking_amount'],
-                    'paid_amount' => $request['amount_receive'],
-                    'pending_amount' => $pendingAmount,
-                    'payment_status' => $paymentStatus,
-                    'receipt' => $imagePath,
-                ]);
+
+                $beforeUpdateAmount= 0;
+                if($request->payment_id){
+                    $payment= Payment::find($request->payment_id);
+                    $beforeUpdateAmount = $payment->paid_amount ?? 0;
+                    $payment->update([
+                        'booking_id' => $request['booking_id'],
+                        'payment_method' => $request['payment_method'],
+                        'bank_id' => $request['bank_id'] ?? null,
+                        'booking_amount' => $request['booking_amount'],
+                        'paid_amount' => $request['amount_receive'],
+                        'pending_amount' => $pendingAmount,
+                        'payment_status' => $paymentStatus,
+                        'receipt' => $imagePath,
+                    ]);
+                } else {
+                    $payment= Payment::create([
+                        'booking_id' => $request['booking_id'],
+                        'payment_method' => $request['payment_method'],
+                        'bank_id' => $request['bank_id'] ?? null,
+                        'booking_amount' => $request['booking_amount'],
+                        'paid_amount' => $request['amount_receive'],
+                        'pending_amount' => $pendingAmount,
+                        'payment_status' => $paymentStatus,
+                        'receipt' => $imagePath,
+                    ]);
+                }
 
                 BookingPaymentHistory::create([
                     'booking_id' => $request['booking_id'],
                     'payment_id' => $payment->id,
                     'payment_method_id' => $request['payment_method'],
-                    'paid_amount' => $request['amount_receive'],
+                    'paid_amount' => $request['amount_receive'] - $beforeUpdateAmount,
                     'user_id' => Auth::user()->id,
                 ]);
-
 
                 $paymentDataMap = [];
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
@@ -110,14 +126,27 @@ class PaymentController extends Controller
                     $invPaidAmount= $request['invPaidAmount'][$key];
                     $pendingAmount= $invoiceAmount - $invPaidAmount;
                     $status= $invoiceAmount == $invPaidAmount ? 'paid' : 'pending';
-                    $paymentdata= PaymentData::create([
-                        'invoice_id' => $invoice_ids,
-                        'payment_id' => $payment->id,
-                        'status' => $status,
-                        'invoice_amount' => $invoiceAmount,
-                        'paid_amount' => $invPaidAmount,
-                        'pending_amount' => $pendingAmount,
-                    ]);
+                    $paymentDataID = $request->paymentData_id[$key];
+                    $paymentdata = $paymentDataID ? PaymentData::find($paymentDataID) : null;
+                    if($paymentdata){
+                        $paymentdata->update([
+                            'invoice_id' => $invoice_ids,
+                            'payment_id' => $payment->id,
+                            'status' => $status,
+                            'invoice_amount' => $invoiceAmount,
+                            'paid_amount' => $invPaidAmount,
+                            'pending_amount' => $pendingAmount,
+                        ]);
+                    } else {
+                        $paymentdata= PaymentData::create([
+                            'invoice_id' => $invoice_ids,
+                            'payment_id' => $payment->id,
+                            'status' => $status,
+                            'invoice_amount' => $invoiceAmount,
+                            'paid_amount' => $invPaidAmount,
+                            'pending_amount' => $pendingAmount,
+                        ]);
+                    }
                     $paymentDataMap[$key] = $paymentdata->id;
                 }
 

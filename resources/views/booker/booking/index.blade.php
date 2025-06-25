@@ -75,11 +75,6 @@
                                                     {{ $item->booking->booking_status=='closed' ? 'disabled' : '' }}>
                                                     <i class="fas fa-lock"></i> Close Booking
                                                 </button>
-                                                @if ($item->booking->payment && $item->booking->payment->pending_amount!=0)
-                                                    <a class="dropdown-item" href="{{ url('booker/payment/create?booking_id='.$item->booking->id) }}">
-                                                        <i class="far fa-edit"></i> Pending Payment
-                                                    </a>
-                                                @endif
 
                                                 <a class="dropdown-item" href="{{ url('booker/booking/'. $item->booking->id) }}">
                                                     <i class="fas fa-eye"></i> View
