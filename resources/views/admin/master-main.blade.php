@@ -173,7 +173,7 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Booking Vehicle</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ role_base_route('customer-booking.create') }}">Add Booking</a></li>
+                                {{-- <li><a class="nav-link" href="{{ role_base_route('customer-booking.create') }}">Add Booking</a></li> --}}
                                 <li><a class="nav-link" href="{{ role_base_route('customer-booking.index') }}">Booking list</a></li>
                                 <li><a class="nav-link" href="{{ role_base_route('status.form') }}">Assign Status</a></li>
                                 <li><a class="nav-link" href="{{ role_base_route('assined.vehicle') }}">Assigned Vehicles</a></li>
