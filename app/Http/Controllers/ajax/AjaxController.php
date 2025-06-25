@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\ajax;
 
+use App\Http\Controllers\Controller;
+use App\Jobs\UpdateZohoInvoiceJob;
 use App\Models\Bank;
 use App\Models\Booking;
+use App\Models\BookingData;
+use App\Models\BookingPaymentHistory;
+use App\Models\CreditNote;
+use App\Models\Customer;
 use App\Models\Deposit;
+use App\Models\DepositHandling;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Vehicle;
-use App\Models\Customer;
-use App\Models\CreditNote;
-use App\Models\SalePerson;
-use App\Models\BookingData;
 use App\Models\PaymentData;
-use Illuminate\Http\Request;
+use App\Models\SalePerson;
+use App\Models\Vehicle;
 use App\Models\Vehiclestatus;
 use App\Services\ZohoInvoice;
-use App\Models\DepositHandling;
-use App\Jobs\UpdateZohoInvoiceJob;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 
 class AjaxController extends Controller
 {
@@ -118,6 +119,15 @@ class AjaxController extends Controller
 
         $vehicles = $query->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
         return response()->json($vehicles);
+    }
+
+    public function getPaymentHistory($paymentId)
+    {
+        $paymentHistory= BookingPaymentHistory::with('payment', 'paymentMethod')->where('payment_id', $paymentId)->get();
+        return response()->json([
+            'success' => true,
+            'data' => $paymentHistory
+        ]);
     }
 
     public function getBookingDetail($booking_id)

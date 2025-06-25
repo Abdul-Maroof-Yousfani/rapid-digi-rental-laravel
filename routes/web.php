@@ -101,6 +101,7 @@ Route::get('get-vehicle-detail/{id}', [AjaxController::class, 'getNoByVehicle'])
 Route::get('get-vehicle-by-booking/{id}/booking/{booking_id}', [AjaxController::class, 'getVehicleAgaistBooking']);
 Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail']);
 Route::get('get-invoice-detail/{id}', [AjaxController::class, 'getInvoiceDetail']);
+Route::get('get-payment-history/{payment_id}', [AjaxController::class, 'getPaymentHistory']);
 Route::get('booking-cancellation/{id}', [AjaxController::class, 'bookingCancellation']);
 Route::get('check-bookingis-active/{id}', [BookingController::class, 'isBookingActive']);
 

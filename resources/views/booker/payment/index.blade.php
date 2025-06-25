@@ -59,6 +59,23 @@
         </section>
       </div>
 
+        <!-- Create Model Code -->
+        <div class="modal fade" id="paymentHistoryModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Payment History</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
 @endsection
 
 
@@ -108,6 +125,48 @@
             }
         });
       });
+
+    $(document).on('click', '.paymentHistory', function (e) {
+        e.preventDefault();
+        var paymentId = $(this).data('payment-id');
+
+        $.ajax({
+            url: '/get-payment-history/' + paymentId,
+            type: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    let paymentHistory = response.data;
+
+                    let html = `<hr>`;
+                    html += `<table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>S. No</th>
+                                        <th>Method</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                    $.each(paymentHistory, function (index, item) {
+                        html += `<tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.payment_method ? item.payment_method.name : ''}</td>
+                                    <td>${item.paid_amount}</td>
+                                </tr>`;
+                    });
+
+                    html += `</tbody></table>`;
+
+                    $('#paymentHistoryModal .modal-body').html(html);
+                    $('#paymentHistoryModal').modal('show');
+                } else {
+                    $('#paymentHistoryModal .modal-body').html('<p class="text-danger">Invoice not found</p>');
+                    $('#paymentHistoryModal').modal('show');
+                }
+            }
+        });
+    });
 
   </script>
 
