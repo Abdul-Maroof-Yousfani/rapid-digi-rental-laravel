@@ -89,6 +89,12 @@
 
     <!-- Main Content -->
     <div class="main-content">
+
+        <!-- Print Button (outside print area, so not printed) -->
+        <div class="text-right mb-3 no-print">
+            <button onclick="printInvoice()" class="btn btn-primary">Print Invoice</button>
+        </div>
+
         <section class="section print-area">
             <div class="container my-5 border p-4 bg-white">
                 <!-- Header -->
@@ -237,5 +243,9 @@
                 });
             });
         });
+
+    function printInvoice() {
+        window.print();
+    }
     </script>
 @endsection
