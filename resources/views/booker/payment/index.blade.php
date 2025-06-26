@@ -211,11 +211,17 @@
                                 <tbody>`;
 
                     $.each(paymentHistory, function (index, item) {
+                        let dateObj = new Date(item.payment_date);
+                        let day = dateObj.getDate().toString().padStart(2, '0'); // 26
+                        let month = dateObj.toLocaleString('default', { month: 'long' }); // June
+                        let year = dateObj.getFullYear(); // 2025
+                        let formattedDate = `${day}-${month}-${year}`;
+
                         html += `<tr>
                                     <td>${index + 1}</td>
                                     <td>${item.payment_method ? item.payment_method.name : ''}</td>
                                     <td>${item.paid_amount}</td>
-                                    <td>${item.payment_date}</td>
+                                    <td>${formattedDate}</td>
                                 </tr>`;
                     });
 
