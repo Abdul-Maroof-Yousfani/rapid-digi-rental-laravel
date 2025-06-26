@@ -10,7 +10,7 @@
                 <div class="col-12 col-md-12 col-lg-12">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                      <h3 class="mb-0">Assined Vehicles List</h3>
+                      <h3 class="mb-0">Assigned Vehicles List</h3>
                       <a href="{{ role_base_route('status.form') }}" class="btn btn-primary">
                         Assign Vehicles
                       </a>

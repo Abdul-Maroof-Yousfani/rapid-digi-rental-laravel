@@ -27,6 +27,7 @@ class Investor extends Model
         'postal_code',
         'city',
         'state',
+        'percentage',
         'country',
         'status',
     ];

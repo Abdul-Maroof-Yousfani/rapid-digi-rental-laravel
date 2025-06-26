@@ -46,6 +46,7 @@ class InvestorCrudController extends Controller
             'phone' =>  'required|unique:investors,phone',
             'gender' => 'required',
             'cnic' => 'required',
+            'agree_percentage' => 'required',
             'address' => 'required'
         ]);
 
@@ -77,6 +78,7 @@ class InvestorCrudController extends Controller
                     'state' => $request['state'],
                     'country' => $request['country'],
                     'status' => $request['status'],
+                    'percentage' => $request['agree_percentage'],
                 ]);
 
                 return redirect()->route('admin.investor.index')->with('success', 'Investor Added Successfully');
@@ -123,6 +125,7 @@ class InvestorCrudController extends Controller
             'phone' =>  'required|unique:investors,phone,'. $id,
             'gender' => 'required',
             'cnic' => 'required',
+            'agree_percentage' => 'required',
             'address' => 'required'
         ]);
 
@@ -158,6 +161,7 @@ class InvestorCrudController extends Controller
                     'state' => $request['state'],
                     'country' => $request['country'],
                     'status' => $request['status'],
+                    'percentage' => $request['agree_percentage'],
                 ]);
 
                 return redirect()->route('admin.investor.index')->with('success', 'Investor Updated Successfully');

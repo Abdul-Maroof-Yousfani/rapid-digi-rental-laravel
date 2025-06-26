@@ -113,8 +113,14 @@
                         </div>
 
                         <div class="form-group">
-                          <label>Date Of Birth </label>
-                          <input type="date" value="{{ $investor->dob }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
+                          <label>Agreed Percentage  <span class="text-danger">*</span></label>
+                          <div class="input-group">
+                              <div class="input-group-prepend">
+                                <div class="input-group-text"> % </div>
+                              </div>
+                              <input type="number" value="{{ old('agree_percentage') }}" name="agree_percentage" class="form-control agree_percentage" required>
+                          </div>
+                          @error('agree_percentage') <span class="text-danger">{{ $message }}</span> @enderror
                         </div><br>
                       </div>
                     </div>
@@ -144,6 +150,11 @@
                                 <option>Balochistan</option>
                             </select>
                         </div> --}}
+
+                        <div class="form-group">
+                          <label>Date Of Birth </label>
+                          <input type="date" value="{{ $investor->dob }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
+                        </div>
                         <div class="form-group">
                             <label>Country </label>
                             <select name="country" class="form-control select2">

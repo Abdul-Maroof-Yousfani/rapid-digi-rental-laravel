@@ -220,9 +220,7 @@ class BookingController extends Controller
                     $query1->whereHas('investor', function($query2){
                         $query2->where('user_id', Auth::user()->id);
                     });
-                  })
-                  ->where('transaction_type', '1')
-                  ->where('transaction_type', '2');
+                  });
 
         $booking= $query->get();
 

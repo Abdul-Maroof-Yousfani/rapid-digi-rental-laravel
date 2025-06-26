@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('country')->nullable();
+            $table->integer('percentage')->nullable();
             $table->enum('status', ['1','0'])->default(1);
             $table->softDeletes();
             $table->timestamps();

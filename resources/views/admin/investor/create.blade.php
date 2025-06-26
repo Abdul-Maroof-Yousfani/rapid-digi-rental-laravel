@@ -101,6 +101,18 @@
                           </div>
                           @error('cnic') <span class="text-danger">{{ $message }}</span> @enderror
                         </div><br>
+
+                        <div class="form-group">
+                          <label>Agreed Percentage  <span class="text-danger">*</span></label>
+                          <div class="input-group">
+                              <div class="input-group-prepend">
+                                <div class="input-group-text"> % </div>
+                              </div>
+                              <input type="number" value="{{ old('agree_percentage') }}" name="agree_percentage" class="form-control agree_percentage" required>
+                          </div>
+                          @error('agree_percentage') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div><br>
+
                       </div>
                     </div>
 
