@@ -84,21 +84,12 @@
 
                                                 <tr>
                                                     <td class="align-middle">
-
                                                         <div class="form-group">
-                                                            <label for="image">Upload Image</label><br>
-                                                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
-                                                        </div>
-
-
-                                                    </td>
-                                                    <td class="align-middle">
-                                                        <div class="form-group">
-                                                            <label for="">Bank</label><br>
-                                                            <select name="bank_id" class="form-control select2 bank_id" disabled>
-                                                                <option value="">Select Bank</option>
-                                                                @foreach ($bank as $item)
-                                                                    <option value="{{ $item->id }}">{{ $item->bank_name }} | {{ $item->account_number }}</option>
+                                                            <label for="">Payment Method</label><br>
+                                                            <select name="payment_method" class="form-control payment_method select2" required>
+                                                                <option value="">Payment method</option>
+                                                                @foreach ($paymentMethod as $item)
+                                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -111,15 +102,22 @@
                                                         </div> --}}
 
                                                         <div class="form-group">
-                                                            <label for="">Payment Method</label><br>
-                                                            <select name="payment_method" class="form-control payment_method select2" required>
-                                                                <option value="">Payment method</option>
-                                                                @foreach ($paymentMethod as $item)
-                                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                            <label for="">Bank</label><br>
+                                                            <select name="bank_id" class="form-control select2 bank_id" disabled>
+                                                                <option value="">Select Bank</option>
+                                                                @foreach ($bank as $item)
+                                                                    <option value="{{ $item->id }}">{{ $item->bank_name }} | {{ $item->account_number }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
 
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <div class="form-group">
+                                                            <label for="">Pending Amount</label><br>
+                                                            <input type="number" placeholder="" value="" name="pending_amount" class="form-control pending_amount" readonly>
+                                                            <input type="hidden" class="form-control restrict">
+                                                        </div>
                                                     </td>
                                                 </tr>
 
@@ -129,11 +127,12 @@
                                                             <label for="image">Upload Image</label><br>
                                                             <input type="file" name="image" id="image" class="form-control" accept="image/*">
                                                         </div> --}}
+
                                                         <div class="form-group">
-                                                            <label for="">Pending Amount</label><br>
-                                                            <input type="number" placeholder="" value="" name="pending_amount" class="form-control pending_amount" readonly>
-                                                            <input type="hidden" class="form-control restrict">
+                                                            <label for="image">Upload Image</label><br>
+                                                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
                                                         </div>
+
                                                     </td>
                                                     <td class="align-middle">
                                                     </td>

@@ -327,7 +327,7 @@ class PaymentController extends Controller
             }
         }
 
-        return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
+        return redirect()->route('booker.payment.index')->with('success', 'Payment Created Successfully!');
     }
 
     public function paymentHistory($paymentID)
