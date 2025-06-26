@@ -176,7 +176,7 @@ function bookingChange() {
 
                 if (response.paid_amount > 0) {
                     $('.already_paid').html(
-                        '<div class="form-group">' +
+                        '<div style="display: none;" class="form-group">' +
                         '<label for="">Already Paid</label><br>' +
                         '<input type="number" placeholder="" value="' + response.paid_amount + '" name="" class="form-control" min="0" step="0.01">' +
                         '</div>'

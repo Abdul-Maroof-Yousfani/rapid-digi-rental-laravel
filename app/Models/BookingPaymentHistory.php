@@ -20,6 +20,7 @@ class BookingPaymentHistory extends Model
         'booking_id',
         'payment_id',
         'paid_amount',
+        'payment_date',
         'payment_method_id',
         'user_id',
     ];

@@ -10,6 +10,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Payment extends Model
 {
+    public $timestamps = true;
     use HasFactory;
     use LogsActivity;
     protected $fillable= [

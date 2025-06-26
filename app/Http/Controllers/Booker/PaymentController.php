@@ -86,9 +86,11 @@ class PaymentController extends Controller
                 $paymentStatus= $pendingAmount==0 ? 'paid' : 'pending';
 
                 $beforeUpdateAmount= 0;
+                $beforeUpdateDate;
                 if($request->payment_id){
                     $payment= Payment::find($request->payment_id);
                     $beforeUpdateAmount = $payment->paid_amount ?? 0;
+                    $beforeUpdateDate = $payment->created_at;
                     $payment->update([
                         'booking_id' => $request['booking_id'],
                         'payment_method' => $request['payment_method'],
@@ -99,10 +101,6 @@ class PaymentController extends Controller
                         'payment_status' => $paymentStatus,
                         'receipt' => $imagePath,
                     ]);
-                    // echo '<pre>';
-                    // echo $payment;
-                    // echo '</pre>';
-                    // die();
                 } else {
                     $payment= Payment::create([
                         'booking_id' => $request['booking_id'],
@@ -121,6 +119,7 @@ class PaymentController extends Controller
                     'payment_id' => $payment->id,
                     'payment_method_id' => $request['payment_method'],
                     'paid_amount' => $request['amount_receive'] - $beforeUpdateAmount,
+                    'payment_date' => $beforeUpdateDate,
                     'user_id' => Auth::user()->id,
                 ]);
 
