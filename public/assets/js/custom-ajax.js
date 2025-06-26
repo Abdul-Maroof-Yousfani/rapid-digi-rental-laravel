@@ -1,3 +1,19 @@
+function recalculateTotals() {
+    let subtotal = 0;
+    $('.invPaidAmount').each(function(){
+        subtotal += parseFloat($(this).val()) || 0;
+    });
+    $('.insubtot').val(subtotal.toFixed(2));
+    let bookingTotal = parseFloat($('.booking_amount').val()) || 0;
+    let receivedAmount = subtotal;
+    let pendingAmount = bookingTotal - receivedAmount;
+    $('.pending_amount').val(pendingAmount.toFixed(2));
+    // $('.restrict').val(pendingAmount.toFixed(2));
+    let remaining = receivedAmount;
+    $('.remaining_amount').val(remaining.toFixed(2));
+}
+
+
 $(document).ready(function(){
 
     $('#booking_id').trigger('change');
@@ -16,19 +32,6 @@ $(document).ready(function(){
         else { $('.bank_id').attr('disabled', true).val('');}
     });
 
-    function recalculateTotals() {
-        let subtotal = 0;
-        $('.invPaidAmount').each(function(){
-            subtotal += parseFloat($(this).val()) || 0;
-        });
-        $('.insubtot').val(subtotal.toFixed(2));
-        let bookingTotal = parseFloat($('.booking_amount').val()) || 0;
-        let receivedAmount = subtotal;
-        let pendingAmount = bookingTotal - receivedAmount;
-        $('.pending_amount').val(pendingAmount.toFixed(2));
-        let remaining = receivedAmount;
-        $('.remaining_amount').val(remaining.toFixed(2));
-    }
 
     $(document).on('input', '.amount_receive', function () {
         var enteredValue = parseFloat($(this).val());
@@ -258,6 +261,9 @@ function bookingChange() {
                     // Apply deposit
                     let newPaidAmount = alreadyPaid + applyAmount;
                     inputField.val(newPaidAmount.toFixed(2));
+
+                    // inputField.val(newPaidAmount.toFixed(2)).trigger('change');
+
                     depositInputHidden.val(applyAmount.toFixed(2));
                     depositCheckbox.prop('checked', true);
                     inputField.data('applied-deposit', applyAmount);
@@ -275,6 +281,9 @@ function bookingChange() {
                 $('.deposit_amount').val(autoDeposit.toFixed(2));
                 $('.remaining_deposit').val(autoDeposit.toFixed(2));
                 // ===================== Auto Apply Deposit END =====================
+                setTimeout(function () {
+                    recalculateTotals();
+                }, 100);
             }
         }
     });

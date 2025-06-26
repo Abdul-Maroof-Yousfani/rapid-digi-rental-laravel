@@ -86,7 +86,7 @@ class PaymentController extends Controller
                 $paymentStatus= $pendingAmount==0 ? 'paid' : 'pending';
 
                 $beforeUpdateAmount= 0;
-                $beforeUpdateDate;
+                $beforeUpdateDate = Carbon::now();
                 if($request->payment_id){
                     $payment= Payment::find($request->payment_id);
                     $beforeUpdateAmount = $payment->paid_amount ?? 0;
@@ -184,7 +184,7 @@ class PaymentController extends Controller
                 return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
             } catch (\Exception $exp) {
                 DB::rollback();
-                return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
+                return redirect()->back()->with('error', $exp->getMessage());
             }
         }
     }
