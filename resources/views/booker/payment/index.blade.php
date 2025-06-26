@@ -221,7 +221,7 @@
                                     <td>${index + 1}</td>
                                     <td>${item.payment_method ? item.payment_method.name : ''}</td>
                                     <td>${item.paid_amount}</td>
-                                    <td>${formattedDate}</td>
+                                    <td>${formattedDate ?? 'N/A'}</td>
                                 </tr>`;
                     });
 
