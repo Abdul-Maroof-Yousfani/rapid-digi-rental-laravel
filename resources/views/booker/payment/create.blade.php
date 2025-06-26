@@ -113,25 +113,26 @@
 
                                                     </td>
                                                     <td class="align-middle">
-                                                        <div class="form-group">
+                                                        {{-- <div class="form-group">
                                                             <label for="">Pending Amount</label><br>
                                                             <input type="number" placeholder="" value="" name="pending_amount" class="form-control pending_amount" readonly>
                                                             <input type="hidden" class="form-control restrict">
+                                                        </div> --}}
+
+
+                                                        <div class="form-group">
+                                                            <label for="image">Upload Image</label><br>
+                                                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
                                                         </div>
                                                     </td>
                                                 </tr>
 
-                                                <tr>
+                                                <tr style="display: none">
                                                     <td class="align-middle">
                                                         {{-- <div class="form-group">
                                                             <label for="image">Upload Image</label><br>
                                                             <input type="file" name="image" id="image" class="form-control" accept="image/*">
                                                         </div> --}}
-
-                                                        <div class="form-group">
-                                                            <label for="image">Upload Image</label><br>
-                                                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
-                                                        </div>
 
                                                     </td>
                                                     <td class="align-middle">
@@ -185,12 +186,21 @@
                                             </tr>
                                             </thead>
                                             <tbody class="ui-sortable" id="booking_detail"></tbody>
-                                            <tr>
+                                            <tr><br>
                                                 <td colspan="7" class="text-right">Deposit Amount</td>
                                                 <td><br>
                                                     <div class="form-group">
                                                         <input type="number" value="" name="" class="form-control initial_deposit" readonly>
                                                         <input type="hidden" value="" name="deposit_amount" class="form-control deposit_amount"  readonly>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="7" class="text-right">Pending Amount</td>
+                                                <td><br>
+                                                    <div class="form-group">
+                                                        <input type="number" placeholder="" value="" name="pending_amount" class="form-control pending_amount form-control-md" readonly>
+                                                        <input type="hidden" class="form-control restrict">
                                                     </div>
                                                 </td>
                                             </tr>
