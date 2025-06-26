@@ -1,4 +1,3 @@
-
 @extends('admin.master-main')
 @section('content')
 @php
@@ -84,13 +83,15 @@
 
                                                 <tr>
                                                     <td class="align-middle">
-
                                                         <div class="form-group">
-                                                            <label for="image">Upload Image</label><br>
-                                                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
+                                                            <label for="">Payment Method</label><br>
+                                                            <select name="payment_method" class="form-control payment_method select2" required>
+                                                                <option value="">Payment method</option>
+                                                                @foreach ($paymentMethod as $item)
+                                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
-
-
                                                     </td>
                                                     <td class="align-middle">
                                                         <div class="form-group">
@@ -104,31 +105,22 @@
                                                         </div>
                                                     </td>
                                                     <td class="align-middle">
-                                                        {{-- <div class="form-group">
+                                                        <div class="form-group">
                                                             <label for="">Deposit Amount</label><br>
                                                             <input type="number" value="" name="" class="form-control initial_deposit" readonly>
                                                             <input type="hidden" value="" name="deposit_amount" class="form-control deposit_amount"  readonly>
-                                                        </div> --}}
-
-                                                        <div class="form-group">
-                                                            <label for="">Payment Method</label><br>
-                                                            <select name="payment_method" class="form-control payment_method select2" required>
-                                                                <option value="">Payment method</option>
-                                                                @foreach ($paymentMethod as $item)
-                                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                                @endforeach
-                                                            </select>
                                                         </div>
-
                                                     </td>
                                                 </tr>
 
                                                 <tr>
                                                     <td class="align-middle">
-                                                        {{-- <div class="form-group">
+                                                        <div class="form-group">
                                                             <label for="image">Upload Image</label><br>
                                                             <input type="file" name="image" id="image" class="form-control" accept="image/*">
-                                                        </div> --}}
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Pending Amount</label><br>
                                                             <input type="number" placeholder="" value="" name="pending_amount" class="form-control pending_amount" readonly>
@@ -136,21 +128,19 @@
                                                         </div>
                                                     </td>
                                                     <td class="align-middle">
-                                                    </td>
-                                                    <td class="align-middle">
-                                                        {{-- <div class="form-group">
+                                                        <div class="form-group">
                                                             <label for="">Remaining Deposit</label><br>
                                                             <input type="number" placeholder="" value="" name="" class="form-control remaining_deposit" disabled>
-                                                        </div> --}}
+                                                        </div>
                                                     </td>
                                                 </tr>
-                                                <tr style="display: none">
-                                                    {{-- <td class="align-middle">
+                                                <tr>
+                                                    <td class="align-middle">
                                                         <div class="form-group">
                                                             <label for="">Receive Amount</label><br>
                                                             <input type="number" placeholder="Receive Amount" value="0" name="" class="form-control amount_receive" min="0" step="0.01" required>
                                                         </div>
-                                                    </td> --}}
+                                                    </td>
                                                     <td class="align-middle already_paid">
 
                                                     </td>
@@ -186,31 +176,6 @@
                                             </tr>
                                             </thead>
                                             <tbody class="ui-sortable" id="booking_detail"></tbody>
-                                            <tr>
-                                                <td colspan="7" class="text-right">Deposit Amount</td>
-                                                <td><br>
-                                                    <div class="form-group">
-                                                        <input type="number" value="" name="" class="form-control initial_deposit" readonly>
-                                                        <input type="hidden" value="" name="deposit_amount" class="form-control deposit_amount"  readonly>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="7" class="text-right">Recieve Amount</td>
-                                                <td><br>
-                                                    <div class="form-group">
-                                                        <input type="number" placeholder="Receive" value="0" name="" class="form-control amount_receive" min="0" step="0.01" required>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="7" class="text-right">Remaining Deposit</td>
-                                                <td><br>
-                                                    <div class="form-group">
-                                                        <input type="number" placeholder="" value="" name="" class="form-control remaining_deposit" disabled>
-                                                    </div>
-                                                </td>
-                                            </tr>
                                         </table>
                                     </div>
                                 </div>
@@ -255,3 +220,13 @@
     @endif
 
 @endsection
+
+
+
+
+
+
+
+
+
+
