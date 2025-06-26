@@ -205,6 +205,7 @@
                                         <th>S. No</th>
                                         <th>Method</th>
                                         <th>Amount</th>
+                                        <th>Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -214,6 +215,7 @@
                                     <td>${index + 1}</td>
                                     <td>${item.payment_method ? item.payment_method.name : ''}</td>
                                     <td>${item.paid_amount}</td>
+                                    <td>${item.payment_date}</td>
                                 </tr>`;
                     });
 
