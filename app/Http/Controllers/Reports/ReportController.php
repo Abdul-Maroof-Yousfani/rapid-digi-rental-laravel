@@ -123,12 +123,20 @@ class ReportController extends Controller
 
     public function getInvestorVehicleReportList(Request $request)
     {
+        $from = $request->from_date ? Carbon::parse($request->from_date)->startOfDay() : null;
+        $to = $request->to_date ? Carbon::parse($request->to_date)->endOfDay() : null;
         $query= BookingData::with('vehicle.investor', 'booking')
                   ->whereHas('vehicle', function($query1){
                     $query1->whereHas('investor', function($query2){
                         $query2->where('user_id', Auth::user()->id);
                     });
-                  });
+                  })
+                  ->when($from && $to, function ($query) use ($from, $to) {
+                        $query->where('start_date', '<=', $to)
+                              ->where('end_date', '>=', $from);
+                  })
+                  ->where('transaction_type', '!=', 3)
+                  ->where('transaction_type', '!=', 4);
 
         $booking= $query->get();
         return view('reports.reportlist.get-investor-vehilce-list', compact('booking'));

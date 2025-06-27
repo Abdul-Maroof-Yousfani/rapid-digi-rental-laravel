@@ -16,6 +16,15 @@ function recalculateTotals() {
 
 $(document).ready(function(){
 
+    // Country Dropdown Search code for all application Modals
+    $('select.select2').select2();
+    $('.modal').on('shown.bs.modal', function () {
+        $(this).find('select.select2').select2({
+            dropdownParent: $(this)
+        });
+    });
+
+
     $('#booking_id').trigger('change');
 
     // (-) Not Enter in any Number Input Fields

@@ -67,14 +67,6 @@
                                 class="d-sm-none d-lg-inline-block"></span></a>
                         <div class="dropdown-menu dropdown-menu-right pullDown">
                             <div class="dropdown-title">{{ Auth::user()->name }}</div>
-                            {{-- <a href="#" class="dropdown-item has-icon"> <i
-                                    class="far
-										fa-user"></i> Profile
-                            </a> <a href="#" class="dropdown-item has-icon"> <i class="fas fa-bolt"></i>
-                                Activities
-                            </a> <a href="#" class="dropdown-item has-icon"> <i class="fas fa-cog"></i>
-                                Settings
-                            </a> --}}
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item has-icon text-danger" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -285,7 +277,6 @@
     <script src="{{ asset('assets/js/ajax-operations.js') }}"></script>
     <script src="{{ asset('assets/js/custom-ajax.js') }}"></script>
     <script src="{{ asset('assets/js/reports.js') }}"></script>
-
 
     @yield('script')
 
