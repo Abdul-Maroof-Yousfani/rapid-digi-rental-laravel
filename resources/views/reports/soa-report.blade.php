@@ -249,7 +249,7 @@
                         Statement of Account for the month of June 2024
                     </h2>
                     <p style="margin-top: 80px;">15.07.2024</p>
-                    <p>Dear Mr. Thijs,</p>
+                    <p>Dear Mr. ,</p>
                     <p>
                         This is to inform you in regard to the investment towards car rental with Rapid Rentals Dubai FZ
                         LLC.
@@ -320,10 +320,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="totals">
+                {{-- <div class="totals">
                     <p>Total Amount as per rental period: <span id="totalAmount"></span></p>
-                    <p>Amount after service fee deduction 20%: <span id="netAmount"></span></p>
-                </div>
+                    <p>Amount after service fee deduction %: <span id="netAmount"></span></p>
+                </div> --}}
 
                 <!-- Print Footer: Shown only when printing -->
                 <div class="print-footer">
@@ -343,7 +343,7 @@
                         <td><span id="printTotalAmount"></span></td>
                     </tr>
                     <tr>
-                        <td class="footer-table-data-head">Amount after service fee deduction 20%</td>
+                        <td class="footer-table-data-head">Amount after service fee deduction <span class="agreePercentage"></span>%</td>
                         <td><span id="printNetAmount">15,862</span></td>
                     </tr>
                 </table>

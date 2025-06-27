@@ -30,12 +30,16 @@
 
     {{-- Child Rows --}}
     @foreach ($item->bookingData as $bd)
+    @php $description= $bd->description; @endphp
         <tr>
             {{-- Empty <td> removed because rowspan is handling S. No --}}
             <td class="px-5" colspan="2">
                 <div class="d-flex justify-content-between">
                     <span>
-                        {{ $bd->vehicle->vehicle_name ?? $bd->vehicle->temp_vehicle_detail }}
+                        {{ $bd->vehicle->vehicle_name ?? $bd->vehicle->temp_vehicle_detail }} <br>
+                        @if (trim(strtolower($description)) != 'fine' && trim(strtolower($description)) != 'salik')
+                            {{ $description }}
+                        @endif
                     </span>
 
                     <span>

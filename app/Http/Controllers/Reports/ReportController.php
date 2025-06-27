@@ -39,7 +39,19 @@ class ReportController extends Controller
         })
         ->get();
 
-        return view('reports.reportlist.get-soa-list', compact('vehicles', 'from', 'to'));
+        $selectedInvestor = null;
+        if ($investorId) {
+            $selectedInvestor = Investor::find($investorId);
+        }
+
+        $html = view('reports.reportlist.get-soa-list', compact('vehicles', 'from', 'to'))->render();
+
+        return response()->json([
+            'html' => $html,
+            'investor_name' => $selectedInvestor ? $selectedInvestor->name : null,
+            'percentage' => $selectedInvestor ? $selectedInvestor->percentage : 0,
+        ]);
+
     }
 
     // customer wise sales reports function

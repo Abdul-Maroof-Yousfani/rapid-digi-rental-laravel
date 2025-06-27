@@ -35,21 +35,48 @@ $(document).ready(function(){
                     </tr>
                 `);
                 if(response){
+                    // setTimeout(() => {
+                    //     $('#soaReportList').html(response);
+                    // }, 1000);
+
+                    // // After content is loaded, calculate totals
+                    // let total = 0;
+                    // $('.rental-amount').each(function(){
+                    //     total += parseFloat($(this).text().replace(/,/g, '')) || 0;
+                    // });
+
+                    // let net = total * 0.8;
+                    // $('#totalAmount').text(total.toFixed(2));
+                    // $('#netAmount').text(net.toFixed(2));
+                    // $('#printTotalAmount').text(total.toFixed(2));
+                    // $('#printNetAmount').text(net.toFixed(2));
+
                     setTimeout(() => {
-                        $('#soaReportList').html(response);
+                        $('#soaReportList').html(response.html);
+
+                        // Inject investor name
+                        if (response.investor_name) {
+                            $('.print-heading p:contains("Dear Mr.")').text('Dear Mr. ' + response.investor_name + ',');
+                        }
+                        if (response.percentage) {
+                            $('.agreePercentage').text(response.percentage);
+                        }
+
+                        // Calculate totals only once
+                        let total = 0;
+                        $('.rental-amount').each(function () {
+                            total += parseFloat($(this).text().replace(/,/g, '')) || 0;
+                        });
+
+                        let percentage = parseFloat(response.percentage || 0);
+                        let net = total * ((100 - percentage) / 100);
+
+                        $('#totalAmount').text(total.toFixed(2));
+                        $('#netAmount').text(net.toFixed(2));
+                        $('#printTotalAmount').text(total.toFixed(2));
+                        $('#printNetAmount').text(net.toFixed(2));
                     }, 1000);
 
-                    // After content is loaded, calculate totals
-                    let total = 0;
-                    $('.rental-amount').each(function(){
-                        total += parseFloat($(this).text().replace(/,/g, '')) || 0;
-                    });
-
-                    let net = total * 0.8;
-                    $('#totalAmount').text(total.toFixed(2));
-                    $('#netAmount').text(net.toFixed(2));
-                    $('#printTotalAmount').text(total.toFixed(2));
-                    $('#printNetAmount').text(net.toFixed(2));
 
                 } else {
                     $('#soaReportList').html(`
