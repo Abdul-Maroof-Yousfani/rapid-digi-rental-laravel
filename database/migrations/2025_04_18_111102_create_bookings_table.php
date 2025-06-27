@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('status', ['paid', 'pending'])->nullable();
             $table->enum('booking_status', ['closed', 'overdue'])->nullable();
             $table->enum('booking_cancel', [0, 1])->nullable();
-            $table->integer('total_price')->nullable();
+            $table->decimal('total_price', 12, 2)->nullable();
             $table->dateTime('started_at')->nullable();
             $table->softDeletes();
             $table->timestamps();

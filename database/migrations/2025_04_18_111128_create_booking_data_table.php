@@ -21,7 +21,6 @@ return new class extends Migration
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
-            $table->integer('price')->nullable();
             $table->decimal('price', 12, 2)->nullable();
             $table->enum('transaction_type', ['1', '2', '3', '4'])->nullable();
             $table->softDeletes();

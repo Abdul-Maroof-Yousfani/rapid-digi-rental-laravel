@@ -220,7 +220,10 @@
                         html += `<tr>
                                     <td>${index + 1}</td>
                                     <td>${item.payment_method ? item.payment_method.name : ''}</td>
-                                    <td>${item.paid_amount}</td>
+                                    <td>${Number(item.paid_amount).toLocaleString('en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}</td>
                                     <td>${formattedDate ?? 'N/A'}</td>
                                 </tr>`;
                     });

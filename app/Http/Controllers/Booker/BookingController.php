@@ -165,6 +165,10 @@ class BookingController extends Controller
                             'item_total' => $itemTotal,
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
+
+                        Vehicle::where('id', $vehicle_id)->update([
+                            'vehicle_status_id' => 33 // yahaan '2' booked wali ID honi chahiye
+                        ]);
                     }
 
                     DB::commit();
@@ -195,26 +199,6 @@ class BookingController extends Controller
 
     public function bookingReport(Request $request)
     {
-        // $query = Booking::with(['bookingData.vehicle.investor', 'customer', 'invoice']);
-
-        // $query->whereHas('bookingData.vehicle.investor', function ($q) {
-        //     $q->where('user_id', Auth::user()->id);
-        // });
-
-        // if ($request->filled('from_date') && $request->filled('to_date')) {
-        //     $from = Carbon::parse($request->from_date)->startOfDay(); // 00:00:00
-        //     $to = Carbon::parse($request->to_date)->endOfDay();       // 23:59:59
-
-        //     $query->whereBetween('created_at', [$from, $to]);
-        // }
-
-        // // Filter by customer
-        // if ($request->filled('customer_id')) {
-        //     $query->where('customer_id', $request->customer_id);
-        // }
-
-        // $bookings = $query->get();
-
         $query= BookingData::with('vehicle.investor', 'booking')
                   ->whereHas('vehicle', function($query1){
                     $query1->whereHas('investor', function($query2){
