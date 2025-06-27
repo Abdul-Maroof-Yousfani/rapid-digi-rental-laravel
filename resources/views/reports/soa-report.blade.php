@@ -248,12 +248,12 @@
                     <h2 style="text-align: center; text-decoration: underline; font-weight: bold;">
                         Statement of Account for the month of June 2024
                     </h2>
-                    <p style="margin-top: 80px;">15.07.2024</p>
-                    <p>Dear Mr. ,</p>
+                    <p class="filterTillDate" style="margin-top: 80px;">15.07.2024</p>
+                    <p>Dear Mr. <span class="investor_name"></span>,</p>
                     <p>
                         This is to inform you in regard to the investment towards car rental with Rapid Rentals Dubai FZ
                         LLC.
-                        As for the month of June till 15-07-2024 we have rented your vehicles and the details shared below
+                        As for the month till <span class="filterTillDate"></span> we have rented your vehicles and the details shared below
                         along with the rental that has been charged to our customers.
                     </p>
                 </div>
@@ -349,7 +349,7 @@
                 </table>
                 <div class="print-regards">
                     <p>Best Regards,<br />
-                        Thijs Schrijver (Founder)<br />
+                        <span class="investor_name"></span> (Founder)<br />
                         Rapid Rentals Dubai FZ LLC</p>
                 </div>
 

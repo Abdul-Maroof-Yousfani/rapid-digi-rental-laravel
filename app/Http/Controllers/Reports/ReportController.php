@@ -50,6 +50,7 @@ class ReportController extends Controller
             'html' => $html,
             'investor_name' => $selectedInvestor ? $selectedInvestor->name : null,
             'percentage' => $selectedInvestor ? $selectedInvestor->percentage : 0,
+            'till_date' => $to->format('d-F-Y'),
         ]);
 
     }

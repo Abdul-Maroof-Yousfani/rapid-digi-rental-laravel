@@ -56,10 +56,13 @@ $(document).ready(function(){
 
                         // Inject investor name
                         if (response.investor_name) {
-                            $('.print-heading p:contains("Dear Mr.")').text('Dear Mr. ' + response.investor_name + ',');
+                            $('.investor_name').text(response.investor_name);
                         }
                         if (response.percentage) {
                             $('.agreePercentage').text(response.percentage);
+                        }
+                        if (response.till_date) {
+                            $('.filterTillDate').text(response.till_date);
                         }
 
                         // Calculate totals only once
