@@ -33,7 +33,7 @@
 
 <tr>
     <td colspan="3" align="right"><b>Sub Total</b></td>
-    <td align="right"><b>{{ $bookingtotal }}</b></td>
-    <td align="right"><b>{{ $paidtotal }}</b></td>
-    <td align="right"><b>{{ $receivabletotal }}</b></td>
+    <td align="right"><b>{{ number_format($bookingtotal, 2) }}</b></td>
+    <td align="right"><b>{{ number_format($paidtotal, 2) }}</b></td>
+    <td align="right"><b>{{ number_format($receivabletotal, 2) }}</b></td>
 </tr>

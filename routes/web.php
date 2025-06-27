@@ -92,8 +92,9 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
 
 // Ajax Reports Route
 Route::get('get-soa-list', [ReportController::class, 'getSoaReportList'])->name("getSoaReportList");
-Route::get('get-customer-wise-sales-list', [ReportController::class, 'getCustomerWiseSaleReportList'])->name("");
-Route::get('get-customer-wise-receivable-list', [ReportController::class, 'getCustomerWiseReceivableList'])->name("");
+Route::get('get-customer-wise-sales-list', [ReportController::class, 'getCustomerWiseSaleReportList']);
+Route::get('get-customer-wise-receivable-list', [ReportController::class, 'getCustomerWiseReceivableList']);
+Route::get('get-salemen-wise-list', [ReportController::class, 'getSalemenWiseReportList']);
 
 // AJAX Routes
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
@@ -151,6 +152,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('/reports/soa-report', [ReportController::class, 'soaReport'])->name('soaReport');
     Route::get('/reports/customer-wise-report', [ReportController::class, 'customerWiseReport'])->name('customerWiseReport');
     Route::get('/reports/customer-wise-receivable', [ReportController::class, 'customerWiseReceivable'])->name('customerWiseReceivable');
+    Route::get('/reports/salemen-wise-report', [ReportController::class, 'salemenWiseReport'])->name('salemenWiseReport');
 
 
 });

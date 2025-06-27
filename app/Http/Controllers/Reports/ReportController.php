@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\Vehicle;
 use App\Models\Customer;
 use App\Models\Investor;
+use App\Models\SalePerson;
 use App\Models\BookingData;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -92,6 +93,26 @@ class ReportController extends Controller
                     })
                     ->get();
         return view('reports.reportlist.get-customer-wise-receivable-list', compact('booking'));
+    }
+
+
+    // Salemen Wise Receivable report functions
+    public function salemenWiseReport()
+    {
+        $saleman= SalePerson::all();
+        return view('reports.salemen-wise-report', compact('saleman'));
+    }
+
+    public function getSalemenWiseReportList(Request $request)
+    {
+        $salemenID= $request->saleman_id;
+        $booking= Booking::with('bookingData', 'invoice', 'salePerson')
+                    ->when($salemenID, function ($query) use ($salemenID) {
+                        $query->whereHas('salePerson', function($q1) use ($salemenID) {
+                            $q1->where('id', $salemenID);
+                        });
+                    })->get();
+        return view('reports.reportlist.get-salemen-wise-list', compact('booking'));
     }
 
 

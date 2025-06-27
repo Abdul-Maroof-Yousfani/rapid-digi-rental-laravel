@@ -197,6 +197,8 @@
                                 <li><a class="nav-link" href="{{ role_base_route('soaReport') }}">SOA Report</a></li>
                                 <li><a class="nav-link" href="{{ role_base_route('customerWiseReport') }}">Customer Wise Sales Report</a></li>
                                 <li><a class="nav-link" href="{{ role_base_route('customerWiseReceivable') }}">Customer Wise Receivable</a></li>
+                                <li><a class="nav-link" href="{{ role_base_route('customerWiseReceivable') }}">Customer Wise Receivable</a></li>
+                                <li><a class="nav-link" href="{{ role_base_route('salemenWiseReport') }}">Salemen Wise Report</a></li>
                             </ul>
                         </li>
 

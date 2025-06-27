@@ -1,0 +1,68 @@
+@extends('admin.master-main')
+@section('content')
+<style>
+    .spinner-border.custom-blue {
+        width: 3rem;
+        height: 3rem;
+        border-width: 0.4rem;
+        border-top-color: #0d6efd;
+        border-right-color: #0d6efd;
+        border-bottom-color: #0d6efd;
+        border-left-color: rgba(13, 110, 253, 0.25);
+    }
+
+    .table-scroll {
+        max-height: 800px; /* ya jitni height chahiye */
+        overflow-y: auto;
+    }
+</style>
+
+<div class="main-content">
+    <section class="section">
+        <div class="section-body">
+            <!-- Filters -->
+            <form method="get" id="salemanWiseReportForm" class="mb-4">
+                <div class="form-row align-items-end">
+                    <div class="col-md-2">
+                        <label for="saleman_id">Saleman</label>
+                        <select name="saleman_id" class="form-control select2" id="saleman_id">
+                            <option value="">Select Salemen</option>
+                            @foreach ($saleman as $item)
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-scroll">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm" style="width:100%;">
+                                        <thead  style="background: #f8f8f8">
+                                            <tr>
+                                                <th>S No.</th>
+                                                <th>Agreement no.</th>
+                                                <th>Customer</th>
+                                                <th class="text-center">Booking Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="salemanWiseReportList"> </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@endsection
