@@ -95,6 +95,7 @@ Route::get('get-soa-list', [ReportController::class, 'getSoaReportList'])->name(
 Route::get('get-customer-wise-sales-list', [ReportController::class, 'getCustomerWiseSaleReportList']);
 Route::get('get-customer-wise-receivable-list', [ReportController::class, 'getCustomerWiseReceivableList']);
 Route::get('get-salemen-wise-list', [ReportController::class, 'getSalemenWiseReportList']);
+Route::get('get-investor-vehicle-list', [ReportController::class, 'getInvestorVehicleReportList']);
 
 // AJAX Routes
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
@@ -159,5 +160,6 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
 
 Route::prefix('investor')->as('investor.')->middleware(['auth', 'role:investor', 'permission:view investor dashboard'])->group(function() {
     Route::get('/dashboard', [InvestorController::class, 'index'])->name('dashboard');
-   Route::get('/reports/bookingReport', [BookingController::class, 'bookingReport'])->name('bookingReport');
+    // Route::get('/reports/bookingReport', [BookingController::class, 'bookingReport'])->name('bookingReport');
+    Route::get('/reports/bookingReport', [ReportController::class, 'investorVehicleReport'])->name('bookingReport');
 });

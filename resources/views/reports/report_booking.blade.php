@@ -38,37 +38,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {{-- @php $totalPrice = 0; @endphp
-                                         @foreach($bookings as $booking)
-                                            @php $first = true; @endphp
-                                            @foreach($booking->bookingData as $data)
-                                                @php $totalPrice += $data->price; @endphp
-                                                <tr>
-                                                    @if($first)
-                                                        <td rowspan="{{ count($booking->bookingData) }}">{{ $booking->agreement_no }}</td>
-                                                        <td rowspan="{{ count($booking->bookingData) }}">{{ $booking->customer->customer_name ?? 'N/A' }}</td>
-                                                    @endif
-                                                    @if($first)
-                                                        <td rowspan="{{ count($booking->bookingData) }}">
-                                                            {{ $booking->invoice->first()->zoho_invoice_number ?? 'N/A' }}
-                                                        </td>
-                                                        @php $first = false; @endphp
-                                                    @endif
-                                                    <td>{{ $data->vehicle->vehicle_name ?? $data->vehicle->temp_vehicle_detail }} | {{ $data->vehicle->number_plate }} | {{ Auth::user()->id }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($data->start_date)->format('d M Y') }} to {{ \Carbon\Carbon::parse($data->end_date)->format('d M Y') }}</td>
-                                                    <td>{{ $data->price }}</td>
-                                                    <td>
-                                                        @switch($data->transaction_type)
-                                                            @case(1) Rent @break
-                                                            @case(2) Renew @break
-                                                            @case(3) Fine @break
-                                                            @case(4) Salik @break
-                                                            @default Unknown
-                                                        @endswitch
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        @endforeach --}}
                                         @php $totalPrice = 0; @endphp
                                         @foreach ($booking as $item)
                                         @php $totalPrice += $item->price; @endphp

@@ -261,11 +261,19 @@
                 <!-- Filters -->
                 <form method="get" id="soaReportForm" class="mb-4">
                     <div class="form-row align-items-end">
-                        <div class="col-md-3">
+                        {{-- <div class="col-md-3">
                             <label for="month">Month</label>
                             <input type="month" name="month" id="month" class="form-control" value="">
+                        </div> --}}
+                        <div class="col-md-2">
+                            <label for="from_date">From</label>
+                            <input type="date" name="from_date" id="from_date" class="form-control">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <label for="to_date">To</label>
+                            <input type="date" name="to_date" id="to_date" class="form-control">
+                        </div>
+                        <div class="col-md-2">
                             <label for="investor_id">Investor</label>
                             <select name="investor_id" class="form-control select2" id="investor_id">
                                 <option value="">Select Investor</option>
@@ -274,7 +282,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
                         </div>
                     </div>

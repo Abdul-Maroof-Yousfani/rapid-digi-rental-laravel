@@ -12,6 +12,7 @@ use App\Models\SalePerson;
 use App\Models\BookingData;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -25,10 +26,9 @@ class ReportController extends Controller
 
     public function getSoaReportList(Request $request)
     {
-        $month = $request['month'];
+        $from = Carbon::parse($request->from_date)->startOfDay();
+        $to = Carbon::parse($request->to_date)->endOfDay();
         $investorId = $request['investor_id'];
-        $from = Carbon::parse($month)->startOfMonth();
-        $to = Carbon::parse($month)->endOfMonth();
 
         $vehicles = Vehicle::with(['bookingData' => function ($q) use ($from, $to) {
             $q->where('start_date', '<=', $to)
@@ -39,7 +39,7 @@ class ReportController extends Controller
         })
         ->get();
 
-        return view('reports.reportlist.get-soa-list', compact('vehicles', 'from', 'to', 'month'));
+        return view('reports.reportlist.get-soa-list', compact('vehicles', 'from', 'to'));
     }
 
     // customer wise sales reports function
@@ -113,6 +113,25 @@ class ReportController extends Controller
                         });
                     })->get();
         return view('reports.reportlist.get-salemen-wise-list', compact('booking'));
+    }
+
+    // Investor Vehicle report functions
+    public function investorVehicleReport()
+    {
+        return view('reports.investor-vehicle-report');
+    }
+
+    public function getInvestorVehicleReportList(Request $request)
+    {
+        $query= BookingData::with('vehicle.investor', 'booking')
+                  ->whereHas('vehicle', function($query1){
+                    $query1->whereHas('investor', function($query2){
+                        $query2->where('user_id', Auth::user()->id);
+                    });
+                  });
+
+        $booking= $query->get();
+        return view('reports.reportlist.get-investor-vehilce-list', compact('booking'));
     }
 
 
