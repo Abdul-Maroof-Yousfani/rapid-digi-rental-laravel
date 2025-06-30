@@ -7,9 +7,6 @@
 .form-group {
     margin-bottom: 0px !important;
 }
-.header-card h4{font-size:20px;margin-bottom:0;}
-.head-flex{display:flex;justify-content:space-between;align-items:center;}
-.close-btn{text-align:right;}
     </style>
     <!-- Main Content -->
     <div class="main-content">
@@ -85,7 +82,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12" style="display: none;">
+                        <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
                                     <h4>Booking Details</h4>
@@ -114,11 +111,11 @@
                                                     <th>Price (AED)<span class="text-danger">*</span></th>
                                                     <th>Total Amount &nbsp;&nbsp;</th>
                                                     <th><button type="button" class="btn btn-success btn-md"
-                                                            id="addRowss">+</button></th>
+                                                            id="addRow">+</button></th>
                                                 </tr>
                                             </thead>
                                             <tbody id="vehicleTableBody">
-                                                {{-- @foreach ($booking_data as $index => $item)
+                                                @foreach ($booking_data as $index => $item)
                                                 @php
                                                     $selectedVehicleId = $item->vehicle_id;
                                                     $selectedTypeId = $vehicleTypeMap[$selectedVehicleId] ?? null;
@@ -217,134 +214,13 @@
                                                             class="btn btn-danger btn-md removeRow">X</button>
                                                     </td>
                                                 </tr>
-                                                @endforeach --}}
+                                                @endforeach
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-
-                        <div class="col-12">
-
-
-                                <div class="header-card head-flex">
-                                    <h4>Booking Details</h4>
-                                    <div class="card-header-form">
-                                        <div class="input-group">
-                                                <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
-                                        </div>
-                                    </div>
-                                </div>
-                           <hr style=" border-bottom:1px solid #6c757d;">
-                            <div class="lineItemBody" id="lineItemBody">
-                                 @foreach ($booking_data as $index => $item)
-                                    @php
-                                        $selectedVehicleId = $item->vehicle_id;
-                                        $selectedTypeId = $vehicleTypeMap[$selectedVehicleId] ?? null;
-                                        $filteredVehicles = $vehiclesByType[$selectedTypeId] ?? collect();
-                                        $vehicleObj = $vehicles->where('id', $selectedVehicleId)->first();
-                                    @endphp
-                                    <div class="card">
-                                        <div class="card-body lineItem">
-                                            <div class="close-btn">
-                                                <button type="button" class="btn btn-danger btn-md removeRow">X</button>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-3">
-                                                    <div class="form-group">
-                                                        <label for="">Start Date <span class="text-danger">*</span></label><br>
-                                                        <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
-                                                                class="form-control datemask booking-date" placeholder="YYYY/MM/DD"
-                                                                data-default="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-3">
-                                                    <div class="form-group">
-                                                        <label for="">Return Date <span class="text-danger">*</span></label><br>
-                                                        <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
-                                                                class="form-control datemask return-date" placeholder="YYYY/MM/DD"
-                                                                data-default="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-3">
-                                                    <div class="form-group">
-                                                        <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
-                                                        <select name="vehicletypes[]" class="form-control select2 vehicletypes">
-                                                            <option value="">Select Vehicle type</option>
-                                                            @foreach ($vehicletypes as $vtype)
-                                                                <option value="{{ $vtype->id }}" {{ $selectedTypeId == $vtype->id ? 'selected' : '' }}>
-                                                                    {{ $vtype->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                @php
-                                                    $selectedVehicleText = ($item->vehicle->vehicle_name) ?? ($item->vehicle->number_plate.' | '.$item->vehicle->temp_vehicle_detail);
-                                                @endphp
-                                                <div class="col-3">
-                                                    <div class="form-group">
-                                                        <label for="">Vehicle Name <span class="text-danger">*</span></label><br>
-                                                        <select name="vehicle[]" class="form-control select2 vehicle"
-                                                            data-selected="{{ $selectedVehicleId }}"
-                                                            data-selected-text="{{ $selectedVehicleText }}">
-                                                            <option value="">Select Vehicle</option>
-                                                            @foreach ($filteredVehicles as $vehicle)
-                                                            @php $disable= $vehicle->status==0 ? 'disabled' : ''; @endphp
-                                                                <option value="{{ $vehicle->id }}" {{ $disable }} {{ $selectedVehicleId == $vehicle->id ? 'selected' : '' }}>
-                                                                    {{ ($vehicle->vehicle_name) ?? ($vehicle->number_plate.' | '.$vehicle->temp_vehicle_detail) }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-
-                                                <div class="col-3">
-                                                    <div class="form-group">
-                                                        <label for="">Tax (%)</label><br>
-                                                        <select name="tax[]"
-                                                            class="form-control select2 zohotax" required>
-                                                            <option value="">Select Tax</option>
-                                                            @foreach ($taxlist['taxes'] as $taxes)
-                                                                <option value="{{ $taxes['tax_id'] }}"
-                                                                data-percentage="{{ $taxes['tax_percentage'] }}"
-                                                                {{ $zohocolumn['invoice']['line_items'][$index]['tax_id']==$taxes['tax_id']  ? 'Selected' : '' }}>
-                                                                    {{ $taxes['tax_name'] }} ({{ $taxes['tax_percentage'].'%' }})
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-3">
-                                                    <div class="form-group">
-                                                        <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                                        <input type="number" value="{{ $item->price }}" name="price[]" class="form-control price" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-3">
-                                                    <div class="form-group">
-                                                        <label for="">Total Amount</label><br>
-                                                        <input type="number" value="" name="amount[]" class="form-control amount" disabled>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-
-                                                <div class="form-group">
-                                                    <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control" id="" cols="60" rows="4" placeholder="Description">
-                                                        {{ $zohocolumn['invoice']['line_items'][$index]['description'] ?? '' }}
-                                                    </textarea>
-                                                </div>
-
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-
 
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="form-group">
@@ -414,32 +290,6 @@
             }
         }
 
-        // Multiple line item not selected same vehicle
-        function updateVehicleOptions() {
-            // Step 1: Collect all selected vehicle IDs
-            let selectedVehicleIds = [];
-            $('select[name="vehicle[]"]').each(function () {
-                let val = $(this).val();
-                if (val) selectedVehicleIds.push(val);
-            });
-
-            // Step 2: Loop over each vehicle dropdown
-            $('select[name="vehicle[]"]').each(function () {
-                let currentSelect = $(this);
-                let currentVal = currentSelect.val();
-
-                // Re-enable all options first
-                currentSelect.find('option').prop('disabled', false);
-
-                // Step 3: Disable options that are selected in other rows
-                selectedVehicleIds.forEach(function (val) {
-                    if (val !== currentVal) {
-                        currentSelect.find(`option[value="${val}"]`).prop('disabled', true);
-                    }
-                });
-            });
-        }
-
         $(document).ready(function() {
 
             $(document).on('keypress', '.agreement_no, .price', function (e) {
@@ -453,104 +303,169 @@
 
                 $('.started_at').trigger('change');
 
-            $('#addRow').click(function(){
+            $('#addRow').click(function() {
                 let newRow = `
-                <div class="card">
-                    <div class="card-body lineItem">
-                        <div class="close-btn">
-                            <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                <tr>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="booking_date[]" class="form-control datemask booking-date" placeholder="YYYY/MM/DD">
                         </div>
-                        <div class="row">
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="">Start Date <span class="text-danger">*</span></label><br>
-                                    <input type="date" value="" name="booking_date[]" class="form-control datemask booking-date" placeholder="YYYY/MM/DD" required>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="">Return Date <span class="text-danger">*</span></label><br>
-                                    <input type="date" value="" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD" required>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
-                                    <select name="vehicletypes[]"
-                                        class="form-control select2 vehicletypes" disabled required>
-                                        <option value="">Select Vehicle type</option>
-                                        @foreach ($vehicletypes as $vtype)
-                                            <option value="{{ $vtype->id }}">{{ $vtype->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                    <select name="vehicle[]" class="form-control select2 vehicle"
-                                    required>
-                                        <option value="">Select Vehicle</option>
-                                    </select>
-                                </div>
-                            </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD">
                         </div>
-                        <div class="row">
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="">Tax (%)</label><br>
-                                    <select name="tax[]"class="form-control select2 zohotax" readonly>
-                                        <option value="">Select Tax</option>
-                                        @foreach ($taxlist['taxes'] as $item)
-                                            <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}"
-                                                                                                    {{ $item['tax_name']=='VAT' ? 'selected' : '' }}>
-                                                {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                    <input type="number" value="" name="price[]" class="form-control price"  required>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="">Total Amount</label><br>
-                                    <input type="number" value="" name="amount[]" class="form-control amount" disabled>
-                                </div>
-                            </div>
+                    </td>
+                    <td>
+                        <div class="form-group"><br>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
+                                <option value="">Select Vehicle type</option>
+                                @foreach ($vehicletypes as $vtype)
+                                    <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                         <textarea name="description[]" style="width:100%;height: 100px !important;"  class="form-control" id="" cols="60" rows="4" placeholder="Description"></textarea>
-                    </div>
-                </div>`;
+                    </td>
 
-                $('#lineItemBody').append(newRow);
+                    <td class="text-truncate"><br>
+                        <div class="form-group">
+                            <select name="vehicle[]" class="form-control select2 vehicle">
+                                <option value="">Select Vehicle</option>
+                            </select>
+                        </div>
+                    </td>
+
+                    <td class="text-truncate"><br>
+                        <div class="form-group">
+                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
+                        </div>
+                    </td>
+
+                    <td style="display: none" class="align-middle investor"><br></td>
+
+                    <td style="display: none" class="align-middle no_plate"><br></td>
+
+                    <td class="align-middle"><br>
+                        <input type="hidden" name="tax_percent[]" value="" class="tax">
+                        <div class="form-group">
+                            <select name="tax[]" class="form-control select2 zohotax">
+                                <option value="">Select Tax</option>
+                                @foreach ($taxlist['taxes'] as $item)
+                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="number" value="" name="price[]" class="form-control price">
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                        </div>
+                    </td>
+
+                    <th><button type="button" class="btn btn-danger btn-md removeRow">X</button></th>
+                </tr>`;
+                $('#vehicleTableBody').append(newRow);
                 $('.select2').select2({
                     width: '100%'
                 });
 
                 let startedAt = $('.started_at').val();
                 applyMinDateToAllDateFields(startedAt);
-
             });
 
-            $(document).on('click', '.removeRow', function () {
-                if ($('.lineItemBody .card').length > 1) {
-                    $(this).closest('.card').remove();
-                } else {
-                    alert("At least one booking box must remain.");
+            $(document).on('click', '.removeRow', function() {
+                $(this).closest('tr').remove();
+                if ($('#vehicleTableBody tr').length == 0) {
+                    let defaultRow = `
+                <tr>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="booking_date[]" class="form-control datemask booking-date" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="date" value="" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group"><br>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes">
+                                <option value="">Select Vehicle type</option>
+                                @foreach ($vehicletypes as $vtype)
+                                    <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </td>
+
+                    <td class="text-truncate"><br>
+                        <div class="form-group">
+                            <select name="vehicle[]" class="form-control select2 vehicle">
+                                <option value="">Select Vehicle</option>
+                            </select>
+                        </div>
+                    </td>
+
+                    <td class="text-truncate"><br>
+                        <div class="form-group">
+                            <textarea name="description[]" class="form-control" id="" cols="60" rows="3"></textarea>
+                        </div>
+                    </td>
+
+                    <td style="display: none" class="align-middle investor"><br>
+                    </td>
+
+                    <td style="display: none" class="align-middle no_plate"><br>
+                    </td>
+
+                    <td class="align-middle"><br>
+                        <input type="hidden" name="tax_percent[]" value="" class="tax">
+                        <div class="form-group">
+                            <select name="tax[]"
+                                class="form-control select2 zohotax" required>
+                                <option value="">Select Tax</option>
+                                @foreach ($taxlist['taxes'] as $item)
+                                    <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                        {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="number" value="" name="price[]" class="form-control price">
+                        </div>
+                    </td>
+                    <td class="align-middle"><br>
+                        <div class="form-group">
+                            <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                        </div>
+                    </td>
+
+                    <th><button type="button" class="btn btn-danger btn-md removeRow">X</button></th>
+                </tr>`;
+                    $("#vehicleTableBody").append(defaultRow);
+                    $('.select2').select2({
+                        width: '100%'
+                    });
+
+                    let startedAt = $('.started_at').val();
+                    applyMinDateToAllDateFields(startedAt);
                 }
             });
 
-
-
-
-            $('#lineItemBody').on('change', '.booking-date, .return-date', function () {
-                let row = $(this).closest('.lineItem');
+            // Listen for changes using class selectors
+            $('table').on('change', '.booking-date, .return-date', function () {
+                let row = $(this).closest('tr');
                 let bookingDate = row.find('.booking-date').val();
                 let returnDate = row.find('.return-date').val();
                 let vehicleSelect = row.find('.vehicletypes');
@@ -563,18 +478,25 @@
                 }
             });
 
-
             $(document).on('change', '.vehicletypes', function() {
-                let $row = $(this).closest('.lineItem');
+                let $row = $(this).closest('tr');
                 let typeId = $(this).val();
                 let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
+                let selectedVehicleId = $vehicleSelect.data('selected');
+                let selectedVehicleText = $vehicleSelect.data('selected-text') || 'Selected vehicle';
+                let defaultStart = $row.find('.booking-date').data('default');
+                let defaultEnd = $row.find('.return-date').data('default');
+
+                let bookingID = {{ $invoice->booking->id }};
                 let bookingDate = $row.find('.booking-date').val();
                 let returnDate = $row.find('.return-date').val();
                 if (!bookingDate || !returnDate) {
                     alert("Please select booking and return date first");
                     return;
                 }
+
+                let dateChanged = bookingDate !== defaultStart || returnDate !== defaultEnd;
 
                 $vehicleSelect.empty().append('<option value="">Loading...</option>');
 
@@ -583,26 +505,31 @@
                     type: 'GET',
                     data: {
                         start_date: bookingDate,
-                        end_date: returnDate
+                        end_date: returnDate,
+                        bookingID: bookingID,
+                        selectedVehicleId: !dateChanged ? selectedVehicleId : null
                     },
                     success: function(response) {
+                        let found = false;
                         $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
                         $.each(response, function(key, vehicle) {
+                            let selected = (vehicle.id == selectedVehicleId) ? 'selected' : '';
+                            if (selected) found = true;
                             $vehicleSelect.append(
                                 `<option value="${vehicle.id}">${vehicle.number_plate} | ${vehicle.temp_vehicle_detail ?? vehicle.vehicle_name}</option>`
                             );
                         });
-                        updateVehicleOptions();
+
+                        if (!found && selectedVehicleId && !dateChanged) {
+                            $vehicleSelect.append(`<option value="${selectedVehicleId}" selected>${selectedVehicleText} (Booked)</option>`);
+                        }
                     }
                 });
             });
 
-
-
-
             $(document).on('change', '.vehicle', function() {
                 let id = $(this).val();
-                let row = $(this).closest('.lineItem');
+                let row = $(this).closest('tr');
                 let no_plate = row.find('.no_plate');
                 let investor = row.find('.investor');
                 let booking_status = row.find('.booking_status');
@@ -621,39 +548,53 @@
                         if (response && Object.keys(response).length > 0) {
                             investor.text(response.investor ?? '');
                             no_plate.text(response.number_plate ?? '');
-                            booking_status.text(response.vehicle_status ?? '');
+                            booking_status.text(response.booking_status ?? '');
                             status.text(response.status ?? '');
-                        } else {
 
+                            investor.val(response.investor ?? '');
+                            no_plate.val(response.number_plate ?? '');
+                            booking_status.val(response.booking_status ?? '');
+                            status.val(response.status ?? '');
+                        } else {
+                            no_plate.val('');
+                            booking_status.val('');
+                            status.val('');
                         }
                     }
                 });
             });
 
-            function calculateAmount(row) {
-                var taxVal = row.find('.zohotax').val();
-                var zohotax = row.find('.zohotax option[value="' + taxVal + '"]').data('percentage') || 0;
-                row.find('.tax').val(zohotax);
+            // $(document).on('change', '.price, .zohotax', function(){
+            //     var row = $(this).closest('tr');
+            //     var zohotax = row.find('.zohotax option:selected').data('percentage') || 0;
+            //     row.find('.tax').val(zohotax);
+            //     var price = parseFloat(row.find('.price').val()) || null;
+            //     var tax = parseFloat(row.find('.tax').val()) || null;
+            //     var taxAmount = (tax/100) * price;
+            //     var total = price + taxAmount;
+            //     row.find('.amount').val(total);
+            // });
 
-                var price = parseFloat(row.find('.price').val()) || 0;
-                var taxAmount = (zohotax / 100) * price;
-                var total = price + taxAmount;
 
-                row.find('.amount').val(total.toFixed(2));
-            }
+        });
+        $(document).on('change', '.price, .zohotax', function(){
+            var row = $(this).closest('tr');
+            calculateRowTotal(row);
+        });
+        function calculateRowTotal(row) {
+            var zohotax = row.find('.zohotax option:selected').data('percentage') || 0;
+            row.find('.tax').val(zohotax);
+            var price = parseFloat(row.find('.price').val()) || null;
+            var tax = parseFloat(row.find('.tax').val()) || null;
+            var taxAmount = (tax/100) * price;
+            var total = price + taxAmount;
+            row.find('.amount').val(total);
+        }
 
-            $(document).on('change', '.price', function () {
-                let row = $(this).closest('.lineItem');
-                calculateAmount(row);
+        $(document).ready(function () {
+            $('tr').each(function () {
+                calculateRowTotal($(this));
             });
-
-            $(document).on('change', '.zohotax', function () {
-                let row = $(this).closest('.lineItem');
-                calculateAmount(row);
-            });
-
-            $('.zohotax').trigger('change');
-            $('.price').trigger('change');
         });
     </script>
 @endsection

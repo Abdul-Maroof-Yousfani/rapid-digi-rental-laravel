@@ -24,7 +24,7 @@
                                 <h4>Create Booking</h4>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                     <hr style=" border-bottom:1px solid #6c757d;">
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
@@ -74,8 +74,8 @@
                         </div>
 
                         <div class="col-12">
-                           
-                        
+
+
                                 <div class="header-card head-flex">
                                     <h4>Booking Details</h4>
                                     <div class="card-header-form">
@@ -127,9 +127,9 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                           
+
                                             <div class="col-3">
-                                                  <div class="form-group">
+                                                <div class="form-group">
                                                     <label for="">Tax (%)</label><br>
                                                     <select name="tax[]"class="form-control select2 zohotax" readonly>
                                                         <option value="">Select Tax</option>
@@ -140,27 +140,27 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                       </div>
+                                                </div>
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                                <input type="number" value="" name="price[]" class="form-control price"  required>
-                                                        </div>
+                                                    <label for="">Price (AED) <span class="text-danger">*</span></label><br>
+                                                    <input type="number" value="" name="price[]" class="form-control price"  required>
+                                                </div>
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                <label for="">Total Amount</label><br>
-                                                <input type="number" value="" name="amount[]" class="form-control amount" disabled>
-                                                        </div>
+                                                    <label for="">Total Amount</label><br>
+                                                    <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                                </div>
                                             </div>
-                                            
+
                                         </div>
-                                      
+
                                             <div class="form-group">
                                                 <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control" id="" cols="60" rows="4" placeholder="Description"></textarea>
                                             </div>
-                                      
+
                                     </div>
                                 </div>
                             </div>
@@ -321,7 +321,7 @@
                                                 {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
                                             </option>
                                         @endforeach
-                                    </select> 
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-3">

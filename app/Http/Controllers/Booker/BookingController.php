@@ -177,10 +177,10 @@ class BookingController extends Controller
 
                 } catch (\Exception $exp) {
                     DB::rollBack();
-                    return redirect()->back()->withErrors('error', $exp->getMessage())->withInput();
+                    return redirect()->back()->with('error', $exp->getMessage());
                 }
             } else {
-                return redirect()->back()->withErrors('error', 'Invoice ID Not Fetch')->withInput();
+                return redirect()->back()->with('error', 'Invoice ID Not Fetch');
             }
         }
     }
