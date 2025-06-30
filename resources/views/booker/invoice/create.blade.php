@@ -328,15 +328,108 @@
     <script>
         $(document).ready(function(){
             $('#addRow').click(function() {
-                let newRow = ``;
+                let newRow = `
+                <div class="card">
+                    <div class="card-body lineItem">
+                        <div class="row">
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="">Type <span class="text-danger">*</span></label><br>
+                                    <select name="invoice_type[]" class="form-control select2 invoice_type">
+                                        <option value="">Select Type</option>
+                                        <option value="2">Renew</option>
+                                        <option value="3">Fine</option>
+                                        <option value="4">Salik</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="">Start Date <span class="text-danger">*</span></label><br>
+                                    <input type="date" name="booking_date[]" class="form-control datemask booking-date" required>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="">Return Date <span class="text-danger">*</span></label><br>
+                                    <input type="date" name="return_date[]" class="form-control datemask return-date" required>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
+                                    <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
+                                        <option value="">Select Vehicle type</option>
+                                        @foreach ($vehicletypes as $vtype)
+                                            <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <span class="d-flex justify-content-between">
+                                    <label for="">Vehicle Name<span class="text-danger">*</span></label>
+                                    <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                                </span>
+                                <select name="vehicle[]" class="form-control select2 vehicle" required>
+                                    <option value="">Select Vehicle</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-2">
+                                <textarea name="description[]" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="">Quantity</label><br>
+                                    <input type="number" name="quantity[]" value="1" class="form-control quantity">
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="">Tax (%)</label><br>
+                                    <select name="tax[]" class="form-control select2 zohotax">
+                                        <option value="">Select Tax</option>
+                                        @foreach ($taxlist['taxes'] as $item)
+                                            <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                                {{ $item['tax_name'] }} ({{ $item['tax_percentage'] }}%)
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="">Price (AED) <span class="text-danger">*</span></label><br>
+                                <input type="number" name="price[]" class="form-control price" required>
+                            </div>
+                            <div class="col-3">
+                                <label for="">Total Amount</label><br>
+                                <input type="number" name="amount[]" class="form-control disableClick amount" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                $('#lineItemBody').append(newRow);
+                $('.select2').select2({
+                    width: '100%'
+                });
             });
         });
+
+        $(document).on('click', '.removeRow', function () {
+            if ($('.lineItemBody .card').length > 1) {
+                $(this).closest('.card').remove();
+            } else {
+                alert("At least one booking box must remain.");
+            }
+        })
     </script>
 
 
     <script>
         $(document).ready(function() {
-            $('#addRow').click(function() {
+            $('#addRows').click(function() {
                 let newRow = `
                 <tr>
 
