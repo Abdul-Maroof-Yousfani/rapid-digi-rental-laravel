@@ -48,7 +48,7 @@
                                         <td>{{ $item->remaining_deposit }}</td>
                                         <td>{{ $item->refund_amount }}</td>
                                         <td>
-                                            <a href="{{ url($userRole.'/view-credit-note/{cn_id}') }}" class="btn btn-sm btn-primary">
+                                            <a href="{{ url($userRole.'/view-credit-note/'.$item->id) }}" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-eye"></i>
                                                 View
                                             </a>
