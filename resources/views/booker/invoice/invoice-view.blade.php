@@ -90,13 +90,13 @@
     overflow: hidden;
 }
 .box1 {
-    margin-top: -12px;
+    margin-top: 6px;
     background: #3e7eac;
     text-align: center;
-    width: 9%;
+    width: 16%;
     color: #fff;
     transform: rotateZ(-45deg);
-    margin-left: -48px;
+    margin-left: -59px;
 }
     </style>
 
