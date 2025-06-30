@@ -137,7 +137,7 @@ class CreditnoteController extends Controller
 
     public function viewCreditNote(string $id)
     {
-        $creditNote= CreditNote::find($id);
+        $creditNote= CreditNote::with('paymentMethod', 'booking')->find($id);
         return view('booker.creditnote.credit-note-view', compact('creditNote'));
     }
 }

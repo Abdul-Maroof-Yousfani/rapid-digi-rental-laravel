@@ -26,7 +26,9 @@ Credit Note View
     }
 
  .cred1{display:flex;justify-content:space-between;}
-
+    p{
+        color : #191d21 !important;
+    }
  </style>
 
      <!-- Main Content -->
@@ -48,47 +50,47 @@ Credit Note View
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-left"></div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-right">
-                        <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">LOGO</h3>
+                        <h3 style="color:#000000; font-size:3rem; font-weight:100"><b>Rapid Rental</b></h3>
                     </div>
                 </div>
-                <div class="row">
+                {{-- <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-left">
                         <p class="mb-0 text-dark">Your business same. your business address </p>
                     </div>
-                </div>
+                </div> --}}
                 <br>
                  <!-- Bill To & Invoice Info -->
                  <div class="row mb-3">
                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-left">
-                             <p class="mb-0 font-weight-bold text-dark">Bill TO</p>
-                            <p class="mb-0 font-weight-bold text-dark">Your clients name</p>
-                            <p class="mb-0 font-weight-bold text-dark">Your clients adddress</p>
+                             <p class="mb-0 font-weight-bold text-dark">Bill TO:</p>
+                            <p class="mb-0">{{ $creditNote->booking->customer->customer_name }}</p>
+                            <p class="mb-0">{{ $creditNote->booking->customer->address }}</p>
+                            <p class="mb-0">{{ $creditNote->booking->customer->country }}</p>
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right">
                             <div class="cred1">
                                 <p class="mb-0 font-weight-bold text-dark">Credit date no..</p>
-                                <p class="mb-0 font-weight-bold text-dark">2022808</p>
+                                <p class="mb-0 font-weight-bold text-dark">{{ $creditNote->credit_note_no }}</p>
                             </div>
                             <div class="cred1">
-                                <p class="mb-0 font-weight-bold text-dark">Issue date</p>
-                                <p class="mb-0 font-weight-bold text-dark">14/7/2024</p>
+                                <p class="mb-0 font-weight-bold text-dark">Issue Date</p>
+                                <p class="mb-0 font-weight-bold text-dark">{{ $creditNote->refund_date }}</p>
                             </div>
-                            <div class="cred1">
+                            {{-- <div class="cred1">
                                 <p class="mb-0 font-weight-bold text-dark">Referance</p>
-                                <p class="mb-0 font-weight-bold text-dark">2022006</p>
-                            </div>
+                                <p class="mb-0 font-weight-bold text-dark"></p>
+                            </div> --}}
                         </div>
                   </div>
 
-               
+
                 <!-- Table -->
                 <table class="table align-middle">
                     <thead class="thead-light">
                         <tr class="text-white">
-                            <th style="background-color: #316125 !important" class="text-white text-left">Credit Date No.<br> <span>2022006</span></th>
-                            <th style="background-color: #316125 !important" class="text-white text-left">Issue Date<br> <span>306/6/2024</span></th>
-                            <th style="background-color: #316125 !important " class="text-white text-left">Due Date<br> <span>14/7/2024</span></th>
-                            <th colspan="4" style="background-color: #000 !important" class="text-white text-left">Total Date (PKR)<br> <span>Rs 0.00</span></th>
+                            <th style="background-color: #316125 !important" class="text-white text-left">Credit Date No.<br> <span>{{ $creditNote->credit_note_no }}</span></th>
+                            <th colspan="2" style="background-color: #316125 !important" class="text-white text-left">Issue Date<br> <span>{{ $creditNote->refund_date }}</span></th>
+                            <th colspan="4" style="background-color: #000 !important" class="text-white text-left">Total Date (AED)<br> <span>Rs 0.00</span></th>
                         </tr>
                     </thead>
                 </table>
@@ -98,38 +100,22 @@ Credit Note View
                     <thead class="thead-light2">
                         <tr class="text-Black">
                             <th style=" background:transparent; color:#000;" colspan="7" class="text-left">Description</th>
-                            <th style=" background:transparent; color:#000;" class="text-center">Quantity</th>
-                            <th style=" background:transparent; color:#000;" class="text-right">Unit Price ($)</th>
-                            <th style=" background:transparent; color:#000;" class="text-right">Amount ($)</th>
+                            <th style=" background:transparent; color:#000;" class="text-right">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                      
-                            <tr style="border-top: 1px solid #ADADAD;">
-                                <td  colspan="7" class="text-left">tax%</td>
-                                <td class="text-center">0</td>
-                                <td class="text-right">0.000</td>
-                                <td class="text-right">Rs 0.000</td>
-                            </tr>
                            <tr style="border-top: 1px solid #ADADAD;">
-                                <td  colspan="7" class="text-left">tax%</td>
-                                <td class="text-center">0</td>
-                                <td class="text-right">0.000</td>
-                                <td class="text-right">Rs 0.000</td>
-                            </tr>
-                           <tr style="border-top: 1px solid #ADADAD;">
-                                <td  colspan="7" class="text-left">tax%</td>
-                                <td class="text-center">0</td>
-                                <td class="text-right">0.000</td>
-                                <td class="text-right">Rs 0.000</td>
+                                <td  colspan="7" class="text-left">
+                                    {{ $creditNote->booking->customer->customer_name }} |
+                                    {{ $creditNote->booking->agreement_no }}
+                                </td>
+                                <td class="text-right">{{ $creditNote->refund_amount }}</td>
                             </tr>
                             <tr style="border-top: 1px solid #ADADAD;">
-                                <td  colspan="7" class="text-left">Total (RS)</td>
-                                <td class="text-center"></td>
-                                <td class="text-right"></td>
-                                <td class="text-right">Rs 0.000</td>
+                                <td  colspan="7" class="text-left">Total</td>
+                                <td class="text-right">(AED) {{ $creditNote->refund_amount }}</td>
                             </tr>
-                    
+
                     </tbody>
                 </table>
 
@@ -153,7 +139,7 @@ Credit Note View
                     <p class="mb-0">Thank you for your business.</p>
                     <p class="mb-0">DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.</p>
                 </div>
-               
+
             </div>
         </section>
     </div>
