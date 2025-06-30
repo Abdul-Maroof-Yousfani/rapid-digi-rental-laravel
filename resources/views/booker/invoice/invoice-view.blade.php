@@ -97,6 +97,16 @@
     color: #fff;
     transform: rotateZ(-45deg);
     margin-left: -59px;
+    font-size: 24px
+}
+.sent-status {
+    background-color: #3e7eac;
+    color: #fff;
+}
+
+.draft-status {
+    background-color: #808080;
+    color: #fff;
 }
     </style>
 
@@ -111,9 +121,16 @@
         <section class="section print-area">
             <div class="container my-5 border p-4 bg-white">
 
-            <div class="box1">
-                <p>test</p>
+            <div class="box1" style="background-color: {{ $invoice->invoice_status == 'sent' ? '#3e7eac' : '#808080' }}">
+                <p>
+                @if ($invoice->invoice_status == 'sent')
+                    Sent
+                @else
+                    Draft
+                @endif
+                </p>
             </div>
+
             <br>
             <br>
             <br>

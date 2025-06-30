@@ -36,7 +36,7 @@ Credit Note View
 
         <!-- Print Button (outside print area, so not printed) -->
         <div class="text-right mb-3 no-print">
-            <button onclick="printInvoice()" class="btn btn-primary">Print Invoice</button>
+            <button onclick="window.print()" class="btn btn-primary">Print Invoice</button>
         </div>
 
         <section class="section print-area">
@@ -90,7 +90,7 @@ Credit Note View
                         <tr class="text-white">
                             <th style="background-color: #316125 !important" class="text-white text-left">Credit Date No.<br> <span>{{ $creditNote->credit_note_no }}</span></th>
                             <th colspan="2" style="background-color: #316125 !important" class="text-white text-left">Issue Date<br> <span>{{ $creditNote->refund_date }}</span></th>
-                            <th colspan="4" style="background-color: #000 !important" class="text-white text-left">Total Date (AED)<br> <span>Rs 0.00</span></th>
+                            {{-- <th colspan="4" style="background-color: #000 !important" class="text-white text-left">Total Date (AED)<br> <span>Rs 0.00</span></th> --}}
                         </tr>
                     </thead>
                 </table>
@@ -146,7 +146,9 @@ Credit Note View
 @endsection
 
 @section('script')
-    <script type="text/javascript">
-
-    </script>
+<script type="text/javascript">
+    function printInvoice() {
+        window.print();
+    }
+</script>
 @endsection
