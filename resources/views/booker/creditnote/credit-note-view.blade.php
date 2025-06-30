@@ -9,7 +9,7 @@ Credit Note View
         .print-area{position:absolute;left:0;top:0;width:100%;}
         /* Ensure background colors are printed */
         .thead-light{background-color:#2F81B7 !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
-        .thead-light th{color:#ffffff !important;background-color:#2F81B7 !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+        .thead-light th{color:#ffffff !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
         /* Target the Balance Due row specifically */
         tr.bg-light{background-color:#f8f9fa !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
         tr.bg-light th,tr.bg-light td{background-color:#f8f9fa !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;padding-right:0 !important;/* Remove padding to minimize gap */
@@ -41,30 +41,30 @@ Credit Note View
             <div class="container my-5 border p-4 bg-white">
                 <!-- Header -->
                 <div style="margin-bottom: 5rem" class="row">
-                    <div class="col-md-12">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <h5 class="font-weight-bold text-dark">Credit note</h5>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6 text-left"></div>
-                    <div class="col-md-6 text-right">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-left"></div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-right">
                         <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">LOGO</h3>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12 text-left">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-left">
                         <p class="mb-0 text-dark">Your business same. your business address </p>
                     </div>
                 </div>
                 <br>
                  <!-- Bill To & Invoice Info -->
                  <div class="row mb-3">
-                        <div class="col-md-8 text-left">
+                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-left">
                              <p class="mb-0 font-weight-bold text-dark">Bill TO</p>
                             <p class="mb-0 font-weight-bold text-dark">Your clients name</p>
                             <p class="mb-0 font-weight-bold text-dark">Your clients adddress</p>
                         </div>
-                        <div class="col-md-4 text-right">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right">
                             <div class="cred1">
                                 <p class="mb-0 font-weight-bold text-dark">Credit date no..</p>
                                 <p class="mb-0 font-weight-bold text-dark">2022808</p>
@@ -85,17 +85,17 @@ Credit Note View
                 <table class="table align-middle">
                     <thead class="thead-light">
                         <tr class="text-white">
-                            <th style="background-color: #316125" class="text-white text-left">Credit Date No.<br> <span>2022006</span></th>
-                            <th style="background-color: #316125" class="text-white text-left">Issue Date<br> <span>306/6/2024</span></th>
-                            <th style="background-color: #316125" class="text-white text-left">Due Date<br> <span>14/7/2024</span></th>
-                            <th colspan="4" style="background-color: #000" class="text-white text-left">Total Date (PKR)<br> <span>Rs 0.00</span></th>
+                            <th style="background-color: #316125 !important" class="text-white text-left">Credit Date No.<br> <span>2022006</span></th>
+                            <th style="background-color: #316125 !important" class="text-white text-left">Issue Date<br> <span>306/6/2024</span></th>
+                            <th style="background-color: #316125 !important " class="text-white text-left">Due Date<br> <span>14/7/2024</span></th>
+                            <th colspan="4" style="background-color: #000 !important" class="text-white text-left">Total Date (PKR)<br> <span>Rs 0.00</span></th>
                         </tr>
                     </thead>
                 </table>
 
 
                 <table class="table align-middle">
-                    <thead class="thead-light">
+                    <thead class="thead-light2">
                         <tr class="text-Black">
                             <th style=" background:transparent; color:#000;" colspan="7" class="text-left">Description</th>
                             <th style=" background:transparent; color:#000;" class="text-center">Quantity</th>
@@ -135,7 +135,7 @@ Credit Note View
 
                 <!-- Totals -->
                 <div class="row justify-content-end">
-                    <div class="col-md-6">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                         <table class="table">
                             <tr>
                                 <th class="text-right">Issued by, signature</th>
