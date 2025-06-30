@@ -85,6 +85,19 @@
                 display: none !important;
             }
         }
+        .bg-white {
+
+    overflow: hidden;
+}
+.box1 {
+    margin-top: -12px;
+    background: #3e7eac;
+    text-align: center;
+    width: 9%;
+    color: #fff;
+    transform: rotateZ(-45deg);
+    margin-left: -48px;
+}
     </style>
 
     <!-- Main Content -->
@@ -97,6 +110,13 @@
 
         <section class="section print-area">
             <div class="container my-5 border p-4 bg-white">
+
+            <div class="box1">
+                <p>test</p>
+            </div>
+            <br>
+            <br>
+            <br>
                 <!-- Header -->
                 <div style="margin-bottom: 5rem" class="row">
                     <div class="col">
