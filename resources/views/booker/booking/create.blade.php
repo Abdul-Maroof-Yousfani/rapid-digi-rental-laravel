@@ -1,21 +1,15 @@
 @extends('admin.master-main')
 @section('content')
     <style>
-        .disableClick {
-            cursor: not-allowed !important;
-        }
+ .disableClick{cursor:not-allowed !important;}
+.select2-container--default .select2-selection--multiple .select2-selection__arrow,.select2-container--default .select2-selection--single .select2-selection__arrow{width:16px !important;}
+.table-responsive{overflow:scroll;white-space:nowrap}
+.header-card h4{font-size:20px;margin-bottom:0;}
+.head-flex{display:flex;justify-content:space-between;align-items:center;}
+.close-btn{text-align:right;}
 
-        .select2-container--default .select2-selection--multiple .select2-selection__arrow,
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
 
-            width: 16px !important;
 
-        }
-
-        .table-responsive{
-            overflow: scroll;
-            white-space: nowrap
-        }
     </style>
     <!-- Main Content -->
     <div class="main-content">
@@ -26,13 +20,12 @@
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
-                            <div class="card-body">
-                                <div class="col-md-6">
-                                    <h3>Create Booking</h3>
-                                </div>
+                            <div class="header-card">
+                                <h4>Create Booking</h4>
                             </div>
                         </div>
-                    </div>
+                    </div> 
+                    <hr style=" border-bottom:1px solid #6c757d;">
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
@@ -81,8 +74,9 @@
                         </div>
 
                         <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
+                           
+                        
+                                <div class="header-card head-flex">
                                     <h4>Booking Details</h4>
                                     <div class="card-header-form">
                                         <div class="input-group">
@@ -90,10 +84,13 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                           <hr style=" border-bottom:1px solid #6c757d;">
                             <div class="lineItemBody" id="lineItemBody">
                                 <div class="card">
                                     <div class="card-body lineItem">
+                                        <div class="close-btn">
+                                            <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                                        </div>
                                         <div class="row">
                                             <div class="col-3">
                                                 <div class="form-group">
@@ -121,41 +118,49 @@
                                                 </div>
                                             </div>
                                             <div class="col-3">
-                                                <span class="d-flex justify-content-between">
-                                                    <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                                    <button type="button" class="btn btn-danger btn-md removeRow">X</button>
-                                                </span>
-                                                    <select name="vehicle[]" class="form-control select2 vehicle"
-                                                    required>
+                                                <div class="form-group">
+                                                    <label for="">Vehicle Name <span class="text-danger">*</span></label><br>
+                                                    <select name="vehicle[]" class="form-control select2 vehicle"required>
                                                         <option value="">Select Vehicle</option>
                                                     </select>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="row">
+                                           
                                             <div class="col-3">
-                                                <textarea name="description[]" style="width:200px;" class="form-control" id="" cols="60" rows="4" placeholder="Description"></textarea>
+                                                  <div class="form-group">
+                                                    <label for="">Tax (%)</label><br>
+                                                    <select name="tax[]"class="form-control select2 zohotax" readonly>
+                                                        <option value="">Select Tax</option>
+                                                        @foreach ($taxlist['taxes'] as $item)
+                                                            <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}"
+                                                                                                                    {{ $item['tax_name']=='VAT' ? 'selected' : '' }}>
+                                                                {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                       </div>
                                             </div>
                                             <div class="col-3">
-                                                <label for="">Tax (%)</label><br>
-                                                <select name="tax[]"class="form-control select2 zohotax" readonly>
-                                                    <option value="">Select Tax</option>
-                                                    @foreach ($taxlist['taxes'] as $item)
-                                                        <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}"
-                                                                                                                {{ $item['tax_name']=='VAT' ? 'selected' : '' }}>
-                                                            {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-3">
+                                                <div class="form-group">
                                                 <label for="">Price (AED) <span class="text-danger">*</span></label><br>
                                                 <input type="number" value="" name="price[]" class="form-control price"  required>
+                                                        </div>
                                             </div>
                                             <div class="col-3">
+                                                <div class="form-group">
                                                 <label for="">Total Amount</label><br>
                                                 <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                                        </div>
                                             </div>
+                                            
                                         </div>
+                                      
+                                            <div class="form-group">
+                                                <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control" id="" cols="60" rows="4" placeholder="Description"></textarea>
+                                            </div>
+                                      
                                     </div>
                                 </div>
                             </div>
@@ -163,7 +168,7 @@
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="form-group">
                                 <label>Notes <span class="text-danger">*</span></label>
-                                <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}</textarea>
+                                <textarea name="notes" cols="30" style="height: 150px !important;"  class="form-control" rows="10" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -265,6 +270,9 @@
                 let newRow = `
                 <div class="card">
                     <div class="card-body lineItem">
+                        <div class="close-btn">
+                            <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                        </div>
                         <div class="row">
                             <div class="col-3">
                                 <div class="form-group">
@@ -292,41 +300,44 @@
                                 </div>
                             </div>
                             <div class="col-3">
-                                <span class="d-flex justify-content-between">
+                                <div class="form-group">
                                     <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                    <button type="button" class="btn btn-danger btn-md removeRow">X</button>
-                                </span>
                                     <select name="vehicle[]" class="form-control select2 vehicle"
                                     required>
                                         <option value="">Select Vehicle</option>
                                     </select>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-3">
-                                <textarea name="description[]" style="width:200px;" class="form-control" id="" cols="60" rows="4" placeholder="Description"></textarea>
+                                <div class="form-group">
+                                    <label for="">Tax (%)</label><br>
+                                    <select name="tax[]"class="form-control select2 zohotax" readonly>
+                                        <option value="">Select Tax</option>
+                                        @foreach ($taxlist['taxes'] as $item)
+                                            <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}"
+                                                                                                    {{ $item['tax_name']=='VAT' ? 'selected' : '' }}>
+                                                {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
+                                            </option>
+                                        @endforeach
+                                    </select> 
+                                </div>
                             </div>
                             <div class="col-3">
-                                <label for="">Tax (%)</label><br>
-                                <select name="tax[]"class="form-control select2 zohotax" readonly>
-                                    <option value="">Select Tax</option>
-                                    @foreach ($taxlist['taxes'] as $item)
-                                        <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}"
-                                                                                                {{ $item['tax_name']=='VAT' ? 'selected' : '' }}>
-                                            {{ $item['tax_name'] }} ({{ $item['tax_percentage'].'%' }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="form-group">
+                                    <label for="">Price (AED) <span class="text-danger">*</span></label><br>
+                                    <input type="number" value="" name="price[]" class="form-control price"  required>
+                                </div>
                             </div>
                             <div class="col-3">
-                                <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                <input type="number" value="" name="price[]" class="form-control price"  required>
-                            </div>
-                            <div class="col-3">
-                                <label for="">Total Amount</label><br>
-                                <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                <div class="form-group">
+                                    <label for="">Total Amount</label><br>
+                                    <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                </div>
                             </div>
                         </div>
+                         <textarea name="description[]" style="width:100%;height: 100px !important;"  class="form-control" id="" cols="60" rows="4" placeholder="Description"></textarea>
                     </div>
                 </div>`;
 
