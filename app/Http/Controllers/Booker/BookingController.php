@@ -15,6 +15,7 @@ use App\Models\BookingData;
 use App\Models\Vehicletype;
 use Illuminate\Http\Request;
 use App\Services\ZohoInvoice;
+use App\Events\BookingCreated;
 use App\Models\DepositHandling;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

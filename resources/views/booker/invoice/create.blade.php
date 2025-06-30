@@ -415,19 +415,150 @@
                     width: '100%'
                 });
             });
+
+
+            $(document).on('click', '.removeRow', function () {
+                if ($('.lineItemBody .card').length > 1) {
+                    $(this).closest('.card').remove();
+                } else {
+                    alert("At least one booking box must remain.");
+                }
+            });
+
+            // Listen for changes using class selectors
+            $('#lineItemBody').on('change', '.booking-date, .return-date', function () {
+                let row = $(this).closest('.lineItem');
+                let bookingDate = row.find('.booking-date').val();
+                let returnDate = row.find('.return-date').val();
+                let vehicleSelect = row.find('.vehicletypes');
+
+                if (bookingDate && returnDate) {
+                    vehicleSelect.prop('disabled', false);
+                    vehicleSelect.trigger('change');
+                } else {
+                    vehicleSelect.prop('disabled', true);
+                }
+            });
+
+            // Date only enable and disable on invoice type change
+            $(document).on('change', '.invoice_type', function() {
+                const row = $(this).closest('.lineItem');
+                const dateInputs = row.find('.datemask');
+                const vehicleType = row.find('.vehicletypes');
+
+                if ($(this).val() === '2') {
+                    dateInputs.prop('required', true);
+                    dateInputs.prop('disabled', false);
+                    vehicleType.prop('disabled', true);
+                } else {
+                    dateInputs.prop('required', false);
+                    dateInputs.prop('disabled', true);
+                    vehicleType.prop('disabled', false);
+                    dateInputs.val('');
+
+                }
+            });
+
+            $('.invoice_type').trigger('change');
+
+            $(document).on('change', '.vehicletypes', function() {
+                let id = $(this).val();
+                let $row = $(this).closest('.lineItem');
+                let bookingId = $('.booking_id').val();
+                let $vehicleSelect = $row.find('select[name="vehicle[]"]');
+
+                let invoiceType = $row.find('.invoice_type').val();
+                let bookingDate = $row.find('.booking-date').val();
+                let returnDate = $row.find('.return-date').val();
+
+                $vehicleSelect.empty().append('<option value="">Loading...</option>');
+
+                $.ajax({
+                    url: `/get-vehicle-by-booking/${id}/booking/${bookingId}`,
+                    type: 'GET',
+                    data: {
+                        start_date: bookingDate,
+                        end_date: returnDate,
+                        invoice_type: invoiceType
+                    },
+                    success: function(response) {
+                        $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
+                        $.each(response, function(key, vehicle) {
+                            $vehicleSelect.append(
+                                `<option value="${vehicle.id}">${vehicle.number_plate} | ${(vehicle.temp_vehicle_detail ?? vehicle.vehicle_name)}</option>`
+                            );
+                        });
+                    }
+                });
+            });
+
+            $(document).on('change', '.vehicle', function() {
+                let id = $(this).val();
+                let row = $(this).closest('.lineItem');
+                let no_plate = row.find('.no_plate');
+                let investor = row.find('.investor');
+                let booking_status = row.find('.booking_status');
+                let status = row.find('.status');
+                if (!id) {
+                    no_plate.val('');
+                    booking_status.val('')
+                    status.val('');
+                    investor.val('');
+                    return;
+                }
+                $.ajax({
+                    url: `/get-vehicle-detail/${id}`,
+                    type: 'GET',
+                    success: function(response) {
+                        if (response && Object.keys(response).length > 0) {
+                            investor.text(response.investor ?? '');
+                            no_plate.text(response.number_plate ?? '');
+                            booking_status.text(response.vehicle_status ?? '');
+                            status.text(response.status ?? '');
+                        } else {
+
+                        }
+                    }
+                });
+            });
+
+            function calculateAmount(row) {
+                var taxVal = row.find('.zohotax').val();
+                var zohotax = row.find('.zohotax option[value="' + taxVal + '"]').data('percentage') || 0;
+                row.find('.tax').val(zohotax);
+
+                var qty = parseFloat(row.find('.quantity').val()) || null;
+                var price = parseFloat(row.find('.price').val()) || 0;
+                var grossPrice = price * qty ;
+                var taxAmount = (zohotax / 100) * grossPrice;
+                var total = grossPrice + taxAmount;
+
+                row.find('.amount').val(total.toFixed(2));
+            }
+
+            $(document).on('change', '.price', function () {
+                let row = $(this).closest('.lineItem');
+                calculateAmount(row);
+            });
+
+            $(document).on('change', '.zohotax', function () {
+                let row = $(this).closest('.lineItem');
+                calculateAmount(row);
+            });
+
+            $(document).on('change', '.quantity', function () {
+                let row = $(this).closest('.lineItem');
+                calculateAmount(row);
+            });
+
+
+
         });
 
-        $(document).on('click', '.removeRow', function () {
-            if ($('.lineItemBody .card').length > 1) {
-                $(this).closest('.card').remove();
-            } else {
-                alert("At least one booking box must remain.");
-            }
-        })
     </script>
 
 
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             $('#addRows').click(function() {
                 let newRow = `
@@ -735,5 +866,5 @@
                 row.find('.amount').val(total);
             });
         });
-    </script>
+    </script> --}}
 @endsection
