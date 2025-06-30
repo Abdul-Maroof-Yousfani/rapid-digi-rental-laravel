@@ -134,6 +134,7 @@ Route::prefix('booker')->as('booker.')->middleware(['auth', 'role:booker'])->gro
     Route::get('payment-history/{payment_id}', [PaymentController::class, 'paymentHistory']);
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
     Route::get('booking/view-invoice/{invoice_id}', [InvoiceController::class, 'viewInvoice'])->name('view.invoice');
+    Route::get('view-credit-note/{cn_id}', [CreditnoteController::class, 'viewCreditNote'])->name('view.creditNote');
     Route::get('booking/{id}', [InvoiceController::class, 'index'])->name('view.invoice');
     Route::get('booking/{id}/create-invoice', [InvoiceController::class, 'create'])->name('create.invoice');
     Route::post('booking/{id}/create-invoice', [InvoiceController::class, 'store'])->name('store.invoice');

@@ -1,5 +1,6 @@
 @extends('admin.master-main')
-@section('title', ucfirst(Auth::user()->getRoleNames()->first()." "."Portal"))
+@php $userRole= Auth::user()->getRoleNames()->first(); @endphp
+@section('title', ucfirst($userRole." "."Portal"))
 @section('content')
 
       <!-- Main Content -->
@@ -33,6 +34,7 @@
                                         <th>Initial Deposit</th>
                                         <th>Remaining</th>
                                         <th>Refund</th>
+                                        <th>View</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -45,14 +47,12 @@
                                         <td>{{ $item->booking->deposit->deposit_amount ?? 0 }}</td>
                                         <td>{{ $item->remaining_deposit }}</td>
                                         <td>{{ $item->refund_amount }}</td>
-                                        {{-- <td>
-                                            <a href="" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                            <form action="" method="" style="display:inline;" class="delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>Delete</button>
-                                            </form>
-                                        </td> --}}
+                                        <td>
+                                            <a href="{{ url($userRole.'/view-credit-note/{cn_id}') }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i>
+                                                View
+                                            </a>
+                                        </td>
                                     </tr>
                                     @endforeach
                                 </tbody>

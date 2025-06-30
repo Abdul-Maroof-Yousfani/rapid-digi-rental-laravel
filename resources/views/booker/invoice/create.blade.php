@@ -48,7 +48,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12">
+                        {{-- <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
                                     <h4>Items</h4>
@@ -90,28 +90,24 @@
                                                             <select name="invoice_type[]" class="form-control select2 invoice_type">
                                                                 <option value="">Select Type</option>
                                                                 <option value="2">Renew</option>
-                                                                {{-- <option value="1">Rent</option> --}}
                                                                 <option value="3">Fine</option>
                                                                 <option value="4">Salik</option>
                                                             </select>
                                                         </div>
                                                     </td>
 
-                                                    <!-- Start Date -->
                                                     <td>
                                                         <div class="form-group">
                                                             <input type="date" name="booking_date[]" class="form-control datemask booking-date">
                                                         </div>
                                                     </td>
 
-                                                    <!-- Return Date -->
                                                     <td>
                                                         <div class="form-group">
                                                             <input type="date" name="return_date[]" class="form-control datemask return-date">
                                                         </div>
                                                     </td>
 
-                                                    <!-- Vehicle Type -->
                                                     <td>
                                                         <div class="form-group">
                                                             <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
@@ -123,7 +119,6 @@
                                                         </div>
                                                     </td>
 
-                                                    <!-- Vehicle Name -->
                                                     <td>
                                                         <div class="form-group">
                                                             <select name="vehicle[]" class="form-control select2 vehicle" required>
@@ -132,27 +127,23 @@
                                                         </div>
                                                     </td>
 
-                                                    <!-- Description -->
                                                     <td>
                                                         <div class="form-group">
                                                             <textarea name="description[]" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
                                                         </div>
                                                     </td>
 
-                                                    <!-- Dynamic Fields to be filled by JS -->
                                                     <td style="display: none" class="align-middle investor"></td>
                                                     <td style="display: none" class="align-middle no_plate"></td>
                                                     <td style="display: none" class="align-middle booking_status"></td>
                                                     <td style="display: none" class="align-middle status"></td>
 
-                                                    <!-- Quantity -->
                                                     <td>
                                                         <div class="form-group">
                                                             <input type="number" name="quantity[]" value="1" class="form-control quantity">
                                                         </div>
                                                     </td>
 
-                                                    <!-- Tax -->
                                                     <td>
                                                         <input type="hidden" name="tax_percent[]" class="tax">
                                                         <div class="form-group">
@@ -167,21 +158,18 @@
                                                         </div>
                                                     </td>
 
-                                                    <!-- Price -->
                                                     <td>
                                                         <div class="form-group">
                                                             <input type="number" name="price[]" class="form-control price">
                                                         </div>
                                                     </td>
 
-                                                    <!-- Total Amount -->
                                                     <td>
                                                         <div class="form-group">
                                                             <input type="number" name="amount[]" class="form-control disableClick amount" disabled>
                                                         </div>
                                                     </td>
 
-                                                    <!-- Remove Button -->
                                                     <td>
                                                         <button type="button" class="btn btn-danger btn-md removeRow">X</button>
                                                     </td>
@@ -190,6 +178,102 @@
                                         </table>
                                     </div>
 
+                                </div>
+                            </div>
+                        </div> --}}
+
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Booking Details</h4>
+                                    <div class="card-header-form">
+                                        <div class="input-group">
+                                                <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="lineItemBody" id="lineItemBody">
+                                <div class="card">
+                                    <div class="card-body lineItem">
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <div class="form-group">
+                                                    <label for="">Type <span class="text-danger">*</span></label><br>
+                                                    <select name="invoice_type[]" class="form-control select2 invoice_type">
+                                                        <option value="">Select Type</option>
+                                                        <option value="2">Renew</option>
+                                                        <option value="3">Fine</option>
+                                                        <option value="4">Salik</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-2">
+                                                <div class="form-group">
+                                                    <label for="">Start Date <span class="text-danger">*</span></label><br>
+                                                    <input type="date" name="booking_date[]" class="form-control datemask booking-date" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-2">
+                                                <div class="form-group">
+                                                    <label for="">Return Date <span class="text-danger">*</span></label><br>
+                                                    <input type="date" name="return_date[]" class="form-control datemask return-date" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="form-group">
+                                                    <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
+                                                    <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
+                                                        <option value="">Select Vehicle type</option>
+                                                        @foreach ($vehicletypes as $vtype)
+                                                            <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <span class="d-flex justify-content-between">
+                                                    <label for="">Vehicle Name<span class="text-danger">*</span></label>
+                                                    <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                                                </span>
+                                                <select name="vehicle[]" class="form-control select2 vehicle" required>
+                                                    <option value="">Select Vehicle</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <textarea name="description[]" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
+                                            </div>
+                                            <div class="col-2">
+                                                <div class="form-group">
+                                                    <label for="">Quantity</label><br>
+                                                    <input type="number" name="quantity[]" value="1" class="form-control quantity">
+                                                </div>
+                                            </div>
+                                            <div class="col-2">
+                                                <div class="form-group">
+                                                    <label for="">Tax (%)</label><br>
+                                                    <select name="tax[]" class="form-control select2 zohotax">
+                                                        <option value="">Select Tax</option>
+                                                        @foreach ($taxlist['taxes'] as $item)
+                                                            <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                                                {{ $item['tax_name'] }} ({{ $item['tax_percentage'] }}%)
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <label for="">Price (AED) <span class="text-danger">*</span></label><br>
+                                                <input type="number" name="price[]" class="form-control price" required>
+                                            </div>
+                                            <div class="col-3">
+                                                <label for="">Total Amount</label><br>
+                                                <input type="number" name="amount[]" class="form-control disableClick amount" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -240,6 +324,16 @@
 @endsection
 
 @section('script')
+
+    <script>
+        $(document).ready(function(){
+            $('#addRow').click(function() {
+                let newRow = ``;
+            });
+        });
+    </script>
+
+
     <script>
         $(document).ready(function() {
             $('#addRow').click(function() {
