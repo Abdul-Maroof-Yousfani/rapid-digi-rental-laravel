@@ -9,105 +9,31 @@
     }
 @endphp
     <style>
-        @media print {
-            body * {
-                visibility: hidden !important;
-            }
-
-            .print-area,
-            .print-area * {
-                visibility: visible !important;
-            }
-
-            .print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-            }
-
-            /* Ensure background colors are printed */
-            .thead-light {
-                background-color: #2F81B7 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            .thead-light th {
-                color: #ffffff !important;
-                background-color: #2F81B7 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            /* Target the Balance Due row specifically */
-            tr.bg-light {
-                background-color: #f8f9fa !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            tr.bg-light th,
-            tr.bg-light td {
-                background-color: #f8f9fa !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                padding-right: 0 !important;
-                /* Remove padding to minimize gap */
-                padding-left: 0 !important;
-                /* Remove padding to minimize gap */
-                margin: 0 !important;
-                /* Ensure no margins */
-            }
-
-            /* Ensure table layout is tight */
-            .row.justify-content-end .table {
-                border-spacing: 0 !important;
-                border-collapse: collapse !important;
-            }
-
-            /* Optional: Adjust column widths to bring text closer */
-            tr.bg-light th {
-                width: auto !important;
-                min-width: 0 !important;
-            }
-
-            tr.bg-light td {
-                width: auto !important;
-                min-width: 0 !important;
-            }
-
-            /* Hide sidebar, navbar, etc. */
-            .sidebar,
-            .navbar,
-            .btn,
-            .no-print {
-                display: none !important;
-            }
-        }
-        .bg-white {
-
-    overflow: hidden;
+ @media print{body *{visibility:hidden !important;}
+.print-area,.print-area *{visibility:visible !important;}
+.print-area{position:absolute;left:0;top:0;width:100%;}
+/* Ensure background colors are printed */
+ .thead-light{background-color:#2F81B7 !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+.thead-light th{color:#ffffff !important;background-color:#2F81B7 !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+/* Target the Balance Due row specifically */
+ tr.bg-light{background-color:#f8f9fa !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+tr.bg-light th,tr.bg-light td{background-color:#f8f9fa !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;padding-right:0 !important;/* Remove padding to minimize gap */
+ padding-left:0 !important;/* Remove padding to minimize gap */
+ margin:0 !important;/* Ensure no margins */
 }
-.box1 {
-    margin-top: 6px;
-    background: #3e7eac;
-    text-align: center;
-    width: 16%;
-    color: #fff;
-    transform: rotateZ(-45deg);
-    margin-left: -59px;
-    font-size: 24px
+/* Ensure table layout is tight */
+ .row.justify-content-end .table{border-spacing:0 !important;border-collapse:collapse !important;}
+/* Optional:Adjust column widths to bring text closer */
+ tr.bg-light th{width:auto !important;min-width:0 !important;}
+tr.bg-light td{width:auto !important;min-width:0 !important;}
+/* Hide sidebar,navbar,etc. */
+ .sidebar,.navbar,.btn,.no-print{display:none !important;}
 }
-.sent-status {
-    background-color: #3e7eac;
-    color: #fff;
-}
+.bg-white{overflow:hidden;}
+.box1{margin-top:6px;background:#3e7eac;text-align:center;width:16%;color:#fff;transform:rotateZ(-45deg);margin-left:-59px;font-size:24px}
+.sent-status{background-color:#3e7eac;color:#fff;}
+.draft-status{background-color:#808080;color:#fff;}
 
-.draft-status {
-    background-color: #808080;
-    color: #fff;
-}
     </style>
 
     <!-- Main Content -->

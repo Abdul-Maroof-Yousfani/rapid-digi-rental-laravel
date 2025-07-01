@@ -1,21 +1,12 @@
 @extends('admin.master-main')
 @section('content')
     <style>
-        .disableClick {
-            cursor: not-allowed !important;
-        }
-
-        .select2-container--default .select2-selection--multiple .select2-selection__arrow,
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-
-            width: 16px !important;
-
-        }
-
-        .table-responsive{
-            overflow: scroll;
-            white-space: nowrap
-        }
+  .disableClick{cursor:not-allowed !important;}
+.select2-container--default .select2-selection--multiple .select2-selection__arrow,.select2-container--default .select2-selection--single .select2-selection__arrow{width:16px !important;}
+.table-responsive{overflow:scroll;white-space:nowrap}
+.header-card h4{font-size:20px;margin-bottom:0;}
+.head-flex{display:flex;justify-content:space-between;align-items:center;}
+.close-btn{text-align:right;}
     </style>
     <!-- Main Content -->
     <div class="main-content">
@@ -26,15 +17,13 @@
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
-                            <div class="card-body">
-                                <div class="col-md-6">
-                                    <h3>Create Invoice - {{ $booking->customer->customer_name }}</h3>
-                                </div>
+                             <div class="header-card">
+                                <h4>Create Invoice - {{ $booking->customer->customer_name }}</h4>
                             </div>
                         </div>
                     </div>
+                    <hr style=" border-bottom:1px solid #6c757d;">
                     <div class="row">
-
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="card">
                                 <div class="card-body">
@@ -183,19 +172,21 @@
                         </div> --}}
 
                         <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4>Booking Details</h4>
-                                    <div class="card-header-form">
-                                        <div class="input-group">
-                                                <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
-                                        </div>
+                            <div class="header-card head-flex">
+                                <h4>Booking Details</h4>
+                                <div class="card-header-form">
+                                    <div class="input-group">
+                                        <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
                                     </div>
                                 </div>
                             </div>
+                            <hr style=" border-bottom:1px solid #6c757d;">
                             <div class="lineItemBody" id="lineItemBody">
                                 <div class="card">
                                     <div class="card-body lineItem">
+                                        <div class="close-btn">
+                                            <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                                        </div>
                                         <div class="row">
                                             <div class="col-2">
                                                 <div class="form-group">
@@ -232,19 +223,16 @@
                                                 </div>
                                             </div>
                                             <div class="col-3">
-                                                <span class="d-flex justify-content-between">
-                                                    <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                                    <button type="button" class="btn btn-danger btn-md removeRow">X</button>
-                                                </span>
-                                                <select name="vehicle[]" class="form-control select2 vehicle" required>
-                                                    <option value="">Select Vehicle</option>
-                                                </select>
+                                                <div class="form-group">
+                                                    <label for="">Vehicle Name<span class="text-danger">*</span></label><br>
+                                                    <select name="vehicle[]" class="form-control select2 vehicle" required>
+                                                        <option value="">Select Vehicle</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-2">
-                                                <textarea name="description[]" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
-                                            </div>
+                                           
                                             <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="">Quantity</label><br>
@@ -265,13 +253,20 @@
                                                 </div>
                                             </div>
                                             <div class="col-3">
-                                                <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                                <input type="number" name="price[]" class="form-control price" required>
+                                                <div class="form-group">
+                                                    <label for="">Price (AED) <span class="text-danger">*</span></label><br>
+                                                    <input type="number" name="price[]" class="form-control price" required>
+                                                 </div>
                                             </div>
                                             <div class="col-3">
-                                                <label for="">Total Amount</label><br>
-                                                <input type="number" name="amount[]" class="form-control disableClick amount" disabled>
+                                                <div class="form-group">
+                                                    <label for="">Total Amount</label><br>
+                                                    <input type="number" name="amount[]" class="form-control disableClick amount" disabled>
+                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <textarea name="description[]" class="form-control description" style="width:100%;height: 100px !important;"  cols="60" rows="3" style="width:200px;"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -281,8 +276,7 @@
                         <div class="col-12 col-md-6 col-lg-6">
                             <div class="form-group">
                                 <label>Invoice Notes <span class="text-danger">*</span></label>
-                                <textarea name="notes" style="width:100%;"  cols="30" class="form-control" rows="20" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}
-                                </textarea>
+                                <textarea name="notes" style="width:100%; height: 150px !important;"  cols="30" class="form-control" rows="20" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}</textarea>
                             </div>
                         </div>
 
@@ -331,6 +325,9 @@
                 let newRow = `
                 <div class="card">
                     <div class="card-body lineItem">
+                        <div class="close-btn">
+                            <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                        </div>
                         <div class="row">
                             <div class="col-2">
                                 <div class="form-group">
@@ -367,19 +364,16 @@
                                 </div>
                             </div>
                             <div class="col-3">
-                                <span class="d-flex justify-content-between">
+                                <div class="form-group">
                                     <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                    <button type="button" class="btn btn-danger btn-md removeRow">X</button>
-                                </span>
-                                <select name="vehicle[]" class="form-control select2 vehicle" required>
-                                    <option value="">Select Vehicle</option>
-                                </select>
+                                    <select name="vehicle[]" class="form-control select2 vehicle" required>
+                                        <option value="">Select Vehicle</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-2">
-                                <textarea name="description[]" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
-                            </div>
+                            
                             <div class="col-2">
                                 <div class="form-group">
                                     <label for="">Quantity</label><br>
@@ -400,13 +394,20 @@
                                 </div>
                             </div>
                             <div class="col-3">
-                                <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                <input type="number" name="price[]" class="form-control price" required>
+                                <div class="form-group">
+                                    <label for="">Price (AED) <span class="text-danger">*</span></label><br>
+                                    <input type="number" name="price[]" class="form-control price" required>
+                                </div>  
                             </div>
                             <div class="col-3">
-                                <label for="">Total Amount</label><br>
-                                <input type="number" name="amount[]" class="form-control disableClick amount" disabled>
+                                <div class="form-group">
+                                    <label for="">Total Amount</label><br>
+                                    <input type="number" name="amount[]" class="form-control disableClick amount" disabled>
+                                </div>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
                         </div>
                     </div>
                 </div>`;
