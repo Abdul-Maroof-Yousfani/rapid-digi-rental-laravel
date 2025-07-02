@@ -16,7 +16,7 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ role_base_url('customer-booking') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ role_base_url('customer-booking') }}" id="booking_form" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
@@ -80,7 +80,7 @@
                                     <h4>Booking Details</h4>
                                     <div class="card-header-form">
                                         <div class="input-group">
-                                                <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
+                                                <button type="button" style="font-size: 40px" class="btn btn-success" id="addRow">+</button>
                                         </div>
                                     </div>
                                 </div>
@@ -89,7 +89,7 @@
                                 <div class="card">
                                     <div class="card-body lineItem">
                                         <div class="close-btn">
-                                            <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                                            <button type="button" style="font-size: 35px" class="btn btn-danger btn-md removeRow">X</button>
                                         </div>
                                         <div class="row">
                                             <div class="col-3">
@@ -214,6 +214,12 @@
 @section('script')
     <script>
 
+        $(document).ready(function () {
+            $('#booking_form').on('submit', function () {
+                $('#submitBtn').prop('disabled', true).val('Processing...');
+            });
+        });
+
         // Line items vehicles booking end date equals to Started at
         function applyMinDateToAllDateFields(startedAt) {
             if (startedAt) {
@@ -273,7 +279,7 @@
                 <div class="card">
                     <div class="card-body lineItem">
                         <div class="close-btn">
-                            <button type="button" class="btn btn-danger btn-md removeRow">X</button>
+                            <button type="button" style="font-size: 35px" class="btn btn-danger btn-md removeRow">X</button>
                         </div>
                         <div class="row">
                             <div class="col-3">

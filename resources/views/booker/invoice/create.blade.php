@@ -13,7 +13,7 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" id="" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
@@ -232,7 +232,6 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                           
                                             <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="">Quantity</label><br>
@@ -240,6 +239,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-2">
+                                                <input type="hidden" name="tax_percent[]" class="tax">
                                                 <div class="form-group">
                                                     <label for="">Tax (%)</label><br>
                                                     <select name="tax[]" class="form-control select2 zohotax">
@@ -373,7 +373,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            
+
                             <div class="col-2">
                                 <div class="form-group">
                                     <label for="">Quantity</label><br>
@@ -397,7 +397,7 @@
                                 <div class="form-group">
                                     <label for="">Price (AED) <span class="text-danger">*</span></label><br>
                                     <input type="number" name="price[]" class="form-control price" required>
-                                </div>  
+                                </div>
                             </div>
                             <div class="col-3">
                                 <div class="form-group">
