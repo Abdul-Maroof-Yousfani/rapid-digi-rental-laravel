@@ -6,6 +6,33 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <title>@yield('title', ucfirst(Auth::user()->getRoleNames()->first()." "."Portal"))</title>
+    <link rel="stylesheet" href="{{ asset('assets/css/toastr.css') }}">
+
+    <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+     <script>
+        Pusher.logToConsole = false;
+
+        var pusher = new Pusher('ce96edbc440e6ff972a0', {
+            cluster: 'us3'
+        });
+
+        var channel = pusher.subscribe('my-channel');
+        channel.bind('my-event', function(data) {
+            var investorID= {{ Auth::user()->id }};
+            if (investorID == data.investorId) {
+                console.log(data);
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    showMethod: 'slideDown',
+                    timeOut: 50000,
+                    extendedTimeOut: 50000
+                };
+                toastr.info(data.message);
+            }
+
+        });
+    </script>
 
 
     <!-- Bootstrap Pagination CDN -->
@@ -40,23 +67,41 @@
             <nav class="navbar navbar-expand-lg main-navbar sticky">
                 <div class="form-inline mr-auto">
                     <ul class="navbar-nav mr-3">
-                        <li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg
+                        <li>
+                            <a href="#" data-toggle="sidebar" class="nav-link nav-link-lg
 									collapse-btn">
-                                <i data-feather="align-justify"></i></a></li>
-                        <li><a href="#" class="nav-link nav-link-lg fullscreen-btn">
+                                <i data-feather="align-justify"></i></a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link nav-link-lg fullscreen-btn">
                                 <i data-feather="maximize"></i>
-                            </a></li>
-                        {{-- <li>
-                            <form class="form-inline mr-auto">
-                                <div class="search-element">
-                                    <input class="form-control" type="search" placeholder="Search" aria-label="Search"
-                                        data-width="200">
-                                    <button class="btn" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown position-relative">
+                            <a href="#" id="notification-icon" class="nav-link nav-link-lg dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell" style="font-size: 20px; color: rgb(110, 110, 110);"></i>
+                                <span class="badge badge-danger badge-counter" id="notification-count" style="position: absolute; top: 5px; right: 5px; font-size: 10px; display: none;">0</span>
+                            </a>
+
+                            <div class="dropdown-menu"
+                                id="notification-dropdown"
+                                style="left: 0; right: auto; transform: translateX(0); min-width: 300px; max-height: 300px; overflow-y: auto;"
+                                aria-labelledby="notification-icon">
+                                <h6 class="dropdown-header">Notifications</h6>
+                                <div id="notification-items">
+                                    @php
+                                        $notifications= App\Models\Notification::where('user_id', Auth::user()->id)->get();
+                                    @endphp
+                                    @foreach ($notifications as $item)
+                                        <span class="dropdown-item text-muted">
+                                            {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }} <br>
+                                            | {{ $item->message }}
+                                        </span>
+                                    @endforeach
                                 </div>
-                            </form>
-                        </li> --}}
+                            </div>
+                        </li>
+
                     </ul>
                 </div>
                 <ul class="navbar-nav navbar-right">
@@ -276,6 +321,7 @@
     <script src="{{ asset('assets/js/ajax-operations.js') }}"></script>
     <script src="{{ asset('assets/js/custom-ajax.js') }}"></script>
     <script src="{{ asset('assets/js/reports.js') }}"></script>
+    <script src="{{ asset('assets/js/toastr.js') }}"></script>
 
     @yield('script')
 
