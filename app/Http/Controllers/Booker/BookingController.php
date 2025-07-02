@@ -177,13 +177,16 @@ class BookingController extends Controller
                         if ($vehicle) {
                             $investorId = $vehicle->investor->user_id;
                             if ($investorId) {
-                                $message= "Booking Created";
+                                $message= "Booking Created" . " (".
+                                $request['booking_date'][$key] ." To ".
+                                $request['return_date'][$key].")";
                                 event(new BookingCreated($message, $investorId, $booking->id));
                                 Notification::create([
                                     'message' => $message,
                                     'vehicle_id' => $vehicle_id,
                                     'booking_id' => $booking->id,
                                     'user_id' => $investorId,
+                                    'is_read' => 0,
                                 ]);
                             } else {
                                 Log::warning("Investor ID is not available for vehicle ID: $vehicle_id");

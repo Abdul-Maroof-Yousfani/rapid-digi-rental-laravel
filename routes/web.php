@@ -99,6 +99,9 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
 });
 
+// Notification Route Read
+Route::post('/mark-notifications-read', [AjaxController::class, 'markAsRead'])->name('mark-notifications-read');
+
 // Ajax Reports Route
 Route::get('get-soa-list', [ReportController::class, 'getSoaReportList'])->name("getSoaReportList");
 Route::get('get-customer-wise-sales-list', [ReportController::class, 'getCustomerWiseSaleReportList']);

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('vehicle_id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('booking_id');
+            $table->boolean('is_read')->default(0);
             $table->timestamps();
 
 

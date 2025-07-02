@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers\ajax;
 
-use App\Http\Controllers\Controller;
-use App\Jobs\UpdateZohoInvoiceJob;
 use App\Models\Bank;
 use App\Models\Booking;
-use App\Models\BookingData;
-use App\Models\BookingPaymentHistory;
-use App\Models\CreditNote;
-use App\Models\Customer;
 use App\Models\Deposit;
-use App\Models\DepositHandling;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentData;
-use App\Models\SalePerson;
 use App\Models\Vehicle;
+use App\Models\Customer;
+use App\Models\CreditNote;
+use App\Models\SalePerson;
+use App\Models\BookingData;
+use App\Models\PaymentData;
+use App\Models\Notification;
+use Illuminate\Http\Request;
 use App\Models\Vehiclestatus;
 use App\Services\ZohoInvoice;
-use Illuminate\Http\Request;
+use App\Models\DepositHandling;
+use App\Jobs\UpdateZohoInvoiceJob;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\BookingPaymentHistory;
 
 class AjaxController extends Controller
 {
@@ -344,6 +346,14 @@ class AjaxController extends Controller
                 'data' => 'Booking Cancelled.'
             ], 200);
         }
+    }
+
+    public function markAsRead()
+    {
+        Notification::where('user_id', Auth::user()->id)
+            ->where('is_read', 0)
+            ->update(['is_read' => 1]);
+        return response()->json(['status' => 'ok']);
     }
 
     public function bookingConvertPartial(Request $request)

@@ -80,12 +80,23 @@
                         <li class="nav-item dropdown position-relative">
                             <a href="#" id="notification-icon" class="nav-link nav-link-lg dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell" style="font-size: 20px; color: rgb(110, 110, 110);"></i>
-                                <span class="badge badge-danger badge-counter" id="notification-count" style="position: absolute; top: 5px; right: 5px; font-size: 10px; display: none;">0</span>
+                                @php
+                                    $unreadCount = App\Models\Notification::where('user_id', Auth::user()->id)
+                                                    ->where('is_read', 0)
+                                                    ->count();
+                                @endphp
+                                @if($unreadCount > 0)
+                                    <span class="badge badge-warning badge-counter"
+                                        id="notification-count"
+                                        style="position: absolute; top: 5px; right: 5px; font-size: 10px;">
+                                        {{ $unreadCount }}
+                                    </span>
+                                @endif
                             </a>
 
                             <div class="dropdown-menu"
                                 id="notification-dropdown"
-                                style="left: 0; right: auto; transform: translateX(0); min-width: 300px; max-height: 300px; overflow-y: auto;"
+                                style="left: 0; right: auto; transform: translateX(0); min-width: 300px; max-height: 300px; overflow-y: auto; font-size:13px;"
                                 aria-labelledby="notification-icon">
                                 <h6 class="dropdown-header">Notifications</h6>
                                 <div id="notification-items">
@@ -93,8 +104,8 @@
                                         $notifications= App\Models\Notification::where('user_id', Auth::user()->id)->get();
                                     @endphp
                                     @foreach ($notifications as $item)
-                                        <span class="dropdown-item text-muted">
-                                            {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }} <br>
+                                        <span class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
+                                            {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }}
                                             | {{ $item->message }}
                                         </span>
                                     @endforeach
@@ -324,6 +335,22 @@
     <script src="{{ asset('assets/js/toastr.js') }}"></script>
 
     @yield('script')
+
+    <script>
+        $('#notification-icon').on('click', function () {
+            $.ajax({
+                url: '{{ route("mark-notifications-read") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    $('#notification-count').hide(); // badge hide after click
+                }
+            });
+        });
+
+    </script>
 
     @if (session('error'))
         <script>
