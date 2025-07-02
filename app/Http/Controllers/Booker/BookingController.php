@@ -13,6 +13,7 @@ use App\Models\CreditNote;
 use App\Models\SalePerson;
 use App\Models\BookingData;
 use App\Models\Vehicletype;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Services\ZohoInvoice;
 use App\Events\BookingCreated;
@@ -170,6 +171,26 @@ class BookingController extends Controller
                         Vehicle::where('id', $vehicle_id)->update([
                             'vehicle_status_id' => 33 // yahaan '2' booked wali ID honi chahiye
                         ]);
+
+                        $vehicle = Vehicle::find($vehicle_id);
+
+                        if ($vehicle) {
+                            $investorId = $vehicle->investor->user_id;
+                            if ($investorId) {
+                                $message= "Booking Created";
+                                event(new BookingCreated($message, $investorId, $booking->id));
+                                Notification::create([
+                                    'message' => $message,
+                                    'vehicle_id' => $vehicle_id,
+                                    'booking_id' => $booking->id,
+                                    'user_id' => $investorId,
+                                ]);
+                            } else {
+                                Log::warning("Investor ID is not available for vehicle ID: $vehicle_id");
+                            }
+                        } else {
+                            Log::warning("Vehicle not found with ID: $vehicle_id");
+                        }
                     }
 
                     DB::commit();
@@ -395,44 +416,6 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Booking Not Found!');
         }
     }
-
-    // public function closeBooking(string $bookingID)
-        // {
-        //     $booking= Booking::find($bookingID);
-        //     if($booking->deposit->deposit_amount == 0){
-        //         $payment= Payment::where('booking_id', $bookingID)->first();
-        //         $paymentAmount= $payment->pending_amount;
-        //         /**return 'This Booking Deposit in zero | Pending Amount is '.$paymentAmount. '<br> But You Can Close This Booking';*/
-        //         return redirect()->back()->with('error', 'Your Pending Amount is'.$paymentAmount.' But You Can Closed');
-        //     } else {
-        //         $depositHandling= DepositHandling::where('booking_id', $bookingID)->sum('deduct_deposit');
-        //         $payment= Payment::where('booking_id', $bookingID)->first();
-        //         $paymentAmount= $payment->pending_amount ?? 0;
-        //         $paidAmount= $payment->paid_amount ?? 0;
-        //         if($depositHandling == $booking->deposit->deposit_amount){
-        //             /**return 'Your Initial Deposit Amount is '.$booking->deposit->deposit_amount.
-        //                 '<br>Your Deposit Adjust Amount Is '. $depositHandling.
-        //                 '<br>Paid Amount '.$paidAmount-$depositHandling.
-        //                 '<br>Your Pending Amount is '.$paymentAmount.
-        //                 '<br>But You Can close booking';*/
-        //             return redirect()->back()->with('error', 'Your Pending Amount is '.$paymentAmount);
-        //         } else {
-        //             $creditNote= CreditNote::where('booking_id', $bookingID)->first();
-        //             if($creditNote){
-        //                     /**return 'Refund Deposit Amount '.$creditNote->refund_amount.'<br>'
-        //                         .'Previous Deposit Adjust '.$depositHandling.'<br>'
-        //                         .'Initial Deposit '.$booking->deposit->deposit_amount.' = '.$creditNote->refund_amount + $depositHandling
-        //                         .'<br>You Can close Booking';*/
-        //             return redirect()->back()->with('success', 'Booking is Closed'.$paymentAmount);
-        //             } else {
-        //                 $payable= $booking->deposit->deposit_amount - $depositHandling;
-        //                     /**return 'Payable Remaining Deposit Is : '.$payable.
-        //                         '<br>Can not close booking Please make Credit note';*/
-        //                 return redirect()->back()->with('success', 'Your Deposit Payable is '. $payable. ' Make Credit Note');
-        //             }
-        //         }
-        //     }
-    // }
 
     public function isBookingActive($id)
     {

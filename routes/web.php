@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Events\BookingCreated;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -74,6 +75,14 @@ Route::get('/zoho/callback', function (Request $request) {
 Route::get('/get-accesstoken', [ZohoController::class, 'getAccessToken']);
 Route::get('/zoho/invoice', [ZohoController::class, 'createInvoice']);
 
+Route::get('testing', function () {
+    $data = [
+        'message' => 'test message',
+        'table_id' => '2',
+        'receiver_id' => 197,
+    ];
+    event(new BookingCreated($data, 2 , 67));
+});
 
 Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard')->middleware('permission:view admin dashboard');
