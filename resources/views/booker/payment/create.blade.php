@@ -35,7 +35,7 @@
                         </div>
                     </div>
                 </div>
-                <form action="{{ url($userRole.'/payment') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url($userRole.'/payment') }}" method="post" id="payment_form" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-12">
@@ -230,7 +230,7 @@
 
                     <div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
-                            <input type="submit" value="Add Payment" name="submit" class="btn btn-primary">
+                            <input type="submit" value="Add Payment" name="submit" id="submitBtn" class="btn btn-primary">
                         </div>
                     </div>
 
@@ -242,6 +242,14 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#payment_form').on('submit', function () {
+                $('#submitBtn').prop('disabled', true).val('Processing...');
+            });
+        });
+    </script>
 
     @if (session('error'))
         <script>
