@@ -189,7 +189,7 @@
                                 <h3>{{ $item->name }}</h3>
                                 <p class="mb-3 font-18">
                                     Total vehicles: {{ $item->vehicle->count() }} <br>
-                                    Revenue: {{ number_format($totalAmount, 0) }}
+                                    Revenue: AED {{ number_format($totalAmount, 0) }}
                                 </p>
                             </div>
                             </div>

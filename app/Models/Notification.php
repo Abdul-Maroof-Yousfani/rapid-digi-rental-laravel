@@ -15,6 +15,8 @@ class Notification extends Model
         'vehicle_id',
         'booking_id',
         'user_id',
+        'type',
+        'role',
     ];
 
     /**

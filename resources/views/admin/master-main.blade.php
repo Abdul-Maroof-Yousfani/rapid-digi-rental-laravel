@@ -28,7 +28,12 @@
                     timeOut: 50000,
                     extendedTimeOut: 50000
                 };
-                toastr.info(data.message);
+                toastr.success(data.message);
+
+                // 🔔 Update badge count (optional, you can re-fetch from DB via AJAX)
+                let badge = $('#notification-count');
+                let current = parseInt(badge.text()) || 0;
+                badge.text(current + 1).show();
             }
 
         });
@@ -100,15 +105,28 @@
                                 aria-labelledby="notification-icon">
                                 <h6 class="dropdown-header">Notifications</h6>
                                 <div id="notification-items">
-                                    @php
-                                        $notifications= App\Models\Notification::where('user_id', Auth::user()->id)->get();
-                                    @endphp
-                                    @foreach ($notifications as $item)
-                                        <span class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
-                                            {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }}
-                                            | {{ $item->message }}
-                                        </span>
-                                    @endforeach
+                                    @if (auth()->user()->hasRole('investor'))
+                                        @php
+                                            $notifications= App\Models\Notification::where('user_id', Auth::user()->id)
+                                                            ->where('role', 'investor')
+                                                            ->get();
+                                        @endphp
+                                        @foreach ($notifications as $item)
+                                            <span class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
+                                                {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }}
+                                                | {{ $item->message }}
+                                            </span>
+                                        @endforeach
+                                    @else
+                                        @php
+                                            $notifications= App\Models\Notification::where('role', Auth::user()->getRoleNames()->first())->get();
+                                        @endphp
+                                        @foreach ($notifications as $item)
+                                            <span class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
+                                                {{ $item->message }}
+                                            </span>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
                         </li>

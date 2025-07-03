@@ -186,7 +186,7 @@ class BookingController extends Controller
                                     'vehicle_id' => $vehicle_id,
                                     'booking_id' => $booking->id,
                                     'user_id' => $investorId,
-                                    'is_read' => 0,
+                                    'role' => 'investor',
                                 ]);
                             } else {
                                 Log::warning("Investor ID is not available for vehicle ID: $vehicle_id");
