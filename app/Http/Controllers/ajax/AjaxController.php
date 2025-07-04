@@ -15,7 +15,7 @@ use App\Models\BookingData;
 use App\Models\PaymentData;
 use App\Models\Notification;
 use Illuminate\Http\Request;
-use App\Models\Vehiclestatus;
+use App\Models\VehicleStatus;
 use App\Services\ZohoInvoice;
 use App\Models\DepositHandling;
 use App\Jobs\UpdateZohoInvoiceJob;
@@ -302,7 +302,7 @@ class AjaxController extends Controller
     }
 
     public function getVehicleStatusForEditForm($id){
-        $status= Vehiclestatus::find($id);
+        $status= VehicleStatus::find($id);
         if(!$status){
             return response()->json([
                 'success' => false,
