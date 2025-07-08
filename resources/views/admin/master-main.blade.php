@@ -157,7 +157,6 @@
             <div class="main-sidebar sidebar-style-2">
                 <aside id="sidebar-wrapper">
                     <div class="sidebar-brand">
-                        {{-- <a href="{{ auth()->user()->hasRole('admin') ? route('admin.dashboard') : route('booker.dashboard') }}"> <img alt="image" src="{{ asset('assets/img/logo.png') }}" --}}
                         <a href="{{ route('dashboard') }}"> <img alt="image" src="{{ asset('assets/img/logo.png') }}"
                                 class="header-logo" /> <span class="logo-name">Rapid Digi</span>
                         </a>
@@ -250,8 +249,6 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="file-text"></i><span>Payments</span></a>
                             <ul class="dropdown-menu">
-                                {{-- <li><a class="nav-link" href="{{ route('payment.create') }}">Recieve Payment</a></li> --}}
-                                {{-- <li><a class="nav-link" href="{{ route('credit-note.create') }}">Add Credit Note</a></li> --}}
                                 <li><a class="nav-link" href="{{ route('payment.index') }}">Payment list</a></li>
                                 <li><a class="nav-link" href="{{ route('credit-note.index') }}">Credit Note list</a></li>
                             </ul>

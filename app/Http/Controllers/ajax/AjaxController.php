@@ -565,4 +565,22 @@ class AjaxController extends Controller
             'vehicle' => $vehicles
         ]);
     }
+
+    public function searchBank(Request $request)
+    {
+        $search= $request->search;
+        $banks= Bank::when($search, function($query, $search){
+                        $query->where(function($q) use ($search) {
+                            $q->where('bank_name', 'LIKE', "%$search%")
+                            ->orWhere('account_name', 'LIKE', "%$search%")
+                            ->orWhere('branch', 'LIKE', "%$search%")
+                            ->orWhere('swift_code', 'LIKE', "%$search%");
+                            // ->orWhere('iban ', 'LIKE', "%$search%");
+                        });
+                    })->get();
+
+        return response()->json([
+            'banks' => $banks
+        ]);
+    }
 }

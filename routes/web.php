@@ -287,6 +287,7 @@ Route::get('get-customer-for-edit-form/{id}', [AjaxController::class, 'getCustom
 Route::post('booking-convert-partial', [AjaxController::class, 'bookingConvertPartial']);
 
 Route::get('search-customer', [AjaxController::class, 'searchCustomer']);
+Route::get('search-bank', [AjaxController::class, 'searchBank']);
 Route::get('search-payment', [AjaxController::class, 'searchPayment']);
 Route::get('search-vehicle', [AjaxController::class, 'searchVehicle']);
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);

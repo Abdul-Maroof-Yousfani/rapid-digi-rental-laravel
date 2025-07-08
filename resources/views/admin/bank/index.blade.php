@@ -2,6 +2,18 @@
 @section('title', ucfirst(Auth::user()->getRoleNames()->first()." "."Portal"))
 @section('content')
 
+<style>
+    .spinner-border.custom-blue {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.4rem;
+    border-top-color: #0d6efd;
+    border-right-color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    border-left-color: rgba(13, 110, 253, 0.25);
+}
+</style>
+
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
@@ -12,11 +24,11 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h3 class="mb-0">Bank List</h3>
                             @can('create bank')
-                                <span>
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bankModal">
-                                        Add Bank
-                                    </button>
-                                </span>
+                            <span>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bankModal">
+                                    Add Bank
+                                </button>
+                            </span>
                             @endcan
                         </div>
                     </div>
@@ -27,6 +39,13 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
+                            <form class="filterForm">
+                                <div class="row">
+                                    <div class="col-3 ml-auto">
+                                        <input type="text" placeholder="Search" class="form-control" id="search">
+                                    </div>
+                                </div><br>
+                            </form>
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover" style="width:100%;" id="bankResponseList">
                                     <thead>
@@ -288,5 +307,71 @@
             </form>
         </div>
     </div>
+
+@endsection
+
+@section('script')
+<script src="{{ asset('assets/js/forms-format.js') }}"></script>
+<script type="text/javascript">
+
+        $(document).ready(function () {
+             $('#search').on('keyup', function () {
+                let search = $(this).val();
+                // Show loader while data is loading
+                $('#responseList').html(`
+                    <tr>
+                        <td colspan="8" class="text-center">
+                            <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                $.ajax({
+                    url:'/search-bank',
+                    method: 'get',
+                    data: { search : search },
+                    success:function(response){
+                        let html = '';
+                        let number = 1;
+                        if (response.bank.length > 0) {
+                            $.each(response.banks, function (index, data) {
+                                html += `
+                                    <tr data-id="${data.id}">
+                                        <td>${number}.</td>
+                                        <td>${data.bank_name}</td>
+                                        <td>${data.account_name}</td>
+                                        <td>${data.account_number}</td>
+                                        <td>${data.iban}</td>
+                                        <td>${data.swift_code == 1 ? 'Active' : 'Inactive'}</td>
+                                        <td>${data.branch == 1 ? 'Active' : 'Inactive'}</td>
+                                        <td>
+
+
+                                            <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}" data-modal-id="editBankModal">
+                                                <i class="far fa-edit"></i> Edit
+                                            </button>
+
+
+                                            <form action="/bank/${data.id}" method="POST" style="display:inline;" class="delete-form">
+                                                <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                                <input type="hidden" name="_method" value="DELETE">
+                                                <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                `;
+                                number++;
+                            });
+                        } else {
+                            html = `<tr><td colspan="7" class="text-center">No results found</td></tr>`;
+                        }
+
+                        $('#responseList').html(html);
+                    }
+                });
+             });
+        });
+</script>
 
 @endsection
