@@ -202,11 +202,8 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="truck"></i><span>Vehicle</span></a>
                             <ul class="dropdown-menu">
-                                <li style="display: none;"><a class="nav-link" href="{{ route('vehicle-type.create') }}">Add Vehicle Type</a></li>
                                 <li style="display: none;"><a class="nav-link" href="{{ route('vehicle-type.index') }}">Vehicle Type list</a></li>
-                                {{-- <li><a class="nav-link" href="{{ route('vehicle.create') }}">Add Vehicle</a></li> --}}
                                 <li><a class="nav-link" href="{{ route('vehicle.index') }}">Vehicle list</a></li>
-                                {{-- <li><a class="nav-link" href="{{ route('vehicle-status.create') }}">Add Vehicle Status</a></li> --}}
                                 <li><a class="nav-link" href="{{ route('vehicle-status.index') }}">Vehicle Status list</a></li>
                             </ul>
                         </li>
@@ -218,7 +215,6 @@
                                 <span>Sale Person</span>
                             </a>
                             <ul class="dropdown-menu">
-                                {{-- <li><a class="nav-link" href="{{ route('sale-person.create') }}">Add Sale Person</a></li> --}}
                                 <li><a class="nav-link" href="{{ route('sale-person.index') }}">Sale Person list</a></li>
                             </ul>
                         </li>
@@ -231,7 +227,6 @@
                                 <span>Banks</span>
                             </a>
                             <ul class="dropdown-menu">
-                                {{-- <li><a class="nav-link" href="{{ route('bank.create') }}">Add Bank</a></li> --}}
                                 <li><a class="nav-link" href="{{ route('bank.index') }}">Bank list</a></li>
                             </ul>
                         </li>
@@ -242,8 +237,6 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Booking Vehicle</span></a>
                             <ul class="dropdown-menu">
-                                {{-- <li><a class="nav-link" href="{{ route('customer-booking.create') }}">Add Booking</a></li> --}}
-                                {{-- <li><a class="nav-link" href="{{ route('status.form') }}">Assign Status</a></li> --}}
                                 <li><a class="nav-link" href="{{ route('customer-booking.index') }}">Booking list</a></li>
                                 @can('vehicle with status')
                                     <li><a class="nav-link" href="{{ route('assined.vehicle') }}">Assigned Vehicles</a></li>
@@ -283,9 +276,9 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Report</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{route('bookingReport')}}">Vehicles & Revenue Booking</a></li>
+                                <li><a class="nav-link" href="{{ route('bookingReport') }}">Vehicles & Revenue Booking</a></li>
                             </ul>
-                        </li>
+                          </li>
                         @endcan
 
 

@@ -25,6 +25,10 @@ class ReportController extends Controller
             'customerWiseReceivable', 'getCustomerWiseReceivableList',
             'salemenWiseReport', 'getSalemenWiseReportList',
         ]);
+
+        $this->middleware('permission:view investor reports')->only([
+            'investorVehicleReport', 'getInvestorVehicleReportList'
+        ]);
     }
 
     // SOA Report Functions
