@@ -42,7 +42,7 @@
                                    <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="{{ $item->id }}" data-modal-id="editVehicleStatusModal">
                                         <i class="far fa-edit"></i> Edit
                                    </button>
-                                  <form action="{{ url('admin/vehicle-status/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                  <form action="{{ url('vehicle-status/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="DELETE">
                                       <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
@@ -66,7 +66,7 @@
     <!-- Create Model Code -->
     <div class="modal fade" id="vehicleStatusModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
-            <form class="ajax-form" data-url="{{ url('admin/vehicle-status') }}" data-target-table="#vehicleStatusResponseList" data-render-function="renderVehicleStatusRow" data-modal-id="vehicleStatusModal">
+            <form class="ajax-form" data-url="{{ url('vehicle-status') }}" data-target-table="#vehicleStatusResponseList" data-render-function="renderVehicleStatusRow" data-modal-id="vehicleStatusModal">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
@@ -101,7 +101,7 @@
     <div class="modal fade" id="editVehicleStatusModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <form id="vehicleStatusEditForm" method="POST" class="ajax-update-form"
-                        data-url="{{ url('admin/vehicle-status') }}/:id"
+                        data-url="{{ url('vehicle-status') }}/:id"
                         data-fetch-url="{{ url('get-vehicle-status-edit-form/:id') }}"
                         data-target-table="#vehicleStatusResponseList"
                         data-render-function="renderVehicleStatusRow"

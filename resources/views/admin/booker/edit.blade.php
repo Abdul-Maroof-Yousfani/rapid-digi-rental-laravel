@@ -8,7 +8,7 @@
           @if (session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
           @if (session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
           <div class="section-body">
-            <form action="{{ url('admin/booker/'.$booker->id) }}" method="post">
+            <form action="{{ url('booker/'.$booker->id) }}" method="post">
               @csrf
               @method('PUT')
               <div class="row">

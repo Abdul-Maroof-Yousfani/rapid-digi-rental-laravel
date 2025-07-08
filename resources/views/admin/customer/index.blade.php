@@ -28,7 +28,7 @@
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#customerModal">
                                     Add Customer
                                 </button>
-                                <a href="{{ auth()->user()->hasRole('admin') ? role_base_route('syncCustomersFromZoho') : role_base_route('syncCustomersFromZoho') }}" class="btn btn-primary {{ $shouldEnableSync ? '' : 'disabled pointer-events-none opacity-50' }}" >
+                                <a href="{{ route('syncCustomersFromZoho') }}" class="btn btn-primary {{ $shouldEnableSync ? '' : 'disabled pointer-events-none opacity-50' }}" >
                                     Sync From Zoho
                                 </a>
                             </span>
@@ -94,7 +94,7 @@
                                             <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="{{ $item->id }}" data-modal-id="editCustomerModal">
                                                 <i class="far fa-edit"></i> Edit
                                             </button>
-                                            <form action="{{ auth()->user()->hasRole('admin') ? url('admin/customer/'.$item->id) : url('booker/customer/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                            <form action="{{ url('customer/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                 <input type="hidden" name="_method" value="DELETE">
                                                 <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>
@@ -122,7 +122,7 @@
         <!-- Create Model Code -->
         <div class="modal fade" id="customerModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-xl" role="document">
-                <form class="ajax-form" data-url="{{ role_base_url('customer') }}" data-target-table="#customerResponseList" data-render-function="renderCustomerRow" data-modal-id="customerModal">
+                <form class="ajax-form" data-url="{{ url('/customer') }}" data-target-table="#customerResponseList" data-render-function="renderCustomerRow" data-modal-id="customerModal">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Add Customer</h5>
@@ -482,7 +482,7 @@
         <div class="modal fade" id="editCustomerModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-xl" role="document">
                 <form id="customerEditForm" method="POST" class="ajax-update-form"
-                        data-url="{{ url($userRole.'/customer') }}/:id"
+                        data-url="{{ url('/customer') }}/:id"
                         data-fetch-url="{{ url('get-customer-for-edit-form/:id') }}"
                         data-target-table="#customerResponseList"
                         data-render-function="renderCustomerRow"
@@ -871,7 +871,7 @@
                                             <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}" data-modal-id="editCustomerModal">
                                                 <i class="far fa-edit"></i> Edit
                                             </button>
-                                            <form action="/admin/customer/${data.id}" method="POST" style="display:inline;" class="delete-form">
+                                            <form action="/customer/${data.id}" method="POST" style="display:inline;" class="delete-form">
                                                 <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                                                 <input type="hidden" name="_method" value="DELETE">
                                                 <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>

@@ -93,7 +93,7 @@ class CreditnoteController extends Controller
                     'remarks' => $request['remarks'],
                     'refund_date' => $request['refund_date'],
                 ]);
-                return redirect()->route('booker.credit-note.index')->with('success', 'Credit Note Created Successfully.')->withInput();
+                return redirect()->route('credit-note.index')->with('success', 'Credit Note Created Successfully.')->withInput();
                 DB::commit();
             } catch (\Exception $exp) {
                 DB::rollback();

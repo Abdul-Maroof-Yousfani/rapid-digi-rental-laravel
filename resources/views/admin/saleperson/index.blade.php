@@ -10,12 +10,14 @@
                 <div class="col-12 col-md-12 col-lg-12">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                      <h3 class="mb-0">Sale Person List</h3>
-                      <span>
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSaleManModal">
-                                Add Sale Men
-                            </button>
-                        </span>
+                        <h3 class="mb-0">Sale Person List</h3>
+                        @can('create sale men')
+                            <span>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSaleManModal">
+                                    Add Sale Men
+                                </button>
+                            </span>
+                        @endcan
                     </div>
                   </div>
                 </div>
@@ -46,7 +48,7 @@
                                     <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="{{ $item->id }}" data-modal-id="EditsaleManModal">
                                         <i class="far fa-edit"></i> Edit
                                     </button>
-                                  <form action="{{ url('admin/sale-person/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                  <form action="{{ url('sale-person/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
@@ -69,7 +71,7 @@
       <!-- Create Modal Form -->
         <div class="modal fade" id="createSaleManModal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
-                <form class="ajax-form" data-url="{{ url('admin/sale-person') }}" data-target-table="#saleMenResponseList" data-render-function="renderSaleManRow" data-modal-id="createSaleManModal">
+                <form class="ajax-form" data-url="{{ url('sale-person') }}" data-target-table="#saleMenResponseList" data-render-function="renderSaleManRow" data-modal-id="createSaleManModal">
                     @csrf
                     <div class="modal-content">
                         <div class="modal-header">
@@ -134,7 +136,7 @@
         <div class="modal fade" id="EditsaleManModal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <form id="saleManEditForm" method="POST" class="ajax-update-form"
-                        data-url="{{ url('admin/sale-person') }}/:id"
+                        data-url="{{ url('sale-person') }}/:id"
                         data-fetch-url="{{ url('get-salemen-for-edit-form/:id') }}"
                         data-target-table="#saleMenResponseList"
                         data-render-function="renderSaleManRow"

@@ -43,17 +43,17 @@ class LoginController extends Controller
     {
         // Check if user has the 'admin' role
         if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('dashboard');
         }
 
         // Check if user has the 'investor' role
         if ($user->hasRole('investor')) {
-            return redirect()->route('investor.dashboard');
+            return redirect()->route('dashboard');
         }
 
         // Check if user has the 'booker' role
         if ($user->hasRole('booker')) {
-            return redirect()->route('booker.dashboard');
+            return redirect()->route('dashboard');
         }
     }
 

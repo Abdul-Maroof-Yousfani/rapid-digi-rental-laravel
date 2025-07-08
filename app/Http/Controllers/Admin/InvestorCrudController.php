@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Investor;
 use App\Models\Vehicletype;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -14,7 +15,10 @@ class InvestorCrudController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:manage investors');
+        $this->middleware('permission:view investor')->only(['index', 'show']);
+        $this->middleware('permission:create investor')->only(['create', 'store']);
+        $this->middleware('permission:edit investor')->only(['edit', 'update']);
+        $this->middleware('permission:delete investor')->only(['destroy']);
     }
     /**
      * Display a listing of the resource.
@@ -56,6 +60,7 @@ class InvestorCrudController extends Controller
 
         else{
             try {
+                DB::beginTransaction();
                 $user= User::create([
                     'name' => $request['investor_name'],
                     'email' => $request['email'],
@@ -63,7 +68,6 @@ class InvestorCrudController extends Controller
                 ]);
 
                 $user->assignRole('investor');
-                $user->givePermissionTo(['manage vehicles']);
 
                 Investor::create([
                     'user_id' => $user->id,
@@ -81,8 +85,10 @@ class InvestorCrudController extends Controller
                     'percentage' => $request['agree_percentage'],
                 ]);
 
-                return redirect()->route('admin.investor.index')->with('success', 'Investor Added Successfully');
+                DB::commit();
+                return redirect()->route('investor.index')->with('success', 'Investor Added Successfully');
             } catch (\Exception $exp) {
+                DB::rollBack();
                 return redirect()->back()->with('error', $exp->getMessage());
             }
         }
@@ -103,7 +109,7 @@ class InvestorCrudController extends Controller
     {
         $investor= Investor::find($id);
         if(!$investor){
-            return redirect()->route('admin.investor.index')->with('error', 'Investor Not Found');
+            return redirect()->route('investor.index')->with('error', 'Investor Not Found');
         }
         return view('admin.investor.edit', compact('investor'));
     }
@@ -115,7 +121,7 @@ class InvestorCrudController extends Controller
     {
         $investor= Investor::find($id);
         if(!$investor){
-            return redirect()->route('admin.investor.index')->with('error', 'Investor Not Found');
+            return redirect()->route('investor.index')->with('error', 'Investor Not Found');
         }
         $user= User::find($investor->user_id);
         $validator= Validator::make($request->all(), [
@@ -164,7 +170,7 @@ class InvestorCrudController extends Controller
                     'percentage' => $request['agree_percentage'],
                 ]);
 
-                return redirect()->route('admin.investor.index')->with('success', 'Investor Updated Successfully');
+                return redirect()->route('investor.index')->with('success', 'Investor Updated Successfully');
             } catch (\Exception $exp) {
                 return redirect()->back()->with('error', 'Something went wrong'.$exp->getMessage());
             }
@@ -179,12 +185,12 @@ class InvestorCrudController extends Controller
         $investor= Investor::findOrFail($id);
         // $investor= User::find($user_id);
         if(!$investor){
-            return redirect()->route('admin.investor.index')->with('error', 'Investor Not Found');
+            return redirect()->route('investor.index')->with('error', 'Investor Not Found');
         }else{
             $investor->vehicle->each->delete();
             $investor->delete();
             $investor->user->delete();
-            return redirect()->route('admin.investor.index')->with('success', 'Investor Deleted with Vehicle Successfully');
+            return redirect()->route('investor.index')->with('success', 'Investor Deleted with Vehicle Successfully');
         }
     }
 }

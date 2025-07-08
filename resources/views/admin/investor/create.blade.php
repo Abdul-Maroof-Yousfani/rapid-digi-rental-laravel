@@ -6,7 +6,7 @@
       <div class="main-content">
         <section class="section">
           <div class="section-body">
-            <form action="{{ url('admin/investor') }}" method="post">
+            <form action="{{ url('/investor') }}" method="post">
                 @csrf
                 <div class="row">
                   <div class="col-12 col-md-12 col-lg-12">

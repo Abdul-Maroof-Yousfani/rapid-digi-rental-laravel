@@ -17,7 +17,8 @@ class BankCrudController extends Controller
      */
     public function index()
     {
-        $bank= Bank::where('created_at', '>=', Carbon::now()->subdays(15))->orderBy('id', 'DESC')->get();
+        // $bank= Bank::where('created_at', '>=', Carbon::now()->subdays(15))->orderBy('id', 'DESC')->get();
+        $bank = Bank::orderBy('id', 'DESC')->take(15)->get();
         return view('admin.bank.index', compact('bank'));
     }
 
@@ -64,7 +65,7 @@ class BankCrudController extends Controller
                 if ($request->ajax()) {
                     return response()->json(['success' => 'Bank Added Successfully!', 'data' => $bank]);
                 } else {
-                    return redirect()->route('admin.bank.index')->with('success', 'Bank Added Successfully!');
+                    return redirect()->route('bank.index')->with('success', 'Bank Added Successfully!');
                 }
             } catch (\Exeption $exp) {
                 DB::rollBack();
@@ -130,7 +131,7 @@ class BankCrudController extends Controller
                 if ($request->ajax()) {
                     return response()->json(['success' => 'Bank Updated Successfully!', 'data' => $bank], 200);
                 } else {
-                    return redirect()->route('admin.bank.index')->with('success', 'Bank Updated Successfully!');
+                    return redirect()->route('bank.index')->with('success', 'Bank Updated Successfully!');
                 }
             } catch (\Exeption $exp) {
                 DB::rollBack();

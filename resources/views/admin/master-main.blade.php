@@ -158,115 +158,124 @@
                 <aside id="sidebar-wrapper">
                     <div class="sidebar-brand">
                         {{-- <a href="{{ auth()->user()->hasRole('admin') ? route('admin.dashboard') : route('booker.dashboard') }}"> <img alt="image" src="{{ asset('assets/img/logo.png') }}" --}}
-                        <a href="{{ role_base_route('dashboard') }}"> <img alt="image" src="{{ asset('assets/img/logo.png') }}"
+                        <a href="{{ route('dashboard') }}"> <img alt="image" src="{{ asset('assets/img/logo.png') }}"
                                 class="header-logo" /> <span class="logo-name">Rapid Digi</span>
                         </a>
                     </div>
                     <ul class="sidebar-menu">
                         <li class="menu-header">Main</li>
                         <li class="dropdown">
-                            <a href="{{ role_base_route('dashboard') }}" class="nav-link"><i
+                            <a href="{{ route('dashboard') }}" class="nav-link"><i
                                     data-feather="monitor"></i><span>Dashboard</span></a>
                         </li>
-                        @can('manage customers')
+                        @can('view customer')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="user"></i><span>Customer</span></a>
                             <ul class="dropdown-menu">
-                                {{-- <li><a class="nav-link" href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.create') : route('booker.customer.create') }}">Add Customer</a></li> --}}
-                                <li><a class="nav-link" href="{{ auth()->user()->hasRole('admin') ? route('admin.customer.index') : route('booker.customer.index') }}">Customer list</a></li>
+                                <li><a class="nav-link" href="{{ route('customer.index') }}">Customer list</a></li>
                             </ul>
                         </li>
                         @endcan
-                        @can('manage investors')
+                        @can('view investor')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                 data-feather="dollar-sign"></i><span>Investor</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ route('admin.investor.create') }}">Add Investor</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.investor.index') }}">Investor List</a></li>
+                                <li><a class="nav-link" href="{{ route('investor.create') }}">Add Investor</a></li>
+                                <li><a class="nav-link" href="{{ route('investor.index') }}">Investor List</a></li>
                             </ul>
                         </li>
                         @endcan
-                        @can('manage bookers')
+                        @can('view booker')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="user-check"></i><span>Booking user</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ route('admin.booker.create') }}">Add Booking User</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.booker.index') }}">Booking User list</a></li>
+                                <li><a class="nav-link" href="{{ route('booker.create') }}">Add Booking User</a></li>
+                                <li><a class="nav-link" href="{{ route('booker.index') }}">Booking User list</a></li>
                             </ul>
                         </li>
                         @endcan
-                        @can('manage vehicles')
+                        @can('view vehicle')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="truck"></i><span>Vehicle</span></a>
                             <ul class="dropdown-menu">
-                                {{-- <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.create') }}">Add Vehicle Type</a></li> --}}
-                                <li style="display: none;"><a class="nav-link" href="{{ route('admin.vehicle-type.index') }}">Vehicle Type list</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.vehicle.create') }}">Add Vehicle</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.vehicle.index') }}">Vehicle list</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.vehicle-status.create') }}">Add Vehicle Status</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.vehicle-status.index') }}">Vehicle Status list</a></li>
+                                <li style="display: none;"><a class="nav-link" href="{{ route('vehicle-type.create') }}">Add Vehicle Type</a></li>
+                                <li style="display: none;"><a class="nav-link" href="{{ route('vehicle-type.index') }}">Vehicle Type list</a></li>
+                                {{-- <li><a class="nav-link" href="{{ route('vehicle.create') }}">Add Vehicle</a></li> --}}
+                                <li><a class="nav-link" href="{{ route('vehicle.index') }}">Vehicle list</a></li>
+                                {{-- <li><a class="nav-link" href="{{ route('vehicle-status.create') }}">Add Vehicle Status</a></li> --}}
+                                <li><a class="nav-link" href="{{ route('vehicle-status.index') }}">Vehicle Status list</a></li>
                             </ul>
                         </li>
                         @endcan
-                        @can('manage sale person')
+                        @can('view sale men')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown">
                                 <i class="fas fa-user-tie" style="width: 16px; margin-right: 8px; text-align: left;"></i>
                                 <span>Sale Person</span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ route('admin.sale-person.create') }}">Add Sale Person</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.sale-person.index') }}">Sale Person list</a></li>
+                                {{-- <li><a class="nav-link" href="{{ route('sale-person.create') }}">Add Sale Person</a></li> --}}
+                                <li><a class="nav-link" href="{{ route('sale-person.index') }}">Sale Person list</a></li>
                             </ul>
                         </li>
+                        @endcan
+
+                        @can('view bank')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown">
                                 <i class="fa-landmark" style="width: 16px; margin-right: 8px; text-align: left;"></i>
                                 <span>Banks</span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ route('admin.bank.create') }}">Add Bank</a></li>
-                                <li><a class="nav-link" href="{{ route('admin.bank.index') }}">Bank list</a></li>
+                                {{-- <li><a class="nav-link" href="{{ route('bank.create') }}">Add Bank</a></li> --}}
+                                <li><a class="nav-link" href="{{ route('bank.index') }}">Bank list</a></li>
                             </ul>
                         </li>
                         @endcan
-                        @can('manage booking')
+
+                        @can('view booking')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Booking Vehicle</span></a>
                             <ul class="dropdown-menu">
-                                {{-- <li><a class="nav-link" href="{{ role_base_route('customer-booking.create') }}">Add Booking</a></li> --}}
-                                <li><a class="nav-link" href="{{ role_base_route('customer-booking.index') }}">Booking list</a></li>
-                                {{-- <li><a class="nav-link" href="{{ role_base_route('status.form') }}">Assign Status</a></li> --}}
-                                <li><a class="nav-link" href="{{ role_base_route('assined.vehicle') }}">Assigned Vehicles</a></li>
+                                {{-- <li><a class="nav-link" href="{{ route('customer-booking.create') }}">Add Booking</a></li> --}}
+                                {{-- <li><a class="nav-link" href="{{ route('status.form') }}">Assign Status</a></li> --}}
+                                <li><a class="nav-link" href="{{ route('customer-booking.index') }}">Booking list</a></li>
+                                @can('vehicle with status')
+                                    <li><a class="nav-link" href="{{ route('assined.vehicle') }}">Assigned Vehicles</a></li>
+                                @endcan
                             </ul>
                         </li>
+                        @endcan
+
+                        @can('view payment')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="file-text"></i><span>Payments</span></a>
                             <ul class="dropdown-menu">
-                                {{-- <li><a class="nav-link" href="{{ role_base_route('payment.create') }}">Recieve Payment</a></li> --}}
-                                <li><a class="nav-link" href="{{ role_base_route('payment.index') }}">Payment list</a></li>
-                                {{-- <li><a class="nav-link" href="{{ role_base_route('credit-note.create') }}">Add Credit Note</a></li> --}}
-                                <li><a class="nav-link" href="{{ role_base_route('credit-note.index') }}">Credit Note list</a></li>
+                                {{-- <li><a class="nav-link" href="{{ route('payment.create') }}">Recieve Payment</a></li> --}}
+                                {{-- <li><a class="nav-link" href="{{ route('credit-note.create') }}">Add Credit Note</a></li> --}}
+                                <li><a class="nav-link" href="{{ route('payment.index') }}">Payment list</a></li>
+                                <li><a class="nav-link" href="{{ route('credit-note.index') }}">Credit Note list</a></li>
                             </ul>
                         </li>
+                        @endcan
 
+                        @can('view reports')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Reports</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{ role_base_route('soaReport') }}">SOA Report</a></li>
-                                <li><a class="nav-link" href="{{ role_base_route('customerWiseReport') }}">Customer Wise Sales Report</a></li>
-                                <li><a class="nav-link" href="{{ role_base_route('customerWiseReceivable') }}">Customer Wise Receivable</a></li>
-                                <li><a class="nav-link" href="{{ role_base_route('salemenWiseReport') }}">Salemen Wise Report</a></li>
+                                <li><a class="nav-link" href="{{ route('soaReport') }}">SOA Report</a></li>
+                                <li><a class="nav-link" href="{{ route('customerWiseReport') }}">Customer Wise Sales Report</a></li>
+                                <li><a class="nav-link" href="{{ route('customerWiseReceivable') }}">Customer Wise Receivable</a></li>
+                                <li><a class="nav-link" href="{{ route('salemenWiseReport') }}">Salemen Wise Report</a></li>
                             </ul>
                         </li>
-
                         @endcan
 
                         @can('view Investor reports')
@@ -274,10 +283,21 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Report</span></a>
                             <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{role_base_route('bookingReport')}}">Vehicles & Revenue Booking</a></li>
+                                <li><a class="nav-link" href="{{route('bookingReport')}}">Vehicles & Revenue Booking</a></li>
                             </ul>
                         </li>
                         @endcan
+
+
+                        @if (Auth::check() && Auth::user()->hasRole('admin'))
+                            <li class="dropdown">
+                                <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                                    data-feather="mail"></i><span>User Permissions</span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="nav-link" href="{{ route('view.role') }}">Roles</a></li>
+                                </ul>
+                            </li>
+                        @endif
 
                     </ul>
                 </aside>

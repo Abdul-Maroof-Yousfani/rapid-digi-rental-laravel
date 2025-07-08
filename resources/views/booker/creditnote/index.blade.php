@@ -12,7 +12,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <h3 class="mb-0">Credit Note List</h3>
-                            <a href="{{ role_base_route('credit-note.create') }}" class="btn btn-primary">
+                            <a href="{{ route('credit-note.create') }}" class="btn btn-primary">
                                 Create CN
                             </a>
                         </div>
@@ -48,7 +48,7 @@
                                         <td>{{ $item->remaining_deposit }}</td>
                                         <td>{{ $item->refund_amount }}</td>
                                         <td>
-                                            <a href="{{ url($userRole.'/view-credit-note/'.$item->id) }}" class="btn btn-sm btn-primary">
+                                            <a href="{{ url('view-credit-note/'.$item->id) }}" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-eye"></i>
                                                 View
                                             </a>

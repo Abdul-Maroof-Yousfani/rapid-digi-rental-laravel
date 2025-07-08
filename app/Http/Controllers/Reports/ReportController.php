@@ -17,6 +17,16 @@ use Illuminate\Support\Facades\Auth;
 class ReportController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware('permission:view reports')->only([
+            'soaReport', 'getSoaReportList',
+            'customerWiseReport', 'getCustomerWiseSaleReportList',
+            'customerWiseReceivable', 'getCustomerWiseReceivableList',
+            'salemenWiseReport', 'getSalemenWiseReportList',
+        ]);
+    }
+
     // SOA Report Functions
     public function soaReport()
     {

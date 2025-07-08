@@ -80,7 +80,7 @@ tr.bg-light td{width:auto !important;min-width:0 !important;}
                     <div class="col">
                         <p class="mb-0 text-dark">Bill To</p>
                         @php $customer= $invoice->booking->customer @endphp
-                        <p class="mb-0 text-dark"><a href="{{ route($userRole.'.customer.index') }}" class="font-weight-bold">{{ $customer->customer_name }}</a></p>
+                        <p class="mb-0 text-dark"><a href="{{ route('customer.index') }}" class="font-weight-bold">{{ $customer->customer_name }}</a></p>
                         <p class="mb-0 text-dark">{{ $customer->address }}</p>
                         <p class="mb-0 text-dark">{{ $customer->city }}</p>
                         <p class="mb-0 text-dark">{{ $customer->state }}</p>

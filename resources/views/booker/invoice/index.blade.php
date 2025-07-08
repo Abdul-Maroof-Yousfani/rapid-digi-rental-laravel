@@ -12,7 +12,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 class="mb-0">Invoices for Booking #{{$booking->id}}</h3>
                         @if ($booking->booking_status != 'closed')
-                            <a href="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" class="btn btn-primary">
+                            <a href="{{ url('booking/'.$booking->id.'/create-invoice') }}" class="btn btn-primary">
                                 Create Invoice
                             </a>
                         @endif
@@ -44,24 +44,34 @@
                                 <td>{{ $item->total_amount }}</td>
                                 <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-success btn-sm invDetail" data-invoice-id="{{ $item->id }}" data-toggle="modal" data-target="#invoiceModal">
-                                        Detail
-                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                            Actions
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <button type="button" class="invDetail dropdown-item" data-invoice-id="{{ $item->id }}" data-toggle="modal" data-target="#invoiceModal">
+                                                Detail
+                                            </button>
 
-                                    <a href="{{ url('booker/booking/view-invoice/'.$item->id) }}" class="btn btn-primary btn-sm"> View</a>
-                                    @if ($booking->booking_status != 'closed')
-                                        @php $hasNonType1 = $item->bookingData->where('transaction_type', '!=', 1)->count() > 0; @endphp
-                                        @if ($hasNonType1)
-                                            <a href="{{ url('booker/booking/'.$item->id.'/edit-invoice') }}" class="btn btn-warning btn-sm"><i class="far fa-edit"></i> Edit</a>
-                                        @else
-                                            <a href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}" class="btn btn-warning btn-sm"> <i class="far fa-edit"></i> Edit </a>
-                                        @endif
-                                    @endif
-                                    <form action="" method="POST" style="display:inline;" class="delete-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>Delete</button>
-                                    </form>
+                                            <a href="{{ url('booking/view-invoice/'.$item->id) }}" class="dropdown-item"> <i class="fas fa-eye"></i> View</a>
+
+                                            @if ($booking->booking_status != 'closed')
+                                                @php $hasNonType1 = $item->bookingData->where('transaction_type', '!=', 1)->count() > 0; @endphp
+                                                @if ($hasNonType1)
+                                                    @can ('edit invoice') <a href="{{ url('booking/'.$item->id.'/edit-invoice') }}" class="dropdown-item"><i class="far fa-edit"></i> Edit</a> @endcan
+                                                @else
+                                                    @can ('edit booking') <a href="{{ url('customer-booking/'.$item->id.'/edit') }}" class="dropdown-item"> <i class="far fa-edit"></i> Edit </a> @endcan
+                                                @endif
+                                            @endif
+                                            @can('delete invoice')
+                                                <form action="" method="POST" style="display:inline;" class="delete-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="dropdown-item delete-confirm text-danger"><i class="far fa-trash-alt"></i> Delete</button>
+                                                </form>
+                                            @endcan
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             @php $number++; @endphp

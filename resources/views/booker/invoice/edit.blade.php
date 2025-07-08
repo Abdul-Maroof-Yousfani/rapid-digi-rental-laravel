@@ -10,7 +10,7 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ url('booker/booking/'. $invoice->id .'/update-invoice') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url('booking/'. $invoice->id .'/update-invoice') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="row">

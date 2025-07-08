@@ -34,7 +34,12 @@ class BookingController extends Controller
     public function __construct(ZohoInvoice $zohoinvoice)
     {
         $this->zohoinvoice = $zohoinvoice;
-        $this->middleware(['permission:manage booking'])->only(['index','create', 'store', 'edit', 'update', 'destroy']);
+        // $this->middleware(['permission:manage booking'])->only(['index','create', 'store', 'edit', 'update', 'destroy']);
+
+        $this->middleware('permission:view booking')->only(['index']);
+        $this->middleware('permission:create booking')->only(['create', 'store']);
+        $this->middleware('permission:edit booking')->only(['edit', 'update']);
+        $this->middleware('permission:delete booking')->only(['destroy']);
     }
     /**
      * Display a listing of the resource.
@@ -197,7 +202,7 @@ class BookingController extends Controller
                     }
 
                     DB::commit();
-                    return redirect()->route('booker.customer-booking.index')->with('success', 'Booking Created Successfully.')->withInput();
+                    return redirect()->route('customer-booking.index')->with('success', 'Booking Created Successfully.')->withInput();
 
                 } catch (\Exception $exp) {
                     DB::rollBack();
@@ -390,7 +395,7 @@ class BookingController extends Controller
                     }
 
                     DB::commit();
-                    return redirect()->route('booker.customer-booking.index')->with('success', 'Booking Updated Successfully.')->withInput();
+                    return redirect()->route('customer-booking.index')->with('success', 'Booking Updated Successfully.')->withInput();
 
                 } catch (\Exception $exp) {
                     DB::rollBack();

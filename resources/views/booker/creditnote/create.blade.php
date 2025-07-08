@@ -34,7 +34,7 @@
                         </div>
                     </div>
                 </div>
-                <form action="{{ url('booker/credit-note') }}" method="post">
+                <form action="{{ url('credit-note') }}" method="post">
                     @csrf
                     <div class="row">
                         <div class="col-12">

@@ -522,4 +522,47 @@ class AjaxController extends Controller
             'payments' => $payments
         ]);
     }
+
+    public function searchVehicle(Request $request)
+    {
+        $search= $request->search;
+        // $vehicles= Vehicle::with('investor')
+        //             ->when($search, function ($query, $search) {
+        //                 $query->whereHas('investor', function($q1) use ($search){
+        //                     $q1->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
+        //                 });
+        //             })
+        //             ->when($search, function($query, $search){
+        //                 $query->where(function($q) use ($search) {
+        //                     $q->where('vehicle_name', 'LIKE', "%$search%")
+        //                     ->orWhere('temp_vehicle_detail', 'LIKE', "%$search%")
+        //                     ->orWhere('car_make', 'LIKE', "%$search%")
+        //                     ->orWhere('year', 'LIKE', "%$search%")
+        //                     ->orWhere('number_plate', 'LIKE', "%$search%")
+        //                     ->orWhere('car_make', 'LIKE', "%$search%");
+        //                 });
+        //             })->get();
+
+
+        $vehicles = Vehicle::with('investor', 'vehiclestatus', 'vehicletype')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('investor', function ($q1) use ($search) {
+                        $q1->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
+                    })
+                    ->orWhere('vehicle_name', 'LIKE', "%$search%")
+                    ->orWhere('temp_vehicle_detail', 'LIKE', "%$search%")
+                    ->orWhere('car_make', 'LIKE', "%$search%")
+                    ->orWhere('year', 'LIKE', "%$search%")
+                    ->orWhere('number_plate', 'LIKE', "%$search%");
+                });
+            })
+            ->get();
+
+
+
+        return response()->json([
+            'vehicle' => $vehicles
+        ]);
+    }
 }

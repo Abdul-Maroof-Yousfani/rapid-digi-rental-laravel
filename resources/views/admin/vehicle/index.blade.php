@@ -2,6 +2,19 @@
 
 @section('content')
 
+<style>
+    .spinner-border.custom-blue {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.4rem;
+    border-top-color: #0d6efd;
+    border-right-color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    border-left-color: rgba(13, 110, 253, 0.25);
+}
+</style>
+
+
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
@@ -22,6 +35,15 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-body">
+
+                    <form class="filterForm">
+                        <div class="row">
+                            <div class="col-3 ml-auto">
+                                <input type="text" placeholder="Search" class="form-control" id="search">
+                            </div>
+                        </div><br>
+                    </form>
+
                     <div class="table-responsive">
                       <table class="table table-striped table-hover" id="vehicleResponseList" style="width:100%;">
                         <thead>
@@ -33,11 +55,10 @@
                             <th>Number Plate</th>
                             <th>Car Make</th>
                             <th>Year</th>
-                            <th>Status</th>
                             <th>Action</th>
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="vehicleList">
                           @php $number=1; @endphp
                           @foreach ($vehicle as $item)
                           <tr data-id="{{ $item->id }}">
@@ -46,15 +67,14 @@
                               <td>{{ $item->vehicletype->name }}</td>
                               <td>{{ $item->investor->name }}</td>
                               <td>{{ $item->number_plate }}</td>
-                              <td>{{ $item->car_make }}</td>
-                              <td>{{ $item->year }}</td>
-                              <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
+                              <td>{{ $item->car_make ?? '-' }}</td>
+                              <td>{{ $item->year ?? '-' }}</td>
                               <td>
                                   {{-- <a href='{{ url("admin/vehicle/".$item->id."/edit") }}' class="btn btn-warning btn-sm" data-id="{{ $item->id }}"><i class="far fa-edit"></i>Edit</a> --}}
                                     <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="{{ $item->id }}" data-modal-id="editVehicleModal">
                                         <i class="far fa-edit"></i> Edit
                                     </button>
-                                  <form action="{{ url('admin/vehicle/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                  <form action="{{ url('vehicle/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
@@ -65,6 +85,7 @@
                           @endforeach
                         </tbody>
                       </table>
+                    {{ $vehicle->links('pagination::bootstrap-4') }}
                     </div>
                   </div>
                 </div>
@@ -79,7 +100,7 @@
     <div class="modal fade" id="createVehicleModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <form class="ajax-form"
-                        data-url="{{ url('admin/vehicle') }}"
+                        data-url="{{ url('vehicle') }}"
                         data-target-table="#vehicleResponseList"
                         data-render-function="renderVehicleRow"
                         data-modal-id="createVehicleModal">
@@ -213,7 +234,7 @@
     <div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <form id="vehicleEditForm" method="POST" class="ajax-update-form"
-                        data-url="{{ url('admin/vehicle') }}/:id"
+                        data-url="{{ url('vehicle') }}/:id"
                         data-fetch-url="{{ url('get-vehicle-for-edit-form/:id') }}"
                         data-target-table="#vehicleResponseList"
                         data-render-function="renderVehicleRow"
@@ -346,4 +367,65 @@
         </div>
     </div>
 
+@endsection
+
+@section('script')
+        <script type="text/javascript">
+
+        $(document).ready(function () {
+             $('#search').on('keyup', function () {
+                let search = $(this).val();
+                // Show loader while data is loading
+                $('#vehicleList').html(`
+                    <tr>
+                        <td colspan="9" class="text-center">
+                            <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                $.ajax({
+                    url:'/search-vehicle',
+                    method: 'get',
+                    data: { search : search },
+                    success:function(response){
+                        let html = '';
+                        let number = 1;
+                        if (response.vehicle.length > 0) {
+                            $.each(response.vehicle, function (index, data) {
+                                html += `
+                                    <tr data-id="${data.id}">
+                                        <td>${number}.</td>
+                                        <td>${data.vehicle_name ?? data.temp_vehicle_detail}</td>
+                                        <td>${data.vehicletype ? data.vehicletype.name : ''}</td>
+                                        <td>${data.investor ? data.investor.name : ''}</td>
+                                        <td>${data.number_plate}</td>
+                                        <td>${data.car_make ?? '-'}</td>
+                                        <td>${data.year ?? '-'}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="${data.id}" data-modal-id="editCustomerModal">
+                                                <i class="far fa-edit"></i> Edit
+                                            </button>
+                                            <form action="/vehicle/${data.id}" method="POST" style="display:inline;" class="delete-form">
+                                                <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                                <input type="hidden" name="_method" value="DELETE">
+                                                <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                `;
+                                number++;
+                            });
+                        } else {
+                            html = `<tr><td colspan="7" class="text-center">No results found</td></tr>`;
+                        }
+
+                        $('#vehicleList').html(html);
+                    }
+                });
+             });
+        });
+
+    </script>
 @endsection

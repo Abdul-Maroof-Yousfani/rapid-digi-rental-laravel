@@ -11,11 +11,13 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <h3 class="mb-0">Bank List</h3>
-                            <span>
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bankModal">
-                                    Add Bank
-                                </button>
-                            </span>
+                            @can('create bank')
+                                <span>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bankModal">
+                                        Add Bank
+                                    </button>
+                                </span>
+                            @endcan
                         </div>
                     </div>
                 </div>
@@ -55,7 +57,7 @@
                                                 <button type="button" class="btn btn-warning btn-sm ajax-edit-btn" data-id="{{ $item->id }}" data-modal-id="editBankModal">
                                                     <i class="far fa-edit"></i> Edit
                                                 </button>
-                                                <form action="{{ url('admin/bank/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                                <form action="{{ url('bank/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                     <input type="hidden" name="_method" value="DELETE">
                                                     <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>
@@ -81,7 +83,7 @@
     <!--Create Modal Form-->
     <div class="modal fade" id="bankModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
-            <form class="ajax-form" data-url="{{ route('admin.bank.store') }}" data-target-table="#bankResponseList" data-render-function="renderBankRow" data-modal-id="bankModal">
+            <form class="ajax-form" data-url="{{ route('bank.store') }}" data-target-table="#bankResponseList" data-render-function="renderBankRow" data-modal-id="bankModal">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Add Bank</h5>
@@ -189,7 +191,7 @@
     <div class="modal fade" id="editBankModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <form id="bankEditForm" method="POST" class="ajax-update-form"
-                        data-url="{{ url('admin/bank/') }}/:id"
+                        data-url="{{ url('bank') }}/:id"
                         data-fetch-url="{{ url('get-bank-for-edit-form/:id') }}"
                         data-target-table="#bankResponseList"
                         data-render-function="renderBankRow"

@@ -6,7 +6,7 @@
       <div class="main-content">
         <section class="section">
           <div class="section-body">
-            <form action="{{ url('admin/sale-person/'.$salePerson->id) }}" method="post">
+            <form action="{{ url('sale-person/'.$salePerson->id) }}" method="post">
                 @csrf
                 @method('PUT')
                 <div class="row">

@@ -177,11 +177,11 @@ class PaymentController extends Controller
                             'invoice_status' => 'sent'
                         ]);
                     } else {
-                        return redirect()->route('booker.payment.index')->with('success', 'Record inserted But Not Send Because Invoice ID Not Found');
+                        return redirect()->route('payment.index')->with('success', 'Record inserted But Not Send Because Invoice ID Not Found');
                     }
                 }
                 DB::commit();
-                return redirect()->route('booker.payment.index')->with('success', 'Payment Create Successfully!');
+                return redirect()->route('payment.index')->with('success', 'Payment Create Successfully!');
             } catch (\Exception $exp) {
                 DB::rollback();
                 return redirect()->back()->with('error', $exp->getMessage());
@@ -323,11 +323,11 @@ class PaymentController extends Controller
                     'invoice_status' => 'sent'
                 ]);
             } else {
-                return redirect()->route('booker.payment.index')->with('success', 'Record inserted But Not Send Because Invoice ID Not Found');
+                return redirect()->route('payment.index')->with('success', 'Record inserted But Not Send Because Invoice ID Not Found');
             }
         }
 
-        return redirect()->route('booker.payment.index')->with('success', 'Payment Created Successfully!');
+        return redirect()->route('payment.index')->with('success', 'Payment Created Successfully!');
     }
 
     public function paymentHistory($paymentID)

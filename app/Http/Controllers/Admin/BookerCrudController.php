@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\User;
 use App\Models\Booker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -13,7 +14,11 @@ class BookerCrudController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:manage bookers');
+        // $this->middleware('permission:manage bookers');
+        $this->middleware('permission:view booker')->only(['index', 'show']);
+        $this->middleware('permission:create booker')->only(['create', 'store']);
+        $this->middleware('permission:edit booker')->only(['edit', 'update']);
+        $this->middleware('permission:delete booker')->only(['destroy']);
     }
     /**
      * Display a listing of the resource.
@@ -51,6 +56,8 @@ class BookerCrudController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         } else {
             try {
+                // dd($request->all());
+                DB::beginTransaction();
                 $user= User::create([
                     'name'=> $request['booker_name'],
                     'email'=> $request['email'],
@@ -73,9 +80,10 @@ class BookerCrudController extends Controller
                     'country' => $request['country'],
                     'status' => $request['status'],
                 ]);
-
-                return redirect()->route('admin.booker.index')->with('success', 'Booker Added Successfully!')->withInput();
+                DB::commit();
+                return redirect()->route('booker.index')->with('success', 'Booker Added Successfully!')->withInput();
             } catch (\Exception $exp){
+                DB::rollback();
                 return redirect()->back()->withErrors('error', $exp->getMessage());
             }
         }
@@ -97,7 +105,7 @@ class BookerCrudController extends Controller
     {
         $booker= Booker::find($id);
         if(!$booker){
-            return redirect()->route('admin.booker.index')->with('error', 'Booker Not Found');
+            return redirect()->route('booker.index')->with('error', 'Booker Not Found');
         }
         return view('admin.booker.edit', compact('booker'));
     }
@@ -109,7 +117,7 @@ class BookerCrudController extends Controller
     {
         $booker= Booker::find($id);
         if(!$booker){
-            return redirect()->route('admin.booker.index')->with('error', 'Booker Not Found');
+            return redirect()->route('booker.index')->with('error', 'Booker Not Found');
         }
         $user= User::find($booker->user_id);
         $validator= Validator::make($request->all(), [
@@ -164,7 +172,7 @@ class BookerCrudController extends Controller
                 'status' => $request['status'],
             ]);
 
-            return redirect()->route('admin.booker.index')->with('success', 'Booker Updated Successfully');
+            return redirect()->route('booker.index')->with('success', 'Booker Updated Successfully');
         }
     }
 
@@ -175,11 +183,11 @@ class BookerCrudController extends Controller
     {
         $booker= Booker::findOrFail($id);
         if(!$booker){
-            return redirect()->route('admin.booker.index')->with('error', 'booker Not Found');
+            return redirect()->route('booker.index')->with('error', 'booker Not Found');
         }else{
             $booker->delete();
             $booker->user->delete();
-            return redirect()->route('admin.booker.index')->with('success', 'booker Deleted Successfully');
+            return redirect()->route('booker.index')->with('success', 'booker Deleted Successfully');
         }
     }
 }

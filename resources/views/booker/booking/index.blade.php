@@ -11,9 +11,11 @@
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                       <h3 class="mb-0">Booking List</h3>
-                      <a href="{{ role_base_route('customer-booking.create') }}" class="btn btn-primary">
+                        @can('create booking')
+                      <a href="{{ route('customer-booking.create') }}" class="btn btn-primary">
                         Add Booking
                       </a>
+                        @endcan
                     </div>
                   </div>
                 </div>
@@ -69,37 +71,39 @@
                                             </button>
                                             <div class="dropdown-menu">
 
-                                                <button class="dropdown-item close-booking"
-                                                    data-booking-id="{{ $item->booking->id }}"
-                                                    data-invoice-id="{{ $item->id }}"
-                                                    {{ $item->booking->booking_status=='closed' ? 'disabled' : '' }}>
-                                                    <i class="fas fa-lock"></i> Close Booking
-                                                </button>
-
-                                                <a class="dropdown-item" href="{{ url('booker/booking/'. $item->booking->id) }}">
+                                                <a class="dropdown-item" href="{{ url('booking/'. $item->booking->id) }}">
                                                     <i class="fas fa-eye"></i> View
                                                 </a>
 
-                                                @if (is_null($item->booking->started_at) || (\Carbon\Carbon::parse($item->booking->started_at)->isAfter($now) && $item->booking_cancel==0))
-                                                    <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->booking->id }}" href="">
-                                                        <i class="fas fa-times"></i> Cancel
-                                                    </a>
-                                                @endif
-
-                                                @if ($item->booking->booking_status != 'closed')
-                                                    <a class="dropdown-item" href="{{ url('booker/customer-booking/'.$item->id.'/edit') }}">
-                                                        <i class="far fa-edit"></i> Edit
-                                                    </a>
-                                                @endif
-
-                                                <form action="{{ url('booker/customer-booking/'.$item->id) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this booking?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger delete-confirm">
-                                                        <i class="far fa-trash-alt"></i> Delete
+                                                @can('edit booking')
+                                                    <button class="dropdown-item close-booking"
+                                                        data-booking-id="{{ $item->booking->id }}"
+                                                        data-invoice-id="{{ $item->id }}"
+                                                        {{ $item->booking->booking_status=='closed' ? 'disabled' : '' }}>
+                                                        <i class="fas fa-lock"></i> Close Booking
                                                     </button>
-                                                </form>
 
+                                                    @if (is_null($item->booking->started_at) || (\Carbon\Carbon::parse($item->booking->started_at)->isAfter($now) && $item->booking_cancel==0))
+                                                        <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->booking->id }}" href="">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </a>
+                                                    @endif
+
+                                                    @if ($item->booking->booking_status != 'closed')
+                                                        <a class="dropdown-item" href="{{ url('customer-booking/'.$item->id.'/edit') }}">
+                                                            <i class="far fa-edit"></i> Edit
+                                                        </a>
+                                                    @endif
+                                                @endcan
+                                                @can('delete booking')
+                                                    <form action="{{ url('customer-booking/'.$item->id) }}" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this booking?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                            <i class="far fa-trash-alt"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                @endcan
                                             </div>
                                         </div>
                                     </td>

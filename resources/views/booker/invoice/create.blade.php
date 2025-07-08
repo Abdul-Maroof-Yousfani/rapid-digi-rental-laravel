@@ -13,7 +13,7 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ url('booker/booking/'.$booking->id.'/create-invoice') }}" id="" method="post" enctype="multipart/form-data">
+                <form action="{{ url('booking/'.$booking->id.'/create-invoice') }}" id="" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">

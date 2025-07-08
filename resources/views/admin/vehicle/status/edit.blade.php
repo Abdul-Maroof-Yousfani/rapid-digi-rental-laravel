@@ -6,7 +6,7 @@
       <div class="main-content">
         <section class="section">
           <div class="section-body">
-            <form action="{{ url('admin/vehicle-status/'.$status->id) }}" method="post">
+            <form action="{{ url('vehicle-status/'.$status->id) }}" method="post">
                 @csrf
                 @method('put')
                 <div class="row">

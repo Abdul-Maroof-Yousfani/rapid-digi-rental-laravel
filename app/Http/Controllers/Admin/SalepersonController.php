@@ -51,7 +51,7 @@ class SalepersonController extends Controller
                 if ($request->ajax()) {
                     return response()->json(['success' => 'Sale Men Added Successfully!', 'data' => $salemen]);
                 } else {
-                    return redirect()->route('admin.sale-person.index')->with('success', 'Sale Person Added Successfully!');
+                    return redirect()->route('sale-person.index')->with('success', 'Sale Person Added Successfully!');
                 }
             } catch (\Exception $exp) {
                 DB::rollBack();
@@ -79,7 +79,7 @@ class SalepersonController extends Controller
     {
         $salePerson= SalePerson::find($id);
         if(!$salePerson){
-            return redirect()->route('admin.sale-person.index')->with('error', 'Sale Person Not Found');
+            return redirect()->route('sale-person.index')->with('error', 'Sale Person Not Found');
         }
         return view('admin.saleperson.edit', compact('salePerson'));
     }
@@ -108,7 +108,7 @@ class SalepersonController extends Controller
                 if($request->ajax()){
                     return response()->json(['success' => 'Sale Person Updated Successfully', 'data' => $salePerson]);
                 } else {
-                    return redirect()->route('admin.sale-person.index')->with('success', 'Sale Person Updated Successfully!');
+                    return redirect()->route('sale-person.index')->with('success', 'Sale Person Updated Successfully!');
                 }
             } catch (\Exception $exp) {
                 DB::rollBack();

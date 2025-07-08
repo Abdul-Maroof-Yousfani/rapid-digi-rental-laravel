@@ -17,7 +17,12 @@ class VehicleCrudController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:manage vehicles');
+        // $this->middleware('permission:manage vehicles');
+
+        $this->middleware('permission:view vehicle')->only(['index']);
+        $this->middleware('permission:create vehicle')->only(['create', 'store']);
+        $this->middleware('permission:edit vehicle')->only(['edit', 'update']);
+        $this->middleware('permission:delete vehicle')->only(['destroy']);
     }
     /**
      * Display a listing of the resource.
@@ -28,7 +33,7 @@ class VehicleCrudController extends Controller
         if($vehicletypes->isEmpty()) { return redirect()->route('vehicle-type.create')->with('error', 'First Add Vehicle Type Then You can Add Vehicle'); }
         $investor= Investor::all();
         if($investor->isEmpty()) { return redirect()->route('investor.create')->with('error', 'First Add Investor Then You can Add Vehicle'); }
-        $vehicle= Vehicle::orderBy('id', 'DESC')->get();
+        $vehicle= Vehicle::orderBy('id', 'DESC')->paginate(10);
         return view("admin.vehicle.index", compact('vehicle', 'vehicletypes', 'investor'));
     }
 
@@ -78,7 +83,7 @@ class VehicleCrudController extends Controller
                 if($request->ajax()){
                     return response()->json(['success' => 'Vehicle Added Successfully!', 'data' => $vehicle->load('vehicletype', 'investor')]);
                 } else {
-                    return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Added Against Investor Successfully!');
+                    return redirect()->route('vehicle.index')->with('success', 'Vehicle Added Against Investor Successfully!');
                 }
             } catch (\Exception $exp) {
                 return redirect()->back()->with('error', $exp->getMessage());
@@ -169,7 +174,7 @@ class VehicleCrudController extends Controller
     {
         // $investor= User::has('investor')->with('investor')->get();
         $vehicle= Vehicle::find($id);
-        if(!$vehicle){ return redirect()->route('admin.vehicle.index')->with('error', 'Vehicle Not Found'); }
+        if(!$vehicle){ return redirect()->route('vehicle.index')->with('error', 'Vehicle Not Found'); }
         $vehicletypes= Vehicletype::all();
         $investor= Investor::all();
         return view("admin.vehicle.edit", compact('vehicle', 'vehicletypes', 'investor'));
@@ -211,7 +216,7 @@ class VehicleCrudController extends Controller
                 if($request->ajax()){
                     return response()->json([ 'success' => 'Vehicle updated successfully!', 'data' => $vehicle->load('vehicletype', 'investor') ], 200);
                 } else {
-                    return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle Updated Against Investor Successfully!');
+                    return redirect()->route('vehicle.index')->with('success', 'Vehicle Updated Against Investor Successfully!');
                 }
             } catch (\Exception $exp) {
                 if($request->ajax()){

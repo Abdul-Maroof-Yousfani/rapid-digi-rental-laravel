@@ -6,7 +6,7 @@
       <div class="main-content">
         <section class="section">
           <div class="section-body">
-            <form action="{{ url('admin/vehicle') }}" method="post">
+            <form action="{{ url('vehicle') }}" method="post">
                 @csrf
                 <div class="row">
                   <div class="col-12 col-md-12 col-lg-12">
@@ -148,7 +148,7 @@
             <div class="modal-header">
               <h5 class="modal-title" id="modalLabel">Vehicle Bulk Uploading</h5>
               {{-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal" aria-label="Close">Download example</button> --}}
-              <a href="{{ route('admin.download.sample') }}">Download example</a>
+              <a href="{{ route('download.sample') }}">Download example</a>
             </div>
 
             <div class="modal-body">

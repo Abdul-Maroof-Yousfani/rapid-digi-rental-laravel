@@ -11,7 +11,7 @@
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                       <h3 class="mb-0">Investor List</h3>
-                      <a href="{{ route('admin.investor.create') }}" class="btn btn-primary">
+                      <a href="{{ route('investor.create') }}" class="btn btn-primary">
                         Add Investor
                       </a>
                     </div>
@@ -46,8 +46,8 @@
                                 <td>{{ $item->cnic }}</td>
                                 <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
                                 <td>
-                                    <a href='{{ url("admin/investor/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
-                                    <form action="{{ url('admin/investor/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
+                                    <a href='{{ url("investor/".$item->id."/edit") }}' class="btn btn-warning btn-sm"><i class="far fa-edit"></i>Edit</a>
+                                    <form action="{{ url('investor/'.$item->id) }}" method="POST" style="display:inline;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger delete-confirm btn-sm"><i class="far fa-trash-alt"></i>Delete</button>

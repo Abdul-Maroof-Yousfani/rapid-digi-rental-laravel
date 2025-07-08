@@ -16,7 +16,7 @@
         <section class="section">
 
             <div class="section-body">
-                <form action="{{ role_base_url('customer-booking/'.$invoice->id) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url('customer-booking/'.$invoice->id) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="row">

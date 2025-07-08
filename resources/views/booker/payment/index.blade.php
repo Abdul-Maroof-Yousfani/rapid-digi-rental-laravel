@@ -23,7 +23,7 @@
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 class="mb-0">Payment Vouchar List</h3>
-                        <a href="{{ role_base_route('payment.create') }}" class="btn btn-primary">
+                        <a href="{{ route('payment.create') }}" class="btn btn-primary">
                             Create Payment
                         </a>
                     </div>

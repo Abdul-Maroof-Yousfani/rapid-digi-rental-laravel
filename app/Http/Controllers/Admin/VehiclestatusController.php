@@ -11,6 +11,19 @@ use Illuminate\Support\Facades\Validator;
 
 class VehiclestatusController extends Controller
 {
+
+    public function __construct() {
+        $this->middleware('permission:view vehicle status')->only(['index']);
+        $this->middleware('permission:create vehicle status')->only(['create', 'store']);
+        $this->middleware('permission:edit vehicle status')->only(['edit', 'update']);
+        $this->middleware('permission:delete vehicle status')->only(['destroy']);
+
+        $this->middleware('permission:vehicle with status')->only(['viewAssinedVehicle']);
+        $this->middleware('permission:assign vehicle status')->only(['StatusForm','assignStatus']);
+        $this->middleware('permission:vehicle update status')->only(['editAssinedVehicle', 'updateAssinedVehicle']);
+        $this->middleware('permission:vehicle remove status')->only(['deleteAssinedVehicle']);
+
+    }
     /**
      * Display a listing of the resource.
      */
@@ -47,7 +60,7 @@ class VehiclestatusController extends Controller
                 ]);
                 DB::commit();
                 if ($request->ajax()) { return response()->json(['success' => 'Status Added Successfully!', 'data' => $vstatus]); }
-                else { return redirect()->route('admin.vehicle-status.index')->with('success', 'Status Added Successfully!'); }
+                else { return redirect()->route('vehicle-status.index')->with('success', 'Status Added Successfully!'); }
             } catch (\Exception $exp) {
                 DB::rollBack();
                 if ($request->ajax()) { return response()->json(['error' => $exp->getMessage()]); }
@@ -71,7 +84,7 @@ class VehiclestatusController extends Controller
     {
         $status= VehicleStatus::find($id);
         if(!$status){
-            return redirect()->route('admin.vehicle-status.index')->with('error', 'Status Not Found');
+            return redirect()->route('vehicle-status.index')->with('error', 'Status Not Found');
         }
         return view('admin.vehicle.status.edit', compact('status'));
     }
@@ -96,7 +109,7 @@ class VehiclestatusController extends Controller
                 ]);
                 DB::commit();
                 if ($request->ajax()) { return response()->json(['success' => 'Status Updated Successfully!', 'data' => $status], 200); }
-                else { return redirect()->route('admin.vehicle-status.index')->with('success', 'Status Updated Successfully!'); }
+                else { return redirect()->route('vehicle-status.index')->with('success', 'Status Updated Successfully!'); }
 
             } catch (\Exception $exp) {
                 DB::rollBack();
@@ -143,7 +156,7 @@ class VehiclestatusController extends Controller
             $vehicle->update([
                 'vehicle_status_id' => $request->status
             ]);
-            return redirect()->route('booker.assined.vehicle')->with('success', 'Vehicle Status is '. $status->name);
+            return redirect()->route('assined.vehicle')->with('success', 'Vehicle Status is '. $status->name);
         }
     }
 
@@ -175,7 +188,7 @@ class VehiclestatusController extends Controller
         $vehicle->update([
             'vehicle_status_id' => $request->status
         ]);
-        return redirect()->route('booker.assined.vehicle')->with('success', 'Status Updated Successfully!');
+        return redirect()->route('assined.vehicle')->with('success', 'Status Updated Successfully!');
     }
 
     public function deleteAssinedVehicle($id)
@@ -185,8 +198,8 @@ class VehiclestatusController extends Controller
             $vehicle->update([
                 'vehicle_status_id' => null
             ]);
-        return redirect()->route('booker.assined.vehicle')->with('success', 'Status removed to ' . $vehicle->vehicle_name);
+        return redirect()->route('assined.vehicle')->with('success', 'Status removed to ' . $vehicle->vehicle_name);
         }
-        return redirect()->route('booker.assined.vehicle')->with('error', 'Vehicle not found.');
+        return redirect()->route('assined.vehicle')->with('error', 'Vehicle not found.');
     }
 }

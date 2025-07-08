@@ -78,7 +78,7 @@ $(document).ready(function(){
                         $('#netAmount').text(net.toFixed(2));
                         $('#printTotalAmount').text(total.toFixed(2));
                         $('#printNetAmount').text(net.toFixed(2));
-                    }, 1000);
+                    }, 500);
 
 
                 } else {
@@ -118,7 +118,7 @@ $(document).ready(function(){
                 if(response){
                     setTimeout(() => {
                         $('#customerWiseSalesReportList').html(response);
-                    }, 500);
+                    }, 300);
 
                     // After content is loaded, calculate totals
                     let total = 0;

@@ -22,7 +22,12 @@ class CustomerController extends Controller
     public function __construct(ZohoInvoice $zohoinvoice)
     {
         $this->zohoinvoice= $zohoinvoice;
-        $this->middleware(['permission:manage customers'])->only(['index','create', 'store', 'edit', 'update', 'destroy']);
+        // $this->middleware(['permission:manage customers'])->only(['index','create', 'store', 'edit', 'update', 'destroy']);
+
+        $this->middleware('permission:view customer')->only(['index']);
+        $this->middleware('permission:create customer')->only(['create', 'store']);
+        $this->middleware('permission:edit customer')->only(['edit', 'update']);
+        $this->middleware('permission:delete customer')->only(['destroy']);
     }
     /**
      * Display a listing of the resource.
@@ -39,7 +44,7 @@ class CustomerController extends Controller
         }
         $shouldEnableSync = count($missing) > 0;
         // $customers= Customer::where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
-        $customers = Customer::orderBy('id', 'DESC')->paginate(4);
+        $customers = Customer::orderBy('id', 'DESC')->paginate(10);
         return view('admin.customer.index', compact('customers', 'shouldEnableSync'));
     }
 
@@ -138,19 +143,89 @@ class CustomerController extends Controller
 
     }
 
+    // public function syncCustomersFromZoho()
+    // {
+    //     $contact= $this->zohoinvoice->getAllCustomers();
+    //     try {
+    //         DB::beginTransaction();
+    //         foreach ($contact as $customer) {
+    //             $exists = Customer::where('zoho_customer_id', $customer['contact_id'])->exists();
+    //             if ($exists) {
+    //                 continue;
+    //             }
+
+    //             $fullDetail= $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
+    //             $billing = $fullDetail['contact']['billing_address'] ?? [];
+    //             Customer::create([
+    //                 'zoho_customer_id' => $customer['contact_id'],
+    //                 'customer_name' => $customer['contact_name'],
+    //                 'email' => $customer['email'] ?? null,
+    //                 'phone' => $customer['phone'] ?? null,
+    //                 'address' => $billing['address'] ?? null,
+    //                 'city' => $billing['city'] ?? null,
+    //                 'state' => $billing['state'] ?? null,
+    //                 'country' => $billing['country'] ?? null,
+    //                 'postal_code' => $billing['zip'] ?? null,
+    //                 'status' => 1,
+    //                 'gender' => null,
+    //                 'cnic' => null,
+    //                 'dob' => null,
+    //                 'licence' => null,
+    //             ]);
+    //         }
+    //         DB::commit();
+    //         return redirect()->back()->with('success', 'Customers synced successfully with Rapid System.');
+    //     } catch (QueryException $e) {
+    //         DB::rollBack();
+    //         if ($e->getCode() == 23000) {
+    //             return redirect()->back()->with('error', $e->getMessage());
+    //         }
+
+    //         return redirect()->back()->with('error', 'Database error occurred.');
+    //     } catch (Exception $exp) {
+    //         dd($exp);
+    //         DB::rollback();
+    //         return redirect()->back()->with('error', $exp->getMessage());
+    //     }
+    // }
+
+
     public function syncCustomersFromZoho()
     {
-        $contact= $this->zohoinvoice->getAllCustomers();
+        $contact = $this->zohoinvoice->getAllCustomers();
         try {
             DB::beginTransaction();
+
             foreach ($contact as $customer) {
-                $exists = Customer::where('zoho_customer_id', $customer['contact_id'])->exists();
-                if ($exists) {
-                    continue;
+                $existingCustomer = Customer::withTrashed()
+                    ->where('zoho_customer_id', $customer['contact_id'])
+                    ->first();
+
+                $fullDetail = $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
+                $billing = $fullDetail['contact']['billing_address'] ?? [];
+
+                // If customer exists (even soft-deleted)
+                if ($existingCustomer) {
+                    if ($existingCustomer->trashed()) {
+                        // Restore and update
+                        $existingCustomer->restore();
+                        $existingCustomer->update([
+                            'customer_name' => $customer['contact_name'],
+                            'email' => $customer['email'] ?? null,
+                            'phone' => $customer['phone'] ?? null,
+                            'address' => $billing['address'] ?? null,
+                            'city' => $billing['city'] ?? null,
+                            'state' => $billing['state'] ?? null,
+                            'country' => $billing['country'] ?? null,
+                            'postal_code' => $billing['zip'] ?? null,
+                            'status' => 1,
+                        ]);
+                    }
+
+                    continue; // Skip create
                 }
 
-                $fullDetail= $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
-                $billing = $fullDetail['contact']['billing_address'] ?? [];
+                // If completely new customer
                 Customer::create([
                     'zoho_customer_id' => $customer['contact_id'],
                     'customer_name' => $customer['contact_name'],
@@ -168,13 +243,24 @@ class CustomerController extends Controller
                     'licence' => null,
                 ]);
             }
+
             DB::commit();
             return redirect()->back()->with('success', 'Customers synced successfully with Rapid System.');
-        } catch (Exception $exp) {
-            DB::rollback();
-            return redirect()->back()->with('error', $exp->getMessage());
+
+        } catch (QueryException $e) {
+            DB::rollBack();
+
+            if ($e->getCode() == 23000) {
+                return redirect()->back()->with('error', 'Duplicate entry found. Possibly same phone, email, or licence already exists.');
+            }
+
+            return redirect()->back()->with('error', 'Database error occurred.');
+        } catch (\Exception $exp) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Something went wrong: ' . $exp->getMessage());
         }
     }
+
 
     /**
      * Display the specified resource.
