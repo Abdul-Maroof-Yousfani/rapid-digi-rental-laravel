@@ -58,7 +58,7 @@ class BookingController extends Controller
                     ->whereHas('booking', function($query){
                         $query->where('created_at', '>=', Carbon::now()->subDays(15));
                         $query->where('booking_cancel', '0');
-                    })->orderBy('id', 'desc')->get();
+                    })->orderBy('id', 'desc')->paginate(10);
 
         return view('booker.booking.index', compact('booking'));
     }

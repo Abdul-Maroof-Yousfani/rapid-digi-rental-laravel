@@ -589,4 +589,30 @@ class AjaxController extends Controller
             'creditNote' => $creditNote
         ]);
     }
+
+    public function searchBooking(Request $request)
+    {
+        $search= strtolower($request->search);
+        $bookings= Booking::with(['customer', 'deposit', 'salePerson', 'payment'])
+            ->withSum('invoice as total_amount', 'total_amount')
+            ->when($search, function ($query, $search) {
+                $query->where(function($q) use ($search){
+                    $q->whereHas('customer', function($q1) use ($search){
+                            $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%$search%"]);
+                    })
+                    ->orWhereHas('deposit', function($q2) use ($search){
+                        $q2->where('deposit_amount', 'LIKE', "%$search%");
+                    })
+                    ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
+                });
+            })->get();
+
+        return response()->json([
+            'bookings' => $bookings,
+            'can' => [
+                'view' => auth()->user()->can('view booking'),
+                'delete' => auth()->user()->can('delete booking'),
+            ],
+        ]);
+    }
 }

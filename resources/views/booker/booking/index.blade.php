@@ -1,6 +1,17 @@
 @extends('admin.master-main')
 @section('title', ucfirst(Auth::user()->getRoleNames()->first()." "."Portal"))
 @section('content')
+<style>
+    .spinner-border.custom-blue {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.4rem;
+    border-top-color: #0d6efd;
+    border-right-color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    border-left-color: rgba(13, 110, 253, 0.25);
+}
+</style>
 
       <!-- Main Content -->
       <div class="main-content">
@@ -12,9 +23,9 @@
                     <div class="d-flex justify-content-between align-items-center">
                       <h3 class="mb-0">Booking List</h3>
                         @can('create booking')
-                      <a href="{{ route('customer-booking.create') }}" class="btn btn-primary">
-                        Add Booking
-                      </a>
+                        <a href="{{ route('customer-booking.create') }}" class="btn btn-primary">
+                            Add Booking
+                        </a>
                         @endcan
                     </div>
                   </div>
@@ -24,8 +35,17 @@
                 <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+
+                        <form class="filterForm">
+                            <div class="row">
+                                <div class="col-3 ml-auto">
+                                    <input type="text" placeholder="Search" class="form-control" id="search">
+                                </div>
+                            </div><br>
+                        </form>
+
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
+                        <table class="table table-striped table-hover" style="width:100%;">
                             <thead>
                                 <tr>
                                 <th>S.no</th>
@@ -39,7 +59,7 @@
                                 <th align="text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="bookingList">
                                 @php
                                     $now = \Carbon\Carbon::now();
                                     $number=1;
@@ -112,6 +132,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        {{ $booking->links('pagination::bootstrap-4') }}
                     </div>
                     </div>
                 </div>
@@ -208,6 +229,69 @@
         //         }
         //     });
         // });
+
+        $(document).ready(function () {
+             $('#search').on('keyup', function () {
+                let search = $(this).val();
+                $('#bookingList').html(`
+                    <tr>
+                        <td colspan="9" class="text-center">
+                            <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                $.ajax({
+                    url:'/search-booking',
+                    method: 'get',
+                    data: { search : search },
+                    success:function(response){
+                        let html = '';
+                        let number = 1;
+                        if (response.bookings.length > 0) {
+                            let can = response.can;
+
+                            $.each(response.bookings, function (index, data) {
+                                html += `
+                                    <tr data-id="${data.id}">
+                                        <td>${number}.</td>
+                                        <td>${data.customer.customer_name}</td>
+                                        <td>${data.agreement_no ?? ''}</td>
+                                        <td>${data.sale_person?.name ?? 'N/A'}</td>
+                                        <td>${data.deposit?.deposit_amount ?? 0}</td>
+                                        <td>${data.booking_status ?? 'overdue'}</td>
+                                        <td>${data.payment?.payment_status ?? "pending"}</td>
+                                        <td>${data.total_amount ?? 0}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                    Actions
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    ${can.view ? `
+                                                    <a class="dropdown-item" href="/booking/${data.id}">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>` : ''}
+                                                    ${can.delete ? `
+                                                    <a class="dropdown-item text-danger delete-confirm" href="#">
+                                                        <i class="far fa-trash-alt"></i> Delete
+                                                    </a>` : ''}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                        } else {
+                            html = `<tr><td colspan="9" class="text-center">No results found</td></tr>`;
+                        }
+
+                        $('#bookingList').html(html);
+                    }
+                });
+             });
+        });
 
 
         $('#partialBookingForm').on('submit', function(e) {
