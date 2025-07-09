@@ -77,6 +77,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            {{ $creditNote->links('pagination::bootstrap-4') }}
                             </div>
                         </div>
                         </div>
