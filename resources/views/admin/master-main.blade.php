@@ -268,7 +268,7 @@
                         </li>
                         @endcan
 
-                        @can('view Investor reports')
+                        @can('view investor reports')
                           <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Report</span></a>

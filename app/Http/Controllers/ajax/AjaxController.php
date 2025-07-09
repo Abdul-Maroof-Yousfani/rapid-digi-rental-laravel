@@ -526,24 +526,6 @@ class AjaxController extends Controller
     public function searchVehicle(Request $request)
     {
         $search= $request->search;
-        // $vehicles= Vehicle::with('investor')
-        //             ->when($search, function ($query, $search) {
-        //                 $query->whereHas('investor', function($q1) use ($search){
-        //                     $q1->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
-        //                 });
-        //             })
-        //             ->when($search, function($query, $search){
-        //                 $query->where(function($q) use ($search) {
-        //                     $q->where('vehicle_name', 'LIKE', "%$search%")
-        //                     ->orWhere('temp_vehicle_detail', 'LIKE', "%$search%")
-        //                     ->orWhere('car_make', 'LIKE', "%$search%")
-        //                     ->orWhere('year', 'LIKE', "%$search%")
-        //                     ->orWhere('number_plate', 'LIKE', "%$search%")
-        //                     ->orWhere('car_make', 'LIKE', "%$search%");
-        //                 });
-        //             })->get();
-
-
         $vehicles = Vehicle::with('investor', 'vehiclestatus', 'vehicletype')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -582,6 +564,29 @@ class AjaxController extends Controller
 
         return response()->json([
             'banks' => $banks
+        ]);
+    }
+
+    public function searchCreditNote(Request $request)
+    {
+        $search= strtolower($request->search);
+
+        $creditNote = CreditNote::with('booking.customer', 'booking.deposit','paymentMethod')
+            ->where(function ($query) use ($search) {
+                $query->whereRaw('LOWER(credit_note_no) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(remaining_deposit) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(refund_amount) LIKE ?', ["%{$search}%"])
+                    ->orWhereHas('booking', function ($q1) use ($search) {
+                        $q1->whereRaw('LOWER(agreement_no) LIKE ?', ["%{$search}%"])
+                            ->orWhereHas('customer', function ($q2) use ($search) {
+                                $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%{$search}%"]);
+                            });
+                    });
+            })
+            ->get();
+
+        return response()->json([
+            'creditNote' => $creditNote
         ]);
     }
 }

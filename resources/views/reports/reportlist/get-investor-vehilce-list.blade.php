@@ -12,7 +12,7 @@
         @endphp
         {{ $vehicle_name }} | {{ $no_plate }}</td>
     <td>{{ \Carbon\Carbon::parse($item->start_date)->format('d M Y') }} to {{ \Carbon\Carbon::parse($item->end_date)->format('d M Y') }}</td>
-    <td>{{ $item->price }}</td>
+    <td>{{ number_format($item->price, 2) }}</td>
     <td>
         @switch($item->transaction_type)
             @case(1) Rent @break

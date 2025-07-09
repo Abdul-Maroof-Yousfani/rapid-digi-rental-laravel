@@ -18,8 +18,8 @@ class BankCrudController extends Controller
     public function index()
     {
         // $bank= Bank::where('created_at', '>=', Carbon::now()->subdays(15))->orderBy('id', 'DESC')->get();
-        $bank = Bank::orderBy('id', 'DESC')->take(15)->get();
-        return view('admin.bank.index', compact('bank'));
+        $banks = Bank::orderBy('id', 'DESC')->paginate(10);
+        return view('admin.bank.index', compact('banks'));
     }
 
     /**

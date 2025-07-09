@@ -62,7 +62,7 @@
                                     </thead>
                                     <tbody id="responseList">
                                         @php $number=1; @endphp
-                                        @foreach ($bank as $item)
+                                        @foreach ($banks as $item)
                                         <tr data-id="{{ $item->id }}">
                                             <td>{{ $number }}.</td>
                                             <td>{{ $item->bank_name }}</td>
@@ -90,6 +90,9 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+
+                                {{ $banks->links('pagination::bootstrap-4') }}
+
                             </div>
                         </div>
                     </div>

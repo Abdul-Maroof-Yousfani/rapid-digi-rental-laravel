@@ -289,6 +289,7 @@ Route::post('booking-convert-partial', [AjaxController::class, 'bookingConvertPa
 Route::get('search-customer', [AjaxController::class, 'searchCustomer']);
 Route::get('search-bank', [AjaxController::class, 'searchBank']);
 Route::get('search-payment', [AjaxController::class, 'searchPayment']);
+Route::get('search-creditnote', [AjaxController::class, 'searchCreditNote']);
 Route::get('search-vehicle', [AjaxController::class, 'searchVehicle']);
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
 Route::get('get-payment-list', [FilterviewController::class, 'getPaymentList']);

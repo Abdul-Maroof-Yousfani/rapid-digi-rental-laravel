@@ -840,7 +840,6 @@
         $(document).ready(function () {
              $('#search').on('keyup', function () {
                 let search = $(this).val();
-                // Show loader while data is loading
                 $('#customerList').html(`
                     <tr>
                         <td colspan="7" class="text-center">
