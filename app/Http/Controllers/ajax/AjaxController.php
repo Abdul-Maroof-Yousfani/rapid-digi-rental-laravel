@@ -574,8 +574,9 @@ class AjaxController extends Controller
                             $q->where('bank_name', 'LIKE', "%$search%")
                             ->orWhere('account_name', 'LIKE', "%$search%")
                             ->orWhere('branch', 'LIKE', "%$search%")
-                            ->orWhere('swift_code', 'LIKE', "%$search%");
-                            // ->orWhere('iban ', 'LIKE', "%$search%");
+                            ->orWhere('swift_code', 'LIKE', "%$search%")
+                            ->orWhere('iban', 'LIKE', "%$search%")
+                            ->orWhere('account_number', 'LIKE', "%$search%");
                         });
                     })->get();
 

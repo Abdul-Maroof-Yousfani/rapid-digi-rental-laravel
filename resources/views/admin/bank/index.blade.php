@@ -3,7 +3,7 @@
 @section('content')
 
 <style>
-    .spinner-border.custom-blue {
+.spinner-border.custom-blue {
     width: 3rem;
     height: 3rem;
     border-width: 0.4rem;
@@ -317,7 +317,6 @@
         $(document).ready(function () {
              $('#search').on('keyup', function () {
                 let search = $(this).val();
-                // Show loader while data is loading
                 $('#responseList').html(`
                     <tr>
                         <td colspan="8" class="text-center">
@@ -334,7 +333,7 @@
                     success:function(response){
                         let html = '';
                         let number = 1;
-                        if (response.bank.length > 0) {
+                        if (response.banks.length > 0) {
                             $.each(response.banks, function (index, data) {
                                 html += `
                                     <tr data-id="${data.id}">
@@ -343,8 +342,8 @@
                                         <td>${data.account_name}</td>
                                         <td>${data.account_number}</td>
                                         <td>${data.iban}</td>
-                                        <td>${data.swift_code == 1 ? 'Active' : 'Inactive'}</td>
-                                        <td>${data.branch == 1 ? 'Active' : 'Inactive'}</td>
+                                        <td>${data.swift_code}</td>
+                                        <td>${data.branch}</td>
                                         <td>
 
 
@@ -364,7 +363,7 @@
                                 number++;
                             });
                         } else {
-                            html = `<tr><td colspan="7" class="text-center">No results found</td></tr>`;
+                            html = `<tr><td colspan="8" class="text-center">No results found</td></tr>`;
                         }
 
                         $('#responseList').html(html);
