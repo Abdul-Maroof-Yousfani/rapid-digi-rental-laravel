@@ -581,7 +581,7 @@
                                                 allowEscapeKey: false
                                             }).then((paymentResult) => {
                                                 if (paymentResult.isConfirmed) {
-                                                    window.location.href = '/booker/payment/create?booking_id='+bookingId;
+                                                    window.location.href = '/payment/create?booking_id='+bookingId;
                                                 } else {
                                                     closeBooking();
                                                 }
@@ -620,7 +620,7 @@
                                         cancelButtonText: 'No'
                                     }).then((result) => {
                                         if (result.isConfirmed) {
-                                            window.location.href = '/booker/credit-note/create?booking_id=' + bookingId;
+                                            window.location.href = '/credit-note/create?booking_id=' + bookingId;
                                         }
                                     });
                                 }
