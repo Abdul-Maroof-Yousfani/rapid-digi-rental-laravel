@@ -603,6 +603,9 @@ class AjaxController extends Controller
                     ->orWhereHas('deposit', function($q2) use ($search){
                         $q2->where('deposit_amount', 'LIKE', "%$search%");
                     })
+                    ->orWhereHas('salePerson', function($q2) use ($search){
+                        $q2->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
+                    })
                     ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
                 });
             })->get();
