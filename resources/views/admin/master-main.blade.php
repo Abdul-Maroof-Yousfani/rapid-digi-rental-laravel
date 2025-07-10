@@ -10,6 +10,10 @@
 
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
      <script>
+        function playAudio() {
+            var audio = new Audio("{{ asset('notificationbell.mp3') }}");
+            audio.play();
+        }
         Pusher.logToConsole = false;
 
         var pusher = new Pusher('ce96edbc440e6ff972a0', {
@@ -29,6 +33,7 @@
                     extendedTimeOut: 50000
                 };
                 toastr.success(data.message);
+                playAudio();
 
                 // 🔔 Update badge count (optional, you can re-fetch from DB via AJAX)
                 let badge = $('#notification-count');
