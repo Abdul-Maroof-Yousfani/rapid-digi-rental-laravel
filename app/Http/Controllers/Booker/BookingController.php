@@ -412,6 +412,7 @@ class BookingController extends Controller
      */
     public function destroy(string $id)
     {
+        dd(123);
         $booking= Booking::find($id);
         if($booking){
             // $invoice= Invoice::where('booking_id', $id)->first();

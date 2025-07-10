@@ -274,9 +274,14 @@
                                                         <i class="fas fa-eye"></i> View
                                                     </a>` : ''}
                                                     ${can.delete ? `
-                                                    <a class="dropdown-item text-danger delete-confirm" href="#">
-                                                        <i class="far fa-trash-alt"></i> Delete
-                                                    </a>` : ''}
+                                                        <form action="/customer-booking/${data.id}" method="POST" class="delete-form">
+                                                            <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                                            <input type="hidden" name="_method" value="DELETE">
+                                                            <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                                <i class="far fa-trash-alt"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    ` : ''}
                                                 </div>
                                             </div>
                                         </td>

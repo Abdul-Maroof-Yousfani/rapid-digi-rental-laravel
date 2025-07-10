@@ -53,7 +53,7 @@ class NotifyExpiredBookings extends Command
                         ->where('role', $role) // 👈 role-based tracking
                         ->exists();
 
-                    $message = "Booking ID {$booking->id} has expired (End: $latestEndDate)";
+                    $message = "Booking Agreement# {$booking->agreement_no} has expired (End: $latestEndDate)";
 
                     // 🔥 Send toaster to all users with this role
                     $users = User::role($role)->get();

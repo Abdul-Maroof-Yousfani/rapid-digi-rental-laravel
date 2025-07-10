@@ -122,9 +122,9 @@
                                             $notifications= App\Models\Notification::where('role', Auth::user()->getRoleNames()->first())->get();
                                         @endphp
                                         @foreach ($notifications as $item)
-                                            <span class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
+                                            <a href="{{ url('customer-booking/') }}" class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
                                                 {{ $item->message }}
-                                            </span>
+                                            </a>
                                         @endforeach
                                     @endif
                                 </div>
