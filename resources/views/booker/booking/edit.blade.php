@@ -330,7 +330,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="row">
+                                       
                                                 <div class="form-group">
                                                     <label for="">Description</label><br>
                                                     <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control" id="" cols="60" rows="4" placeholder="Description">
@@ -338,7 +338,7 @@
                                                     </textarea>
                                                 </div>
 
-                                            </div>
+                                           
 
                                         </div>
                                     </div>
