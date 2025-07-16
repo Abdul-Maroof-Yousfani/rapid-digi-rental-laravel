@@ -30,7 +30,6 @@ tr.bg-light td{width:auto !important;min-width:0 !important;}
  .sidebar,.navbar,.btn,.no-print{display:none !important;}
 }
 .bg-white{overflow:hidden;}
-
 .box1{margin-top:6px;background:#3e7eac;text-align:center;width:16%;color:#fff;transform:rotateZ(-45deg);margin-left:-59px;font-size:24px}
 .sent-status{background-color:#3e7eac;color:#fff;}
 .draft-status{background-color:#808080;color:#fff;}
