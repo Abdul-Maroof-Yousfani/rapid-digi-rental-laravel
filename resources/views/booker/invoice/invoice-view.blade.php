@@ -34,6 +34,7 @@ tr.bg-light td{width:auto !important;min-width:0 !important;}
 .sent-status{background-color:#3e7eac;color:#fff;}
 .draft-status{background-color:#808080;color:#fff;}
 </style>
+
     <!-- Main Content -->
     <div class="main-content">
 

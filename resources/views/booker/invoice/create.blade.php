@@ -396,7 +396,6 @@
                                 <div class="form-group">
                                     <label for="">Price (AED) <span class="text-danger">*</span></label><br>
                                     <input type="number" name="price[]" class="form-control price" required>
-
                                 </div>  
                             </div>
                             <div class="col-3">
