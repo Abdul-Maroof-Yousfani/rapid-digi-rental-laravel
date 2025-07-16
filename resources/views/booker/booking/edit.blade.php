@@ -226,18 +226,16 @@
                         </div>
 
 
-                        <div class="col-12">
-
-
-                                <div class="header-card head-flex">
-                                    <h4>Booking Details</h4>
-                                    <div class="card-header-form">
-                                        <div class="input-group">
-                                                <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
-                                        </div>
+                        <div class="col-md-12 col-lg-12">
+                            <div class="header-card head-flex">
+                                <h4>Booking Details</h4>
+                                <div class="card-header-form">
+                                    <div class="input-group">
+                                        <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
                                     </div>
                                 </div>
-                           <hr style=" border-bottom:1px solid #6c757d;">
+                            </div>
+                            <hr style=" border-bottom:1px solid #6c757d;">
                             <div class="lineItemBody" id="lineItemBody">
                                  @foreach ($booking_data as $index => $item)
                                     @php
@@ -255,9 +253,7 @@
                                                 <div class="col-3">
                                                     <div class="form-group">
                                                         <label for="">Start Date <span class="text-danger">*</span></label><br>
-                                                        <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
-                                                                class="form-control datemask booking-date" placeholder="YYYY/MM/DD"
-                                                                data-default="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}">
+                                                        <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"class="form-control datemask booking-date" placeholder="YYYY/MM/DD"data-default="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}">
                                                     </div>
                                                 </div>
                                                 <div class="col-3">
@@ -300,6 +296,8 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+
                                             <div class="row">
 
                                                 <div class="col-3">
@@ -330,14 +328,17 @@
                                                         <input type="number" value="" name="amount[]" class="form-control amount" disabled>
                                                     </div>
                                                 </div>
-
                                             </div>
 
+                                            <div class="row">
                                                 <div class="form-group">
+                                                    <label for="">Description</label><br>
                                                     <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control" id="" cols="60" rows="4" placeholder="Description">
                                                         {{ $zohocolumn['invoice']['line_items'][$index]['description'] ?? '' }}
                                                     </textarea>
                                                 </div>
+
+                                            </div>
 
                                         </div>
                                     </div>
