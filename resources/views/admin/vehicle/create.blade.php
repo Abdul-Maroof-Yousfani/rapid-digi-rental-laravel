@@ -152,7 +152,7 @@
             </div>
 
             <div class="modal-body">
-              <form action="{{ url('vehicle/import-csv') }}" method="POST" enctype="multipart/form-data">
+              <form action="{{ url('admin/vehicle/import-csv') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
                     <label for="importCsv">Upload CSV File <span class="text-danger">*</span></label>
