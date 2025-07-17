@@ -615,6 +615,7 @@ class AjaxController extends Controller
             'can' => [
                 'view' => auth()->user()->can('view booking'),
                 'delete' => auth()->user()->can('delete booking'),
+                'edit' => auth()->user()->can('edit booking'),
             ],
         ]);
     }

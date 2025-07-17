@@ -273,6 +273,26 @@
                                                     <a class="dropdown-item" href="/booking/${data.id}">
                                                         <i class="fas fa-eye"></i> View
                                                     </a>` : ''}
+
+                                                    ${can.edit ? `
+                                                        <button class="dropdown-item close-booking"
+                                                            data-booking-id="${data.id}"
+                                                            data-invoice-id="${data.invoice_id ?? ''}"
+                                                            ${data.booking_status === 'closed' ? 'disabled' : ''}>
+                                                            <i class="fas fa-lock"></i> Close Booking
+                                                        </button>
+
+                                                        ${(data.booking_cancel == 0 && (!data.started_at || new Date(data.started_at) > new Date())) ? `
+                                                            <a class="dropdown-item booking_cancel" data-booking-id="${data.id}" href="">
+                                                                <i class="fas fa-times"></i> Cancel
+                                                            </a>` : ''}
+
+                                                        ${data.booking_status !== 'closed' ? `
+                                                            <a class="dropdown-item" href="/customer-booking/${data.id}/edit">
+                                                                <i class="far fa-edit"></i> Edit
+                                                            </a>` : ''}
+                                                    ` : ''}
+
                                                     ${can.delete ? `
                                                         <form action="/customer-booking/${data.id}" method="POST" class="delete-form">
                                                             <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
