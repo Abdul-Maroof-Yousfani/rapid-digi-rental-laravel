@@ -28,8 +28,9 @@ class AjaxController extends Controller
 {
 
     protected $zohoinvoice;
-    public function __construct(ZohoInvoice $zohoinvoice){
-        $this->zohoinvoice= $zohoinvoice;
+    public function __construct(ZohoInvoice $zohoinvoice)
+    {
+        $this->zohoinvoice = $zohoinvoice;
     }
 
 
@@ -48,10 +49,10 @@ class AjaxController extends Controller
                         ->where('end_date', '>=', $endDate);
                 });
         })
-        ->when($bookingID, function ($query) use ($bookingID) {
-            $query->where('booking_id', '!=', $bookingID);
-        })
-        ->pluck('vehicle_id');
+            ->when($bookingID, function ($query) use ($bookingID) {
+                $query->where('booking_id', '!=', $bookingID);
+            })
+            ->pluck('vehicle_id');
 
         // $vehicles = Vehicle::where('vehicletypes', $id)
         // ->whereNotIn('id', $bookedVehicleIds)
@@ -59,16 +60,16 @@ class AjaxController extends Controller
         // ->get();
 
         $vehicles = Vehicle::where('vehicletypes', $id)
-                    ->where(function ($query) use ($bookedVehicleIds, $selectedVehicleId) {
-                        $query->where(function ($q) use ($bookedVehicleIds) {
-                            $q->whereNotIn('id', $bookedVehicleIds);
-                            // ->where('vehicle_status_id', 1);
-                        });
+            ->where(function ($query) use ($bookedVehicleIds, $selectedVehicleId) {
+                $query->where(function ($q) use ($bookedVehicleIds) {
+                    $q->whereNotIn('id', $bookedVehicleIds);
+                    // ->where('vehicle_status_id', 1);
+                });
 
-                        if (!empty($selectedVehicleId)) {
-                            $query->orWhere('id', $selectedVehicleId); // booked vehicle bhi lani hai agar dates change nahi hui
-                        }
-                    })->get();
+                if (!empty($selectedVehicleId)) {
+                    $query->orWhere('id', $selectedVehicleId); // booked vehicle bhi lani hai agar dates change nahi hui
+                }
+            })->get();
 
         return response()->json($vehicles);
     }
@@ -78,15 +79,15 @@ class AjaxController extends Controller
 
     public function getNoByVehicle($id)
     {
-        $vehicle= Vehicle::where('id', $id)->first();
-        if($vehicle){
+        $vehicle = Vehicle::where('id', $id)->first();
+        if ($vehicle) {
             return response()->json([
                 'vehicle_status' => $vehicle->vehiclestatus->name ?? 'N/A',
                 'number_plate' => $vehicle->number_plate,
                 'investor' => $vehicle->investor->name,
-                'status' => $vehicle->status==1 ? "Active" : "Inactive",
+                'status' => $vehicle->status == 1 ? "Active" : "Inactive",
             ], 200);
-        }else{
+        } else {
             return response()->json([], 200);
         }
     }
@@ -107,11 +108,11 @@ class AjaxController extends Controller
         $query = Vehicle::where('vehicletypes', $vehicleTypeId)
             ->whereIn('id', $bookedVehicleIds);
 
-        if($invoiceType == 2 && $startDate && $endDate){
-            $bookedInRange = BookingData::where(function ($q) use ($startDate, $endDate){
+        if ($invoiceType == 2 && $startDate && $endDate) {
+            $bookedInRange = BookingData::where(function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('start_date', [$startDate, $endDate])
-                  ->orWhereBetween('end_date', [$startDate, $endDate])
-                  ->orWhere(function ($q) use ($startDate, $endDate) {
+                    ->orWhereBetween('end_date', [$startDate, $endDate])
+                    ->orWhere(function ($q) use ($startDate, $endDate) {
                         $q->where('start_date', '<=', $startDate)
                             ->where('end_date', '>=', $endDate);
                     });
@@ -125,7 +126,7 @@ class AjaxController extends Controller
 
     public function getPaymentHistory($paymentId)
     {
-        $paymentHistory= BookingPaymentHistory::with('payment', 'paymentMethod')->where('payment_id', $paymentId)->get();
+        $paymentHistory = BookingPaymentHistory::with('payment', 'paymentMethod')->where('payment_id', $paymentId)->get();
         return response()->json([
             'success' => true,
             'data' => $paymentHistory
@@ -135,8 +136,8 @@ class AjaxController extends Controller
     public function getBookingDetail($booking_id)
     {
         $booking = Booking::find($booking_id);
-        if(!$booking_id){
-            return response()->json([ 'error' => 'Data Not Found' ]);
+        if (!$booking_id) {
+            return response()->json(['error' => 'Data Not Found']);
         }
         $bookingAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
         $payment = Payment::where('booking_id', $booking_id)->first();
@@ -163,18 +164,18 @@ class AjaxController extends Controller
 
 
         $getVehicle = BookingData::with('vehicle')->select('vehicle_id')
-                    ->where('booking_id', $booking_id)
-                    ->groupBy('vehicle_id')->get();
+            ->where('booking_id', $booking_id)
+            ->groupBy('vehicle_id')->get();
 
-        $vehicles= [];
+        $vehicles = [];
         foreach ($getVehicle as $value) {
-            $vehicles[]= [
+            $vehicles[] = [
                 'type' => $value->vehicle->vehicletype->name,
-                'name' => $value->vehicle->number_plate.' | '.($value->vehicle->vehicle_name ?? $value->vehicle->temp_vehicle_detail)
+                'name' => $value->vehicle->number_plate . ' | ' . ($value->vehicle->vehicle_name ?? $value->vehicle->temp_vehicle_detail)
             ];
         }
 
-        $invoices = Invoice::where('booking_id', $booking_id)->get()->map(function($invoice) {
+        $invoices = Invoice::where('booking_id', $booking_id)->get()->map(function ($invoice) {
             $bookingData = BookingData::where('invoice_id', $invoice->id)->get();
             $summary = [
                 'salik_qty' => 0,
@@ -206,7 +207,7 @@ class AjaxController extends Controller
 
             // PaymentData se total paid amount
             $paymentData = PaymentData::where('invoice_id', $invoice->id)->first();
-            if($paymentData){
+            if ($paymentData) {
                 $getDeposit = DepositHandling::where('payment_data_id', $paymentData->id)->first();
             }
             return [
@@ -240,7 +241,7 @@ class AjaxController extends Controller
     {
         // $invoice= Invoice::find($invoice_id);
         $invoice = Invoice::with('bookingData.vehicle')->find($invoice_id);
-        if(!$invoice){
+        if (!$invoice) {
             return response()->json([
                 'success' => false,
                 'data' => 'Invoice Not Found'
@@ -273,8 +274,8 @@ class AjaxController extends Controller
 
     public function getSalemanForEditForm($id)
     {
-        $salePerson= SalePerson::find($id);
-        if(!$salePerson){
+        $salePerson = SalePerson::find($id);
+        if (!$salePerson) {
             return response()->json([
                 'success' => false,
                 'error' => 'Sale Person Not Found'
@@ -288,8 +289,8 @@ class AjaxController extends Controller
 
     public function getBankForEditForm($id)
     {
-        $bank= Bank::find($id);
-        if(!$bank){
+        $bank = Bank::find($id);
+        if (!$bank) {
             return response()->json([
                 'success' => false,
                 'error' => 'Bank Not Found'
@@ -301,9 +302,10 @@ class AjaxController extends Controller
         ]);
     }
 
-    public function getVehicleStatusForEditForm($id){
-        $status= VehicleStatus::find($id);
-        if(!$status){
+    public function getVehicleStatusForEditForm($id)
+    {
+        $status = VehicleStatus::find($id);
+        if (!$status) {
             return response()->json([
                 'success' => false,
                 'error' => 'Status Not Found'
@@ -317,8 +319,8 @@ class AjaxController extends Controller
 
     public function getCustomerForEditForm($id)
     {
-        $customers= Customer::find($id);
-        if(!$customers){
+        $customers = Customer::find($id);
+        if (!$customers) {
             return response()->json([
                 'success' => false,
                 'error' => 'Customer Not Found !'
@@ -390,7 +392,7 @@ class AjaxController extends Controller
         }
 
         $totalAmount = BookingData::where('invoice_id', $request->invoice_id)->sum('item_total');
-        $invoice= Invoice::find($request->invoice_id);
+        $invoice = Invoice::find($request->invoice_id);
         $invoice->update([
             'total_amount' => $totalAmount,
         ]);
@@ -485,14 +487,14 @@ class AjaxController extends Controller
 
     public function searchCustomer(Request $request)
     {
-        $search= strtolower($request->search);
-        $customers= Customer::when($search, function($query, $search){
+        $search = strtolower($request->search);
+        $customers = Customer::when($search, function ($query, $search) {
             $query->whereRaw('LOWER(customer_name) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(licence) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(cnic) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(country) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(phone) LIKE ?', ["%{$search}%"]);
+                ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(licence) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(cnic) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(country) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(phone) LIKE ?', ["%{$search}%"]);
         })->get();
 
         return response()->json([
@@ -502,21 +504,21 @@ class AjaxController extends Controller
 
     public function searchPayment(Request $request)
     {
-        $search= $request->search;
-        $payments= Payment::with('booking.customer', 'paymentMethod')
-                    ->whereHas('booking', function($q1) use ($search){
-                        $q1->whereRaw('LOWER(agreement_no) LIKE ?', ["%{$search}%"]);
-                        $q1->whereHas('customer', function($q2) use ($search){
-                            $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%{$search}%"]);
-                        });
-                    })
-                    ->when($search, function($query, $search){
-                        $query->where(function($q) use ($search) {
-                            $q->where('paid_amount', 'LIKE', "%$search%")
-                            ->orWhere('pending_amount', 'LIKE', "%$search%")
-                            ->orWhere('booking_amount', 'LIKE', "%$search%");
-                        });
-                    })->get();
+        $search = $request->search;
+        $payments = Payment::with('booking.customer', 'paymentMethod')
+            ->whereHas('booking', function ($q1) use ($search) {
+                $q1->whereRaw('LOWER(agreement_no) LIKE ?', ["%{$search}%"]);
+                $q1->whereHas('customer', function ($q2) use ($search) {
+                    $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%{$search}%"]);
+                });
+            })
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('paid_amount', 'LIKE', "%$search%")
+                        ->orWhere('pending_amount', 'LIKE', "%$search%")
+                        ->orWhere('booking_amount', 'LIKE', "%$search%");
+                });
+            })->get();
 
         return response()->json([
             'payments' => $payments
@@ -525,18 +527,18 @@ class AjaxController extends Controller
 
     public function searchVehicle(Request $request)
     {
-        $search= $request->search;
+        $search = $request->search;
         $vehicles = Vehicle::with('investor', 'vehiclestatus', 'vehicletype')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('investor', function ($q1) use ($search) {
                         $q1->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
                     })
-                    ->orWhere('vehicle_name', 'LIKE', "%$search%")
-                    ->orWhere('temp_vehicle_detail', 'LIKE', "%$search%")
-                    ->orWhere('car_make', 'LIKE', "%$search%")
-                    ->orWhere('year', 'LIKE', "%$search%")
-                    ->orWhere('number_plate', 'LIKE', "%$search%");
+                        ->orWhere('vehicle_name', 'LIKE', "%$search%")
+                        ->orWhere('temp_vehicle_detail', 'LIKE', "%$search%")
+                        ->orWhere('car_make', 'LIKE', "%$search%")
+                        ->orWhere('year', 'LIKE', "%$search%")
+                        ->orWhere('number_plate', 'LIKE', "%$search%");
                 });
             })
             ->get();
@@ -550,17 +552,17 @@ class AjaxController extends Controller
 
     public function searchBank(Request $request)
     {
-        $search= $request->search;
-        $banks= Bank::when($search, function($query, $search){
-                        $query->where(function($q) use ($search) {
-                            $q->where('bank_name', 'LIKE', "%$search%")
-                            ->orWhere('account_name', 'LIKE', "%$search%")
-                            ->orWhere('branch', 'LIKE', "%$search%")
-                            ->orWhere('swift_code', 'LIKE', "%$search%")
-                            ->orWhere('iban', 'LIKE', "%$search%")
-                            ->orWhere('account_number', 'LIKE', "%$search%");
-                        });
-                    })->get();
+        $search = $request->search;
+        $banks = Bank::when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('bank_name', 'LIKE', "%$search%")
+                    ->orWhere('account_name', 'LIKE', "%$search%")
+                    ->orWhere('branch', 'LIKE', "%$search%")
+                    ->orWhere('swift_code', 'LIKE', "%$search%")
+                    ->orWhere('iban', 'LIKE', "%$search%")
+                    ->orWhere('account_number', 'LIKE', "%$search%");
+            });
+        })->get();
 
         return response()->json([
             'banks' => $banks
@@ -569,9 +571,9 @@ class AjaxController extends Controller
 
     public function searchCreditNote(Request $request)
     {
-        $search= strtolower($request->search);
+        $search = strtolower($request->search);
 
-        $creditNote = CreditNote::with('booking.customer', 'booking.deposit','paymentMethod')
+        $creditNote = CreditNote::with('booking.customer', 'booking.deposit', 'paymentMethod')
             ->where(function ($query) use ($search) {
                 $query->whereRaw('LOWER(credit_note_no) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(remaining_deposit) LIKE ?', ["%{$search}%"])
@@ -592,21 +594,21 @@ class AjaxController extends Controller
 
     public function searchBooking(Request $request)
     {
-        $search= strtolower($request->search);
-        $bookings= Booking::with(['customer', 'deposit', 'salePerson', 'payment'])
+        $search = strtolower($request->search);
+        $bookings = Booking::with(['customer', 'deposit', 'salePerson', 'payment'])
             ->withSum('invoice as total_amount', 'total_amount')
             ->when($search, function ($query, $search) {
-                $query->where(function($q) use ($search){
-                    $q->whereHas('customer', function($q1) use ($search){
-                            $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%$search%"]);
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('customer', function ($q1) use ($search) {
+                        $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%$search%"]);
                     })
-                    ->orWhereHas('deposit', function($q2) use ($search){
-                        $q2->where('deposit_amount', 'LIKE', "%$search%");
-                    })
-                    ->orWhereHas('salePerson', function($q2) use ($search){
-                        $q2->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
-                    })
-                    ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
+                        ->orWhereHas('deposit', function ($q2) use ($search) {
+                            $q2->where('deposit_amount', 'LIKE', "%$search%");
+                        })
+                        ->orWhereHas('salePerson', function ($q2) use ($search) {
+                            $q2->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
+                        })
+                        ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
                 });
             })->get();
 
@@ -617,5 +619,21 @@ class AjaxController extends Controller
                 'delete' => auth()->user()->can('delete booking'),
             ],
         ]);
+    }
+
+    public function checkAgreementNoExist(Request $request)
+    {
+        $agreementNo = $request->agreement_no;
+
+        if (!$agreementNo) {
+            return response()->json([], 200);
+        }
+
+        $exists = Booking::where('agreement_no', $agreementNo)->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'Agreement No. already exists' : 'Agreement No. is available',
+        ], 200);
     }
 }

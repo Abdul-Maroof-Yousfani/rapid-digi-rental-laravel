@@ -21,6 +21,10 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'manage vehicles']);
         Permission::create(['name' => 'import vehicles CSV']);
         Permission::create(['name' => 'manage vehicle types']);
+        Permission::create(['name' => 'view invoice type']);
+        Permission::create(['name' => 'create invoice type']);
+        Permission::create(['name' => 'edit invoice type']);
+        Permission::create(['name' => 'delete invoice type']);
 
         // Booker related permissions
         Permission::create(['name' => 'view booker dashboard']);
@@ -30,5 +34,6 @@ class PermissionSeeder extends Seeder
         // Investor related permissions
         Permission::create(['name' => 'view investor dashboard']);
         Permission::create(['name' => 'edit investor details']);
+
     }
 }

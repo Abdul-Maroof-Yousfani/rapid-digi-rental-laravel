@@ -85,7 +85,7 @@
                                     <tr data-id="{{ $item->id }}">
                                         <td>{{ $number }}.</td>
                                         <td>{{ $item->customer_name }}</td>
-                                        <td>{{ $item->email }}</td>
+                                        <td>{{ $item->email ? $item->email : '-'}}</td>
                                         <td>{{ $item->phone }}</td>
                                         <td>{{ $item->cnic }}</td>
                                         <td>{{ $item->status==1 ? 'Active' : 'Inactive' }}</td>
@@ -122,7 +122,7 @@
         <!-- Create Model Code -->
         <div class="modal fade" id="customerModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-xl" role="document">
-                <form class="ajax-form" data-url="{{ url('/customer') }}" data-target-table="#customerResponseList" data-render-function="renderCustomerRow" data-modal-id="customerModal">
+                <form class="ajax-form" data-url="{{ url('/customer') }}" data-target-table="#customerResponseList" data-render-function="renderCustomerRow" data-modal-id="customerModal" id="yourForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Add Customer</h5>
@@ -146,6 +146,7 @@
                                                     </div>
                                                     <input type="text" value="{{ old('customer_name') }}" name="customer_name" class="form-control" required>
                                                 </div>
+                                                
                                             </div>
                                             <div class="form-group">
                                                 <label>Email (Optional)</label>
@@ -172,7 +173,7 @@
                                             </div>
 
                                             <div class="form-group">
-                                                <label>Driving Licence <span class="text-danger">*</span></label>
+                                                <label>Driving Licence</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
@@ -194,8 +195,26 @@
                                                     </div>
                                                     <input type="number" value="{{ old('cnic') }}" name="cnic" class="form-control cnic">
                                                 </div>
+                                                <div class="text-danger error-cnic mt-1"></div>
                                             </div>
 
+                                            <!-- <div class="form-group">
+                                                <label>TRN No. <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-id-card"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="number" value="{{ old('trn_no') }}" name="trn_no" class="form-control trn_no">
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
                                             <div class="form-group">
                                                 <label>Date Of Birth <span class="text-danger">*</span></label>
                                                 <div class="input-group">
@@ -205,14 +224,10 @@
                                                         </div>
                                                     </div>
                                                     <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD">
+                                                   
                                                 </div>
+                                                
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6 col-lg-6">
-                                    <div class="card">
-                                        <div class="card-body">
                                             <div class="form-group">
                                                 <label>Country </label> <br>
                                                 <select name="country" class="form-control select2">
@@ -540,14 +555,14 @@
                                             </div>
 
                                             <div class="form-group">
-                                                <label>Driving Licence <span class="text-danger">*</span></label>
+                                                <label>Driving Licence</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
                                                             <i class="fas fa-address-card"></i>
                                                         </div>
                                                     </div>
-                                                    <input type="number" value="{{ old('licence') }}" name="licence" class="form-control licence" required>
+                                                    <input type="number" value="{{ old('licence') }}" name="licence" class="form-control licence">
                                                 </div>
                                             </div>
 
@@ -563,6 +578,26 @@
                                                 </div>
                                             </div>
 
+                                            <!-- <div class="form-group">
+                                                <label>TRN No. <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-id-card"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="number" value="{{ old('trn_no') }}" name="trn_no" class="form-control trn_no" required>
+                                                </div>
+                                            </div> -->
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-12 col-md-6 col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
                                             <div class="form-group">
                                                 <label>Date Of Birth <span class="text-danger">*</span></label>
                                                 <div class="input-group">
@@ -574,14 +609,6 @@
                                                     <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="col-12 col-md-6 col-lg-6">
-                                    <div class="card">
-                                        <div class="card-body">
                                             <div class="form-group">
                                                 <label>Country </label><br>
                                                 <select name="country" class="form-control select2">
@@ -907,6 +934,7 @@
                 }
             });
         }
+
 
     </script>
     @if (session('error'))

@@ -58,7 +58,7 @@
                         </div>
 
                         <div class="form-group">
-                          <label>Driving Licence  <span class="text-danger">*</span></label>
+                          <label>Driving Licence </label>
                           <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">

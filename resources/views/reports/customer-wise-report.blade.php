@@ -44,8 +44,16 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
+                    </div>
+                    
+                    <div class="col-md-2 text-right">
+                        <button class="btn btn-primary prinn pritns"
+                            onclick="printView('printReport','','1')"
+                            style="">
+                            <span class="glyphicon glyphicon-print"></span> Print
+                        </button>
                     </div>
                 </div>
             </form>
@@ -56,7 +64,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-scroll">
-                                <div class="table-responsive">
+                                <div class="table-responsive" id="printReport">
                                     {{-- <table class="table table-bordered table-hover p-0" id="" style="width:100%;"> --}}
                                     <table class="table table-bordered table-sm" style="width:100%;">
                                         <thead  style="background: #f8f8f8">

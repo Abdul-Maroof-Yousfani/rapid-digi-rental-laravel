@@ -20,6 +20,7 @@ class Customer extends Model
         'email',
         'phone',
         'cnic',
+        'trn_no',
         'dob',
         'address',
         'licence',

@@ -27,13 +27,8 @@ use App\Http\Controllers\Admin\InvestorCrudController;
 use App\Http\Controllers\Admin\VehiclestatusController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\VehicleTypeCrudController;
-
-
-
-
-
-
-
+use App\Http\Controllers\Booker\DeductiontypeController;
+use App\Models\Deductiontype;
 
 /*
 |--------------------------------------------------------------------------
@@ -231,6 +226,7 @@ Route::middleware('auth')->group(function () {
     Route::get('booking-close/{booking_id}', [BookingController::class, 'closeBooking']);
     Route::resource('customer', CustomerController::class);
     Route::resource('credit-note', CreditnoteController::class);
+    Route::resource('invoice-type', DeductiontypeController::class);
     Route::post('pending-payment/{booking_id}', [PaymentController::class, 'pendingPayment']);
     Route::get('payment-history/{payment_id}', [PaymentController::class, 'paymentHistory']);
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
@@ -272,11 +268,12 @@ Route::get('get-investor-vehicle-list', [ReportController::class, 'getInvestorVe
 Route::get('get-vehicle-by-Type/{id}', [AjaxController::class, 'getVehicleByType'])->name("getVehicleByType");
 Route::get('get-vehicle-detail/{id}', [AjaxController::class, 'getNoByVehicle'])->name("getNoByVehicle");
 Route::get('get-vehicle-by-booking/{id}/booking/{booking_id}', [AjaxController::class, 'getVehicleAgaistBooking']);
-Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail']);
+Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail'])->name('get-booking-detail');
 Route::get('get-invoice-detail/{id}', [AjaxController::class, 'getInvoiceDetail']);
 Route::get('get-payment-history/{payment_id}', [AjaxController::class, 'getPaymentHistory']);
 Route::get('booking-cancellation/{id}', [AjaxController::class, 'bookingCancellation']);
 Route::get('check-bookingis-active/{id}', [BookingController::class, 'isBookingActive']);
+Route::get('is-agreement-no-exist', [AjaxController::class, 'checkAgreementNoExist'])->name("checkAgreementNoExist");
 
 // Get Data For Edit Forms
 Route::get('get-vehicle-status-edit-form/{id}', [AjaxController::class, 'getVehicleStatusForEditForm']);

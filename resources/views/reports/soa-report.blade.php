@@ -246,7 +246,7 @@
                 <!-- Print Heading: Shown only in print -->
                 <div class="print-heading">
                     <h2 style="text-align: center; text-decoration: underline; font-weight: bold;">
-                        Statement of Account for the month of June 2024
+                        Statement of Account for the month of <span class="filterTillDateMonth"></span> <span class="filterTillDateYear"></span>
                     </h2>
                     <p class="filterTillDate" style="margin-top: 80px;">15.07.2024</p>
                     <p>Dear Mr. <span class="investor_name"></span>,</p>
@@ -285,6 +285,7 @@
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
                         </div>
+                        
                     </div>
                 </form>
 
@@ -294,7 +295,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="table-scroll">
-                                    <div class="table-responsive">
+                                    <div class="table-responsive" id="printReport">
                                         <table class="table table-striped table-hover" style="width:100%;">
                                             <thead>
                                                 <tr>

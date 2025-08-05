@@ -156,23 +156,38 @@ $(document).ready(function () {
                     });
                 }
             },
-            error: function (xhr) {
-                let errors = xhr.responseJSON?.errors || {};
-                let errorMsg = '';
-                $.each(errors, function (key, value) {
-                    errorMsg += value + '\n';
-                });
+            error: function(xhr) {
+    submitBtn.prop("disabled", false).html(originalText); // ✅ reset button immediately
 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: errorMsg || 'Please check your input.',
-                    confirmButtonText: 'OK'
-                });
+    if (xhr.status === 422) {
+        let errors = xhr.responseJSON.error;
 
-                submitBtn.prop("disabled", false).html(originalText);
+        // Clear old error messages
+        form.find('.text-danger').remove();
 
-            }
+        // Track all error messages (for SweetAlert)
+        let errorMsg = '';
+
+        Object.keys(errors).forEach(function(key) {
+            let field = form.find(`[name="${key}"]`);
+            let errorText = errors[key][0];
+            errorMsg += errorText + '\n';
+
+            // Add error message below the input
+            field.closest('.input-group').after(`<div class="text-danger mt-2">${errorText}</div>`);
+        });
+
+        // Show SweetAlert after button reset
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: errorMsg || 'Please check your input.',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+            
         });
     });
 
@@ -294,6 +309,7 @@ $(document).ready(function () {
         form.find('input[name="phone"]').val(data.phone);
         form.find('input[name="licence"]').val(data.licence);
         form.find('input[name="cnic"]').val(data.cnic);
+        form.find('input[name="trn_no"]').val(data.trn_no);
         form.find('input[name="dob"]').val(data.dob);
         form.find('input[name="postal_code"]').val(data.postal_code);
         form.find('textarea[name="address"]').val(data.address);

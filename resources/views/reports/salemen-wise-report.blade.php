@@ -24,6 +24,18 @@
             <form method="get" id="salemanWiseReportForm" class="mb-4">
                 <div class="form-row align-items-end">
                     <div class="col-md-2">
+                        <label for="fromDate">From Date</label>
+                        <input type="date" name="fromDate" id="fromDate" class="form-control" value="">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="">.</label>
+                        <input type="text" placeholder="Between" class="form-control" disabled>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="toDate">To Date</label>
+                        <input type="date" name="toDate" id="toDate" class="form-control" value="">
+                    </div>
+                    <div class="col-md-2">
                         <label for="saleman_id">Saleman</label>
                         <select name="saleman_id" class="form-control select2" id="saleman_id">
                             <option value="">Select Salemen</option>
@@ -32,8 +44,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
+                    </div>
+                     <div class="col-md-2 text-right">
+                        <button class="btn btn-primary prinn pritns"
+                            onclick="printView('printReport','','1')"
+                            style="">
+                            <span class="glyphicon glyphicon-print"></span> Print
+                        </button>
                     </div>
                 </div>
             </form>
@@ -44,7 +63,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-scroll">
-                                <div class="table-responsive">
+                                <div class="table-responsive" id="printReport">
                                     <table class="table table-bordered table-sm" style="width:100%;">
                                         <thead  style="background: #f8f8f8">
                                             <tr>

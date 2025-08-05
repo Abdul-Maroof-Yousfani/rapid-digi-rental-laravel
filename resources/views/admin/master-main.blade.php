@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/toastr.css') }}">
 
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
-     <script>
+    <script>
         function playAudio() {
             var audio = new Audio("{{ asset('notificationbell.mp3') }}");
             audio.play();
@@ -22,7 +22,11 @@
 
         var channel = pusher.subscribe('my-channel');
         channel.bind('my-event', function(data) {
-            var investorID= {{ Auth::user()->id }};
+            var investorID = {
+                {
+                    Auth::user() - > id
+                }
+            };
             if (investorID == data.investorId) {
                 console.log(data);
                 toastr.options = {
@@ -91,16 +95,16 @@
                             <a href="#" id="notification-icon" class="nav-link nav-link-lg dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell" style="font-size: 20px; color: rgb(110, 110, 110);"></i>
                                 @php
-                                    $unreadCount = App\Models\Notification::where('user_id', Auth::user()->id)
-                                                    ->where('is_read', 0)
-                                                    ->count();
+                                $unreadCount = App\Models\Notification::where('user_id', Auth::user()->id)
+                                ->where('is_read', 0)
+                                ->count();
                                 @endphp
                                 @if($unreadCount > 0)
-                                    <span class="badge badge-warning badge-counter"
-                                        id="notification-count"
-                                        style="position: absolute; top: 5px; right: 5px; font-size: 10px;">
-                                        {{ $unreadCount }}
-                                    </span>
+                                <span class="badge badge-warning badge-counter"
+                                    id="notification-count"
+                                    style="position: absolute; top: 5px; right: 5px; font-size: 10px;">
+                                    {{ $unreadCount }}
+                                </span>
                                 @endif
                             </a>
 
@@ -111,26 +115,26 @@
                                 <h6 class="dropdown-header">Notifications</h6>
                                 <div id="notification-items">
                                     @if (auth()->user()->hasRole('investor'))
-                                        @php
-                                            $notifications= App\Models\Notification::where('user_id', Auth::user()->id)
-                                                            ->where('role', 'investor')
-                                                            ->get();
-                                        @endphp
-                                        @foreach ($notifications as $item)
-                                            <span class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
-                                                {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }}
-                                                | {{ $item->message }}
-                                            </span>
-                                        @endforeach
+                                    @php
+                                    $notifications= App\Models\Notification::where('user_id', Auth::user()->id)
+                                    ->where('role', 'investor')
+                                    ->get();
+                                    @endphp
+                                    @foreach ($notifications as $item)
+                                    <span class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
+                                        {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }}
+                                        | {{ $item->message }}
+                                    </span>
+                                    @endforeach
                                     @else
-                                        @php
-                                            $notifications= App\Models\Notification::where('role', Auth::user()->getRoleNames()->first())->get();
-                                        @endphp
-                                        @foreach ($notifications as $item)
-                                            <a href="{{ url('customer-booking/') }}" class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
-                                                {{ $item->message }}
-                                            </a>
-                                        @endforeach
+                                    @php
+                                    $notifications= App\Models\Notification::where('role', Auth::user()->getRoleNames()->first())->get();
+                                    @endphp
+                                    @foreach ($notifications as $item)
+                                    <a href="{{ url('customer-booking/') }}" class="dropdown-item text-muted" style="white-space: normal; word-wrap: break-word;">
+                                        {{ $item->message }}
+                                    </a>
+                                    @endforeach
                                     @endif
                                 </div>
                             </div>
@@ -184,7 +188,7 @@
                         @can('view investor')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                                data-feather="dollar-sign"></i><span>Investor</span></a>
+                                    data-feather="dollar-sign"></i><span>Investor</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ route('investor.create') }}">Add Investor</a></li>
                                 <li><a class="nav-link" href="{{ route('investor.index') }}">Investor List</a></li>
@@ -243,8 +247,12 @@
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ route('customer-booking.index') }}">Booking list</a></li>
                                 @can('vehicle with status')
-                                    <li><a class="nav-link" href="{{ route('assined.vehicle') }}">Assigned Vehicles</a></li>
+                                <li><a class="nav-link" href="{{ route('assined.vehicle') }}">Assigned Vehicles</a></li>
                                 @endcan
+                                @can('view invoice type')
+                                <li><a class="nav-link" href="{{ route('invoice-type.index') }}">Invoice type</a></li>
+                                @endcan
+
                             </ul>
                         </li>
                         @endcan
@@ -274,24 +282,24 @@
                         @endcan
 
                         @can('view investor reports')
-                          <li class="dropdown">
+                        <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Report</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ route('bookingReport') }}">Vehicles & Revenue Booking</a></li>
                             </ul>
-                          </li>
+                        </li>
                         @endcan
 
 
                         @if (Auth::check() && Auth::user()->hasRole('admin'))
-                            <li class="dropdown">
-                                <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                        <li class="dropdown">
+                            <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>User Permissions</span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="nav-link" href="{{ route('view.role') }}">Roles</a></li>
-                                </ul>
-                            </li>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{ route('view.role') }}">Roles</a></li>
+                            </ul>
+                        </li>
                         @endif
 
                     </ul>
@@ -325,7 +333,9 @@
         </div>
     </div>
 
-    <script> window.USER_ROLE = "{{ Auth::user()->getRoleNames()->first() }}"; </script>
+    <script>
+        window.USER_ROLE = "{{ Auth::user()->getRoleNames()->first() }}";
+    </script>
     <!-- jQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- General JS Scripts -->
@@ -370,7 +380,7 @@
     @yield('script')
 
     <script>
-        $('#notification-icon').on('click', function () {
+        $('#notification-icon').on('click', function() {
             $.ajax({
                 url: '{{ route("mark-notifications-read") }}',
                 type: 'POST',
@@ -382,27 +392,27 @@
                 }
             });
         });
-
     </script>
 
     @if (session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: `{{ session('error') }}`.replace(/\n/g, '\n'),
-            });
-        </script>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: `{{ session('error') }}`.replace(/\n/g, '\n'),
+        });
+    </script>
     @endif
 
     @if (session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: '{{ session('success') }}',
-            });
-        </script>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{ session('
+            success ') }}',
+        });
+    </script>
     @endif
 
 </body>

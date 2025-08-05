@@ -89,6 +89,8 @@ tr.bg-light td{width:auto !important;min-width:0 !important;}
                         <p class="text-dark"><strong>Invoice Date:</strong> {{  \Carbon\Carbon::Parse($invoice->created_at)->format('d-M-Y') }}</p>
                         {{-- <p class="text-dark"><strong>Terms:</strong> Net 15</p> --}}
                         <p class="text-dark"><strong>Due Date:</strong> 19 Jun 2025</p>
+                        <p class="text-dark"><strong>Sale Person:</strong> {{ $item->booking->salePerson->name }}</p>
+                        <p class="text-dark"><strong>VAT:</strong> {{ $item->tax_percent }}</p>
                     </div>
                 </div>
 
@@ -110,8 +112,8 @@ tr.bg-light td{width:auto !important;min-width:0 !important;}
                             <tr style="border-bottom: 2px solid #ADADAD;">
                                 <td class="text-left">1</td>
                                 <td class="text-left">
-                                    {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail }} <br>
-                                    <small>{{ $item->description }}</small>
+                                    {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail ?? $item->invoice_type->name ?? ''}} <br>
+                                    <small>{{ $item->description }} </small>
                                 </td>
                                 <td class="text-right">{{ $item->quantity }}</td>
                                 <td class="text-right">{{ number_format($item->price * $item->quantity, 2) }}</td>

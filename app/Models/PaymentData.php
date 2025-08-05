@@ -15,7 +15,9 @@ class PaymentData extends Model
         'status',
         'invoice_amount',
         'paid_amount',
-        'pending_amount'
+        'pending_amount',
+        'reference_invoice_number',
+        'remarks'
     ];
 
     /**

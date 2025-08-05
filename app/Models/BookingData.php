@@ -29,7 +29,8 @@ class BookingData extends Model
         'tax_percent',
         'item_total',
         'tax_name',
-        'transaction_type'
+        'transaction_type',
+        'deductiontype_id'
     ];
 
     /**
@@ -57,5 +58,14 @@ class BookingData extends Model
         return $this->belongsTo(Booking::class);
     }
 
+    public function invoiceType(): BelongsTo
+    {
+        return $this->belongsTo(Deductiontype::class, 'transaction_type', 'id');
+    }
+
+    public function invoice_type(): BelongsTo
+    {
+        return $this->belongsTo(Deductiontype::class, 'deductiontype_id', 'id');
+    }
 
 }

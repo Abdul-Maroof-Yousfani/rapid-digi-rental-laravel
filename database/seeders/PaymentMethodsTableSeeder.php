@@ -17,6 +17,7 @@ class PaymentMethodsTableSeeder extends Seeder
             [ 'name' => 'Cash', 'created_at' => now(), 'updated_at' => now() ],
             [ 'name' => 'Credit Card', 'created_at' => now(), 'updated_at' => now() ],
             [ 'name' => 'Bank', 'created_at' => now(), 'updated_at' => now() ],
+            [ 'name' => 'Others', 'created_at' => now(), 'updated_at' => now() ],
         ]);
     }
 }
