@@ -213,13 +213,6 @@ $formAction = $bookingId ? url($userRole.'/pending-payment/' . $bookingId) : url
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="7" class="text-right align-middle">Pending Amount</td>
-                                            <td>
-                                                <input type="number" class="form-control pending_amount" placeholder="0.00" readonly>
-                                                <input type="hidden" class="form-control restrict">
-                                            </td>
-                                        </tr>
-                                        <tr>
                                             <td colspan="7" class="text-right align-middle">Receive Amount <span class="text-danger">*</span></td>
                                             <td>
                                                <input type="number" value="" name="amount_receive" class="form-control amount_receive" step="0.01">
@@ -227,6 +220,14 @@ $formAction = $bookingId ? url($userRole.'/pending-payment/' . $bookingId) : url
                                                 <small class="form-text text-danger d-none" id="amount-error">Amount cannot exceed pending amount.</small>
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <td colspan="7" class="text-right align-middle">Pending Amount</td>
+                                            <td>
+                                                <input type="number" class="form-control pending_amount" placeholder="0.00" readonly>
+                                                <input type="hidden" class="form-control restrict">
+                                            </td>
+                                        </tr>
+                                        
                                         <tr>
                                             <td colspan="7" class="text-right align-middle">Remaining Deposit</td>
                                             <td>

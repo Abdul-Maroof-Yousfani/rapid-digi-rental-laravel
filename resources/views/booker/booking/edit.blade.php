@@ -69,13 +69,30 @@
                                     </select>
                                     @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
+                               
                                 <div class="form-group">
-                                    <label>Deposit Amount <span class="text-danger">*</span></label>
-                                    <input type="number" value="{{ $invoice->booking->deposit->deposit_amount ?? 0 }}" name="deposit_amount" class="form-control">
+                                    <label>Deposit Type</label>
+                                    <select name="deposit_type" class="form-control select2" id="deposit_type">
+                                        <option value="">Select Deposit Type</option>
+                                        <option value="1" {{ $invoice->booking->deposit_type == 1 ? 'selected' : '' }}>Cardo</option>
+                                        <option value="2" {{ $invoice->booking->deposit_type == 2 ? 'selected' : '' }}>LPO</option>
+                                    </select>
                                 </div>
-                                <div class="form-group">
-                                    <label>Started At <span class="text-danger">*</span></label>
-                                    <input type="date" name="started_at" value="{{ \Carbon\Carbon::parse($invoice->booking->started_at)->format('Y-m-d') }}" class="form-control started_at">
+
+                                <div class="form-group" id="deposit_amount_group">
+                                    <label>Deposit Amount <span class="text-danger">*</span></label>
+                                    <input type="number"
+                                        value="{{ $invoice->booking->deposit->deposit_amount ?? 0 }}"
+                                        name="deposit_amount"
+                                        class="form-control">
+                                </div>
+
+                                <div class="form-group" id="non_refundable_amount_group">
+                                    <label>Non Refundable Amount <span class="text-danger">*</span></label>
+                                    <input type="number"
+                                        value="{{ $invoice->booking->non_refundable_amount ?? 0 }}"
+                                        name="non_refundable_amount"
+                                        class="form-control">
                                 </div>
                                 @if ($invoice->invoice_status=='sent')
                                 <div class="form-group">
@@ -391,7 +408,7 @@
                     </div>
                     <div class="card-header-form">
                         <div class="input-group d-flex justify-content-end">
-                            <button type="button" class="btn btn-primary btn-md px-4 py-2" style="font-size: 30px;" id="addCharges">Add Charges</button>
+                            <button type="button" class="btn btn-primary" id="addCharges">Add Charges</button>
                         </div>
                     </div>
                     <br>
@@ -542,6 +559,24 @@
 @endsection
 
 @section('script')
+<script>
+    $(document).ready(function () {
+    function toggleDepositFields() {
+        let depositType = $('#deposit_type').val();
+        if (depositType === '') {
+            $('#deposit_amount_group').show();
+            $('#non_refundable_amount_group').hide();
+        } else {
+            $('#deposit_amount_group').hide();
+            $('#non_refundable_amount_group').show();
+        }
+    }
+
+    // Call on load and on change
+    toggleDepositFields();
+    $('#deposit_type').change(toggleDepositFields);
+});
+</script>
 <script>
     // Line items vehicles booking end date equals to Started at
     function applyMinDateToAllDateFields(startedAt) {

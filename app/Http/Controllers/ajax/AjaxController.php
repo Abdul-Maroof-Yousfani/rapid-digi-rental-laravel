@@ -139,6 +139,7 @@ class AjaxController extends Controller
         if (!$booking_id) {
             return response()->json(['error' => 'Data Not Found']);
         }
+        $nonRefundableAmount = $booking->non_refundable_amount ?? 0;
         $bookingAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
         $payment = Payment::where('booking_id', $booking_id)->first();
         $remainingAmount = $bookingAmount - ($payment->paid_amount ?? 0);
@@ -168,12 +169,16 @@ class AjaxController extends Controller
             ->groupBy('vehicle_id')->get();
 
         $vehicles = [];
+
         foreach ($getVehicle as $value) {
             $vehicles[] = [
-                'type' => $value->vehicle->vehicletype->name,
-                'name' => $value->vehicle->number_plate . ' | ' . ($value->vehicle->vehicle_name ?? $value->vehicle->temp_vehicle_detail)
+                'type' => $value->vehicle->vehicletype->name ?? null,
+                'name' => isset($value->vehicle)
+                    ? ($value->vehicle->number_plate ?? null) . ' | ' . ($value->vehicle->vehicle_name ?? $value->vehicle->temp_vehicle_detail ?? null)
+                    : null,
             ];
         }
+
 
         $invoices = Invoice::where('booking_id', $booking_id)->get()->map(function ($invoice) {
             $bookingData = BookingData::where('invoice_id', $invoice->id)->get();
@@ -234,6 +239,7 @@ class AjaxController extends Controller
             'customer' => $booking->customer->customer_name,
             'invoice_detail' => $invoices,
             'vehicle' => $vehicles,
+            'non_refundable_amount' => $nonRefundableAmount,
         ]);
     }
 

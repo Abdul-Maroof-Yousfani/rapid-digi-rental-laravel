@@ -236,14 +236,17 @@ function bookingChange() {
                     var deposit = parseFloat(invoice.deposit_amount) || 0;
                     var remainingDeposit = parseFloat(response.remaining_deposit) || 0;
                     var paymentDataID = invoice.payment_data_id;
-
+                    var nonRefundable = parseFloat(response.non_refundable_amount) || 0;
                     var disableCheckbox = (remainingDeposit === 0 || paid.toFixed(2) === total.toFixed(2));
 
                     var rowColor = '';
                     if (paid > 0) {
                         rowColor = (paid.toFixed(2) === total.toFixed(2)) ? 'background-color:#d4edda;' : 'background-color:#fff3cd;';
                     }
-
+                    let displayTotal = total + (nonRefundable > 0 ? nonRefundable : 0);
+                    let nonRefundableText = (nonRefundable > 0)
+                        ? ' <small class="text-info d-block">(Incl. Non-Refundable)</small>'
+                        : '';
                     var row = '<tr style="' + rowColor + '">' +
                         '<td><input type="hidden" name="paymentData_id[]" value="' + paymentDataID + '">' + invoice.zoho_invoice_number + '</td>' +
                         '<td>' + invoice.summary.salik_qty + ' | ' + invoice.summary.salik_amount + '</td>' +
@@ -251,7 +254,9 @@ function bookingChange() {
                         '<td>' + invoice.summary.renew_amount + '</td>' +
                         '<td>' + (invoice.summary.rent_amount).toFixed(2) + '</td>' +
                         '<td>' + invoice.invoice_status + '</td>' +
-                        '<td class="invoice_total">' + total + '</td>' +
+                        '<td class="invoice_total">' + total.toFixed(2) + '</td>' +
+                        // '<td class="invoice_total">' + displayTotal.toFixed(2) + nonRefundableText + '</td>' +
+
                         '<td class="text-center" style="display: none;">' +
                         '<div class="custom-control custom-checkbox">' +
                         '<input type="checkbox" class="custom-control-input add_deposit" id="depositCheck' + index + '"' + (disableCheckbox ? ' disabled' : '') + '>' +
@@ -266,8 +271,7 @@ function bookingChange() {
                     $('#booking_detail').append(row);
                 });
 
-                $('#booking_detail').append('<tr><td colspan="7" class="text-right">Sub total</td>' +
-                    '<td><input type="number" value="" name="amount_receive" class="form-control insubtot" readonly></td></tr>' +
+                $('#booking_detail').append(
                     '<tr style="display: none"><td colspan="7" class="text-right">Remaining Amount</td>' +
                     '<td><input type="number" value="" name="" class="form-control remaining_amount" readonly></td></tr>');
 
@@ -331,7 +335,7 @@ function updateTransactionSummary() {
     if (useDeposit) {
         depositUsed = parseFloat($('.initial_deposit').val()) || 0;
     } else {
-        $('.invPaidAmount').each(function() {
+        $('.invPaidAmount').each(function () {
             depositUsed += parseFloat($(this).val()) || 0;
         });
     }
@@ -365,12 +369,12 @@ function usedDeposit() {
         $('.remaining_deposit').val(newRemaining.toFixed(2));
 
         if (newPending > 0) {
-    $('.amount_receive').prop('readonly', false); // Allow input
-} else {
-    $('.amount_receive').val(0).prop('readonly', true); // Disable only if nothing to receive
-}
+            $('.amount_receive').prop('readonly', false); // Allow input
+        } else {
+            $('.amount_receive').val(0).prop('readonly', true); // Disable only if nothing to receive
+        }
 
-        
+
     }
 
 
@@ -383,7 +387,7 @@ function usedDepositAgainstInvoice() {
     let adjustInvoice = $('#adjust_invoice').is(':checked');
     let deposit = parseFloat($('.initial_deposit').val()) || 0;
     let invoice_amount = parseFloat($('.invoice_amount').val()) || 0;
-    
+
 
     let remainingDepositBefore = parseFloat($('.remaining_deposit').val()) || 0;
 
@@ -421,7 +425,7 @@ function usedDepositAgainstInvoice() {
         $('.pending_amount').val('');
         $('.amount_receive').val('');
     }
-        recalculateTotals();
+    recalculateTotals();
 
 }
 

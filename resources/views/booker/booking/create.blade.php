@@ -71,7 +71,10 @@
                                     <label>Deposit Amount <span class="text-danger">*</span></label>
                                     <input type="number" value="0" name="deposit_amount" class="form-control deposit_amount" required>
                                 </div>
-
+                                <div class="form-group" id="non_refundable_amount" style="display: none;">
+                                    <label>Non Refundable Amount <span class="text-danger">*</span></label>
+                                    <input type="number" value="0" name="non_refundable_amount" class="form-control non_refundable_amount" required>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -92,7 +95,7 @@
                                 <div class="form-group">
                                     <label>Agreement No. <span class="text-danger">*</span></label>
                                     <input type="text" value="" name="agreement_no" class="form-control agreement_no" required>
-                                    <small class="agreement-error"></small>
+                                    <small style="font-size: 16px;" class="agreement-error"></small>
                                 </div>
                                 <div class="form-group">
                                     <label>Started At <span class="text-danger">*</span></label>
@@ -207,7 +210,7 @@
                         </div>
                         <div class="card-header-form">
                             <div class="input-group d-flex justify-content-end">
-                                <button type="button" class="btn btn-primary btn-md px-4 py-2" style="font-size: 30px;" id="addCharges">Add Charges</button>
+                                <button type="button" class="btn btn-primary" id="addCharges">Add Charges</button>
                             </div>
                         </div>
                         <br>
@@ -660,10 +663,13 @@
                 const value = $(this).val();
                 if (value != 1 && value != 2) {
                     $('#deposit_amount').show();
+                    $('#non_refundable_amount').hide();
+
                 } else {
                     $('#deposit_amount').hide();
+                    $('#non_refundable_amount').show();
                 }
-            }).trigger('change'); // trigger on load in case of old value
+            }).trigger('change'); 
         });
     });
 </script>

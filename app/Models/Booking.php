@@ -30,6 +30,8 @@ class Booking extends Model
         'total_price',
         'sale_person_id',
         'deposit_id',
+        'non_refundable_amount',
+        'deposit_type',
         'booking_status',
         'started_at',
         'booking_cancel',
@@ -112,5 +114,4 @@ class Booking extends Model
     {
         return $this->hasMany(BookingPaymentHistory::class, 'booking_id', 'id');
     }
-
 }

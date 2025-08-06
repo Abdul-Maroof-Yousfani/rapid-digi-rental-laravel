@@ -83,10 +83,12 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
+        // return $request->all();
+
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no',
-            'deposit_amount' => 'required',
+            // 'deposit_amount' => 'required',
             'sale_person_id' => 'required',
             'started_at' => 'required',
             'notes' => 'required',
@@ -97,6 +99,9 @@ class BookingController extends Controller
             'price.*' => 'required',
             'invoiceTypes.*' => 'nullable',
 
+            'deposit_type' => 'nullable',
+            'deposit_amount' => 'required_if:deposit_type,null',
+            'non_refundable_amount' => 'required_unless:deposit_type,null',
         ]);
         // return $request;
         if ($validator->fails()) {
@@ -106,25 +111,51 @@ class BookingController extends Controller
             $notes = $request->notes;
             $currency_code = "AED";
             $lineitems = [];
-            foreach ($request->vehicle as $key => $vehicleId) {
-                $vehicle = Vehicle::find($vehicleId);
-                if (!$vehicle) {
-                    continue;
-                }
-                $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
-                $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
+            // foreach ($request->vehicle as $key => $vehicleId) {
+            //     $vehicle = Vehicle::find($vehicleId);
+            //     if (!$vehicle) {
+            //         continue;
+            //     }
+            //     $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
+            //     $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
+            //     if (is_array($description)) {
+            //         $description = implode(', ', $description);
+            //     }
+            //     $lineitems[] = [
+            //         'name' => $vehicleName,
+            //         'description' => $description,
+            //         'rate' => (float) str_replace(',', '', $request->price[$key]),
+            //         'quantity' => 1,
+            //         'tax_id' => $request->tax[$key]
+            //     ];
+            // }
+            foreach ($request->price as $key => $price) {
+                $vehicleId = $request->vehicle[$key] ?? null;
+                $vehicle = $vehicleId && $vehicleId !== 'null' ? Vehicle::find($vehicleId) : null;
+
+                $vehicleName = $vehicle ? ($vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail) : ($request->invoiceTypes[$key] ? Deductiontype::find($request->invoiceTypes[$key])->name : 'Other Charge');
+
+                // $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
+                $description = $request->description[$key] ?? (
+                    (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
+                    ? $request->booking_date[$key] . " TO " . $request->return_date[$key]
+                    : ''
+                );
                 if (is_array($description)) {
                     $description = implode(', ', $description);
                 }
+
                 $lineitems[] = [
                     'name' => $vehicleName,
                     'description' => $description,
-                    'rate' => (float) str_replace(',', '', $request->price[$key]),
+                    'rate' => (float) str_replace(',', '', $price),
                     'quantity' => 1,
-                    'tax_id' => $request->tax[$key]
+                    'tax_id' => $request->tax[$key] !== 'null' && !empty($request->tax[$key]) ? $request->tax[$key] : null,
                 ];
             }
             $customerId =  $request->customer_id;
+            // dd($lineitems);
+
             $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
@@ -144,6 +175,8 @@ class BookingController extends Controller
                         'notes' => $request['notes'],
                         'sale_person_id' => $request['sale_person_id'],
                         'deposit_id' => $deposit->id,
+                        'deposit_type' => $request['deposit_type'],
+                        'non_refundable_amount' => $request['deposit_type'] ? $request['non_refundable_amount'] : null,
                         'started_at' => $request['started_at']
                     ]);
 
@@ -315,7 +348,7 @@ class BookingController extends Controller
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no,' . $invoice->booking->id,
             'sale_person_id' => 'required',
-            'deposit_amount' => 'required',
+            // 'deposit_amount' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -323,6 +356,10 @@ class BookingController extends Controller
             'return_date.*' => 'nullable',
             'price.*' => 'required',
             'invoiceTypes.*' => 'nullable',
+
+            'deposit_type' => 'nullable',
+            'deposit_amount' => 'required_if:deposit_type,null',
+            'non_refundable_amount' => 'required_unless:deposit_type,null',
 
         ];
         // return $request;
@@ -336,22 +373,54 @@ class BookingController extends Controller
             $notes = $request->notes;
             $currency_code = "AED";
             $lineitems = [];
-            foreach ($request->vehicle as $key => $vehicleId) {
-                $vehicle = Vehicle::find($vehicleId);
-                if (!$vehicle) {
-                    continue;
+            // foreach ($request->vehicle as $key => $vehicleId) {
+            //     $vehicle = Vehicle::find($vehicleId);
+            //     if (!$vehicle) {
+            //         continue;
+            //     }
+            //     $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
+            //     $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
+            //     if (is_array($description)) {
+            //         $description = implode(', ', $description);
+            //     }
+            //     $lineitems[] = [
+            //         'name' => $vehicleName,
+            //         'description' => $description,
+            //         'rate' => (float) str_replace(',', '', $request->price[$key]),
+            //         'quantity' => 1,
+            //         'tax_id' => $request->tax[$key]
+            //     ];
+            // }
+            foreach ($request->price as $key => $price) {
+                $vehicleId = $request->vehicle[$key] ?? null;
+                $vehicle = $vehicleId && $vehicleId !== 'null' ? Vehicle::find($vehicleId) : null;
+
+                if ($vehicle) {
+                    $name = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
+                } else {
+                    // It's a charge, get name from invoiceTypes
+                    $invoiceTypeId = $request->invoiceTypes[$key] ?? null;
+                    $name = $invoiceTypeId && is_numeric($invoiceTypeId)
+                        ? Deductiontype::find($invoiceTypeId)?->name ?? 'Charge'
+                        : 'Charge';
                 }
-                $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
-                $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
+
+                $description = $request->description[$key] ?? (
+                    (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
+                    ? $request->booking_date[$key] . " TO " . $request->return_date[$key]
+                    : ''
+                );
+
                 if (is_array($description)) {
                     $description = implode(', ', $description);
                 }
+
                 $lineitems[] = [
-                    'name' => $vehicleName,
+                    'name' => $name,
                     'description' => $description,
-                    'rate' => (float) str_replace(',', '', $request->price[$key]),
+                    'rate' => (float) str_replace(',', '', $price),
                     'quantity' => 1,
-                    'tax_id' => $request->tax[$key]
+                    'tax_id' => $request->tax[$key] !== 'null' && !empty($request->tax[$key]) ? $request->tax[$key] : null,
                 ];
             }
             $invoiceID = $invoice->zoho_invoice_id;
@@ -387,6 +456,8 @@ class BookingController extends Controller
                         'agreement_no' => $request['agreement_no'],
                         'notes' => $request['notes'],
                         'sale_person_id' => $request['sale_person_id'],
+                        'deposit_type' => $request['deposit_type'],
+                        'non_refundable_amount' => $request['deposit_type'] ? $request['non_refundable_amount'] : null,
                     ]);
 
                     $invoice->update(
