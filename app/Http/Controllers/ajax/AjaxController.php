@@ -246,7 +246,9 @@ class AjaxController extends Controller
     public function getInvoiceDetail($invoice_id)
     {
         // $invoice= Invoice::find($invoice_id);
-        $invoice = Invoice::with('bookingData.vehicle')->find($invoice_id);
+        // $invoice = Invoice::with(['bookingData.vehicle, bookingData.invoice_type'])->find($invoice_id);
+        $invoice = Invoice::with(['bookingData.invoice_type', 'bookingData.vehicle'])->find($invoice_id);
+
         if (!$invoice) {
             return response()->json([
                 'success' => false,

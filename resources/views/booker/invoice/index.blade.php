@@ -165,53 +165,64 @@
     }
 
     $(document).on('click', '.invDetail', function (e) {
-        e.preventDefault();
-        var invoiceId = $(this).data('invoice-id');
+    e.preventDefault();
+    var invoiceId = $(this).data('invoice-id');
 
-        $.ajax({
-            url: '/get-invoice-detail/' + invoiceId,
-            type: 'GET',
-            success: function (response) {
-                if (response.success) {
-                    let invoice = response.data.invoice;
-                    let bookingData = response.data.booking_data;
+    $.ajax({
+        url: '/get-invoice-detail/' + invoiceId,
+        type: 'GET',
+        success: function (response) {
+            if (response.success) {
+                let invoice = response.data.invoice;
+                let bookingData = response.data.booking_data;
 
-                    let html = `<hr>`;
-                    html += `<table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Vehicle</th>
-                                        <th>No Plate</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+                let html = `<hr>`;
+                html += `<table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Vehicle / Charge</th>
+                                    <th>No Plate</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
 
-                    $.each(bookingData, function (index, item) {
-                        html += `<tr>
-                                    <td>${index + 1}</td>
-                                    <td>
-                                        ${item.vehicle ? (item.vehicle.vehicle_name ?? item.vehicle.temp_vehicle_detail ?? 'N/A') : 'N/A'}
-                                    </td>
-                                    <td>${item.vehicle.number_plate}</td>
-                                    <td>${formatDate(item.start_date)}</td>
-                                    <td>${formatDate(item.end_date)}</td>
-                                </tr>`;
-                    });
+                $.each(bookingData, function (index, item) {
+                    let vehicleName = 'N/A';
+                    let numberPlate = 'N/A';
 
-                    html += `</tbody></table>`;
+                    if (item.vehicle) {
+                        vehicleName = item.vehicle.vehicle_name ?? item.vehicle.temp_vehicle_detail ?? 'N/A';
+                        numberPlate = item.vehicle.number_plate ?? 'N/A';
+                    } else if (item.invoice_type) {
+                        // Show invoice_type name if no vehicle
+                        vehicleName = item.invoice_type.name;
+                        numberPlate = '-';
+                    }
 
-                    $('#invoiceModal .modal-body').html(html);
-                    $('#invoiceModal').modal('show');
-                } else {
-                    $('#invoiceModal .modal-body').html('<p class="text-danger">Invoice not found</p>');
-                    $('#invoiceModal').modal('show');
-                }
+                    html += `<tr>
+                                <td>${index + 1}</td>
+                                <td>${vehicleName}</td>
+                                <td>${numberPlate}</td>
+                                <td>${formatDate(item.start_date)}</td>
+                                <td>${formatDate(item.end_date)}</td>
+                            </tr>`;
+                });
+
+                html += `</tbody></table>`;
+
+                $('#invoiceModal .modal-body').html(html);
+                $('#invoiceModal').modal('show');
+            } else {
+                $('#invoiceModal .modal-body').html('<p class="text-danger">Invoice not found</p>');
+                $('#invoiceModal').modal('show');
             }
-        });
+        }
     });
+});
+
   </script>
 
 @endsection

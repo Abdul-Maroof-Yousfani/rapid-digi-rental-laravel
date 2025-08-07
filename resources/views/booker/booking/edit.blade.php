@@ -420,7 +420,6 @@
                     @foreach ($booking_data_charges as $index => $item)
                     @php
                     $selectedInTyId = $item->deductiontype_id ?? $item->invoice_type->id ?? null;
-                    $filteredVehicles = $vehiclesByType[$selectedTypeId] ?? collect();
                     @endphp
 
                     <div class="card">
