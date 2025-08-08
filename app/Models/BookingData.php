@@ -30,7 +30,8 @@ class BookingData extends Model
         'item_total',
         'tax_name',
         'transaction_type',
-        'deductiontype_id'
+        'deductiontype_id',
+        'view_type'
     ];
 
     /**

@@ -19,7 +19,7 @@ class CreditnoteController extends Controller
      */
     public function index()
     {
-        $creditNote= CreditNote::with('paymentMethod', 'booking')->paginate(10);
+        $creditNote = CreditNote::with('paymentMethod', 'booking')->paginate(10);
         return view('booker.creditnote.index', compact('creditNote'));
     }
 
@@ -28,43 +28,38 @@ class CreditnoteController extends Controller
      */
     public function create()
     {
-        // $booking= Booking::whereHas('deposit', function ($query){
-        //     $query->where('deposit_amount', '>', 0);
-        // })->with('deposit', 'customer', 'depositHandling')->orderBy('id', 'DESC')->get();
-
-        // $filterBooking= $booking->filter(function($booking){
-        //     $totalDeducted = $booking->depositHandling->sum('deduct_deposit');
-        //     return $booking->deposit->deposit_amount > $totalDeducted;
-        // });
-
         // Get all booking IDs which already have a credit note
         $creditNoteBookingIds = CreditNote::pluck('booking_id')->toArray();
 
-        $booking = Booking::whereHas('deposit', function ($query) {
+        // Get bookings that have a deposit amount greater than zero
+        $bookings = Booking::whereHas('deposit', function ($query) {
             $query->where('deposit_amount', '>', 0);
         })
-        ->with('deposit', 'customer', 'depositHandling')
-        ->orderBy('id', 'DESC')
-        ->get();
+            ->with('deposit', 'customer', 'depositHandling')
+            ->orderBy('id', 'DESC')
+            ->get();
 
-        $filterBooking = $booking->filter(function ($booking) use ($creditNoteBookingIds) {
-            $totalDeducted = $booking->depositHandling->sum('deduct_deposit');
-
-            // Only allow bookings that have deposit left AND no credit note created yet
-            return $booking->deposit->deposit_amount > $totalDeducted
+        // Filter bookings:
+        // - Must have remaining deposit (deposit_amount > 0)
+        // - Must not already have a credit note created
+        $filterBooking = $bookings->filter(function ($booking) use ($creditNoteBookingIds) {
+            return $booking->deposit->deposit_amount > 0
                 && !in_array($booking->id, $creditNoteBookingIds);
         });
-        $refundMethod= PaymentMethod::all();
-        $bank= Bank::all();
+
+        $refundMethod = PaymentMethod::all();
+        $bank = Bank::all();
+
         return view('booker.creditnote.create', compact('filterBooking', 'refundMethod', 'bank'));
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $rules= [
+        $rules = [
             'booking_id' => 'required',
             'refund_method' => 'required',
             'refund_amount' => 'required',
@@ -72,10 +67,12 @@ class CreditnoteController extends Controller
             'refund_date' => 'required',
         ];
 
-        if($request['payment_method']==3){ $rules['bank_id'] = 'required'; }
-        $validator= Validator::make($request->all(), $rules);
-        if($validator->fails()){
-            $errormessage= implode('\n', $validator->errors()->all());
+        if ($request['payment_method'] == 3) {
+            $rules['bank_id'] = 'required';
+        }
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            $errormessage = implode('\n', $validator->errors()->all());
             return redirect()->back()->with('error', $errormessage)->withInput();
         } else {
             try {
@@ -99,7 +96,6 @@ class CreditnoteController extends Controller
                 DB::rollback();
                 return redirect()->back()->with('error', $exp->getMessage())->withInput();;
             }
-
         }
     }
 
@@ -137,7 +133,7 @@ class CreditnoteController extends Controller
 
     public function viewCreditNote(string $id)
     {
-        $creditNote= CreditNote::with('paymentMethod', 'booking')->find($id);
+        $creditNote = CreditNote::with('paymentMethod', 'booking')->find($id);
         return view('booker.creditnote.credit-note-view', compact('creditNote'));
     }
 }

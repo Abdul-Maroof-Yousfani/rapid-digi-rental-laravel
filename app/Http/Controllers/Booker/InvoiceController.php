@@ -172,6 +172,7 @@ class InvoiceController extends Controller
                             'item_total' =>  number_format($itemTotal, 2),
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                             'deductiontype_id' => $invoiceTypeModel ? $invoiceTypeModel->id : null,
+                            'view_type' => 2,
 
                         ]);
                     }
@@ -353,10 +354,10 @@ class InvoiceController extends Controller
     public function viewInvoice($id)
     {
         $invoice = Invoice::with(['bookingData.invoice_type', 'booking'])->find($id);
-
         if (!$invoice) {
             return redirect()->back()->with('error', 'Invoice Not Found');
         }
+// dd($invoice->bookingData);
 
         return view('booker.invoice.invoice-view', compact('invoice'));
     }

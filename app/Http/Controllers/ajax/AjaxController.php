@@ -244,26 +244,32 @@ class AjaxController extends Controller
     }
 
     public function getInvoiceDetail($invoice_id)
-    {
-        // $invoice= Invoice::find($invoice_id);
-        // $invoice = Invoice::with(['bookingData.vehicle, bookingData.invoice_type'])->find($invoice_id);
-        $invoice = Invoice::with(['bookingData.invoice_type', 'bookingData.vehicle'])->find($invoice_id);
+{
+    // Eager load booking along with bookingData and its relations
+    $invoice = Invoice::with([
+        'booking',
+        'bookingData.invoice_type',
+        'bookingData.vehicle'
+    ])->find($invoice_id);
 
-        if (!$invoice) {
-            return response()->json([
-                'success' => false,
-                'data' => 'Invoice Not Found'
-            ]);
-        } else {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'invoice' => $invoice,
-                    'booking_data' => $invoice->bookingData
-                ]
-            ]);
-        }
+    if (!$invoice) {
+        return response()->json([
+            'success' => false,
+            'data' => 'Invoice Not Found'
+        ]);
+    } else {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'invoice' => $invoice,
+                'booking_data' => $invoice->bookingData,
+                // Add deposit_type from booking here
+                'deposit_type' => $invoice->booking->deposit_type ?? null
+            ]
+        ]);
     }
+}
+
 
     public function getVehicleForEditForm($id)
     {

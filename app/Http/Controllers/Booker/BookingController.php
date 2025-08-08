@@ -153,6 +153,25 @@ class BookingController extends Controller
                     'tax_id' => $request->tax[$key] !== 'null' && !empty($request->tax[$key]) ? $request->tax[$key] : null,
                 ];
             }
+            if (!empty($request->deposit_type)) {
+                if ($request->deposit_type == 1) {
+                    $lineitems[] = [
+                        'name' => 'Cardo',
+                        'description' => '',
+                        'rate' => (float) ($request->non_refundable_amount ?? 0),
+                        'quantity' => 1,
+                        'tax_id' => null,
+                    ];
+                } elseif ($request->deposit_type == 2) {
+                    $lineitems[] = [
+                        'name' => 'LPO',
+                        'description' => '',
+                        'rate' => (float) ($request->non_refundable_amount ?? 0),
+                        'quantity' => 1,
+                        'tax_id' => null,
+                    ];
+                }
+            }
             $customerId =  $request->customer_id;
             // dd($lineitems);
 
@@ -423,6 +442,26 @@ class BookingController extends Controller
                     'tax_id' => $request->tax[$key] !== 'null' && !empty($request->tax[$key]) ? $request->tax[$key] : null,
                 ];
             }
+            if (!empty($request->deposit_type)) {
+                if ($request->deposit_type == 1) {
+                    $lineitems[] = [
+                        'name' => 'Cardo',
+                        'description' => '',
+                        'rate' => (float) ($request->non_refundable_amount ?? 0),
+                        'quantity' => '-',
+                        'tax_id' => null,
+                    ];
+                } elseif ($request->deposit_type == 2) {
+                    $lineitems[] = [
+                        'name' => 'LPO',
+                        'description' => '',
+                        'rate' => (float) ($request->non_refundable_amount ?? 0),
+                        'quantity' => '-',
+                        'tax_id' => null,
+                    ];
+                }
+            }
+
             $invoiceID = $invoice->zoho_invoice_id;
             $customerId =  $request->customer_id;
             $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
