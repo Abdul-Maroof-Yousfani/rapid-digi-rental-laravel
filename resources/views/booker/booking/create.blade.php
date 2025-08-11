@@ -172,6 +172,9 @@
                                             <div class="form-group">
                                                 <label for="">Tax (%)</label><br>
                                                 <input type="hidden" name="tax_percent[]" value="" class="tax">
+                                                <input type="hidden" name="tax_name[]" value="" class="tax">
+
+                                                <!-- <input type="hidden" name="tax_percent[]" value="" class="tax"> -->
                                                 <select name="tax[]" class="form-control select2 zohotax" readonly>
                                                     <option value="">Select Tax</option>
                                                     @foreach ($taxlist['taxes'] as $item)
@@ -384,6 +387,8 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Tax (%)</label><br>
+                                    <input type="hidden" name="tax_percent[]" value="" class="tax">
+                                                <input type="hidden" name="tax_name[]" value="" class="tax">
                                     <select name="tax[]"class="form-control select2 zohotax" readonly>
                                         <option value="">Select Tax</option>
                                         @foreach ($taxlist['taxes'] as $item)
@@ -669,7 +674,7 @@
                     $('#deposit_amount').hide();
                     $('#non_refundable_amount').show();
                 }
-            }).trigger('change'); 
+            }).trigger('change');
         });
     });
 </script>

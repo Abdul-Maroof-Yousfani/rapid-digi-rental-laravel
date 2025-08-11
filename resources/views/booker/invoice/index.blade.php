@@ -49,9 +49,10 @@
                                                         Actions
                                                     </button>
                                                     <div class="dropdown-menu">
-                                                        <button type="button" class="invDetail dropdown-item" data-invoice-id="{{ $item->id }}" data-toggle="modal" data-target="#invoiceModal">
-                                                            Detail
-                                                        </button>
+                                                        <a type="button" class="invDetail dropdown-item" data-invoice-id="{{ $item->id }}" data-toggle="modal" data-target="#invoiceModal">
+                                                        <i class="fas fa-list"></i>    
+                                                        Detail
+                                                        </a>
 
                                                         <a href="{{ url('booking/view-invoice/'.$item->id) }}" class="dropdown-item"> <i class="fas fa-eye"></i> View</a>
 

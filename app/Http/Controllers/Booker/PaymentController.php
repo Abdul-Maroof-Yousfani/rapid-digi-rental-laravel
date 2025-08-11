@@ -173,6 +173,7 @@ class PaymentController extends Controller
             ]);
 
             $paymentDataMap = [];
+            $pendingAmounts = [];
 
             foreach ($request['invoice_id'] as $key => $invoice_ids) {
                 $invoiceAmount = floatval($request['invoice_amount'][$key]);
@@ -210,6 +211,7 @@ class PaymentController extends Controller
                     ]);
                 }
                 $paymentDataMap[$key] = $paymentdata->id;
+                $pendingAmounts[] = $pendingAmountInvoice;
             }
 
             if ($depositUsed > 0) {
@@ -220,11 +222,11 @@ class PaymentController extends Controller
                     // $newDepositAmount = max(0, $deposit->deposit_amount - $depositUsed);
                     // $deposit->update(['deposit_amount' => $newDepositAmount]);
 
-                    foreach ($paymentDataMap as $paymentDataId) {
+                    foreach ($paymentDataMap as $key => $paymentDataId) {
                         DepositHandling::create([
                             'payment_data_id' => $paymentDataId,
-                            'booking_id' => $booking->id,
-                            'deduct_deposit' => $depositUsed,
+                            'booking_id'      => $booking->id,
+                            'deduct_deposit'  => $pendingAmounts[$key], // match index with payment
                         ]);
                     }
                 }

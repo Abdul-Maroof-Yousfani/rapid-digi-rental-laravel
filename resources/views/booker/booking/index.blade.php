@@ -105,12 +105,12 @@
                                                         </a>
 
                                                         @can('edit booking')
-                                                        <button class="dropdown-item close-booking"
+                                                        <a class="dropdown-item close-booking"
                                                             data-booking-id="{{ $item->booking->id }}"
                                                             data-invoice-id="{{ $item->id }}"
                                                             {{ $item->booking->booking_status=='closed' ? 'disabled' : '' }}>
                                                             <i class="fas fa-lock"></i> Close Booking
-                                                        </button>
+                                                        </a>
 
                                                         @if (is_null($item->booking->started_at) || (\Carbon\Carbon::parse($item->booking->started_at)->isAfter($now) && $item->booking_cancel==0))
                                                         <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->booking->id }}" href="">

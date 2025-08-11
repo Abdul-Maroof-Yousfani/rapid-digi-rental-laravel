@@ -103,7 +103,7 @@ class BookingController extends Controller
             'deposit_amount' => 'required_if:deposit_type,null',
             'non_refundable_amount' => 'required_unless:deposit_type,null',
         ]);
-        // return $request;
+        // return $request->all();
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
@@ -159,7 +159,7 @@ class BookingController extends Controller
                         'name' => 'Cardo',
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
-                        'quantity' => 1,
+                        'quantity' => null,
                         'tax_id' => null,
                     ];
                 } elseif ($request->deposit_type == 2) {
@@ -167,7 +167,7 @@ class BookingController extends Controller
                         'name' => 'LPO',
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
-                        'quantity' => 1,
+                        'quantity' => null,
                         'tax_id' => null,
                     ];
                 }
@@ -215,7 +215,17 @@ class BookingController extends Controller
                             $vehicle_id = null;
                         }
 
-                        $quantity = 1;
+                        if ($request->invoiceTypes[$key] == 'null') {
+                            $quantity = 1;
+                        } else {
+                            $quantity = null;
+                        }
+                        $taxNam = $request['tax_name'][$key] ?? null;
+                        if (!empty($request['tax_percent'][$key])) {
+                            $taxName = 'VAT ' . $taxNam . '%';
+                        } else {
+                            $taxName = null;
+                        }
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
 
                         // Tax Add Calculation in Item Total
@@ -236,7 +246,7 @@ class BookingController extends Controller
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
                             'item_total' => $itemTotal,
-                            'tax_name' => $lineItemData['tax_name'] ?? null,
+                            'tax_name' => $taxName,
                             'deductiontype_id' => is_numeric($request->invoiceTypes[$key] ?? null)
                                 ? $request->invoiceTypes[$key]
                                 : null,
@@ -381,7 +391,7 @@ class BookingController extends Controller
             'non_refundable_amount' => 'required_unless:deposit_type,null',
 
         ];
-        // return $request;
+        // return $request->all();
 
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -448,7 +458,7 @@ class BookingController extends Controller
                         'name' => 'Cardo',
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
-                        'quantity' => '-',
+                        'quantity' => null,
                         'tax_id' => null,
                     ];
                 } elseif ($request->deposit_type == 2) {
@@ -456,7 +466,7 @@ class BookingController extends Controller
                         'name' => 'LPO',
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
-                        'quantity' => '-',
+                        'quantity' => null,
                         'tax_id' => null,
                     ];
                 }
@@ -517,10 +527,18 @@ class BookingController extends Controller
                         if ($vehicle_id === 'null') {
                             $vehicle_id = null;
                         }
-
-                        $quantity = 1;
+                        if ($request->invoiceTypes[$key] == 'null') {
+                            $quantity = 1;
+                        } else {
+                            $quantity = null;
+                        }
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
-
+                        $taxNam = $request['tax_name'][$key] ?? null;
+                        if (!empty($request['tax_percent'][$key])) {
+                            $taxName = 'VAT ' . $taxNam . '%';
+                        } else {
+                            $taxName = null;
+                        }
                         $subTotal = $price * $quantity;
                         $taxAmount = ($subTotal * $taxPercent) / 100;
                         $itemTotal = $subTotal + $taxAmount;
@@ -539,7 +557,7 @@ class BookingController extends Controller
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
                             'item_total' =>  $itemTotal,
-                            'tax_name' => $lineItemData['tax_name'] ?? null,
+                            'tax_name' => $taxName,
                             'deductiontype_id' => is_numeric($request->invoiceTypes[$key] ?? null)
                                 ? $request->invoiceTypes[$key]
                                 : null,

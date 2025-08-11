@@ -197,9 +197,9 @@ $subtot += $item->item_total;
                             {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail ?? $item->invoice_type->name ?? '' }} <br>
                             <small>{{ $item->description }}</small>
                         </td>
-                        <td class="text-right">{{ $item->quantity }}</td>
+                        <td class="text-right">{{ $item->quantity ?? '-' }}</td>
                         <td class="text-right">{{ number_format($item->price * $item->quantity, 2) }}</td>
-                        <td class="text-right">{{ $item->tax_name }} {{ $item->tax_percent }}%</td>
+                        <td class="text-right">{{ $item->tax_name ?? '-'}}</td>
                         <td class="text-right">
                             @php
                             $subTotal = $item->price * $item->quantity;
@@ -211,7 +211,7 @@ $subtot += $item->item_total;
                     </tr>
                     @endforeach
                     <?php
-                    if ($invoice->bookingData()->orderby('id','DESC')->first()->view_type == 1){ ?>
+                    if ($invoice->bookingData()->orderby('id','DESC')->first()->view_type == 1 && $invoice->booking->deposit_type != null){ ?>
                     <tr>
                         <td>{{ $counter + 1 }}</td>
                         <td class="text-left">

@@ -134,6 +134,7 @@
                                                 <td class="text-truncate"><br>
                                                     <div class="form-group">
                                                         <textarea name="description[]" style="width:200px;" class="form-control" id="" cols="60" rows="3">
+                                                    {{ $item->description ?? 'N/A' }}
 
                                                             </textarea>
                                                     </div>

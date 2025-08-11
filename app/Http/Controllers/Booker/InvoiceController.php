@@ -57,6 +57,7 @@ class InvoiceController extends Controller
 
     public function store(Request $request)
     {
+        return $request->all();
         $rules = [
             'customer_id' => 'required',
             'booking_id' => 'required',
@@ -151,6 +152,11 @@ class InvoiceController extends Controller
                         $price = $request['price'][$key];
                         $quantity = $request['quantity'][$key];
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
+                        if (!empty($request['tax_percent'][$key])) {
+                            $taxName = 'VAT ' . $taxPercent . '%';
+                        } else {
+                            $taxName = null;
+                        }
 
                         // Tax Add Calculation in Item Total
                         $subTotal = $price * $quantity;
@@ -170,7 +176,7 @@ class InvoiceController extends Controller
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
                             'item_total' =>  number_format($itemTotal, 2),
-                            'tax_name' => $lineItemData['tax_name'] ?? null,
+                            'tax_name' => $taxName,
                             'deductiontype_id' => $invoiceTypeModel ? $invoiceTypeModel->id : null,
                             'view_type' => 2,
 

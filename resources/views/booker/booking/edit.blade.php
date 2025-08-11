@@ -69,7 +69,7 @@
                                     </select>
                                     @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
-                               
+
                                 <div class="form-group">
                                     <label>Deposit Type</label>
                                     <select name="deposit_type" class="form-control select2" id="deposit_type">
@@ -361,6 +361,9 @@
                                     <div class="col-3">
                                         <div class="form-group">
                                             <label for="">Tax (%)</label><br>
+                                            <input type="hidden" name="tax_percent[]" value="$taxes['tax_percentage']" class="tax">
+                                            <input type="hidden" name="tax_name[]" value="$taxes['tax_name']" class="tax">
+
                                             <select name="tax[]"
                                                 class="form-control select2 zohotax" required>
                                                 <option value="">Select Tax</option>
@@ -559,22 +562,22 @@
 
 @section('script')
 <script>
-    $(document).ready(function () {
-    function toggleDepositFields() {
-        let depositType = $('#deposit_type').val();
-        if (depositType === '') {
-            $('#deposit_amount_group').show();
-            $('#non_refundable_amount_group').hide();
-        } else {
-            $('#deposit_amount_group').hide();
-            $('#non_refundable_amount_group').show();
+    $(document).ready(function() {
+        function toggleDepositFields() {
+            let depositType = $('#deposit_type').val();
+            if (depositType === '') {
+                $('#deposit_amount_group').show();
+                $('#non_refundable_amount_group').hide();
+            } else {
+                $('#deposit_amount_group').hide();
+                $('#non_refundable_amount_group').show();
+            }
         }
-    }
 
-    // Call on load and on change
-    toggleDepositFields();
-    $('#deposit_type').change(toggleDepositFields);
-});
+        // Call on load and on change
+        toggleDepositFields();
+        $('#deposit_type').change(toggleDepositFields);
+    });
 </script>
 <script>
     // Line items vehicles booking end date equals to Started at
@@ -696,6 +699,8 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Tax (%)</label><br>
+                                    <input type="hidden" name="tax_percent[]" value="" class="tax">
+                                                <input type="hidden" name="tax_name[]" value="" class="tax">
                                     <select name="tax[]"class="form-control select2 zohotax" readonly>
                                         <option value="">Select Tax</option>
                                         @foreach ($taxlist['taxes'] as $item)
