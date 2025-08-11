@@ -179,6 +179,8 @@ class InvoiceController extends Controller
                             'tax_name' => $taxName,
                             'deductiontype_id' => $invoiceTypeModel ? $invoiceTypeModel->id : null,
                             'view_type' => 2,
+                            'non_refundable_amount' => $request['non_refundable_amount'],
+                            'deposit_type' => $request['deposit_type'],
 
                         ]);
                     }

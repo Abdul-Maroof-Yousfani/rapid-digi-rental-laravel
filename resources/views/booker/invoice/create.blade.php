@@ -106,7 +106,24 @@
                     </select>
                 </div>
                 </td>
+                <td>
+                    <div class="form-group">
+                        <label for=""> DepositType <span class="text-danger">*</span></label><br>
+                        <select name="deposit_type[]" class="form-control select2 deposit_type">
+                            <option value="">Select Deposit type</option>
+                            <option value="1">Cardo</option>
+                            <option value="2">LPO</option>
+                        </select>
+                    </div>
+                </td>
 
+
+                <td>
+                    <div class="form-group">
+                        <label>Non Refundable Amount <span class="text-danger">*</span></label>
+                        <input type="number" value="0" name="non_refundable_amount[]" class="form-control non_refundable_amount">
+                    </div>
+                </td>
                 <td>
                     <div class="form-group">
                         <input type="date" name="booking_date[]" class="form-control datemask booking-date">
@@ -121,7 +138,7 @@
 
                 <td>
                     <div class="form-group">
-                        <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
+                        <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled>
                             <option value="">Select Vehicle type</option>
                             @foreach ($vehicletypes as $vtype)
                             <option value="{{ $vtype->name }}">{{ $vtype->name }}</option>
@@ -132,7 +149,7 @@
 
                 <td>
                     <div class="form-group">
-                        <select name="vehicle[]" class="form-control select2 vehicle" required>
+                        <select name="vehicle[]" class="form-control select2 vehicle">
                             <option value="">Select Vehicle</option>
                         </select>
                     </div>
@@ -210,7 +227,7 @@
                     <button type="button" class="btn btn-danger btn-md removeRow">X</button>
                 </div>
                 <div class="row">
-                    <div class="col-2">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="">Type <span class="text-danger">*</span></label><br>
                             <select name="invoice_type[]" class="form-control select2 invoice_type">
@@ -221,22 +238,13 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-2">
-                        <div class="form-group">
-                            <label for="">Start Date <span class="text-danger">*</span></label><br>
-                            <input type="date" name="booking_date[]" class="form-control datemask booking-date" required>
-                        </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="form-group">
-                            <label for="">Return Date <span class="text-danger">*</span></label><br>
-                            <input type="date" name="return_date[]" class="form-control datemask return-date" required>
-                        </div>
-                    </div>
+
+
+
                     <div class="col-3">
                         <div class="form-group">
                             <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                 <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -247,20 +255,52 @@
                     <div class="col-3">
                         <div class="form-group">
                             <label for="">Vehicle Name<span class="text-danger">*</span></label><br>
-                            <select name="vehicle[]" class="form-control select2 vehicle" required>
+                            <select name="vehicle[]" class="form-control select2 vehicle">
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-2">
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="">Start Date <span class="text-danger">*</span></label><br>
+                            <input type="date" name="booking_date[]" class="form-control datemask booking-date">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="">Return Date <span class="text-danger">*</span></label><br>
+                            <input type="date" name="return_date[]" class="form-control datemask return-date">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for=""> DepositType <span class="text-danger">*</span></label><br>
+                            <select name="deposit_type[]" class="form-control select2 deposit_type">
+                                <option value="">Select Deposit type</option>
+                                <option value="1">Cardo</option>
+                                <option value="2">LPO</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label>Non Refundable Amount <span class="text-danger">*</span></label>
+                            <input type="number" value="0" name="non_refundable_amount[]" class="form-control non_refundable_amount">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="">Quantity</label><br>
                             <input type="number" name="quantity[]" value="1" class="form-control quantity">
                         </div>
                     </div>
-                    <div class="col-2">
+                    <div class="col-3">
                         <input type="hidden" name="tax_percent[]" class="tax">
                         <div class="form-group">
                             <label for="">Tax (%)</label><br>
@@ -322,7 +362,8 @@
     Swal.fire({
         icon: 'error',
         title: 'Oops...11',
-        text: '{{ session(' error ') }}',
+        text: '{{ session('
+        error ') }}',
     });
 </script>
 @endif
@@ -332,7 +373,8 @@
     Swal.fire({
         icon: 'success',
         title: 'Success!',
-        text: '{{ session(' success ') }}',
+        text: '{{ session('
+        success ') }}',
     });
 </script>
 @endif
@@ -341,8 +383,21 @@
 
 @section('script')
 
+
+
 <script>
     $(document).ready(function() {
+
+        // $('#invoice_type').on('change', function() {
+        //     var selected = $(this).val().toLowerCase();
+        //     alert("jj");
+        //     if (selected === 'renew' || selected === 'rent') {
+        //         $('#deposit_type_container').show();
+        //     } else {
+        //         $('#deposit_type_container').hide();
+        //     }
+        // });
+
         $('#addRow').click(function() {
             let newRow = `
                 <div class="card">
@@ -351,7 +406,7 @@
                             <button type="button" class="btn btn-danger btn-md removeRow">X</button>
                         </div>
                         <div class="row">
-                            <div class="col-2">
+                            <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Type <span class="text-danger">*</span></label><br>
                                     <select name="invoice_type[]" class="form-control select2 invoice_type">
@@ -362,22 +417,10 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-2">
-                                <div class="form-group">
-                                    <label for="">Start Date <span class="text-danger">*</span></label><br>
-                                    <input type="date" name="booking_date[]" class="form-control datemask booking-date" required>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="form-group">
-                                    <label for="">Return Date <span class="text-danger">*</span></label><br>
-                                    <input type="date" name="return_date[]" class="form-control datemask return-date" required>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-group">
+                              <div class="col-3">
+                            <div class="form-group">
                                     <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
-                                    <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
+                                    <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled>
                                         <option value="">Select Vehicle type</option>
                                         @foreach ($vehicletypes as $vtype)
                                             <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -388,20 +431,56 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                    <select name="vehicle[]" class="form-control select2 vehicle" required>
+                                    <select name="vehicle[]" class="form-control select2 vehicle">
                                         <option value="">Select Vehicle</option>
                                     </select>
                                 </div>
                             </div>
+
+                          
+                           
                         </div>
                         <div class="row">
-                            <div class="col-2">
+                       
+                                 <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Start Date <span class="text-danger">*</span></label><br>
+                                    <input type="date" name="booking_date[]" class="form-control datemask booking-date">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Return Date <span class="text-danger">*</span></label><br>
+                                    <input type="date" name="return_date[]" class="form-control datemask return-date">
+                                </div>
+                            </div> 
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for=""> DepositType <span class="text-danger">*</span></label><br>
+                                    <select name="deposit_type[]" class="form-control select2 deposit_type">
+                                        <option value="">Select Deposit type</option>
+                                        <option value="1">Cardo</option>
+                                        <option value="2">LPO</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label>Non Refundable Amount <span class="text-danger">*</span></label>
+                                    <input type="number" value="0" name="non_refundable_amount[]" class="form-control non_refundable_amount">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Quantity</label><br>
                                     <input type="number" name="quantity[]" value="1" class="form-control quantity">
                                 </div>
                             </div>
-                            <div class="col-2">
+                            <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Tax (%)</label><br>
                                     <select name="tax[]" class="form-control select2 zohotax">
@@ -466,19 +545,38 @@
         $(document).on('change', '.invoice_type', function() {
             const row = $(this).closest('.lineItem');
             const dateInputs = row.find('.datemask');
+            const Vehicle = row.find('.vehicle');
+            const nonRefundableAmount = row.find('.non_refundable_amount');
+            const depositType = row.find('.deposit_type');
             const vehicleType = row.find('.vehicletypes');
 
             if ($(this).val() === 'Renew') {
                 dateInputs.prop('required', true);
                 dateInputs.prop('disabled', false);
+                Vehicle.prop('disabled', false);
+                depositType.prop('disabled', false);
+                nonRefundableAmount.prop('disabled', false);
                 vehicleType.prop('disabled', true);
+                $('#deposit_type_container').show();
+                $('#non_refundable_amount').show();
+
+
+            } else if ($(this).val() === 'Rent') {
+                depositType.prop('disabled', false);
+                nonRefundableAmount.prop('disabled', false);
+
+
             } else {
                 dateInputs.prop('required', false);
                 dateInputs.prop('disabled', true);
                 vehicleType.prop('disabled', false);
                 dateInputs.val('');
+                depositType.prop('disabled', true);
+                nonRefundableAmount.prop('disabled', true);
 
             }
+
+
         });
 
         $('.invoice_type').trigger('change');
@@ -595,6 +693,24 @@
 </select>
 </div>
 </td>
+<td>
+    <div class="form-group">
+        <label for=""> DepositType <span class="text-danger">*</span></label><br>
+        <select name="deposit_type[]" class="form-control select2 deposit_type">
+            <option value="">Select Deposit type</option>
+            <option value="1">Cardo</option>
+            <option value="2">LPO</option>
+        </select>
+    </div>
+    </div>
+</td>
+<td>
+    <div class="form-group">
+        <label>Non Refundable Amount <span class="text-danger">*</span></label>
+        <input type="number" value="0" name="non_refundable_amount[]" class="form-control non_refundable_amount">
+    </div>
+
+</td>
 <td class="align-middle"><br>
     <div class="form-group">
         <input type="date" value="" name="booking_date[]" class="form-control datemask booking-date" placeholder="YYYY/MM/DD">
@@ -607,7 +723,7 @@
 </td>
 <td>
     <div class="form-group"><br>
-        <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
+        <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled>
             <option value="">Select Vehicle type</option>
             @foreach ($vehicletypes as $vtype)
             <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -618,7 +734,7 @@
 
 <td class="text-truncate"><br>
     <div class="form-group">
-        <select name="vehicle[]" class="form-control select2 vehicle" required>
+        <select name="vehicle[]" class="form-control select2 vehicle">
             <option value="">Select Vehicle</option>
         </select>
     </div>
@@ -706,7 +822,7 @@ let defaultRow = `
     </td>
     <td>
         <div class="form-group"><br>
-            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
+            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled>
                 <option value="">Select Vehicle type</option>
                 @foreach ($vehicletypes as $vtype)
                 <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -717,7 +833,7 @@ let defaultRow = `
 
     <td class="text-truncate"><br>
         <div class="form-group">
-            <select name="vehicle[]" class="form-control select2 vehicle" required>
+            <select name="vehicle[]" class="form-control select2 vehicle">
                 <option value="">Select Vehicle</option>
             </select>
         </div>
