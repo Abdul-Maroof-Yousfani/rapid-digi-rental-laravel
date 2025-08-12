@@ -553,10 +553,10 @@
             if ($(this).val() === 'Renew') {
                 dateInputs.prop('required', true);
                 dateInputs.prop('disabled', false);
-                Vehicle.prop('disabled', false);
+               // Vehicle.prop('disabled', false);
                 depositType.prop('disabled', false);
                 nonRefundableAmount.prop('disabled', false);
-                vehicleType.prop('disabled', true);
+                // vehicleType.prop('disabled', true);
                 $('#deposit_type_container').show();
                 $('#non_refundable_amount').show();
 
