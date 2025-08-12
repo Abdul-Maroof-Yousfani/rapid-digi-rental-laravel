@@ -7,7 +7,8 @@ $subtot = 0;
 foreach ($invoice->bookingData as $item) {
 $subtot += $item->item_total;
  $paid_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->paid_amount ?? 0;
-                        $due_bal = $subtot - $paid_amount;
+ $pending_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->pending_amount ?? 0;
+                        $due_bal = $pending_amount;
 }
 @endphp
 
@@ -100,8 +101,8 @@ $subtot += $item->item_total;
         width: 16%;
         color: #fff;
         transform: rotateZ(-45deg);
-        margin-left: -59px;
-        font-size: 24px
+        margin-left: -71px;
+        font-size: 18px
     }
 
     .sent-status {
@@ -126,7 +127,7 @@ $subtot += $item->item_total;
     <section class="section print-area">
         <div class="container my-5 border p-4 bg-white">
 
-            <div class="box1" style="background-color: {{ $invoice->invoice_status == 'sent' ? '#3e7eac' : '#808080' }}">
+            <div class="box1" style="background-color: {{ $invoice->invoice_status == 'paid' ? '#3e7eac' : '#808080' }}">
                 <p>
                     <!-- @if ($invoice->invoice_status == 'sent')
                     Sent
@@ -148,7 +149,7 @@ $subtot += $item->item_total;
                     <p class="mb-0 text-dark">testing@company.com</p>
                 </div>
                 <div class="col text-right">
-                    <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">Invoice</h3>
+                    <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">TAX Invoice</h3>
                     <p class="mb-0 font-weight-bold text-dark"># {{ $invoice->zoho_invoice_number }}</p>
                     <p class="mb-0 font-weight-bold text-dark">Balance Due</p>
                     <h5 class="font-weight-bold text-dark">AED{{ number_format($due_bal, 2) }}</h5>
