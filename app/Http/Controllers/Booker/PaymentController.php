@@ -118,7 +118,7 @@ class PaymentController extends Controller
             $pendingAmount = $bookingAmount - $paidAmount;
 
             $paymentStatus = $pendingAmount <= 0 ? 'paid' : 'pending';
-
+            $bookingStatus = $pendingAmount <= 0 ? 'sent' : 'partial paid';
             if ($request['adjust_invoice'] == 1) {
                 $booking = Booking::find($request->booking_id);
 
@@ -145,7 +145,7 @@ class PaymentController extends Controller
                     'payment_method' => $request['payment_method'],
                     'bank_id' => $request['bank_id'] ?? null,
                     'booking_amount' => $bookingAmount,
-                    'paid_amount' => $paidAmount,
+                    'paid_amount' => $payment->paid_amount + $paidAmount,
                     'pending_amount' => $pendingAmount,
                     'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
@@ -175,44 +175,75 @@ class PaymentController extends Controller
             $paymentDataMap = [];
             $pendingAmounts = [];
 
-            foreach ($request['invoice_id'] as $key => $invoice_ids) {
-                $invoiceAmount = floatval($request['invoice_amount'][$key]);
-                $invPaidAmount = floatval($request['invPaidAmount'][$key]);
-                $pendingAmountInvoice = $invoiceAmount - $invPaidAmount;
-                $status = ($invoiceAmount == $invPaidAmount) ? 'paid' : 'pending';
-                $paymentDataID = $request->paymentData_id[$key] ?? null;
+            $remainingPayment = $paidAmount; // total payment user made
 
-                $referenceInvoiceNumber = $request['reference_invoice_number'][$key] ?? null;
-                $remarks = $request['remarks'][$key] ?? null;
+            try {
+                foreach ($request['invoice_id'] as $key => $invoice_ids) {
+                    $invoiceAmount = floatval($request['invoice_amount'][$key]);
+                    $paymentDataID = $request->paymentData_id[$key] ?? null;
 
-                $paymentdata = $paymentDataID ? PaymentData::find($paymentDataID) : null;
+                    $paymentdata = $paymentDataID ? PaymentData::find($paymentDataID) : null;
 
-                if ($paymentdata) {
-                    $paymentdata->update([
-                        'invoice_id' => $invoice_ids,
-                        'payment_id' => $payment->id,
-                        'status' => $status,
-                        'invoice_amount' => $invoiceAmount,
-                        'paid_amount' => $invPaidAmount,
-                        'pending_amount' => $pendingAmountInvoice,
-                        'reference_invoice_number' => $referenceInvoiceNumber,
-                        'remarks' => $remarks,
-                    ]);
-                } else {
-                    $paymentdata = PaymentData::create([
-                        'invoice_id' => $invoice_ids,
-                        'payment_id' => $payment->id,
-                        'status' => $status,
-                        'invoice_amount' => $invoiceAmount,
-                        'paid_amount' => $invPaidAmount,
-                        'pending_amount' => $pendingAmountInvoice,
-                        'reference_invoice_number' => $referenceInvoiceNumber,
-                        'remarks' => $remarks,
-                    ]);
+                    $currentPaid = $paymentdata ? $paymentdata->paid_amount : 0;
+
+                    // Amount still pending for this invoice
+                    $pendingBefore = $invoiceAmount - $currentPaid;
+
+                    // Decide how much we can pay towards this invoice from remaining payment
+                    $payThisTime = min($pendingBefore, $remainingPayment);
+
+                    // Calculate new totals
+                    $newPaidAmount = $currentPaid + $payThisTime;
+                    $newPending = $invoiceAmount - $newPaidAmount;
+                    $newStatus1 = ($newPending <= 0) ? 'paid' : 'pending';
+                    $newStatus = ($newPending <= 0) ? 'sent' : 'partial paid';
+
+                    if ($paymentdata) {
+                        $paymentdata->update([
+                            'invoice_id' => $invoice_ids,
+                            'payment_id' => $payment->id,
+                            'invoice_amount' => $invoiceAmount,
+                            'paid_amount' => $newPaidAmount,
+                            'status' => $newStatus1,
+                            'pending_amount' => $newPending,
+                            'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
+                            'remarks' => $request['remarks'][$key] ?? null,
+                        ]);
+                    } else {
+                        $paymentdata = PaymentData::create([
+                            'invoice_id' => $invoice_ids,
+                            'payment_id' => $payment->id,
+                            'status' => $newStatus1,
+                            'invoice_amount' => $invoiceAmount,
+                            'paid_amount' => $payThisTime,
+                            'pending_amount' => $newPending,
+                            'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
+                            'remarks' => $request['remarks'][$key] ?? null,
+                        ]);
+                    }
+
+                    // Update invoice status
+                    if ($paymentdata->invoice) {
+                        $paymentdata->invoice->update([
+                            'invoice_status' => $newStatus,
+                        ]);
+                    }
+
+                    // Deduct from remaining payment
+                    $remainingPayment -= $payThisTime;
+
+                    $paymentDataMap[$key] = $paymentdata->id;
+                    $pendingAmounts[] = $remainingPayment;
                 }
-                $paymentDataMap[$key] = $paymentdata->id;
-                $pendingAmounts[] = $pendingAmountInvoice;
+            } catch (\Throwable $e) {
+                return response()->json([
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ], 500);
             }
+
+
 
             if ($depositUsed > 0) {
                 $booking = Booking::find($request->booking_id);
@@ -250,12 +281,13 @@ class PaymentController extends Controller
                     return redirect()->route('payment.index')->with('success', 'Record inserted but invoice ID not found, not sent.');
                 }
             }
-
+            // return "ok";
             DB::commit();
 
             return redirect()->route('payment.index')->with('success', 'Payment created successfully!');
         } catch (\Exception $exp) {
             DB::rollback();
+            // return "df";
             return redirect()->back()->with('error', $exp->getMessage());
         }
     }

@@ -6,8 +6,11 @@ $userRole= Auth::user()->getRoleNames()->first();
 $subtot = 0;
 foreach ($invoice->bookingData as $item) {
 $subtot += $item->item_total;
+ $paid_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->paid_amount ?? 0;
+                        $due_bal = $subtot - $paid_amount;
 }
 @endphp
+
 <style>
     @media print {
         body * {
@@ -125,11 +128,12 @@ $subtot += $item->item_total;
 
             <div class="box1" style="background-color: {{ $invoice->invoice_status == 'sent' ? '#3e7eac' : '#808080' }}">
                 <p>
-                    @if ($invoice->invoice_status == 'sent')
+                    <!-- @if ($invoice->invoice_status == 'sent')
                     Sent
                     @else
                     Draft
-                    @endif
+                    @endif -->
+                    {{ $invoice->invoice_status }}
                 </p>
             </div>
 
@@ -147,7 +151,7 @@ $subtot += $item->item_total;
                     <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">Invoice</h3>
                     <p class="mb-0 font-weight-bold text-dark"># {{ $invoice->zoho_invoice_number }}</p>
                     <p class="mb-0 font-weight-bold text-dark">Balance Due</p>
-                    <h5 class="font-weight-bold text-dark">AED{{ number_format($subtot, 2) }}</h5>
+                    <h5 class="font-weight-bold text-dark">AED{{ number_format($due_bal, 2) }}</h5>
                 </div>
             </div>
 
@@ -187,9 +191,9 @@ $subtot += $item->item_total;
                 <tbody>
                     @php $counter = 0; @endphp
                     @foreach ($invoice->bookingData as $item)
-                    @php $counter++; 
-                   
-                    
+                    @php $counter++;
+
+
                     @endphp
                     <tr style="border-bottom: 2px solid #ADADAD;">
                         <td class="text-left">{{ $counter }}</td>
@@ -211,33 +215,33 @@ $subtot += $item->item_total;
                     </tr>
                     @endforeach
                     <?php
-                    if ($invoice->bookingData()->orderby('id','DESC')->first()->view_type == 1 && $invoice->booking->deposit_type != null){ ?>
-                    <tr>
-                        <td>{{ $counter + 1 }}</td>
-                        <td class="text-left">
-                            @if ($invoice->booking->deposit_type == 1)
-                            Cardo
-                            @elseif ($invoice->booking->deposit_type == 2)
-                            LPO
-                            @else
-                            -
-                            @endif
-                        </td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">
-                            {{ $invoice->booking->non_refundable_amount }}
-                        </td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">
-                            {{ $invoice->booking->non_refundable_amount }}
-                        </td>
+                    if ($invoice->bookingData()->orderby('id', 'DESC')->first()->view_type == 1 && $invoice->booking->deposit_type != null) { ?>
+                        <tr>
+                            <td>{{ $counter + 1 }}</td>
+                            <td class="text-left">
+                                @if ($invoice->booking->deposit_type == 1)
+                                Cardo
+                                @elseif ($invoice->booking->deposit_type == 2)
+                                LPO
+                                @else
+                                -
+                                @endif
+                            </td>
+                            <td class="text-right">-</td>
+                            <td class="text-right">
+                                {{ $invoice->booking->non_refundable_amount }}
+                            </td>
+                            <td class="text-right">-</td>
+                            <td class="text-right">-</td>
+                            <td class="text-right">
+                                {{ $invoice->booking->non_refundable_amount }}
+                            </td>
 
-                        @php $subtot += $invoice->booking->non_refundable_amount; @endphp
-                    </tr>
-                  <?php
+                            @php $subtot += $invoice->booking->non_refundable_amount; @endphp
+                        </tr>
+                    <?php
                     }
-                  ?>
+                    ?>
                 </tbody>
             </table>
 
@@ -249,9 +253,14 @@ $subtot += $item->item_total;
                             <td class="text-right">Sub Total</td>
                             <td class="text-right">AED{{ number_format($subtot, 2) }}</td>
                         </tr>
+                      
+                        <tr>
+                            <td class="text-right">Paid Amount</td>
+                            <td class="text-right">AED{{ number_format($paid_amount, 2) }}</td>
+                        </tr>
                         <tr class="bg-light text-dark">
                             <th class="text-right">Balance Due</th>
-                            <td class="text-right font-weight-bold">AED{{ number_format($subtot, 2) }}</td>
+                            <td class="text-right font-weight-bold">AED{{ number_format($due_bal, 2) }}</td>
                         </tr>
                     </table>
                 </div>

@@ -159,7 +159,7 @@ class BookingController extends Controller
                         'name' => 'Cardo',
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
-                        'quantity' => null,
+                        'quantity' => 1,
                         'tax_id' => null,
                     ];
                 } elseif ($request->deposit_type == 2) {
@@ -167,7 +167,7 @@ class BookingController extends Controller
                         'name' => 'LPO',
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
-                        'quantity' => null,
+                        'quantity' => 1,
                         'tax_id' => null,
                     ];
                 }
@@ -218,7 +218,7 @@ class BookingController extends Controller
                         if ($request->invoiceTypes[$key] == 'null') {
                             $quantity = 1;
                         } else {
-                            $quantity = null;
+                            $quantity = 1;
                         }
                         $taxNam = $request['tax_name'][$key] ?? null;
                         if (!empty($request['tax_percent'][$key])) {
@@ -458,7 +458,7 @@ class BookingController extends Controller
                         'name' => 'Cardo',
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
-                        'quantity' => null,
+                        'quantity' => 1,
                         'tax_id' => null,
                     ];
                 } elseif ($request->deposit_type == 2) {
@@ -466,7 +466,7 @@ class BookingController extends Controller
                         'name' => 'LPO',
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
-                        'quantity' => null,
+                        'quantity' => 1,
                         'tax_id' => null,
                     ];
                 }
@@ -530,7 +530,7 @@ class BookingController extends Controller
                         if ($request->invoiceTypes[$key] == 'null') {
                             $quantity = 1;
                         } else {
-                            $quantity = null;
+                            $quantity = 1;
                         }
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
                         $taxNam = $request['tax_name'][$key] ?? null;

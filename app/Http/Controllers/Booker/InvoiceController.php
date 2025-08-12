@@ -361,7 +361,7 @@ class InvoiceController extends Controller
 
     public function viewInvoice($id)
     {
-        $invoice = Invoice::with(['bookingData.invoice_type', 'booking'])->find($id);
+        $invoice = Invoice::with(['bookingData.invoice_type', 'booking', 'paymentData'])->find($id);
         if (!$invoice) {
             return redirect()->back()->with('error', 'Invoice Not Found');
         }
