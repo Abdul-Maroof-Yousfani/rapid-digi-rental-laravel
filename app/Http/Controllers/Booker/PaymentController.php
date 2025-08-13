@@ -196,7 +196,7 @@ class PaymentController extends Controller
                     $newPaidAmount = $currentPaid + $payThisTime;
                     $newPending = $invoiceAmount - $newPaidAmount;
                     $newStatus1 = ($newPending <= 0) ? 'paid' : 'pending';
-                    $newStatus = ($newPending <= 0) ? 'sent' : 'partial paid';
+                    $newStatus = ($newPending <= 0) ? 'paid' : 'partial paid';
 
                     if ($paymentdata) {
                         $paymentdata->update([
@@ -265,24 +265,56 @@ class PaymentController extends Controller
 
             $paymentDataList = PaymentData::with('invoice')
                 ->where('payment_id', $payment->id)
-                ->where('status', 'paid')
+                ->whereIn('status', ['paid', 'pending'])
                 ->get();
 
             foreach ($paymentDataList as $paymentData) {
-                if ($paymentData->invoice) {
-                    $invoiceID = $paymentData->invoice->zoho_invoice_id;
+                if (!$paymentData->invoice) {
+                    DB::commit();
+                    return redirect()->route('payment.index')
+                        ->with('success', 'Record inserted but invoice ID not found, not sent.');
+                }
+
+                $invoiceID = $paymentData->invoice->zoho_invoice_id;
+                $customerId = $paymentData->invoice->zoho_customer_id;
+                $amountPaid = $paymentData->paid_amount;
+                $pendingAmount = $paymentData->pending_amount;
+
+                // Determine DB-safe status (since enum only allows 'paid' or 'pending')
+                $newStatus = ($pendingAmount <= 0) ? 'paid' : 'partial paid';
+
+                try {
+                    // Step 1: Mark invoice as sent in Zoho
                     $this->zohoinvoice->markAsSent($invoiceID);
+
+                    // Step 2: Record payment in Zoho
+                    $this->zohoinvoice->recordPayment(
+                        $customerId,
+                        $invoiceID,
+                        $amountPaid,
+                        now()->format('Y-m-d')
+                    );
+
+                    // Step 3: Update local DB invoice status
                     $invoice = Invoice::find($paymentData->invoice->id);
                     $invoice->update([
-                        'invoice_status' => 'sent',
+                        'invoice_status' => $newStatus,
                     ]);
-                } else {
-                    DB::commit();
-                    return redirect()->route('payment.index')->with('success', 'Record inserted but invoice ID not found, not sent.');
+                } catch (\GuzzleHttp\Exception\RequestException $e) {
+                    // Catch Zoho API errors
+                    DB::rollBack();
+                    $message = $e->getResponse()
+                        ? $e->getResponse()->getBody()->getContents()
+                        : $e->getMessage();
+                    return redirect()->route('payment.index')
+                        ->with('error', "Failed to update invoice {$invoiceID}: {$message}");
+                } catch (\Exception $e) {
+                    // Catch any other errors
+                    DB::rollBack();
+                    return redirect()->route('payment.index')
+                        ->with('error', "An error occurred: {$e->getMessage()}");
                 }
             }
-            // return "ok";
-            DB::commit();
 
             return redirect()->route('payment.index')->with('success', 'Payment created successfully!');
         } catch (\Exception $exp) {
