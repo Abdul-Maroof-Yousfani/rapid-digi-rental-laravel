@@ -67,7 +67,10 @@
                                         @foreach ($booking as $item)
                                         <tr>
                                             @php
-                                            $today = \Carbon\Carbon::today();
+                                            $today = \Carbon\Carbon::today(); // Day after today
+
+                                            // Default status
+                                            $status = 'draft';
 
                                             // Get the end_date value
                                             $bookingData = $item->booking->bookingData()->select('end_date')->first();
@@ -75,22 +78,29 @@
                                             if ($bookingData) {
                                             $endDate = \Carbon\Carbon::parse($bookingData->end_date); // convert to Carbon
 
-                                            if ($endDate->lt($today)) {
+                                            // Only check overdue if status is draft
+                                            if ($status === 'draft' && $endDate->lt($today)) {
                                             $status = 'overdue';
-                                            }
-                                             else{
-                                            $status = 'draft';
                                             }
                                             }
 
-                                           
-                                            if (!empty($item->booking->payment->payment_status) && strtolower($item->booking->payment->payment_status) === 'paid') {
+                                            // Check payment status safely
+                                            $payment = $item->booking->payment ?? null;
+
+                                            if ($payment && !empty($payment->payment_status)) {
+                                            $paymentStatus = strtolower($payment->payment_status);
+
+                                            if ($paymentStatus === 'paid') {
                                             $status = 'paid';
+                                            } elseif ($paymentStatus === 'pending') {
+                                            $status = 'partial paid';
+                                            }
                                             }
                                             @endphp
+
                                             <td>{{ $number }}.</td>
                                             <td>{{ $item->booking->customer->customer_name ?? 0 }}</td>
-                                            <td>{{ $item->booking->due_date ?? 0 }}</td>
+                                            <td>{{ $item->booking->agreement_no ?? 0 }}</td>
                                             <td>{{ $item->booking->salePerson->name ?? 'N/A' }}</td>
                                             <td>{{ $item->booking->deposit->deposit_amount ?? 0 }}</td>
                                             <td>{{ $status }}</td>

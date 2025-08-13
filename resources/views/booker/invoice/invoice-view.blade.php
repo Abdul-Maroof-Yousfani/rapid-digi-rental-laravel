@@ -126,21 +126,30 @@ $due_bal = $pending_amount;
 
     <section class="section print-area">
         <div class="container my-5 border p-4 bg-white">
-            @php
-            $endDate = \Carbon\Carbon::parse($invoice->end_date);
-            $isOverdue = strtolower(trim($invoice->invoice_status)) === 'draft'
-            && \Carbon\Carbon::now()->gt($endDate);
-            @endphp
+         @php
+    $isOverdue = null;
+    $today = \Carbon\Carbon::today(); // Day after today
 
-            <div class="box1"
-                style="background-color: 
+    $bookingData = $invoice->bookingData()->select('end_date')->first();
+
+    if ($bookingData) {
+        $endDate = \Carbon\Carbon::parse($bookingData->end_date); // convert string to Carbon
+
+        if (strtolower(trim($invoice->invoice_status)) === 'draft' && $endDate->lt($today)) {
+            $isOverdue = true;
+        }
+    }
+@endphp
+
+<div class="box1"
+    style="background-color: 
         {{ $isOverdue 
             ? '#d3660dff' 
             : ($invoice->invoice_status == 'paid' ? '#3e7eac' : '#808080') }}">
-                <p>
-                    {{ ucfirst($isOverdue ? 'Overdue' : $invoice->invoice_status) }}
-                </p>
-            </div>
+    <p>
+        {{ ucfirst($isOverdue ? 'Overdue' : $invoice->invoice_status) }}
+    </p>
+</div>
 
 
 
