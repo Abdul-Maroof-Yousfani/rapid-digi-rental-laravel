@@ -221,13 +221,13 @@ class PaymentController extends Controller
                             'remarks' => $request['remarks'][$key] ?? null,
                         ]);
                     }
-
                     // Update invoice status
                     if ($paymentdata->invoice) {
                         $paymentdata->invoice->update([
                             'invoice_status' => $newStatus,
                         ]);
                     }
+
 
                     // Deduct from remaining payment
                     $remainingPayment -= $payThisTime;
@@ -267,52 +267,34 @@ class PaymentController extends Controller
                 ->where('payment_id', $payment->id)
                 ->whereIn('status', ['paid', 'pending'])
                 ->get();
-
-            foreach ($paymentDataList as $paymentData) {
-                if (!$paymentData->invoice) {
-                    DB::commit();
-                    return redirect()->route('payment.index')
-                        ->with('success', 'Record inserted but invoice ID not found, not sent.');
+            try {
+                foreach ($paymentDataList as $paymentData) {
+                    if ($paymentData->invoice) {
+                        $newStatus = $paymentData->pending_amount <= 0 ? 'paid' : 'partial paid';
+                        $paymentData->invoice->update([
+                            'invoice_status' => $newStatus,
+                        ]);
+                    }
                 }
 
-                $invoiceID = $paymentData->invoice->zoho_invoice_id;
-                $customerId = $paymentData->invoice->zoho_customer_id;
-                $amountPaid = $paymentData->paid_amount;
-                $pendingAmount = $paymentData->pending_amount;
-
-                // Determine DB-safe status (since enum only allows 'paid' or 'pending')
-                $newStatus = ($pendingAmount <= 0) ? 'paid' : 'partial paid';
-
-                try {
-                    // Step 1: Mark invoice as sent in Zoho
-                    $this->zohoinvoice->markAsSent($invoiceID);
-
-                    // Step 2: Record payment in Zoho
-                    $this->zohoinvoice->recordPayment(
-                        $customerId,
-                        $invoiceID,
-                        $amountPaid,
-                        now()->format('Y-m-d')
-                    );
-
-                    // Step 3: Update local DB invoice status
-                    $invoice = Invoice::find($paymentData->invoice->id);
-                    $invoice->update([
-                        'invoice_status' => $newStatus,
-                    ]);
-                } catch (\GuzzleHttp\Exception\RequestException $e) {
-                    // Catch Zoho API errors
-                    DB::rollBack();
-                    $message = $e->getResponse()
-                        ? $e->getResponse()->getBody()->getContents()
-                        : $e->getMessage();
-                    return redirect()->route('payment.index')
-                        ->with('error', "Failed to update invoice {$invoiceID}: {$message}");
-                } catch (\Exception $e) {
-                    // Catch any other errors
-                    DB::rollBack();
-                    return redirect()->route('payment.index')
-                        ->with('error', "An error occurred: {$e->getMessage()}");
+                DB::commit();
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                return redirect()->back()->with('error', $e->getMessage());
+            }
+            foreach ($paymentDataList as $paymentData) {
+                if ($paymentData->invoice) {
+                    try {
+                        $this->zohoinvoice->markAsSent($paymentData->invoice->zoho_invoice_id);
+                        $this->zohoinvoice->recordPayment(
+                            $paymentData->invoice->zoho_customer_id,
+                            $paymentData->invoice->zoho_invoice_id,
+                            $paymentData->paid_amount,
+                            now()->format('Y-m-d')
+                        );
+                    } catch (\Throwable $e) {
+                        \Log::error("Zoho update failed: " . $e->getMessage());
+                    }
                 }
             }
 

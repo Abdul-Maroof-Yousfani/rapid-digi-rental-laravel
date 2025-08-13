@@ -6,9 +6,9 @@ $userRole= Auth::user()->getRoleNames()->first();
 $subtot = 0;
 foreach ($invoice->bookingData as $item) {
 $subtot += $item->item_total;
- $paid_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->paid_amount ?? 0;
- $pending_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->pending_amount ?? 0;
-                        $due_bal = $pending_amount;
+$paid_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->paid_amount ?? 0;
+$pending_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->pending_amount ?? 0;
+$due_bal = $pending_amount;
 }
 @endphp
 
@@ -126,17 +126,23 @@ $subtot += $item->item_total;
 
     <section class="section print-area">
         <div class="container my-5 border p-4 bg-white">
+            @php
+            $endDate = \Carbon\Carbon::parse($invoice->end_date);
+            $isOverdue = strtolower(trim($invoice->invoice_status)) === 'draft'
+            && \Carbon\Carbon::now()->gt($endDate);
+            @endphp
 
-            <div class="box1" style="background-color: {{ $invoice->invoice_status == 'paid' ? '#3e7eac' : '#808080' }}">
+            <div class="box1"
+                style="background-color: 
+        {{ $isOverdue 
+            ? '#d3660dff' 
+            : ($invoice->invoice_status == 'paid' ? '#3e7eac' : '#808080') }}">
                 <p>
-                    <!-- @if ($invoice->invoice_status == 'sent')
-                    Sent
-                    @else
-                    Draft
-                    @endif -->
-                    {{ $invoice->invoice_status }}
+                    {{ ucfirst($isOverdue ? 'Overdue' : $invoice->invoice_status) }}
                 </p>
             </div>
+
+
 
             <br>
             <br>
@@ -149,7 +155,7 @@ $subtot += $item->item_total;
                     <p class="mb-0 text-dark">testing@company.com</p>
                 </div>
                 <div class="col text-right">
-                    <h3 style="color:#33A1E0; font-size:3rem; font-weight:100">TAX Invoice</h3>
+                    <h3 style="color:#33A1E0; font-size:2.3rem; font-weight:50">TAX INVOICE</h3>
                     <p class="mb-0 font-weight-bold text-dark"># {{ $invoice->zoho_invoice_number }}</p>
                     <p class="mb-0 font-weight-bold text-dark">Balance Due</p>
                     <h5 class="font-weight-bold text-dark">AED{{ number_format($due_bal, 2) }}</h5>
@@ -170,7 +176,7 @@ $subtot += $item->item_total;
                 <div class="col text-right">
                     <p class="text-dark"><strong>Invoice Date:</strong> {{ \Carbon\Carbon::Parse($invoice->created_at)->format('d-M-Y') }}</p>
                     {{-- <p class="text-dark"><strong>Terms:</strong> Net 15</p> --}}
-                    <p class="text-dark"><strong>Due Date:</strong> 19 Jun 2025</p>
+                    <p class="text-dark"> <strong>Due Date:</strong> {{ \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</p>
                     <p class="text-dark"><strong>Sale Person:</strong> {{ $item->booking->salePerson->name }}</p>
                     <p class="text-dark"><strong>VAT:</strong> {{ $item->tax_percent }}</p>
                 </div>
@@ -254,15 +260,23 @@ $subtot += $item->item_total;
                             <td class="text-right">Sub Total</td>
                             <td class="text-right">AED{{ number_format($subtot, 2) }}</td>
                         </tr>
-                      
+
                         <tr>
                             <td class="text-right">Paid Amount</td>
                             <td class="text-right">AED{{ number_format($paid_amount, 2) }}</td>
                         </tr>
                         <tr class="bg-light text-dark">
-                            <th class="text-right">Balance Due</th>
-                            <td class="text-right font-weight-bold">AED{{ number_format($due_bal, 2) }}</td>
+                            <td class="text-right">
+                                {{ strtolower(trim($invoice->invoice_status)) === 'draft' ? 'subtot' : 'Balance Due' }}
+                            </td>
+                            <td class="text-right font-weight-bold">
+                                AED{{ number_format(
+            strtolower(trim($invoice->invoice_status)) === 'draft' ? $subtot : $due_bal, 
+            2
+        ) }}
+                            </td>
                         </tr>
+
                     </table>
                 </div>
             </div>

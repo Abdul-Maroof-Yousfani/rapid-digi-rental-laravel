@@ -68,20 +68,29 @@
                                         <tr>
                                             @php
                                             $today = \Carbon\Carbon::today();
-                                            $bookingStart = \Carbon\Carbon::parse($item->booking->started_at);
-                                            if ($bookingStart->lt($today)) {
+
+                                            // Get the end_date value
+                                            $bookingData = $item->booking->bookingData()->select('end_date')->first();
+
+                                            if ($bookingData) {
+                                            $endDate = \Carbon\Carbon::parse($bookingData->end_date); // convert to Carbon
+
+                                            if ($endDate->lt($today)) {
                                             $status = 'overdue';
                                             }
-                                            else{
-                                            $status = 'valid';
+                                             else{
+                                            $status = 'draft';
                                             }
+                                            }
+
+                                           
                                             if (!empty($item->booking->payment->payment_status) && strtolower($item->booking->payment->payment_status) === 'paid') {
-                                            $status = 'completed';
+                                            $status = 'paid';
                                             }
                                             @endphp
                                             <td>{{ $number }}.</td>
                                             <td>{{ $item->booking->customer->customer_name ?? 0 }}</td>
-                                            <td>{{ $item->booking->agreement_no ?? 0 }}</td>
+                                            <td>{{ $item->booking->due_date ?? 0 }}</td>
                                             <td>{{ $item->booking->salePerson->name ?? 'N/A' }}</td>
                                             <td>{{ $item->booking->deposit->deposit_amount ?? 0 }}</td>
                                             <td>{{ $status }}</td>
