@@ -102,7 +102,7 @@ $due_bal = $pending_amount;
         color: #fff;
         transform: rotateZ(-45deg);
         margin-left: -71px;
-        font-size: 18px
+        font-size: 16px
     }
 
     .sent-status {

@@ -93,7 +93,7 @@
                                             if ($paymentStatus === 'paid') {
                                             $status = 'paid';
                                             } elseif ($paymentStatus === 'pending') {
-                                            $status = 'partial paid';
+                                            $status = 'partially paid';
                                             }
                                             }
                                             @endphp

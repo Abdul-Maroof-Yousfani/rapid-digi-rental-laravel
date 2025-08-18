@@ -817,15 +817,15 @@
                             </div>
 
 
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                    <input type="number" value="" name="price[]" class="form-control price"  required>
-                                </div>
+                          <div class="col-3">
+                            <div class="form-group">
+                                <label for="">Price (AED) <span class="text-danger">*</span></label><br>
+                                <input type="number" name="price[]" class="form-control price" step="0.01" min="0" value="" required>
                             </div>
+                        </div>
                             <div class="col-3">
                                 <div class="form-group">
-                                    <label for="">Total Amountff</label><br>
+                                    <label for="">Total Amount</label><br>
                                     <input type="number" value="" name="amount[]" class="form-control amount" disabled>
                                 </div>
                             </div>

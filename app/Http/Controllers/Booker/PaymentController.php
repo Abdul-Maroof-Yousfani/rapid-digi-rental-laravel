@@ -124,7 +124,7 @@ class PaymentController extends Controller
             $pendingAmount = $bookingAmount - $paidAmount;
 
             $paymentStatus = $pendingAmount <= 0 ? 'paid' : 'pending';
-            $bookingStatus = $pendingAmount <= 0 ? 'sent' : 'partial paid';
+            $bookingStatus = $pendingAmount <= 0 ? 'sent' : 'partially paid';
             if ($request['adjust_invoice'] == 1) {
                 $booking = Booking::find($request->booking_id);
 
@@ -216,7 +216,7 @@ class PaymentController extends Controller
                     $newPaidAmount = $currentPaid + $payThisTime;
                     $newPending = $invoiceAmount - $newPaidAmount;
                     $newStatus1 = ($newPending <= 0) ? 'paid' : 'pending';
-                    $newStatus = ($newPending <= 0) ? 'paid' : 'partial paid';
+                    $newStatus = ($newPending <= 0) ? 'paid' : 'partially paid';
 
                     if ($paymentdata) {
                         $paymentdata->update([
@@ -293,7 +293,7 @@ class PaymentController extends Controller
             try {
                 foreach ($paymentDataList as $paymentData) {
                     if ($paymentData->invoice) {
-                        $newStatus = $paymentData->pending_amount <= 0 ? 'paid' : 'partial paid';
+                        $newStatus = $paymentData->pending_amount <= 0 ? 'paid' : 'partially paid';
                         $paymentData->invoice->update([
                             'invoice_status' => $newStatus,
                         ]);
