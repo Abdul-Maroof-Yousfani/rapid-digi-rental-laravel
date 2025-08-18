@@ -54,15 +54,11 @@ $formAction = $bookingId ? url($userRole.'/pending-payment/' . $bookingId) : url
                                                         <select name="booking_id" id="booking_id" onchange="bookingChange()" class="form-control select2 booking_id">
                                                             <option value="">Select Booking</option>
                                                             @foreach ($bookings as $item)
-                                                            @php
-                                                            $status = optional($item->payment)->payment_status;
-                                                            $disableOption = ($status !== 'pending' && $status !== null);
-                                                            @endphp
-                                                            <option value="{{ $item->id }}"
-                                                                {{ $disableOption ? 'disabled' : '' }}>
+                                                            <option value="{{ $item->id }}">
                                                                 {{ $item->agreement_no }} | {{ $item->customer->customer_name }}
                                                             </option>
                                                             @endforeach
+
                                                         </select><br>
                                                         <input type="hidden" value="" name="payment_id" class="payment_id" readonly>
                                                     </div>
@@ -202,20 +198,20 @@ $formAction = $bookingId ? url($userRole.'/pending-payment/' . $bookingId) : url
                                         <tr>
                                             <td colspan="7" class="text-right align-middle">
                                                 <!-- <div class="form-check"> -->
-                                                    <input type="hidden" name="used_deposit_amount" value="0">
-                                                    <input type="checkbox" id="used_deposit_amount" name="used_deposit_amount" value="1" onchange="usedDeposit()" disabled>
+                                                <input type="hidden" name="used_deposit_amount" value="0">
+                                                <input type="checkbox" id="used_deposit_amount" name="used_deposit_amount" value="1" onchange="usedDeposit()" disabled>
                                                 <!-- </div> -->
                                                 Use Deposit Amount
                                                 <small class="form-text text-muted">Check to apply deposit (enabled when deposit > 0).</small>
                                             </td>
                                             <td>
-                                                
+
                                             </td>
                                         </tr>
                                         <tr>
                                             <td colspan="7" class="text-right align-middle">Receive Amount <span class="text-danger">*</span></td>
                                             <td>
-                                               <input type="number" value="" name="amount_receive" class="form-control amount_receive" step="0.01">
+                                                <input type="number" value="" name="amount_receive" class="form-control amount_receive" step="0.01">
 
                                                 <small class="form-text text-danger d-none" id="amount-error">Amount cannot exceed pending amount.</small>
                                             </td>
@@ -227,7 +223,7 @@ $formAction = $bookingId ? url($userRole.'/pending-payment/' . $bookingId) : url
                                                 <input type="hidden" class="form-control restrict">
                                             </td>
                                         </tr>
-                                        
+
                                         <tr>
                                             <td colspan="7" class="text-right align-middle">Remaining Deposit</td>
                                             <td>
@@ -237,14 +233,14 @@ $formAction = $bookingId ? url($userRole.'/pending-payment/' . $bookingId) : url
                                         <tr>
                                             <td colspan="7" class="text-right align-middle">
                                                 <!-- <div class="form-check"> -->
-                                                    <input type="hidden" name="adjust_invoice" value="0">
-                                                    <input type="checkbox" id="adjust_invoice" name="adjust_invoice" value="1" onchange="usedDepositAgainstInvoice()" disabled>
+                                                <input type="hidden" name="adjust_invoice" value="0">
+                                                <input type="checkbox" id="adjust_invoice" name="adjust_invoice" value="1" onchange="usedDepositAgainstInvoice()" disabled>
                                                 <!-- </div> -->
                                                 Adjust Deposit Against Invoice
                                                 <small class="form-text text-muted">Check to link deposit to a specific invoice.</small>
                                             </td>
                                             <td>
-                                                
+
                                             </td>
                                         </tr>
                                         <tr id="invoice_adjustment_section1" style="display: none;">

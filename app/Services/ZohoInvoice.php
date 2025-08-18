@@ -210,7 +210,7 @@ class ZohoInvoice
         $client = new Client();
 
         $body = [
-            "status" => "sent"
+            "status" => "paid"
         ];
 
         $response = $client->put('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceID, [

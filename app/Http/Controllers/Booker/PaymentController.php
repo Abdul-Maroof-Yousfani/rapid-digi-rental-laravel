@@ -40,7 +40,13 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        $bookings = Booking::with('payment')->orderBy('id', 'DESC')->get();
+        $bookings = Booking::whereDoesntHave('payment', function ($query) {
+            $query->where('payment_status', 'paid');
+        })
+            ->with('payment')
+            ->orderBy('id', 'DESC')
+            ->get();
+
         $bookingsPartial = Booking::with('payment')
             ->whereDoesntHave('payment')
             ->orderBy('id', 'DESC')
@@ -112,7 +118,7 @@ class PaymentController extends Controller
             }
 
             // Calculate paid amount as cash + deposit used
-            $paidAmount = $amountReceive + $depositUsed;
+            $paidAmount = $amountReceive;
 
             // Calculate pending amount
             $pendingAmount = $bookingAmount - $paidAmount;
@@ -135,8 +141,9 @@ class PaymentController extends Controller
 
             $beforeUpdateAmount = 0;
             $beforeUpdateDate = Carbon::now();
-
             if ($request->payment_id) {
+                // return $paymentStatus;
+
                 $payment = Payment::find($request->payment_id);
                 $beforeUpdateAmount = $payment->paid_amount ?? 0;
                 $beforeUpdateDate = $payment->created_at;
@@ -146,22 +153,35 @@ class PaymentController extends Controller
                     'bank_id' => $request['bank_id'] ?? null,
                     'booking_amount' => $bookingAmount,
                     'paid_amount' => $payment->paid_amount + $paidAmount,
-                    'pending_amount' => $pendingAmount,
-                    'payment_status' => $paymentStatus,
+                    'pending_amount' => $payment->pending_amount - $amountReceive,
+                    // 'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
             } else {
+                // return "kk";
+
                 $payment = Payment::create([
                     'booking_id' => $request['booking_id'],
                     'payment_method' => $request['payment_method'],
                     'bank_id' => $request['bank_id'] ?? null,
                     'booking_amount' => $bookingAmount,
                     'paid_amount' => $paidAmount,
-                    'pending_amount' => $pendingAmount,
-                    'payment_status' => $paymentStatus,
+                    'pending_amount' => $bookingAmount - $paidAmount,
+                    // 'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
             }
+
+            if ($payment->paid_amount == $payment->booking_amount) {
+                $payment->update([
+                    'payment_status' => 'paid',
+                ]);
+            } else {
+                $payment->update([
+                    'payment_status' => 'pending',
+                ]);
+            }
+            // return $payment->pending_amount;
 
             BookingPaymentHistory::create([
                 'booking_id' => $request['booking_id'],
@@ -176,7 +196,7 @@ class PaymentController extends Controller
             $pendingAmounts = [];
 
             $remainingPayment = $paidAmount; // total payment user made
-
+            $incrementalPayments = [];
             try {
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
                     $invoiceAmount = floatval($request['invoice_amount'][$key]);
@@ -234,8 +254,12 @@ class PaymentController extends Controller
 
                     $paymentDataMap[$key] = $paymentdata->id;
                     $pendingAmounts[] = $remainingPayment;
+                    $incrementalPayments[$key] = $payThisTime;
                 }
+                DB::commit();
             } catch (\Throwable $e) {
+                DB::rollBack();
+
                 return response()->json([
                     'error' => $e->getMessage(),
                     'file' => $e->getFile(),
@@ -265,7 +289,6 @@ class PaymentController extends Controller
 
             $paymentDataList = PaymentData::with('invoice')
                 ->where('payment_id', $payment->id)
-                ->whereIn('status', ['paid', 'pending'])
                 ->get();
             try {
                 foreach ($paymentDataList as $paymentData) {
@@ -276,27 +299,29 @@ class PaymentController extends Controller
                         ]);
                     }
                 }
-
                 DB::commit();
             } catch (\Throwable $e) {
                 DB::rollBack();
+
                 return redirect()->back()->with('error', $e->getMessage());
             }
-            foreach ($paymentDataList as $paymentData) {
+
+            // return $paymentDataList;
+            foreach ($paymentDataList as $key => $paymentData) {
                 if ($paymentData->invoice) {
-                    try {
-                        $this->zohoinvoice->markAsSent($paymentData->invoice->zoho_invoice_id);
-                        $this->zohoinvoice->recordPayment(
-                            $paymentData->invoice->zoho_customer_id,
-                            $paymentData->invoice->zoho_invoice_id,
-                            $paymentData->paid_amount,
-                            now()->format('Y-m-d')
-                        );
-                    } catch (\Throwable $e) {
-                        \Log::error("Zoho update failed: " . $e->getMessage());
-                    }
+                    $this->zohoinvoice->markAsSent($paymentData->invoice->zoho_invoice_id);
+
+                    $this->zohoinvoice->recordPayment(
+                        $paymentData->invoice->zoho_customer_id,
+                        $paymentData->invoice->zoho_invoice_id,
+                        $incrementalPayments[$key], // <-- correct incremental amount
+                        now()->format('Y-m-d')
+                    );
                 }
             }
+
+
+            DB::commit();
 
             return redirect()->route('payment.index')->with('success', 'Payment created successfully!');
         } catch (\Exception $exp) {
