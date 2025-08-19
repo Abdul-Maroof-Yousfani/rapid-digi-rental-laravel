@@ -140,16 +140,18 @@ $due_bal = $pending_amount;
         }
     }
 @endphp
-
 <div class="box1"
     style="background-color: 
         {{ $isOverdue 
             ? '#d3660dff' 
-            : ($invoice->invoice_status == 'paid' ? '#3e7eac' : '#808080') }}">
+            : (in_array($invoice->invoice_status, ['paid', 'partially paid']) 
+                ? '#1fcd6d' 
+                : '#808080') }}">
     <p>
         {{ ucfirst($isOverdue ? 'Overdue' : $invoice->invoice_status) }}
     </p>
 </div>
+
 
 
 
