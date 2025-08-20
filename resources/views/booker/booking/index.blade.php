@@ -84,17 +84,13 @@
                                             }
                                             }
 
-                                            // Check payment status safely
-                                            $payment = $item->booking->payment ?? null;
-
-                                            if ($payment && !empty($payment->payment_status)) {
-                                            $paymentStatus = strtolower($payment->payment_status);
-
-                                            if ($paymentStatus === 'paid') {
-                                            $status = 'paid';
-                                            } elseif ($paymentStatus === 'pending') {
-                                            $status = 'partially paid';
-                                            }
+                                            $payments = $item->booking->payment_status;
+                                            if ($payments->contains('payment_status', 'pending')) {
+                                            $paymentStatus = 'Partially Paid';
+                                            } elseif ($payments->contains('payment_status', 'paid')) {
+                                            $paymentStatus = 'Paid';
+                                            } else {
+                                            $paymentStatus = 'Pending';
                                             }
                                             @endphp
 
@@ -104,7 +100,7 @@
                                             <td>{{ $item->booking->salePerson->name ?? 'N/A' }}</td>
                                             <td>{{ $item->booking->deposit->deposit_amount ?? 0 }}</td>
                                             <td>{{ $status }}</td>
-                                            <td>{{ $item->booking->payment->payment_status ?? "pending" }}</td>
+                                            <td>{{ $paymentStatus }}</td>
                                             <td>
                                                 {{-- {{ $item->total_amount }} --}}
                                                 @php

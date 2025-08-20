@@ -5,8 +5,18 @@
     $receivabletotal = 0;
 @endphp
 @foreach ($booking as $item)
+@php
+      $price = $item->bookingData()->first()?->price ?? 0;
+      if($price <= $item->payment->paid_amount){
+        $pending_amt = $price;
+        $rece_amt = 0;
+      }
+      else if($price > $item->payment->paid_amount){
+        $pending_amt = $item->payment->paid_amount;
+        $rece_amt = $price - $item->payment->paid_amount;
+      }
+      
 
-    @php
         // Calculate totals per item
         $itemBookingTotal = $item->invoice ? $item->invoice->sum('total_amount') : 0;
         $itemPaidTotal = $item->payment ? $item->payment->paid_amount : 0;

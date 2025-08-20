@@ -23,7 +23,15 @@
             <!-- Filters -->
             <form method="get" id="customerWiseReceivableReportForm" class="mb-4">
                 <div class="form-row align-items-end">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label for="from_date">From</label>
+                        <input type="date" name="from_date" id="from_date" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="to_date">To</label>
+                        <input type="date" name="to_date" id="to_date" class="form-control">
+                    </div>
+                    <div class="col-md-2">
                         <label for="customer_id">Customer</label>
                         <select name="customer_id" class="form-control select2" id="customer_id">
                             <option value="">Select Customer</option>
@@ -35,7 +43,7 @@
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
                     </div>
-                    <div class="col-md-7 text-right">
+                    <div class="col-md-4 text-right">
                         <button class="btn btn-primary prinn pritns"
                             onclick="printView('printReport','','1')"
                             style="">
@@ -53,6 +61,12 @@
                             <div class="table-scroll">
                                 <div class="table-responsive" id="printReport">
                                     {{-- <table class="table table-bordered table-hover p-0" id="" style="width:100%;"> --}}
+                                     <center>
+                                        <div class="soa-report-header mb-3">
+                                            <h2>Customer Wise Receivable Report</h2>
+
+                                        </div>
+                                    </center>
                                     <table class="table table-bordered table-sm" style="width:100%;">
                                         <thead  style="background: #f8f8f8">
                                             <tr>

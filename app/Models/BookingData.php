@@ -69,4 +69,8 @@ class BookingData extends Model
         return $this->belongsTo(Deductiontype::class, 'deductiontype_id', 'id');
     }
 
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'booking_id', 'id');
+    }
 }

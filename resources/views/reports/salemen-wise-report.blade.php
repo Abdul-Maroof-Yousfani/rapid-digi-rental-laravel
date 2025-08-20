@@ -64,13 +64,19 @@
                         <div class="card-body">
                             <div class="table-scroll">
                                 <div class="table-responsive" id="printReport">
+                                    <center>
+                                        <div class="soa-report-header mb-3">
+                                            <h2>Salesman Wise Report</h2>
+
+                                        </div>
+                                    </center>
                                     <table class="table table-bordered table-sm" style="width:100%;">
                                         <thead  style="background: #f8f8f8">
                                             <tr>
                                                 <th>S No.</th>
                                                 <th>Agreement no.</th>
                                                 <th>Customer</th>
-                                                <th class="text-center">Booking Total</th>
+                                                <th class="text-center">Received Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody id="salemanWiseReportList"> </tbody>

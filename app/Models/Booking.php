@@ -91,7 +91,7 @@ class Booking extends Model
 
     public function bookingData()
     {
-        return $this->hasMany(BookingData::class, 'booking_id', 'id');
+        return $this->hasMany(bookingData::class, 'booking_id', 'id');
     }
 
     public function salePerson()
@@ -105,11 +105,15 @@ class Booking extends Model
     }
 
 
+    public function payment_status()
+    {
+        return $this->hasMany(Payment::class, 'booking_id', 'id');
+    }
+
     public function payment()
     {
         return $this->hasOne(Payment::class, 'booking_id', 'id');
     }
-
     public function bookingHistory()
     {
         return $this->hasMany(BookingPaymentHistory::class, 'booking_id', 'id');

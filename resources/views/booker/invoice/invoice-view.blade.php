@@ -189,7 +189,7 @@ $due_bal = $pending_amount;
                     {{-- <p class="text-dark"><strong>Terms:</strong> Net 15</p> --}}
                     <p class="text-dark"> <strong>Due Date:</strong> {{ \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</p>
                     <p class="text-dark"><strong>Sale Person:</strong> {{ $item->booking->salePerson->name }}</p>
-                    <p class="text-dark"><strong>VAT:</strong> {{ $item->tax_percent }}</p>
+                    <p class="text-dark"><strong>TRN Number:</strong> {{ $item->tax_percent }}</p>
                 </div>
             </div>
 

@@ -12,7 +12,9 @@ use App\Models\SalePerson;
 use App\Models\BookingData;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -42,36 +44,89 @@ class ReportController extends Controller
         $investor = Investor::all();
         return view('reports.soa-report', compact('investor'));
     }
-
     public function getSoaReportList(Request $request)
     {
         $from = Carbon::parse($request->from_date)->startOfDay();
         $to = Carbon::parse($request->to_date)->endOfDay();
         $investorId = $request['investor_id'];
+        $type = $request['type'];
+        $payment_status = $request['payment_status'];
 
+        // Get vehicles with bookings in range
         $vehicles = Vehicle::with(['bookingData' => function ($q) use ($from, $to) {
             $q->where('start_date', '<=', $to)
                 ->where('end_date', '>=', $from);
         }])
-            ->when($investorId, function ($query) use ($investorId) {
-                $query->where('investor_id', $investorId);
+            ->when($investorId, fn($query) => $query->where('investor_id', $investorId))
+            ->when($type, function ($query) use ($type, $from, $to) {
+                if ($type == 1) {
+                    $query->whereHas('bookingData', fn($q) => $q->where('start_date', '<=', $to)
+                        ->where('end_date', '>=', $from));
+                } elseif ($type == 2) {
+                    $query->whereDoesntHave('bookingData', fn($q) => $q->where('start_date', '<=', $to)
+                        ->where('end_date', '>=', $from));
+                }
             })
             ->get();
 
-        $selectedInvestor = null;
-        if ($investorId) {
-            $selectedInvestor = Investor::find($investorId);
+        // Get all booking IDs in range
+        $bookingIds = $vehicles->pluck('bookingData.*.booking_id')->flatten()->unique();
+
+        // Get payments and calculate status
+        $payments = Payment::whereIn('booking_id', $bookingIds)
+            ->select('booking_id', 'booking_amount', 'paid_amount')
+            ->get()
+            ->map(function ($payment) {
+                if ($payment->paid_amount == 0) {
+                    $payment->status = 'Pending';
+                } elseif ($payment->paid_amount == $payment->booking_amount) {
+                    $payment->status = 'Paid';
+                } else {
+                    $payment->status = 'Partially Paid';
+                }
+                return $payment;
+            });
+
+        // Filter vehicles based on selected payment status
+        if ($payment_status) {
+            $vehicles = $vehicles->filter(function ($vehicle) use ($payments, $payment_status, $from, $to) {
+                $bookingsInRange = $vehicle->bookingData->filter(fn($b) => $b->start_date <= $to && $b->end_date >= $from);
+
+                // If no bookings in range and status is Pending, include vehicle
+                if ($bookingsInRange->isEmpty() && $payment_status == 'Pending') {
+                    return true;
+                }
+
+                foreach ($bookingsInRange as $booking) {
+                    $payment = $payments->firstWhere('booking_id', $booking->booking_id);
+
+                    if ($payment && $payment->status == $payment_status) {
+                        return true;
+                    }
+
+                    // No payment exists, considered Pending
+                    if (!$payment && $payment_status == 'Pending') {
+                        return true;
+                    }
+                }
+
+                return false;
+            })->values();
         }
 
-        $html = view('reports.reportlist.get-soa-list', compact('vehicles', 'from', 'to'))->render();
+
+        $selectedInvestor = $investorId ? Investor::find($investorId) : null;
+
+        $html = view('reports.reportlist.get-soa-list', compact('vehicles', 'payments', 'from', 'to'))->render();
 
         return response()->json([
             'html' => $html,
-            'investor_name' => $selectedInvestor ? $selectedInvestor->name : null,
-            'percentage' => $selectedInvestor ? $selectedInvestor->percentage : 0,
+            'investor_name' => $selectedInvestor?->name,
+            'percentage' => $selectedInvestor?->percentage ?? 0,
             'till_date' => $to->format('d-F-Y'),
         ]);
     }
+
 
     // customer wise sales reports function
     public function customerWiseReport()
@@ -114,15 +169,22 @@ class ReportController extends Controller
 
     public function getCustomerWiseReceivableList(Request $request)
     {
+        $fromDate   = $request->input('from_date'); // match payload
+        $toDate     = $request->input('to_date');   // match payload
         $customerID = $request->customer_id;
+
         $booking = Booking::with('invoice', 'payment')
             ->whereHas('payment', function ($q1) {
-                $q1->where('pending_amount', '!==', null);
+                $q1->whereNotNull('pending_amount'); // cleaner than !==
             })
             ->when($customerID, function ($query) use ($customerID) {
                 $query->where('customer_id', $customerID);
             })
+            ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                $query->whereBetween(DB::raw('DATE(created_at)'), [$fromDate, $toDate]);
+            })
             ->get();
+
         return view('reports.reportlist.get-customer-wise-receivable-list', compact('booking'));
     }
 

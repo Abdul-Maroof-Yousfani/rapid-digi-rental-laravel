@@ -66,6 +66,12 @@
                             <div class="table-scroll">
                                 <div class="table-responsive" id="printReport">
                                     {{-- <table class="table table-bordered table-hover p-0" id="" style="width:100%;"> --}}
+                                    <center>
+                                        <div class="soa-report-header mb-3">
+                                            <h2>Customr Wise Sales Report</h2>
+
+                                        </div>
+                                    </center>
                                     <table class="table table-bordered table-sm" style="width:100%;">
                                         <thead  style="background: #f8f8f8">
                                             <tr>
