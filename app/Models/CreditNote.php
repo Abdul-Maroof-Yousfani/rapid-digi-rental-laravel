@@ -23,6 +23,7 @@ class CreditNote extends Model
         'remarks',
         'refund_date',
         'status',
+        'zoho_credit_note_id',
     ];
 
     /**
