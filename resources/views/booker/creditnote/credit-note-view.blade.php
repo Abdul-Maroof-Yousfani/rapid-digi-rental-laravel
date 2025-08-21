@@ -88,6 +88,26 @@ Credit Note View
     p {
         color: #191d21 !important;
     }
+
+    .bg-white {
+        overflow: hidden;
+    }
+
+    .box1 {
+        margin-top: 6px;
+        background: #268ddd;
+        text-align: center;
+        width: 16%;
+        color: #fff;
+        transform: rotateZ(-45deg);
+        margin-left: -71px;
+        font-size: 16px
+    }
+    
+    .box1 p {
+    color: #fff !important;
+    
+}
 </style>
 
 <!-- Main Content -->
@@ -99,7 +119,13 @@ Credit Note View
     </div>
 
     <section class="section print-area">
+
         <div class="container my-5 border p-4 bg-white">
+            <div class="box1">
+                <p>
+                    Open
+                </p>
+            </div>
             <!-- Header -->
             <div style="margin-bottom: 5rem; margin-top: 3rem;" class="row">
 

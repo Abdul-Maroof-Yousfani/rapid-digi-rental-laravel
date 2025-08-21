@@ -102,7 +102,7 @@ $due_bal = $pending_amount;
         color: #fff;
         transform: rotateZ(-45deg);
         margin-left: -71px;
-        font-size: 16px
+        font-size: 14px
     }
 
     .sent-status {
@@ -113,6 +113,31 @@ $due_bal = $pending_amount;
     .draft-status {
         background-color: #808080;
         color: #fff;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: 120px auto;
+        /* 1st column fixed width for labels, 2nd column flexible */
+        column-gap: 10px;
+        row-gap: 15px;
+        /* space between label and value */
+        justify-content: end;
+        /* aligns whole grid to the right */
+    }
+
+    .label {
+        text-align: right;
+        /* ensures colon stays next to text */
+        /* font-weight: bold; */
+        font-size: large;
+    }
+
+    .value {
+        font-size: large;
+
+        text-align: right;
+        /* values aligned neatly */
     }
 </style>
 
@@ -187,7 +212,7 @@ $due_bal = $pending_amount;
             </div>
 
             <!-- Bill To & Invoice Info -->
-            <div class="row mb-3">
+            <div class="row mb-5">
                 <div class="col align-self-end">
                     <p class="mb-0 text-dark" style="line-height: 1.5;">Bill To</p>
                     @php $customer= $invoice->booking->customer @endphp
@@ -211,11 +236,19 @@ $due_bal = $pending_amount;
                     <!-- <p class="mb-0 text-dark">{{ $customer->country }}</p> -->
                 </div>
                 <div class="col text-right">
-                    <p class="text-dark"><strong style="margin-right: 60px;">Invoice Date:</strong> {{ \Carbon\Carbon::Parse($invoice->created_at)->format('d-M-Y') }}</p>
-                    {{-- <p class="text-dark"><strong style="margin-right: 60px;">Terms:</strong> Net 40</p> --}}
-                    <p class="text-dark"> <strong style="margin-right: 60px;">Due Date:</strong> {{ \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</p>
-                    <p class="text-dark"><strong style="margin-right: 35px;">Sale Person:</strong> {{ $item->booking->salePerson->name }}</p>
-                    <p class="text-dark"><strong style="margin-right: 140px;">TRN Number:</strong> {{ $item->tax_percent }}</p>
+                    <div class="grid-container">
+                        <div class="text-dark label">Invoice Date:</div>
+                        <div class="text-dark value">{{ \Carbon\Carbon::parse($invoice->created_at)->format('d-M-Y') }}</div>
+
+                        <div class="text-dark label">Due Date:</div>
+                        <div class="text-dark value">{{ \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</div>
+
+                        <div class="text-dark label">Sale Person:</div>
+                        <div class="text-dark value">{{ $item->booking->salePerson->name }}</div>
+
+                        <div class="text-dark label">TRN Number:</div>
+                        <div class="text-dark value">{{ $item->tax_percent }}</div>
+                    </div>
                 </div>
             </div>
 
@@ -321,7 +354,7 @@ $due_bal = $pending_amount;
             <div style="margin-top: 10rem" class="text-dark">
                 <!-- <h6>Notes</h6> -->
                 <p class="mb-0" style="font-size:16px;">Thank you for your business.</p>
-                <p class="mb-2" >DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.</p>
+                <p class="mb-2">DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.</p>
                 <p class="mb-0" style="line-height: 1.5; font-size:12px;">Payment Detail:</p>
                 <p class="mb-0" style="line-height: 1.5; font-size:12px;">Bank Name: WIO</p>
                 <p class="mb-0" style="line-height: 1.5; font-size:12px;">Account Name: Rapid Rentals -FZCO</p>
