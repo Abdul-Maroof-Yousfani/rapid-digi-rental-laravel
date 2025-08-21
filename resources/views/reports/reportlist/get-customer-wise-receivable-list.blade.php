@@ -7,19 +7,20 @@
 @foreach ($booking as $item)
 @php
       $price = $item->bookingData()->first()?->price ?? 0;
-      if($price <= $item->payment->paid_amount){
+      $paidAmount = $item->payment->paid_amount ?? 0;
+      if($price <= $paidAmount){
         $pending_amt = $price;
         $rece_amt = 0;
       }
-      else if($price > $item->payment->paid_amount){
-        $pending_amt = $item->payment->paid_amount;
-        $rece_amt = $price - $item->payment->paid_amount;
+      else if($price > $paidAmount){
+        $pending_amt = $paidAmount;
+        $rece_amt = $price - $paidAmount;
       }
       
 
         // Calculate totals per item
         $itemBookingTotal = $item->invoice ? $item->invoice->sum('total_amount') : 0;
-        $itemPaidTotal = $item->payment ? $item->payment->paid_amount : 0;
+        $itemPaidTotal = $item->payment ? $paidAmount : 0;
         $itemReceivableTotal = $item->payment ? $item->payment->pending_amount : $itemBookingTotal;
 
         // Accumulate totals

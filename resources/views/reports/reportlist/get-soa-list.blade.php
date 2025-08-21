@@ -1,4 +1,3 @@
-
 @php $totalAmount = 0; @endphp
 
 @foreach ($vehicles as $item)
@@ -24,17 +23,20 @@ return $booking->start_date <= $to && $booking->end_date >= $from;
         <td class="rental-amount">{{ number_format($price, 2) }}</td>
         <td>
             @php
-                $bookingPayment = $payments->firstWhere('booking_id', $bookingsInRange->first()->booking_id ?? null);
-                $paidAmount = $bookingPayment->paid_amount ?? 0;
-                $bookingAmount = $bookingPayment->booking_amount ?? 0;
+            $bookingPayment = $payments->firstWhere('booking_id', $bookingsInRange->first()->booking_id ?? null);
+            $paidAmount = $bookingPayment->paid_amount ?? 0;
+            $bookingAmount = $bookingPayment->booking_amount ?? 0;
 
-                if ($paidAmount == 0) {
-                    $status = '-';
-                } elseif ($paidAmount >= $price) {
-                    $status = 'Paid';
-                } else {
-                    $status = 'Partially Paid';
-                }
+            if ($paidAmount == 0 && $isRented == 'Monthly') {
+            $status = 'Pending';
+            }elseif ($paidAmount == 0) {
+            $status = '-';
+            }
+            elseif ($paidAmount >= $price) {
+            $status = 'Paid';
+            } else {
+            $status = 'Partially Paid';
+            }
             @endphp
 
             {{ $status }}

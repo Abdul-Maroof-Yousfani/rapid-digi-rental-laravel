@@ -72,47 +72,81 @@ class ReportController extends Controller
         // Get all booking IDs in range
         $bookingIds = $vehicles->pluck('bookingData.*.booking_id')->flatten()->unique();
 
-        // Get payments and calculate status
+        $bookingPriceMap = [];
+        $bookingIsRentedMap = [];
+
+        foreach ($vehicles as $vehicle) {
+            foreach ($vehicle->bookingData as $booking) {
+                $bookingPriceMap[$booking->booking_id] = $booking->price;
+                $bookingIsRentedMap[$booking->booking_id] = true; // if booking exists, it’s rented
+            }
+        }
+
         $payments = Payment::whereIn('booking_id', $bookingIds)
-            ->select('booking_id', 'booking_amount', 'paid_amount')
+            ->select('booking_id', 'paid_amount')
             ->get()
-            ->map(function ($payment) {
-                if ($payment->paid_amount == 0) {
+            ->map(function ($payment) use ($bookingPriceMap, $bookingIsRentedMap) {
+                $price = $bookingPriceMap[$payment->booking_id] ?? 0;
+                $isRented = $bookingIsRentedMap[$payment->booking_id] ?? false;
+
+                if ($payment->paid_amount == 0 && $isRented) {
                     $payment->status = 'Pending';
-                } elseif ($payment->paid_amount == $payment->booking_amount) {
+                } elseif ($payment->paid_amount == 0) {
+                    $payment->status = '-';
+                } elseif ($payment->paid_amount >= $price) {
                     $payment->status = 'Paid';
                 } else {
                     $payment->status = 'Partially Paid';
                 }
+
                 return $payment;
             });
 
-        // Filter vehicles based on selected payment status
+
         if ($payment_status) {
             $vehicles = $vehicles->filter(function ($vehicle) use ($payments, $payment_status, $from, $to) {
-                $bookingsInRange = $vehicle->bookingData->filter(fn($b) => $b->start_date <= $to && $b->end_date >= $from);
 
-                // If no bookings in range and status is Pending, include vehicle
-                if ($bookingsInRange->isEmpty() && $payment_status == 'Pending') {
-                    return true;
+                $bookingsInRange = $vehicle->bookingData
+                    ->filter(fn($b) => $b->start_date <= $to && $b->end_date >= $from);
+
+                // Vehicle has no bookings → skip for Pending
+                if ($bookingsInRange->isEmpty()) {
+                    return false;
                 }
 
                 foreach ($bookingsInRange as $booking) {
+
                     $payment = $payments->firstWhere('booking_id', $booking->booking_id);
 
-                    if ($payment && $payment->status == $payment_status) {
-                        return true;
+                    // Determine status exactly like Blade
+                    if ($payment) {
+                        $paidAmount = $payment->paid_amount;
+                    } else {
+                        $paidAmount = 0;
                     }
 
-                    // No payment exists, considered Pending
-                    if (!$payment && $payment_status == 'Pending') {
-                        return true;
+                    $isRented = true; // since $bookingsInRange is not empty
+                    $price = $booking->price;
+
+                    if ($paidAmount == 0 && $isRented) {
+                        $status = 'Pending';
+                    } elseif ($paidAmount == 0) {
+                        $status = '-';
+                    } elseif ($paidAmount >= $price) {
+                        $status = 'Paid';
+                    } else {
+                        $status = 'Partially Paid';
+                    }
+
+                    if ($status === $payment_status) {
+                        return true; // include this vehicle
                     }
                 }
 
-                return false;
+                return false; // no booking matched
             })->values();
         }
+
 
 
         $selectedInvestor = $investorId ? Investor::find($investorId) : null;
@@ -174,9 +208,9 @@ class ReportController extends Controller
         $customerID = $request->customer_id;
 
         $booking = Booking::with('invoice', 'payment')
-            ->whereHas('payment', function ($q1) {
-                $q1->whereNotNull('pending_amount'); // cleaner than !==
-            })
+            // ->whereHas('payment', function ($q1) {
+            //     $q1->whereNotNull('pending_amount'); // cleaner than !==
+            // })
             ->when($customerID, function ($query) use ($customerID) {
                 $query->where('customer_id', $customerID);
             })

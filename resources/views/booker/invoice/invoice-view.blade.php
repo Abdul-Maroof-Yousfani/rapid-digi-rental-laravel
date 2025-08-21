@@ -126,31 +126,31 @@ $due_bal = $pending_amount;
 
     <section class="section print-area">
         <div class="container my-5 border p-4 bg-white">
-         @php
-    $isOverdue = null;
-    $today = \Carbon\Carbon::today(); // Day after today
+            @php
+            $isOverdue = null;
+            $today = \Carbon\Carbon::today(); // Day after today
 
-    $bookingData = $invoice->bookingData()->select('end_date')->first();
+            $bookingData = $invoice->bookingData()->select('end_date')->first();
 
-    if ($bookingData) {
-        $endDate = \Carbon\Carbon::parse($bookingData->end_date); // convert string to Carbon
+            if ($bookingData) {
+            $endDate = \Carbon\Carbon::parse($bookingData->end_date); // convert string to Carbon
 
-        if (strtolower(trim($invoice->invoice_status)) === 'draft' && $endDate->lt($today)) {
+            if (strtolower(trim($invoice->invoice_status)) === 'draft' && $endDate->lt($today)) {
             $isOverdue = true;
-        }
-    }
-@endphp
-<div class="box1"
-    style="background-color: 
+            }
+            }
+            @endphp
+            <div class="box1"
+                style="background-color: 
         {{ $isOverdue 
             ? '#d3660dff' 
             : (in_array($invoice->invoice_status, ['paid', 'partially paid']) 
                 ? '#1fcd6d' 
                 : '#808080') }}">
-    <p>
-        {{ ucfirst($isOverdue ? 'Overdue' : $invoice->invoice_status) }}
-    </p>
-</div>
+                <p>
+                    {{ ucwords($isOverdue ? 'Overdue' : $invoice->invoice_status) }}
+                </p>
+            </div>
 
 
 
@@ -159,44 +159,70 @@ $due_bal = $pending_amount;
             <br>
             <br>
             <!-- Header -->
+
             <div style="margin-bottom: 5rem" class="row">
+
                 <div class="col">
-                    <h5 class="font-weight-bold text-dark">Rent a Car</h5>
-                    <p class="mb-0 text-dark">Pakistan</p>
-                    <p class="mb-0 text-dark">testing@company.com</p>
+                    <a href="{{ route('dashboard') }}"> <img alt="image" style="height: 45%; width:50%;" src="{{ asset('assets/img/logo.png') }}"
+                            class="header-logo" /> <span class="logo-name"></span>
+                    </a>
+                    <h5 class="font-weight-bold mb-0" style="line-height: 1.5; color: #343a40;">Rapid Rentals</h5>
+                    <p class="text-dark mb-0" style="line-height: 1.5;">A3, L3, 305-C, IFZA Business Park</p>
+                    <p class="text-dark mb-0" style="line-height: 1.5;">Dubai Silicon Oasis</p>
+                    <p class="text-dark mb-0" style="line-height: 1.5;">+971 55 452 6880</p>
+                    <p class="text-dark mb-0" style="line-height: 1.5;">info@rapidenterprises.ae</p>
+                    <p class="text-dark mb-0" style="line-height: 1.5;">www.rapidrentals.ae</p>
                 </div>
+
                 <div class="col text-right">
-                    <h3 style="color:#33A1E0; font-size:2.3rem; font-weight:50">TAX INVOICE</h3>
+                    <h3 style="color:#00796B; font-size:2.3rem; font-weight:50">TAX INVOICE</h3>
                     <p class="mb-0 font-weight-bold text-dark"># {{ $invoice->zoho_invoice_number }}</p>
-                    <p class="mb-0 font-weight-bold text-dark">Balance Due</p>
-                    <h5 class="font-weight-bold text-dark">AED{{ number_format($due_bal, 2) }}</h5>
+                    <?php if ($invoice->invoice_status != 'draft') { ?>
+
+                        <p class="mb-0 font-weight-bold text-dark"> Balance Due
+                        </p>
+                        <h5 class="font-weight-bold text-dark">AED{{ number_format($due_bal,2) }}</h5>
+                    <?php } ?>
                 </div>
             </div>
 
             <!-- Bill To & Invoice Info -->
             <div class="row mb-3">
-                <div class="col">
-                    <p class="mb-0 text-dark">Bill To</p>
+                <div class="col align-self-end">
+                    <p class="mb-0 text-dark" style="line-height: 1.5;">Bill To</p>
                     @php $customer= $invoice->booking->customer @endphp
-                    <p class="mb-0 text-dark"><a href="{{ route('customer.index') }}" class="font-weight-bold">{{ $customer->customer_name }}</a></p>
-                    <p class="mb-0 text-dark">{{ $customer->address }}</p>
-                    <p class="mb-0 text-dark">{{ $customer->city }}</p>
-                    <p class="mb-0 text-dark">{{ $customer->state }}</p>
-                    <p class="mb-0 text-dark">{{ $customer->country }}</p>
+                    <p class="mb-0" style="line-height: 1.5;">
+                        <a href="{{ route('customer.index') }}"
+                            style="font-weight: 900; text-transform: uppercase; color: #343a40; text-decoration: none; font-size: 1rem;">
+                            {{ $customer->customer_name }}
+                        </a>
+                    </p>
+
+
+                    <!-- <p class="mb-0 text-dark" style="line-height: 1.5;">{{ $customer->address }}</p> -->
+                    <p class="mb-0 text-dark" style="line-height: 1.5;">
+                        @php
+                        $addressParts = array_filter([$customer->address, $customer->city, $customer->state, $customer->country]);
+                        @endphp
+                        {{ implode(', ', $addressParts) }}
+                    </p>
+
+                    <p class="mb-0 text-dark">{{ $customer->licence }}</p>
+                    <!-- <p class="mb-0 text-dark">{{ $customer->country }}</p> -->
                 </div>
                 <div class="col text-right">
-                    <p class="text-dark"><strong>Invoice Date:</strong> {{ \Carbon\Carbon::Parse($invoice->created_at)->format('d-M-Y') }}</p>
-                    {{-- <p class="text-dark"><strong>Terms:</strong> Net 15</p> --}}
-                    <p class="text-dark"> <strong>Due Date:</strong> {{ \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</p>
-                    <p class="text-dark"><strong>Sale Person:</strong> {{ $item->booking->salePerson->name }}</p>
-                    <p class="text-dark"><strong>TRN Number:</strong> {{ $item->tax_percent }}</p>
+                    <p class="text-dark"><strong style="margin-right: 60px;">Invoice Date:</strong> {{ \Carbon\Carbon::Parse($invoice->created_at)->format('d-M-Y') }}</p>
+                    {{-- <p class="text-dark"><strong style="margin-right: 60px;">Terms:</strong> Net 40</p> --}}
+                    <p class="text-dark"> <strong style="margin-right: 60px;">Due Date:</strong> {{ \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</p>
+                    <p class="text-dark"><strong style="margin-right: 35px;">Sale Person:</strong> {{ $item->booking->salePerson->name }}</p>
+                    <p class="text-dark"><strong style="margin-right: 140px;">TRN Number:</strong> {{ $item->tax_percent }}</p>
                 </div>
             </div>
 
             <!-- Table -->
             <table class="table align-middle">
                 <thead class="thead-light">
-                    <tr style="background-color: #2F81B7" class="text-white">
+                    <tr style="background-color: #00796B" class="text-white">
                         <th class="text-white text-left">#</th>
                         <th class="text-white text-left">Item & Description</th>
                         <th class="text-white text-right">Qty</th>
@@ -276,17 +302,16 @@ $due_bal = $pending_amount;
                             <td class="text-right">Paid Amount</td>
                             <td class="text-right">AED{{ number_format($paid_amount, 2) }}</td>
                         </tr>
-                        <tr class="bg-light text-dark">
-                            <td class="text-right">
-                                {{ strtolower(trim($invoice->invoice_status)) === 'draft' ? 'subtot' : 'Balance Due' }}
-                            </td>
-                            <td class="text-right font-weight-bold">
-                                AED{{ number_format(
-            strtolower(trim($invoice->invoice_status)) === 'draft' ? $subtot : $due_bal, 
-            2
-        ) }}
-                            </td>
-                        </tr>
+                        <?php if ($invoice->invoice_status != 'draft') { ?>
+                            <tr class="text-dark" style="background-color: #d3eae4ff">
+                                <td class="text-right">
+                                    Balance Due
+                                </td>
+                                <td class="text-right font-weight-bold">
+                                    AED{{ number_format($due_bal, 2) }}
+                                </td>
+                            </tr>
+                        <?php } ?>
 
                     </table>
                 </div>
@@ -294,9 +319,17 @@ $due_bal = $pending_amount;
 
             <!-- Notes -->
             <div style="margin-top: 10rem" class="text-dark">
-                <h6>Notes</h6>
-                <p class="mb-0">Thank you for your business.</p>
-                <p class="mb-0">DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.</p>
+                <!-- <h6>Notes</h6> -->
+                <p class="mb-0" style="font-size:16px;">Thank you for your business.</p>
+                <p class="mb-2" >DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.</p>
+                <p class="mb-0" style="line-height: 1.5; font-size:12px;">Payment Detail:</p>
+                <p class="mb-0" style="line-height: 1.5; font-size:12px;">Bank Name: WIO</p>
+                <p class="mb-0" style="line-height: 1.5; font-size:12px;">Account Name: Rapid Rentals -FZCO</p>
+                <p class="mb-0" style="line-height: 1.5; font-size:12px;">IBN : AE790860000009637084836</p>
+                <p class="mb-0" style="line-height: 1.5; font-size:12px;">Account No: 9637084836</p>
+                <p class="mb-2" style="line-height: 1.5; font-size:12px;">BIC/SWIFT : WIOBAEADXXX</p>
+                <p class="mb-2">Queries:+971 50 366 1754</p>
+                <p class="mb-0">Complaints & Suggestions: +971 54 508 2661 or Email: idrees@rapidenterprises.ae</p>
             </div>
             <hr>
         </div>
