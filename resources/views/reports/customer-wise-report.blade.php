@@ -68,7 +68,7 @@
                                     {{-- <table class="table table-bordered table-hover p-0" id="" style="width:100%;"> --}}
                                     <center>
                                         <div class="soa-report-header mb-3">
-                                            <h2>Customr Wise Sales Report</h2>
+                                            <h2>Customer Wise Sales Report</h2>
 
                                         </div>
                                     </center>
