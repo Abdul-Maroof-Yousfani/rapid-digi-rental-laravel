@@ -50,8 +50,8 @@
                                                     </button>
                                                     <div class="dropdown-menu">
                                                         <a type="button" class="invDetail dropdown-item" data-invoice-id="{{ $item->id }}" data-toggle="modal" data-target="#invoiceModal">
-                                                        <i class="fas fa-list"></i>    
-                                                        Detail
+                                                            <i class="fas fa-list"></i>
+                                                            Detail
                                                         </a>
 
                                                         <a href="{{ url('booking/view-invoice/'.$item->id) }}" class="dropdown-item"> <i class="fas fa-eye"></i> View</a>
@@ -179,6 +179,7 @@
                     let invoice = response.data.invoice;
                     let bookingData = response.data.booking_data;
                     let depositType = response.data.deposit_type;
+                    let depositTypeAmount = response.data.invoice.booking.non_refundable_amount;
                     let veiwType;
 
                     let html = `<hr>`;
@@ -190,6 +191,7 @@
                         <th>No Plate</th>
                         <th>From</th>
                         <th>To</th>
+                        <th>Amount</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -219,22 +221,26 @@
                     <td>${numberPlate}</td>
                     <td>${formatDate(item.start_date)}</td>
                     <td>${formatDate(item.end_date)}</td>
+                    <td>${item.item_total}</td>
+
                 </tr>`;
                     });
 
-                    // Add the special row only once after all bookingData rows if depositType is 1 or 2
-                    if (veiwType == 1) {
-                        let specialName = depositType == 1 ? 'Cardo' : 'LPO';
+                    if (veiwType == 1 && depositType != null) {
+                        let specialName = depositType == 1 ? 'Cardo' : (depositType == 2 ? 'LPO' : '');
 
-                        // The index + 2 ensures the numbering continues correctly
-                        html += `<tr>
-                    <td>${bookingData.length + 1}</td>
-                    <td>${specialName}</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>`;
+                        if (specialName) {
+                            html += `<tr>
+                                        <td>${bookingData.length + 1}</td>
+                                        <td>${specialName}</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>${depositTypeAmount}</td>
+                                    </tr>`;
+                        }
                     }
+
 
                     html += `</tbody></table>`;
 

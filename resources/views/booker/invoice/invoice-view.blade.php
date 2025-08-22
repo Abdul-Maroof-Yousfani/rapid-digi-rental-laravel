@@ -241,7 +241,7 @@ $due_bal = $pending_amount;
                         <div class="text-dark value">{{ \Carbon\Carbon::parse($invoice->created_at)->format('d-M-Y') }}</div>
 
                         <div class="text-dark label">Due Date:</div>
-                        <div class="text-dark value">{{ \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</div>
+                        <div class="text-dark value">{{ \Carbon\Carbon::parse($invoice->bookingData()->whereNull('deductiontype_id')->where('booking_id', $item->booking_id)->first()->end_date)->format('d-M-Y') }}</div>
 
                         <div class="text-dark label">Sale Person:</div>
                         <div class="text-dark value">{{ $item->booking->salePerson->name }}</div>
