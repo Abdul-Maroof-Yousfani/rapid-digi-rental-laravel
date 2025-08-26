@@ -103,11 +103,11 @@ Credit Note View
         margin-left: -71px;
         font-size: 16px
     }
-    
+
     .box1 p {
-    color: #fff !important;
-    
-}
+        color: #fff !important;
+
+    }
 </style>
 
 <!-- Main Content -->
@@ -183,7 +183,10 @@ Credit Note View
                 </div>
             </div>
 
-            @php $GTotal = 0; @endphp
+            @php $GTotal = 0;
+            $PaidDiff = 0;
+
+            @endphp
 
             <!-- Table -->
             <table class="table align-middle">
@@ -199,8 +202,18 @@ Credit Note View
                     </tr>
                 </thead>
                 <tbody>
-                    @php $counter = 0; @endphp
-                    @php $booking = $creditNote->booking; @endphp
+                    @php $counter = 0; 
+                    $depositDifference = 0;
+                    @endphp
+
+                    @php 
+                    
+                    $booking = $creditNote->booking;
+                    $initialDeposit = $booking->deposit->initial_deposit ?? 0;
+                    $remainingDeposit = $creditNote->remaining_deposit ?? 0;
+
+                    $depositDifference = $initialDeposit - $remainingDeposit;
+                    @endphp
 
                     @if($booking)
                     @foreach ($booking->bookingData as $item)
@@ -219,6 +232,7 @@ Credit Note View
                             $subTotal = $item->price * $item->quantity;
                             $taxAmount = ($subTotal * $item->tax_percent) / 100;
                             $GTotal += $item->item_total;
+                            $PaidDiff = $GTotal - $depositDifference;
                             @endphp
                             {{ number_format($taxAmount, 2) }}
                         </td>
@@ -236,7 +250,14 @@ Credit Note View
                             <td class="text-right">Total</td>
                             <td class="text-right">AED{{ $GTotal }}</td>
                         </tr>
-
+                        <tr>
+                            <td class="text-right">Paid Amount</td>
+                            <td class="text-right">AED{{ $PaidDiff }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Deposit Used</td>
+                            <td class="text-right">AED{{ $GTotal - $PaidDiff }}</td>
+                        </tr>
                         <tr>
                             <td class="text-right">Credits Used</td>
                             <td class="text-right">AED{{ $GTotal }}</td>
@@ -268,8 +289,8 @@ Credit Note View
             <div style="margin-top: 10rem" class="text-dark">
                 <div class="nots">
                     <h6 class="mb-2">Notes</h6>
-                    <p class="mb-0">Deposit Amount: {{ $creditNote->remaining_deposit }}AED</p>
-                    <p class="mb-0">RELEASE DEPOSIT AMOUNT: {{ $creditNote->remaining_deposit }}AED</p>
+                    <p class="mb-0">Deposit Amount: {{ $initialDeposit }}AED</p>
+                    <p class="mb-0">RELEASE DEPOSIT AMOUNT: {{ $remainingDeposit }}AED</p>
                 </div>
                 <hr>
 

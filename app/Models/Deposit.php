@@ -12,6 +12,7 @@ class Deposit extends Model
     use HasFactory;
     protected $fillable= [
         'deposit_amount',
+        'initial_deposit',
     ];
 
 

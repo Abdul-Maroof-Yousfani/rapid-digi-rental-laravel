@@ -122,7 +122,6 @@ class InvoiceController extends Controller
                     'tax_id' => $request->tax[$key],
                 ];
             }
-
             $customerId =  $request->customer_id;
             $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
@@ -171,7 +170,7 @@ class InvoiceController extends Controller
                             'start_date' => $request['booking_date'][$key] ?? null,
                             'end_date' => $request['return_date'][$key] ?? null,
                             'price' => $price,
-                            'transaction_type' => $invoiceTypeModel->id,
+                            'transaction_type' => isset($request['return_date'][$key]) ? 2 : 1,
                             'description' => $lineItemData['description'],
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
@@ -190,6 +189,8 @@ class InvoiceController extends Controller
                 } catch (\Exception $exp) {
                     DB::rollBack();
                     return redirect()->back()->with('error', $exp->getMessage());
+                    // return response($exp->getMessage(), 500);
+
                 }
             } else {
                 return redirect()->back()->with('error', 'Invoice ID Not Fetch')->withInput();
@@ -338,9 +339,10 @@ class InvoiceController extends Controller
                             'start_date' => $request['booking_date'][$key] ?? null,
                             'end_date' => $request['return_date'][$key] ?? null,
                             'price' => $price,
-                            'transaction_type' => $invoiceTypeModel->id,
+                            'transaction_type' => $request['return_date'][$key] ? 2 : 1,
                             'description' => $lineItemData['description'],
                             'quantity' => $quantity,
+                            'view_type' => 2,
                             'tax_percent' => $taxPercent,
                             'item_total' =>  number_format($itemTotal, 2),
                             'tax_name' => $lineItemData['tax_name'] ?? null,

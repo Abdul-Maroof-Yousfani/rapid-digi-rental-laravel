@@ -219,6 +219,7 @@ class AjaxController extends Controller
                 'payment_data_id' => $paymentData->id ?? null, // PaymentData Primary Key
                 'paid_amount' => $paymentData->paid_amount ?? 0,
                 'deposit_amount' => $getDeposit->deduct_deposit ?? 0,
+                'initial_deposit' => $booking->deposit->initial_deposit ?? 0,
                 'zoho_invoice_number' => $invoice->zoho_invoice_number,
                 'invoice_status' => $invoice->invoice_status,
                 'invoice_amount' => $invoice->total_amount,
@@ -233,6 +234,7 @@ class AjaxController extends Controller
             'remaining_amount' => $remainingAmount,
             'booking_amount' => $bookingAmount,
             'deposit_amount' => $initialDeposit,
+            'initial_deposit' => $booking->deposit->initial_deposit ?? 0,
             'credit_note_detail' => $creditNoteDetail,
             'deduct_amount' => $deductAmount ?? 0,
             'remaining_deposit' => $remainingDeposit,
@@ -244,31 +246,31 @@ class AjaxController extends Controller
     }
 
     public function getInvoiceDetail($invoice_id)
-{
-    // Eager load booking along with bookingData and its relations
-    $invoice = Invoice::with([
-        'booking',
-        'bookingData.invoice_type',
-        'bookingData.vehicle'
-    ])->find($invoice_id);
+    {
+        // Eager load booking along with bookingData and its relations
+        $invoice = Invoice::with([
+            'booking',
+            'bookingData.invoice_type',
+            'bookingData.vehicle'
+        ])->find($invoice_id);
 
-    if (!$invoice) {
-        return response()->json([
-            'success' => false,
-            'data' => 'Invoice Not Found'
-        ]);
-    } else {
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'invoice' => $invoice,
-                'booking_data' => $invoice->bookingData,
-                // Add deposit_type from booking here
-                'deposit_type' => $invoice->booking->deposit_type ?? null
-            ]
-        ]);
+        if (!$invoice) {
+            return response()->json([
+                'success' => false,
+                'data' => 'Invoice Not Found'
+            ]);
+        } else {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'invoice' => $invoice,
+                    'booking_data' => $invoice->bookingData,
+                    // Add deposit_type from booking here
+                    'deposit_type' => $invoice->booking->deposit_type ?? null
+                ]
+            ]);
+        }
     }
-}
 
 
     public function getVehicleForEditForm($id)

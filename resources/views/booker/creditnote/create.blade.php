@@ -234,7 +234,7 @@
                         if(response){
                             remainingDeposit= response.deposit_amount - response.deduct_amount;
                             $('.booking_amount').val(response.booking_amount);
-                            $('.deposit_amount').val(response.deposit_amount);
+                            $('.deposit_amount').val(response.initial_deposit);
                             $('.refund_amount').val(remainingDeposit);
                             $('.remaining_deposit').val(remainingDeposit);
                             let subtotal = 0;

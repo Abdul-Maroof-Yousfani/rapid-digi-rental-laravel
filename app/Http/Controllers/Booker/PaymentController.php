@@ -116,7 +116,6 @@ class PaymentController extends Controller
             if ($usedDepositFlag) {
                 $depositUsed = array_sum($request->addDepositAmount ?? []);
             }
-
             // Calculate paid amount as cash + deposit used
             $paidAmount = $amountReceive;
 
@@ -152,8 +151,8 @@ class PaymentController extends Controller
                     'payment_method' => $request['payment_method'],
                     'bank_id' => $request['bank_id'] ?? null,
                     'booking_amount' => $bookingAmount,
-                    'paid_amount' => $payment->paid_amount + $paidAmount,
-                    'pending_amount' => $payment->pending_amount - $amountReceive,
+                    'paid_amount' => $payment->paid_amount + $paidAmount + $depositUsed,
+                    'pending_amount' => $payment->pending_amount - $amountReceive - $depositUsed,
                     // 'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
@@ -186,8 +185,9 @@ class PaymentController extends Controller
             BookingPaymentHistory::create([
                 'booking_id' => $request['booking_id'],
                 'payment_id' => $payment->id,
+                'invoice_id' => $request['invoice_id'],
                 'payment_method_id' => $request['payment_method'],
-                'paid_amount' => $paidAmount,
+                'paid_amount' => $paidAmount + $depositUsed,
                 'payment_date' => $beforeUpdateDate,
                 'user_id' => Auth::user()->id,
             ]);
@@ -223,9 +223,9 @@ class PaymentController extends Controller
                             'invoice_id' => $invoice_ids,
                             'payment_id' => $payment->id,
                             'invoice_amount' => $invoiceAmount,
-                            'paid_amount' => $newPaidAmount,
+                            'paid_amount' => $newPaidAmount + $depositUsed,
                             'status' => $newStatus1,
-                            'pending_amount' => $newPending,
+                            'pending_amount' => $newPending - $depositUsed,
                             'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
                             'remarks' => $request['remarks'][$key] ?? null,
                         ]);
@@ -274,8 +274,8 @@ class PaymentController extends Controller
                 $deposit = $booking->deposit()->lockForUpdate()->first();
 
                 if ($deposit) {
-                    // $newDepositAmount = max(0, $deposit->deposit_amount - $depositUsed);
-                    // $deposit->update(['deposit_amount' => $newDepositAmount]);
+                    $newDepositAmount = max(0, $deposit->deposit_amount - $depositUsed);
+                    $deposit->update(['deposit_amount' => $newDepositAmount]);
 
                     foreach ($paymentDataMap as $key => $paymentDataId) {
                         DepositHandling::create([
@@ -311,12 +311,18 @@ class PaymentController extends Controller
                 if ($paymentData->invoice) {
                     $this->zohoinvoice->markAsSent($paymentData->invoice->zoho_invoice_id);
 
-                    $this->zohoinvoice->recordPayment(
-                        $paymentData->invoice->zoho_customer_id,
-                        $paymentData->invoice->zoho_invoice_id,
-                        $incrementalPayments[$key], // <-- correct incremental amount
-                        now()->format('Y-m-d')
-                    );
+                    $amountToPay = $incrementalPayments[$key] ?? 0;
+                    $customerId  = $paymentData->invoice->zoho_customer_id;
+
+                    // ✅ only send if valid
+                    if ($amountToPay > 0 && !empty($customerId)) {
+                        $this->zohoinvoice->recordPayment(
+                            $customerId,
+                            $paymentData->invoice->zoho_invoice_id,
+                            $amountToPay,
+                            now()->format('Y-m-d')
+                        );
+                    }
                 }
             }
 
@@ -326,8 +332,8 @@ class PaymentController extends Controller
             return redirect()->route('payment.index')->with('success', 'Payment created successfully!');
         } catch (\Exception $exp) {
             DB::rollback();
-            // return "df";
-            return redirect()->back()->with('error', $exp->getMessage());
+            // return redirect()->back()->with('error', $exp->getMessage());
+            return response($exp->getMessage(), 500);
         }
     }
 

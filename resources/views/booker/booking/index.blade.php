@@ -70,7 +70,7 @@
                                             $today = \Carbon\Carbon::today(); // Day after today
 
                                             // Default status
-                                            $status = 'draft';
+                                            $status = 'Draft';
 
                                             // Get the end_date value
                                             $bookingData = $item->booking->bookingData()->select('end_date')->first();
@@ -79,16 +79,18 @@
                                             $endDate = \Carbon\Carbon::parse($bookingData->end_date); // convert to Carbon
 
                                             // Only check overdue if status is draft
-                                            if ($status === 'draft' && $endDate->lt($today)) {
-                                            $status = 'overdue';
+                                            if ($status === 'Draft' && $endDate->lt($today)) {
+                                            $status = 'Overdue';
                                             }
                                             }
 
                                             $payments = $item->booking->payment_status;
                                             if ($payments->contains('payment_status', 'pending')) {
                                             $paymentStatus = 'Partially Paid';
+                                            $status = 'Pending';
                                             } elseif ($payments->contains('payment_status', 'paid')) {
                                             $paymentStatus = 'Paid';
+                                            $status = 'Completed';
                                             } else {
                                             $paymentStatus = 'Pending';
                                             }
