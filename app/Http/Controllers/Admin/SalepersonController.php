@@ -49,9 +49,9 @@ class SalepersonController extends Controller
                 ]);
                 DB::commit();
                 if ($request->ajax()) {
-                    return response()->json(['success' => 'Sale Men Added Successfully!', 'data' => $salemen]);
+                    return response()->json(['success' => 'Salesperson Added Successfully!', 'data' => $salemen]);
                 } else {
-                    return redirect()->route('sale-person.index')->with('success', 'Sale Person Added Successfully!');
+                    return redirect()->route('sale-person.index')->with('success', 'Salesperson Added Successfully!');
                 }
             } catch (\Exception $exp) {
                 DB::rollBack();

@@ -14,7 +14,7 @@
                         @can('create sale men')
                             <span>
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSaleManModal">
-                                    Add Sale Men
+                                    Add Salesperson
                                 </button>
                             </span>
                         @endcan
