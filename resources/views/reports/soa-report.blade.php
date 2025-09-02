@@ -326,6 +326,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Plate no.</th>
+                                                <th>Invoice no.</th>
                                                 <th>Car Make - Model & Year</th>
                                                 <th>Rental Period</th>
                                                 <th>Rental Amount</th>
@@ -334,6 +335,7 @@
                                         </thead>
                                         <tbody id="soaReportList">
                                             <tr>
+                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>

@@ -53,10 +53,13 @@ class ReportController extends Controller
         $payment_status = $request['payment_status'];
 
         // Get vehicles with bookings in range
-        $vehicles = Vehicle::with(['bookingData' => function ($q) use ($from, $to) {
-            $q->where('start_date', '<=', $to)
-                ->where('end_date', '>=', $from);
-        }])
+     $vehicles = Vehicle::with([
+    'bookingData' => function ($q) use ($from, $to) {
+        $q->where('start_date', '<=', $to)
+          ->where('end_date', '>=', $from)
+          ->with('invoice'); // eager load invoice inside bookingData
+    }
+])
             ->when($investorId, fn($query) => $query->where('investor_id', $investorId))
             ->when($type, function ($query) use ($type, $from, $to) {
                 if ($type == 1) {
@@ -169,29 +172,31 @@ class ReportController extends Controller
         return view('reports.customer-wise-report', compact('customers'));
     }
 
-    public function getCustomerWiseSaleReportList(Request $request)
-    {
-        $fromDate = $request['fromDate'];
-        $toDate = $request['toDate'];
-        $customerID = $request['customer_id'];
-        $booking = Booking::with('bookingData', 'customer')
-            ->withSum('bookingData as item_total', 'item_total')
-            ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
-                $query->whereBetween('created_at', [$fromDate, $toDate]);
-            })
-            ->when($customerID, function ($query) use ($customerID) {
-                $query->whereHas('customer', function ($q) use ($customerID) {
-                    $q->where('id', $customerID);
-                });
-            })
-            ->get()
-            ->map(function ($booking) {
-                $booking->total_price = $booking->bookingData->sum('price');
-                return $booking;
-            });
+public function getCustomerWiseSaleReportList(Request $request)
+{
+    $fromDate = $request['fromDate'];
+    $toDate = $request['toDate'];
+    $customerID = $request['customer_id'];
 
-        return view('reports.reportlist.get-customer-wise-list', compact('booking'));
-    }
+   $bookingsGrouped = Booking::with('bookingData', 'customer')
+    ->when($fromDate && $toDate, fn($q) => $q->whereBetween('created_at', [$fromDate, $toDate]))
+    ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
+    ->get()
+    ->groupBy('customer_id')
+    ->map(function ($bookings) {
+        $first = $bookings->first();
+        $first->item_total = $bookings->sum(fn($b) => $b->bookingData->sum('item_total'));
+        $first->total_price = $bookings->sum(fn($b) => $b->bookingData->sum('price'));
+        $first->bookings_count = $bookings->count();
+
+        return $first;
+    })
+    ->values();
+
+
+    return view('reports.reportlist.get-customer-wise-list', ['booking' => $bookingsGrouped]);
+}
+
 
     // customer wise receivable reports function
     public function customerWiseReceivable()
