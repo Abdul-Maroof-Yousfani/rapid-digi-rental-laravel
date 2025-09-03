@@ -10,14 +10,14 @@ $(document).ready(function () {
         e.preventDefault();
 
         // Get form data
-        let fromDate = $('input[name="from_date"]').val();
-        let toDate = $('input[name="to_date"]').val();
+        // let fromDate = $('input[name="from_date"]').val();
+        // let toDate = $('input[name="to_date"]').val();
 
-        // Check if both dates are selected
-        if (!fromDate || !toDate) {
-            alert('Please select both From Date and To Date.');
-            return; // stop the AJAX call
-        }
+        // // Check if both dates are selected
+        // if (!fromDate || !toDate) {
+        //     alert('Please select both From Date and To Date.');
+        //     return; // stop the AJAX call
+        // }
 
         let formData = $(this).serialize();
         $.ajax({
@@ -155,6 +155,26 @@ $(document).ready(function () {
         });
     });
 
+    $(document).ready(function () {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); 
+        const dd = String(today.getDate()).padStart(2, '0');
+
+        $('#toDate').val(`${yyyy}-${mm}-${dd}`);
+        $('#to_date').val(`${yyyy}-${mm}-${dd}`);
+
+        $('#fromDate').val(`${yyyy}-${mm}-01`);
+        $('#from_date').val(`${yyyy}-${mm}-01`);
+
+        
+
+
+        $('#customerWiseSalesreportForm').submit();
+        $('#customerWiseReceivableReportForm').submit();
+        $('#salemanWiseReportForm').submit();
+        $('#soaReportForm').submit();
+    });
 
 
     $(document).on('submit', '#customerWiseReceivableReportForm', function (e) {

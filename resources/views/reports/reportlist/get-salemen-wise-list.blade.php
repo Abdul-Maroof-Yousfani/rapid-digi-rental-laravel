@@ -24,6 +24,10 @@
     <tr>
         <td>{{ $number }}.</td>
         <td>{{ $item->agreement_no }}</td>
+        <td>
+  {{ $item->bookingData->pluck('invoice.zoho_invoice_number')->first() }}
+</td>
+
         <td>{{ $item->customer->customer_name }}</td>
         <!-- <td align="right">{{ number_format($itemBookingTotal, 2) }}</td> -->
         <td align="right">{{ number_format($paid_amt, 2) }}</td>
@@ -32,6 +36,6 @@
 @endforeach
 
 <tr>
-    <td colspan="3" align="right"><b>Sub Total</b></td>
+    <td colspan="4" align="right"><b>Sub Total</b></td>
     <td align="right"><b>{{ number_format($paidtotal, 2) }}</b></td>
 </tr>

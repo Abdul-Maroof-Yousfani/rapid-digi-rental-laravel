@@ -195,10 +195,8 @@ Credit Note View
                         <th class="text-white text-left">#</th>
                         <th class="text-white text-left">Item & Description</th>
                         <th class="text-white text-right">Qty</th>
-                        <th class="text-white text-right">Total</th>
                         <th class="text-white text-right">Tax</th>
-                        <th class="text-white text-right">Tax Amount</th>
-                        <th class="text-white text-right">Net Total</th>
+                        <th class="text-white text-right">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -213,21 +211,25 @@ Credit Note View
                     $remainingDeposit = $creditNote->remaining_deposit ?? 0;
 
                     $depositDifference = $initialDeposit - $remainingDeposit;
-                    @endphp
 
-                    @if($booking)
-                    @foreach ($booking->bookingData as $item)
+                    $item = $booking->bookingData()->first();
+
+                    @endphp
+                    {{-- @if($booking)
+                    @foreach ($booking->bookingData as $item) --}}
                     @php $counter++; @endphp
                     <tr style="border-bottom: 2px solid #ADADAD;">
                         <td class="text-left">{{ $counter }}</td>
                         <td class="text-left">
                             {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail ?? $item->invoice_type->name ?? '' }} <br>
-                            <small>{{ $item->description }}</small>
+                            <small>{{ "Invoice Deposit Refund" }}</small>
                         </td>
                         <td class="text-right">{{ $item->quantity ?? '-' }}</td>
-                        <td class="text-right">{{ number_format($item->price * $item->quantity, 2) }}</td>
-                        <td class="text-right">{{ $item->tax_name ?? '-'}}</td>
-                        <td class="text-right">
+                        <td class="text-right">{{ "0.00" }} <br>
+                            <small>{{ "0.00%" }}</small>
+                        </td>
+                        {{-- <td class="text-right">{{ $item->tax_name ?? '-'}}</td> --}}
+                        {{-- <td class="text-right">
                             @php
                             $subTotal = $item->price * $item->quantity;
                             $taxAmount = ($subTotal * $item->tax_percent) / 100;
@@ -235,11 +237,12 @@ Credit Note View
                             $PaidDiff = $GTotal - $depositDifference;
                             @endphp
                             {{ number_format($taxAmount, 2) }}
+                        </td> --}}
+                        <td class="text-right">{{ number_format($remainingDeposit, 2) }}
                         </td>
-                        <td class="text-right">{{ number_format($item->item_total, 2) }}</td>
                     </tr>
-                    @endforeach
-                    @endif
+                    {{-- @endforeach
+                    @endif --}}
 
                 </tbody>
             </table>
@@ -248,19 +251,12 @@ Credit Note View
                     <table class="table">
                         <tr>
                             <td class="text-right">Total</td>
-                            <td class="text-right">AED{{ $GTotal }}</td>
+                            <td class="text-right">AED{{ $remainingDeposit }}</td>
                         </tr>
-                        <tr>
-                            <td class="text-right">Paid Amount</td>
-                            <td class="text-right">AED{{ $PaidDiff }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-right">Deposit Used</td>
-                            <td class="text-right">AED{{ $GTotal - $PaidDiff }}</td>
-                        </tr>
+                      
                         <tr>
                             <td class="text-right">Credits Used</td>
-                            <td class="text-right">AED{{ $GTotal }}</td>
+                            <td class="text-right text-danger">(-) {{ $remainingDeposit }}</td>
                         </tr>
                         <tr class="text-dark" style="background-color: #ebf0f0ff">
                             <td class="text-right">
