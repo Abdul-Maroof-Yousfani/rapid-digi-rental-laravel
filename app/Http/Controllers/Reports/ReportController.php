@@ -219,7 +219,7 @@ class ReportController extends Controller
                 if ($b->relationLoaded('bookingData') && $b->bookingData instanceof \Illuminate\Support\Collection) {
                     return $carry + (float) ($b->bookingData->first()->price ?? 0);
                 }
-               
+
             }, 0.0);
             // dd($totalPrice);
 
@@ -265,7 +265,7 @@ class ReportController extends Controller
             // ->whereHas('payment', function ($q1) {
             //     $q1->whereNotNull('pending_amount'); // cleaner than !==
             // })
-            ->where($customerID, function ($query) use ($customerID) {
+            ->when($customerID, function ($query) use ($customerID) {
                 $query->where('customer_id', $customerID);
             })
             ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
@@ -273,7 +273,7 @@ class ReportController extends Controller
             })
             ->get();
 
-        return view('reports.reportlist.get-customer-wise-detail-list', compact('booking'));
+        return view('reports.reportlist.get-customer-wise-receivable-list', compact('booking'));
     }
 
 

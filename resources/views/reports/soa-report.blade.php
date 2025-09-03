@@ -326,6 +326,15 @@
                         </div>
 
                     </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <button class="btn btn-primary prinn pritns" onclick="printView('printReport','','1')">
+                            <span class="glyphicon glyphicon-print"></span> Print
+                        </button>
+                    </div>
+
+
+
                 </form>
 
                 <!-- Table -->

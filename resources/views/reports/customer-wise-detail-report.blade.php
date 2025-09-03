@@ -22,14 +22,24 @@
         <section class="section">
             <div class="section-body">
                 <!-- Filters -->
-                <div class="mb-3">
-                    <button onclick="history.back()" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                </div>
+              <div class="mb-3 d-flex justify-content-between">
+    <button onclick="history.back()" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+    
+    <button class="btn btn-primary prinn pritns" onclick="printView('printReport','','1')">
+        <span class="glyphicon glyphicon-print"></span> Print
+    </button>
+</div>
+
+                {{-- <div class="mb-3 text-right">
+                       
+                    </div> --}}
                 <!-- Table -->
-                <div class="row">
+                <div class="row" id="printReport">
+                    
                     <div class="col-12">
+
                         <div class="card">
                             <div class="card-body">
                                 <div class="table-scroll">
