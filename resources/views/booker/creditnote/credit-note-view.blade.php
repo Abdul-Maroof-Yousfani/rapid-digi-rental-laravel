@@ -177,6 +177,8 @@
                         <!-- <p class="mb-0 text-dark">{{ $customer->country }}</p> -->
                     </div>
                     <div class="col text-right align-self-end">
+                        <p class="text-dark"><strong style="margin-right: 60px;">Invoice #:</strong>
+                            {{ $creditNote->booking->invoice()->select('zoho_invoice_number')->first()->zoho_invoice_number }}</p>
                         <p class="text-dark"><strong style="margin-right: 60px;">Credit Date:</strong>
                             {{ $creditNote->refund_date }}</p>
                         <!-- <p class="text-dark"> <strong style="margin-right: 60px;">Due Date:</strong> </p>

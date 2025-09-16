@@ -38,15 +38,410 @@
     $revenue= App\Models\BookingPaymentHistory::sum('paid_amount');
 
     /* Get Investor Total vehicle */
-    $vehicles= App\Models\Vehicle::with('investor')
-        ->whereHas('investor', function($query){
-            $query->where('user_id', Auth::user()->id);
-        })->count();
+ $vehicles = App\Models\Vehicle::with(['investor', 'bookingData'])
+    ->whereHas('investor', function($query){
+        $query->where('user_id', Auth::user()->id);
+    })->get();
+
 
     /* Get Investor */
     $investors= App\Models\Investor::with('vehicle')->get();
 
+    $chartData = [
+    'labels' => $investors->pluck('name'), // investor names
+    'vehicles' => $investors->map(fn($item) => $item->vehicle->count()),
+    'revenue' => $investors->map(function ($item) {
+        $investorID = $item->id;
+        $bookingIds = \App\Models\BookingData::whereHas('vehicle.investor', function ($q) use ($investorID) {
+            $q->where('id', $investorID);
+        })->pluck('booking_id')->unique();
+        return \App\Models\BookingPaymentHistory::whereIn('booking_id', $bookingIds)->sum('paid_amount');
+    }),
+];
+
+
+
+
+
+
+
+
+
+
+
+$vehicles2 = App\Models\Vehicle::with('bookingData')->get();
+
+$vehicleStatusMap = [];
+
+foreach ($vehicles2 as $vehicle) {
+    if ($vehicle->bookingData->isEmpty()) {
+        $vehicleStatusMap[$vehicle->id] = [
+            'status' => 'Not Rented',
+            'paid'   => 0,
+        ];
+        continue;
+    }
+
+    $allStatuses = [];
+    $totalPaid   = 0;
+
+    foreach ($vehicle->bookingData as $booking1) {
+        $bid   = $booking1->booking_id;
+        $price = $booking1->price;
+        $paid  = $paymentsPerBooking[$bid] ?? 0;
+
+        $totalPaid += $paid;
+
+        if ($paid == 0) {
+            $allStatuses[] = 'Pending';
+        } elseif ($paid >= $price) {
+            $allStatuses[] = 'Paid';
+        } elseif ($paid > 0 && $paid < $price) {
+            $allStatuses[] = 'Partially Paid';
+        } else {
+            $allStatuses[] = '-';
+        }
+    }
+
+    // decide final vehicle status (worst one if mixed)
+    if (in_array('Pending', $allStatuses)) {
+        $finalStatus = 'Pending';
+    } elseif (in_array('Partially Paid', $allStatuses)) {
+        $finalStatus = 'Partially Paid';
+    } elseif (count(array_unique($allStatuses)) === 1 && $allStatuses[0] === 'Paid') {
+        $finalStatus = 'Paid';
+    } else {
+        $finalStatus = 'Paid'; // fallback if everything is paid
+    }
+
+    $vehicleStatusMap[$vehicle->id] = [
+        'status' => $finalStatus,
+        'paid'   => $totalPaid,
+    ];
+}
+
+
+
+// --- initialize stats & helpers ---
+$labels = ['Paid', 'Partially Paid', 'Pending', 'Not Rented', '-'];
+$soaStats = [
+    'labels'  => $labels,
+    'counts'  => array_fill(0, count($labels), 0),
+    'amounts' => array_fill(0, count($labels), 0),
+];
+$statusIndex = array_flip($labels); // label => index for quick lookup
+
+// lower number = higher-priority (worst) status when a vehicle has multiple bookings
+$statusPriority = [
+    'Pending'        => 1,
+    'Partially Paid' => 2,
+    'Paid'           => 3,
+    'Not Rented'     => 4,
+    '-'              => 5,
+];
+
+// --- prepare maps ---
+$bookingPriceMap   = []; // booking_id => price
+$bookingIds        = []; // list of booking ids
+$bookingVehicleMap = []; // booking_id => vehicle_id
+$vehicleStatusMap  = []; // vehicle_id => ['status'=>..., 'paid'=>..., 'priority'=>...]
+
+// eager load bookings
+$vehicles2 = App\Models\Vehicle::with('bookingData')->get();
+
+// collect booking <-> vehicle relationships and prices
+foreach ($vehicles2 as $vehicle) {
+    if ($vehicle->bookingData->isEmpty()) {
+        // vehicle has no bookings
+        $vehicleStatusMap[$vehicle->id] = [
+            'status'   => 'Not Rented',
+            'paid'     => 0,
+            'priority' => $statusPriority['Not Rented'],
+        ];
+        continue;
+    }
+
+    foreach ($vehicle->bookingData as $booking1) {
+        $bid = $booking1->booking_id;       // keep your booking_id field name
+        $bookingPriceMap[$bid] = $booking1->price;
+        $bookingIds[] = $bid;
+        $bookingVehicleMap[$bid] = $vehicle->id;
+    }
+}
+
+// --- fetch payments summed per booking (one DB query) ---
+$paymentsPerBooking = [];
+if (!empty($bookingIds)) {
+    $paymentsPerBooking = \App\Models\Payment::whereIn('booking_id', $bookingIds)
+        ->selectRaw('booking_id, SUM(paid_amount) as paid_amount')
+        ->groupBy('booking_id')
+        ->pluck('paid_amount', 'booking_id') // returns [booking_id => total_paid]
+        ->toArray();
+}
+
+// --- determine booking status and reduce to vehicle status ---
+foreach ($bookingPriceMap as $bookingId => $price) {
+    $paid = $paymentsPerBooking[$bookingId] ?? 0;
+
+    if ($paid == 0) {
+        $status = 'Pending';
+    } elseif ($paid >= $price) {
+        $status = 'Paid';
+    } elseif ($paid > 0 && $paid < $price) {
+        $status = 'Partially Paid';
+    } else {
+        $status = '-';
+    }
+
+    $vehicleId = $bookingVehicleMap[$bookingId];
+
+    if (!isset($vehicleStatusMap[$vehicleId])) {
+        $vehicleStatusMap[$vehicleId] = [
+            'status'   => $status,
+            'paid'     => $paid,
+            'priority' => $statusPriority[$status] ?? 99,
+        ];
+    } else {
+        // always add paid amounts across bookings for the vehicle
+        $vehicleStatusMap[$vehicleId]['paid'] += $paid;
+
+        // choose the *worst* status according to priority (smaller = worse)
+        $currentPriority = $vehicleStatusMap[$vehicleId]['priority'];
+        $newPriority = $statusPriority[$status] ?? 99;
+        if ($newPriority < $currentPriority) {
+            $vehicleStatusMap[$vehicleId]['status'] = $status;
+            $vehicleStatusMap[$vehicleId]['priority'] = $newPriority;
+        }
+    }
+}
+
+foreach ($vehicleStatusMap as $data) {
+    $status     = $data['status'];
+    $paidAmount = $data['paid'];
+
+    $index = $statusIndex[$status] ?? false;
+    if ($index !== false) {
+        $soaStats['counts'][$index] += 1;
+        $soaStats['amounts'][$index] += $paidAmount;
+    }
+}
+
+
+// --- Example chart building (same as your original) ---
+$chartConfig1 = [
+    'type' => 'bar',
+    'data' => [
+        'labels' => $soaStats['labels'],
+        'datasets' => [
+            ['label' => 'No. of Vehicles', 'data' => $soaStats['counts']],
+            ['label' => 'Total Amount (AED)', 'data' => $soaStats['amounts']],
+        ],
+    ],
+    'options' => ['responsive' => true, 'plugins' => ['legend' => ['position' => 'top']]],
+];
+
+$soaChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig1));
+//dd($paymentsPerBooking, $bookingPriceMap, $bookingVehicleMap);
+
+
+
+
+
+
+
+
+
+
+
+
+
+$bookings = \App\Models\Booking::with(['bookingData', 'customer', 'payment', 'invoice', 'salePerson'])
+    
+    ->get();
+
+$bookingsGrouped = $bookings->groupBy('customer_id')->map(function ($group) {
+    $first = $group->first();
+
+    $itemTotal = $group->reduce(function ($carry, $b) {
+        if ($b->relationLoaded('bookingData') && $b->bookingData instanceof \Illuminate\Support\Collection) {
+            return $carry + (float) $b->bookingData->sum('item_total');
+        }
+        return $carry + (float) ($b->item_total ?? 0);
+    }, 0.0);
+
+    $totalPrice = $group->reduce(function ($carry, $b) {
+        if ($b->relationLoaded('bookingData') && $b->bookingData instanceof \Illuminate\Support\Collection) {
+            return $carry + (float) ($b->bookingData->first()->price ?? 0);
+        }
+        return $carry;
+    }, 0.0);
+
+    $paidAmount = $group->reduce(function ($carry, $b) {
+        if ($b->relationLoaded('payment')) {
+            if ($b->payment instanceof \Illuminate\Support\Collection) {
+                return $carry + (float) $b->payment->sum('paid_amount');
+            }
+            return $carry + (float) ($b->payment->paid_amount ?? 0);
+        }
+        return $carry;
+    }, 0.0);
+
+    $first->item_total     = $itemTotal;
+    $first->total_price    = $totalPrice;
+    $first->paid_amount    = $paidAmount;
+    $first->bookings_count = $group->count();
+
+    return $first;
+})->values();
+
+// prepare chart dataset
+$customerNames   = $bookingsGrouped->pluck('customer.customer_name')->toArray();
+$totalSales      = $bookingsGrouped->pluck('total_price')->toArray();
+$totalPaid       = $bookingsGrouped->pluck('paid_amount')->toArray();
+
+$chartConfig3 = [
+    'type' => 'bar',
+    'data' => [
+        'labels' => $customerNames,
+        'datasets' => [
+            ['label' => 'Total Sale', 'data' => $totalSales],
+            ['label' => 'Paid Amount', 'data' => $totalPaid],
+        ],
+    ],
+    'options' => [
+        'responsive' => true,
+        'plugins' => ['legend' => ['position' => 'top']],
+        'scales' => [
+            'x' => ['ticks' => ['autoSkip' => false]], 
+            'y' => ['beginAtZero' => true],
+        ],
+    ],
+];
+
+$customerChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig3));
+
+
+
+
+    // group by customer
+    $receivableData = $bookings->groupBy('customer_id')->map(function ($group) {
+        $first = $group->first();
+
+$totalInvoice = $group->reduce(function ($carry, $b) {
+    if ($b->relationLoaded('invoice')) {
+        if ($b->invoice instanceof \Illuminate\Support\Collection) {
+            return $carry + (float) $b->invoice->sum('total_amount');
+        }
+        return $carry + (float) ($b->invoice->total_amount ?? 0);
+    }
+    return $carry;
+}, 0.0);
+
+
+        $totalPaid = $group->reduce(function ($carry, $b) {
+            if ($b->relationLoaded('payment')) {
+                if ($b->payment instanceof \Illuminate\Support\Collection) {
+                    return $carry + (float) $b->payment->sum('paid_amount');
+                }
+                return $carry + (float) ($b->payment->paid_amount ?? 0);
+            }
+            return $carry;
+        }, 0.0);
+
+        $receivable = $totalInvoice - $totalPaid;
+
+        return [
+            'customer_name' => $first->customer->customer_name ?? 'Unknown',
+            'total_invoice' => $totalInvoice,
+            'total_paid'    => $totalPaid,
+            'receivable'    => $receivable,
+        ];
+    })->values();
+
+    // prepare chart arrays
+    $customerNames = $receivableData->pluck('customer_name')->toArray();
+    $receivables   = $receivableData->pluck('receivable')->toArray();
+
+    // build chart
+    $chartConfig4 = [
+        'type' => 'bar',
+        'data' => [
+            'labels' => $customerNames,
+            'datasets' => [
+                [
+                    'label' => 'Receivable Amount',
+                    'data'  => $receivables,
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.6)',
+                ],
+            ],
+        ],
+        'options' => [
+            'responsive' => true,
+            'plugins' => ['legend' => ['position' => 'top']],
+            'scales' => [
+                'x' => ['ticks' => ['autoSkip' => false]],
+                'y' => ['beginAtZero' => true],
+            ],
+        ],
+    ];
+
+    $receivableChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig4));
+
+
+$salesmanStats = $bookings->groupBy('sale_person_id')->map(function ($group) {
+    $first = $group->first();
+
+    $totalInvoice = $group->reduce(function ($carry, $b) {
+        if ($b->relationLoaded('invoice')) {
+            if ($b->invoice instanceof \Illuminate\Support\Collection) {
+                return $carry + (float) $b->invoice->sum('total_amount');
+            }
+            return $carry + (float) ($b->invoice->total_amount ?? 0);
+        }
+        return $carry;
+    }, 0.0);
+
+    $totalPaid = $group->reduce(function ($carry, $b) {
+        if ($b->relationLoaded('payment')) {
+            if ($b->payment instanceof \Illuminate\Support\Collection) {
+                return $carry + (float) $b->payment->sum('paid_amount');
+            }
+            return $carry + (float) ($b->payment->paid_amount ?? 0);
+        }
+        return $carry;
+    }, 0.0);
+
+    $receivable = $totalInvoice - $totalPaid;
+
+    return [
+        'salesman_name' => $first->salePerson->name ?? 'Unknown',
+        'total_invoice' => $totalInvoice,
+        'total_paid'    => $totalPaid,
+        'receivable'    => $receivable,
+    ];
+})->values();
+
+$labels = $salesmanStats->pluck('salesman_name')->toArray();
+$invoices = $salesmanStats->pluck('total_invoice')->toArray();
+$paid = $salesmanStats->pluck('total_paid')->toArray();
+$receivables = $salesmanStats->pluck('receivable')->toArray();
+
+$chartConfig5 = [
+    'type' => 'bar',
+    'data' => [
+        'labels' => $labels,
+        'datasets' => [
+            ['label' => 'Total Invoice', 'data' => $invoices, 'backgroundColor' => 'rgba(54, 162, 235, 0.6)'],
+            ['label' => 'Paid', 'data' => $paid, 'backgroundColor' => 'rgba(75, 192, 192, 0.6)'],
+            ['label' => 'Receivable', 'data' => $receivables, 'backgroundColor' => 'rgba(255, 99, 132, 0.6)'],
+        ],
+    ],
+];
+
+$salesmanChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig5));
+
 @endphp
+
 <!-- Main Content -->
 <div class="main-content">
   <section class="section">
@@ -168,44 +563,168 @@
         </div>
       </div>
     </div>
+@php
+    // Collect investors, vehicles, and revenue data
+    $labels = [];
+    $vehicles = [];
+    $revenues = [];
 
-    @if (!Auth::user()->hasRole('investor'))
-        <div class="row">
-            @foreach ($investors as $item)
-            @php
-                $investorID= $item->id;
-                $bookingIds = App\Models\BookingData::whereHas('vehicle.investor', function ($q) use ($investorID) {
-                    $q->where('id', $investorID);
-                })->pluck('booking_id')->unique();
-                $totalAmount = App\Models\BookingPaymentHistory::whereIn('booking_id', $bookingIds)->sum('paid_amount');
-            @endphp
-            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <div class="card">
+    foreach ($investors as $item) {
+        $labels[] = $item->name;
+
+        $investorID = $item->id;
+        $bookingIds = App\Models\BookingData::whereHas('vehicle.investor', function ($q) use ($investorID) {
+            $q->where('id', $investorID);
+        })->pluck('booking_id')->unique();
+
+        $totalAmount = App\Models\BookingPaymentHistory::whereIn('booking_id', $bookingIds)->sum('paid_amount');
+
+        $vehicles[] = $item->vehicle->count();
+        $revenues[] = $totalAmount;
+    }
+
+    // Build ONE chart config
+    $chartConfig = [
+        'type' => 'bar',
+        'data' => [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Total Vehicles',
+                    'data' => $vehicles,
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.6)',
+                ],
+                [
+                    'label' => 'Revenue (AED)',
+                    'data' => $revenues,
+                    'backgroundColor' => 'rgba(255, 206, 86, 0.6)',
+                ],
+            ],
+        ],
+        'options' => [
+            'responsive' => true,
+            'plugins' => [
+                'legend' => ['position' => 'top'],
+                'title' => ['display' => true, 'text' => 'Investor Performance (All Investors)'],
+            ],
+        ],
+    ];
+
+    $chartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig));
+
+
+  
+@endphp
+
+@if (!Auth::user()->hasRole('investor'))
+    {{-- <div class="row">
+        <div class="col-12 text-center">
+            <img src="{{ $chartUrl }}" alt="All Investors Chart" class="img-fluid">
+        </div>
+    </div> --}}
+                        <div class="row">
+
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6">
+    <div class="card">
+        <div class="card-statistic-4">
+            <div class="align-items-center justify-content-between">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pr-0 pt-3 text-center">
+                        
+                        
+
+                        <!-- Chart -->
+                        <h4 class="card-title mb-3">Investor Vehicle Revenue</h4>
+                        <div class="card-content">
+                            <img src="{{ $chartUrl }}" alt="All Investors Chart" class="img-fluid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                  <div class="card">
                     <div class="card-statistic-4">
                         <div class="align-items-center justify-content-between">
-                        <div class="row ">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                            <div class="card-content">
-                                <h3>{{ $item->name }}</h3>
-                                <p class="mb-3 font-18">
-                                    Total vehicles: {{ $item->vehicle->count() }} <br>
-                                    Revenue: AED {{ number_format($totalAmount, 0) }}
-                                </p>
-                            </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                            <div class="banner-img">
-                                <img src="{{ asset('assets/img/banner/investor.png') }}" alt="">
-                            </div>
+                        <div class="row">
+                           
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pr-0 pt-3 text-center">
+                              <h4 class="card-title mb-3">SOA</h4>
+                              <div class="card-content">
+                                 <img src="{{ $soaChartUrl }}" alt="All Investors Chart" class="img-fluid">
+                              </div>
                             </div>
                         </div>
                         </div>
                     </div>
+                  </div>
                 </div>
-            </div>
-            @endforeach
-        </div>
-    @endif
+                        </div>
+
+
+                           <div class="row">
+
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                <div class="card">
+                    <div class="card-statistic-4">
+                          <div class="align-items-center justify-content-between">
+                            <div class="row">
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pr-0 pt-3 text-center">
+                                <h4 class="card-title mb-3">Customer Sales</h4>
+                                <div class="card-content">
+                                  <img src="{{ $customerChartUrl }}" alt="All Investors Chart" class="img-fluid">
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                  <div class="card">
+                    <div class="card-statistic-4">
+                        <div class="align-items-center justify-content-between">
+                        <div class="row">
+                           
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pr-0 pt-3 text-center">
+                              <h4 class="card-title mb-3">Customer Receivable</h4>
+                              <div class="card-content">
+                                 <img src="{{ $receivableChartUrl }}" alt="All Investors Chart" class="img-fluid">
+                              </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                        </div>
+
+                            <div class="row">
+
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                <div class="card">
+                    <div class="card-statistic-4">
+                          <div class="align-items-center justify-content-between">
+                            <div class="row">
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pr-0 pt-3 text-center">
+                                <h4 class="card-title mb-3">Salesman</h4>
+                                <div class="card-content">
+                                  <img src="{{ $salesmanChartUrl }}" alt="All Investors Chart" class="img-fluid">
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                
+                        </div>
+@endif
+
 
 
 
