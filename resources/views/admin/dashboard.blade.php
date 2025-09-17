@@ -68,179 +68,99 @@
 
 
 
-
 $vehicles2 = App\Models\Vehicle::with('bookingData')->get();
 
-$vehicleStatusMap = [];
+$bookingPriceMap   = [];
+$bookingIds        = [];
+$bookingVehicleMap = [];
+$vehicleMap        = []; // vehicle_id => plate_no (or identifier)
 
+// collect bookings and vehicle mapping
 foreach ($vehicles2 as $vehicle) {
-    if ($vehicle->bookingData->isEmpty()) {
-        $vehicleStatusMap[$vehicle->id] = [
-            'status' => 'Not Rented',
-            'paid'   => 0,
-        ];
-        continue;
-    }
+    $vehicleMap[$vehicle->id] = $vehicle->number_plate ?? $vehicle->id;
 
-    $allStatuses = [];
-    $totalPaid   = 0;
-
-    foreach ($vehicle->bookingData as $booking1) {
-        $bid   = $booking1->booking_id;
-        $price = $booking1->price;
-        $paid  = $paymentsPerBooking[$bid] ?? 0;
-
-        $totalPaid += $paid;
-
-        if ($paid == 0) {
-            $allStatuses[] = 'Pending';
-        } elseif ($paid >= $price) {
-            $allStatuses[] = 'Paid';
-        } elseif ($paid > 0 && $paid < $price) {
-            $allStatuses[] = 'Partially Paid';
-        } else {
-            $allStatuses[] = '-';
-        }
-    }
-
-    // decide final vehicle status (worst one if mixed)
-    if (in_array('Pending', $allStatuses)) {
-        $finalStatus = 'Pending';
-    } elseif (in_array('Partially Paid', $allStatuses)) {
-        $finalStatus = 'Partially Paid';
-    } elseif (count(array_unique($allStatuses)) === 1 && $allStatuses[0] === 'Paid') {
-        $finalStatus = 'Paid';
-    } else {
-        $finalStatus = 'Paid'; // fallback if everything is paid
-    }
-
-    $vehicleStatusMap[$vehicle->id] = [
-        'status' => $finalStatus,
-        'paid'   => $totalPaid,
-    ];
-}
-
-
-
-// --- initialize stats & helpers ---
-$labels = ['Paid', 'Partially Paid', 'Pending', 'Not Rented', '-'];
-$soaStats = [
-    'labels'  => $labels,
-    'counts'  => array_fill(0, count($labels), 0),
-    'amounts' => array_fill(0, count($labels), 0),
-];
-$statusIndex = array_flip($labels); // label => index for quick lookup
-
-// lower number = higher-priority (worst) status when a vehicle has multiple bookings
-$statusPriority = [
-    'Pending'        => 1,
-    'Partially Paid' => 2,
-    'Paid'           => 3,
-    'Not Rented'     => 4,
-    '-'              => 5,
-];
-
-// --- prepare maps ---
-$bookingPriceMap   = []; // booking_id => price
-$bookingIds        = []; // list of booking ids
-$bookingVehicleMap = []; // booking_id => vehicle_id
-$vehicleStatusMap  = []; // vehicle_id => ['status'=>..., 'paid'=>..., 'priority'=>...]
-
-// eager load bookings
-$vehicles2 = App\Models\Vehicle::with('bookingData')->get();
-
-// collect booking <-> vehicle relationships and prices
-foreach ($vehicles2 as $vehicle) {
-    if ($vehicle->bookingData->isEmpty()) {
-        // vehicle has no bookings
-        $vehicleStatusMap[$vehicle->id] = [
-            'status'   => 'Not Rented',
-            'paid'     => 0,
-            'priority' => $statusPriority['Not Rented'],
-        ];
-        continue;
-    }
-
-    foreach ($vehicle->bookingData as $booking1) {
-        $bid = $booking1->booking_id;       // keep your booking_id field name
-        $bookingPriceMap[$bid] = $booking1->price;
-        $bookingIds[] = $bid;
+    foreach ($vehicle->bookingData as $booking2) {
+        $bid = $booking2->booking_id;
+        $bookingPriceMap[$bid]   = $booking2->price;
+        $bookingIds[]            = $bid;
         $bookingVehicleMap[$bid] = $vehicle->id;
     }
 }
 
-// --- fetch payments summed per booking (one DB query) ---
+// fetch payments summed per booking
 $paymentsPerBooking = [];
 if (!empty($bookingIds)) {
     $paymentsPerBooking = \App\Models\Payment::whereIn('booking_id', $bookingIds)
         ->selectRaw('booking_id, SUM(paid_amount) as paid_amount')
         ->groupBy('booking_id')
-        ->pluck('paid_amount', 'booking_id') // returns [booking_id => total_paid]
+        ->pluck('paid_amount', 'booking_id')
         ->toArray();
 }
 
-// --- determine booking status and reduce to vehicle status ---
+// initialize per-vehicle paid/unpaid
+$vehiclePaid   = [];
+$vehicleUnpaid = [];
+
+foreach ($vehicleMap as $vid => $plate) {
+    $vehiclePaid[$vid]   = 0;
+    $vehicleUnpaid[$vid] = 0;
+}
+
+// calculate paid/unpaid per vehicle
 foreach ($bookingPriceMap as $bookingId => $price) {
-    $paid = $paymentsPerBooking[$bookingId] ?? 0;
-
-    if ($paid == 0) {
-        $status = 'Pending';
-    } elseif ($paid >= $price) {
-        $status = 'Paid';
-    } elseif ($paid > 0 && $paid < $price) {
-        $status = 'Partially Paid';
-    } else {
-        $status = '-';
-    }
-
+    $paid      = $paymentsPerBooking[$bookingId] ?? 0;
     $vehicleId = $bookingVehicleMap[$bookingId];
 
-    if (!isset($vehicleStatusMap[$vehicleId])) {
-        $vehicleStatusMap[$vehicleId] = [
-            'status'   => $status,
-            'paid'     => $paid,
-            'priority' => $statusPriority[$status] ?? 99,
-        ];
+    if ($paid >= $price) {
+        $vehiclePaid[$vehicleId]   += $price;
+    } elseif ($paid > 0 && $paid < $price) {
+        $vehiclePaid[$vehicleId]   += $paid;
+        $vehicleUnpaid[$vehicleId] += ($price - $paid);
     } else {
-        // always add paid amounts across bookings for the vehicle
-        $vehicleStatusMap[$vehicleId]['paid'] += $paid;
-
-        // choose the *worst* status according to priority (smaller = worse)
-        $currentPriority = $vehicleStatusMap[$vehicleId]['priority'];
-        $newPriority = $statusPriority[$status] ?? 99;
-        if ($newPriority < $currentPriority) {
-            $vehicleStatusMap[$vehicleId]['status'] = $status;
-            $vehicleStatusMap[$vehicleId]['priority'] = $newPriority;
-        }
+        $vehicleUnpaid[$vehicleId] += $price;
     }
 }
 
-foreach ($vehicleStatusMap as $data) {
-    $status     = $data['status'];
-    $paidAmount = $data['paid'];
+// prepare chart data
+$labels     = array_values($vehicleMap); // vehicle plate numbers
+$paidData   = array_values($vehiclePaid);
+$unpaidData = array_values($vehicleUnpaid);
 
-    $index = $statusIndex[$status] ?? false;
-    if ($index !== false) {
-        $soaStats['counts'][$index] += 1;
-        $soaStats['amounts'][$index] += $paidAmount;
-    }
-}
-
-
-// --- Example chart building (same as your original) ---
 $chartConfig1 = [
     'type' => 'bar',
     'data' => [
-        'labels' => $soaStats['labels'],
+        'labels' => $labels,
         'datasets' => [
-            ['label' => 'No. of Vehicles', 'data' => $soaStats['counts']],
-            ['label' => 'Total Amount (AED)', 'data' => $soaStats['amounts']],
+            [
+                'label' => 'Paid',
+                'data'  => $paidData,
+                'backgroundColor' => 'green',
+            ],
+            [
+                'label' => 'Not Paid',
+                'data'  => $unpaidData,
+                'backgroundColor' => 'red',
+            ],
         ],
     ],
-    'options' => ['responsive' => true, 'plugins' => ['legend' => ['position' => 'top']]],
+    'options' => [
+        'responsive' => true,
+        'plugins' => [
+            'legend' => ['position' => 'top'],
+            'title'  => [
+                'display' => true,
+                'text'    => 'SOA Report - Rental Amount per Car',
+            ],
+        ],
+        'scales' => [
+            'y' => ['beginAtZero' => true, 'title' => ['display' => true, 'text' => 'Rental Amount']],
+            'x' => ['title' => ['display' => true, 'text' => 'Car Plate No.']],
+        ],
+    ],
 ];
 
 $soaChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig1));
+
 //dd($paymentsPerBooking, $bookingPriceMap, $bookingVehicleMap);
 
 
