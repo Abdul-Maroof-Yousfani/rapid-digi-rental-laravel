@@ -11,7 +11,7 @@
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 class="mb-0">Sale Person List</h3>
-                        @can('create sale men')
+                        {{-- @can('create sale men') --}}
                             <span>
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSaleManModal">
                                     Add Salesperson
@@ -20,7 +20,7 @@
                                     Sync From Zoho
                                 </a>
                             </span>
-                        @endcan
+                        {{-- @endcan --}}
                     </div>
                   </div>
                 </div>
