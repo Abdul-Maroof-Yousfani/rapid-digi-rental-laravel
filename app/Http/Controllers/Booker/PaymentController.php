@@ -43,11 +43,11 @@ class PaymentController extends Controller
         $bookings = Booking::whereDoesntHave('payment', function ($query) {
             $query->where('payment_status', 'paid');
         })
-            ->with('payment')
+            ->with(['payment', 'customer'])
             ->orderBy('id', 'DESC')
             ->get();
 
-        $bookingsPartial = Booking::with('payment')
+        $bookingsPartial = Booking::with('payment', 'customer')
             ->whereDoesntHave('payment')
             ->orderBy('id', 'DESC')
             ->get();
