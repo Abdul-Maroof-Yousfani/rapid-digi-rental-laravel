@@ -226,7 +226,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-
+        
         $body = [
             "status" => "paid"
         ];
@@ -263,7 +263,6 @@ class ZohoInvoice
                 ]
             ]
         ];
-
         $response = $client->post('https://www.zohoapis.com/invoice/v3/customerpayments', [
             'verify' => false,
             'headers' => [

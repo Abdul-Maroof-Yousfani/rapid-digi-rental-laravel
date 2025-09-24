@@ -312,8 +312,8 @@ class PaymentController extends Controller
                     $this->zohoinvoice->markAsSent($paymentData->invoice->zoho_invoice_id);
 
                     $amountToPay = $incrementalPayments[$key] ?? 0;
-                    $customerId  = $paymentData->invoice->zoho_customer_id;
-
+                    $customerId  = $paymentData->invoice->booking->customer->zoho_customer_id;
+// dd($amountToPay);
                     // ✅ only send if valid
                     if ($amountToPay > 0 && !empty($customerId)) {
                         $this->zohoinvoice->recordPayment(
