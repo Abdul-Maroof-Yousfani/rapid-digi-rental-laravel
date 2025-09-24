@@ -13,8 +13,12 @@ class SalePerson extends Model
     use SoftDeletes;
     use HasFactory;
     use LogsActivity;
+
+    // protected $table = 'sale_people';
     protected $fillable= [
         'name',
+        'email',
+        'zoho_salesperson_id',
         'status',
     ];
 

@@ -200,6 +200,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('vehicle-type', VehicleTypeCrudController::class);
     Route::get('/csv-sample', [VehicleCrudController::class, 'csvSample'])->name('download.sample');
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
+    Route::get('sync-zoho-salesperson', [SalepersonController::class, 'syncSalespersonFromZoho'])->name('syncSalespersonFromZoho');
 
 
 

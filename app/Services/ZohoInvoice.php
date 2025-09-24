@@ -5,6 +5,7 @@ namespace App\Services;
 
 
 
+use App\Models\SalePerson;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use GuzzleHttp\Cookie\CookieJar;
@@ -63,7 +64,7 @@ class ZohoInvoice
                 'verify' => false,
                 'headers' => [
                     'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                    'Content-Type'  => 'application/json',
+                    'Content-Type' => 'application/json',
                 ],
             ]);
             return $accessToken;
@@ -127,13 +128,30 @@ class ZohoInvoice
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'Content-Type'  => 'application/json',
+                'Content-Type' => 'application/json',
             ]
         ]);
 
         $data = json_decode($response->getBody(), true);
         return $data['contacts'] ?? [];
     }
+
+    public function getAllSalespersons()
+    {
+        $accessToken = $this->getAccessToken();
+        $client = new Client();
+        $response = $client->get('https://www.zohoapis.com/invoice/v3/salespersons?organization_id=' . $this->orgId, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                'Content-Type' => 'application/json',
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+        return $data['data'] ?? [];
+    }
+
 
     public function getCustomerDetail($customerId)
     {
@@ -266,15 +284,17 @@ class ZohoInvoice
         $accessToken = $this->getAccessToken();
         $client = new Client();
         $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
+        $saleperson = SalePerson::select('zoho_salesperson_id')->where('id', $salesPersonId)->first();
         $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'Content-Type'  => 'application/json',
+                'Content-Type' => 'application/json',
             ],
             'json' => [
                 'customer_id' => $customer->zoho_customer_id,
-                'salesperson_id' => $salesPersonId, 
+                'salesperson_id' => $saleperson->zoho_salesperson_id,
+                'invoice_number' => 'INV-' . time(),
                 'notes' => $notes,
                 'currency_code' => $currency_code,
                 'line_items' => $lineitems
@@ -287,7 +307,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        
+
         // Fetch Zoho customer ID
         $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
         if (!$customer) {
