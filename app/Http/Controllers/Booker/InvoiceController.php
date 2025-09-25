@@ -122,8 +122,16 @@ class InvoiceController extends Controller
                     'tax_id' => $request->tax[$key],
                 ];
             }
-            $customerId =  $request->customer_id;
-            $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems);
+            $customerId = $request->customer_id;
+            $book = Booking::with('salePerson')->find($request->booking_id);
+
+            if ($book && $book->salePerson) {
+                $salesperson_id = $book->salePerson->id; // 'id' because that's the PK in sale_people table
+            } else {
+                $salesperson_id = null; // handle case if no booking or salesperson
+            }
+
+            $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $salesperson_id);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
@@ -174,7 +182,7 @@ class InvoiceController extends Controller
                             'description' => $lineItemData['description'],
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
-                            'item_total' =>  number_format($itemTotal, 2),
+                            'item_total' => number_format($itemTotal, 2),
                             'tax_name' => $taxName,
                             'deductiontype_id' => $invoiceTypeModel ? $invoiceTypeModel->id : null,
                             'view_type' => 2,
@@ -293,7 +301,7 @@ class InvoiceController extends Controller
             }
             // $invoice= Invoice::where('booking_id', $request->booking_id)->where('id', $id)->first();
             $invoiceID = $invoice->zoho_invoice_id;
-            $customerId =  $request->customer_id;
+            $customerId = $request->customer_id;
             $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
             $json = [
                 'customer_id' => $customer->zoho_customer_id,
@@ -344,7 +352,7 @@ class InvoiceController extends Controller
                             'quantity' => $quantity,
                             'view_type' => 2,
                             'tax_percent' => $taxPercent,
-                            'item_total' =>  number_format($itemTotal, 2),
+                            'item_total' => number_format($itemTotal, 2),
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
                     }
@@ -363,12 +371,12 @@ class InvoiceController extends Controller
 
     public function viewInvoice($id)
     {
-        $company = 
-        $invoice = Invoice::with(['bookingData.invoice_type', 'booking', 'paymentData'])->find($id);
+        $company =
+            $invoice = Invoice::with(['bookingData.invoice_type', 'booking', 'paymentData'])->find($id);
         if (!$invoice) {
             return redirect()->back()->with('error', 'Invoice Not Found');
         }
-// dd($invoice->bookingData);
+        // dd($invoice->bookingData);
 
         return view('booker.invoice.invoice-view', compact('invoice'));
     }

@@ -55,7 +55,7 @@
                                                                 <option value="">Select Booking</option>
                                                                 @foreach ($filterBooking as $item)
                                                                     <option value="{{ $item->id }}" {{ $selectedBookingId == $item->id ? 'selected' : '' }}>
-                                                                        {{ $item->agreement_no }} | {{ $item->customer->customer_name }}
+                                                                        {{ $item->agreement_no }} | {{ $item->customer?->customer_name ?? 'No Customer' }}
                                                                     </option>
                                                                 @endforeach
                                                             </select>

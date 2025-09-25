@@ -70,7 +70,9 @@ class ZohoInvoice
             return $accessToken;
         } catch (\GuzzleHttp\Exception\ClientException $exp) {
             $response = json_decode($exp->getResponse()->getBody(), true);
-            if ($response['code'] == 57) {
+            if ($response['code'] == 401) {
+                return $this->refreshAccessToken();
+            } else if ($response['code'] == 57) {
                 return $this->refreshAccessToken();
             } else {
                 return $exp;

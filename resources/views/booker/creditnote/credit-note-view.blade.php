@@ -160,21 +160,19 @@
                         <p class="mb-0" style="line-height: 1.5;">
                             <a href="{{ route('customer.index') }}"
                                 style="font-weight: 900; text-transform: uppercase; color: #343a40; text-decoration: none; font-size: 1rem;">
-                                {{ $customer->customer_name }}
+                                {{ $customer?->customer_name ?? 'No Customer' }}
                             </a>
                         </p>
 
 
-                        <!-- <p class="mb-0 text-dark" style="line-height: 1.5;">{{ $customer->address }}</p> -->
                         <p class="mb-0 text-dark" style="line-height: 1.5;">
                             @php
-                                $addressParts = array_filter([$customer->address, $customer->city, $customer->state, $customer->country]);
+                                $addressParts = array_filter([$customer?->address ?? 'No Customer address', $customer?->city ?? 'No Customer city', $customer?->state ?? 'No Customer state', $customer?->country ?? 'No Customer country']);
                             @endphp
                             {{ implode(', ', $addressParts) }}
                         </p>
 
-                        <p class="mb-0 text-dark">{{ $customer->licence }}</p>
-                        <!-- <p class="mb-0 text-dark">{{ $customer->country }}</p> -->
+                        <p class="mb-0 text-dark">{{ $customer?->licence ?? 'No Customer licence' }}</p>
                     </div>
                     <div class="col text-right align-self-end">
                         <p class="text-dark"><strong style="margin-right: 60px;">Invoice #:</strong>
