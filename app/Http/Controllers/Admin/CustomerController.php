@@ -204,6 +204,7 @@ class CustomerController extends Controller
                     ->first();
 
                 $fullDetail = $this->zohoinvoice->getCustomerDetail($customer['contact_id']);
+
                 $billing = $fullDetail['contact']['billing_address'] ?? [];
 
                 // If customer exists (even soft-deleted)
@@ -215,6 +216,7 @@ class CustomerController extends Controller
                             'customer_name' => $customer['contact_name'],
                             'email' => $customer['email'] ?? null,
                             'phone' => $customer['phone'] ?? null,
+                            'trn_no' => $billing['tax_reg_no'] ?? null,
                             'address' => $billing['address'] ?? null,
                             'city' => $billing['city'] ?? null,
                             'state' => $billing['state'] ?? null,
@@ -234,6 +236,7 @@ class CustomerController extends Controller
                     'email' => $customer['email'] ?? null,
                     'phone' => $customer['phone'] ?? null,
                     'address' => $billing['address'] ?? null,
+                    'trn_no' => $billing['tax_reg_no'] ?? null,
                     'city' => $billing['city'] ?? null,
                     'state' => $billing['state'] ?? null,
                     'country' => $billing['country'] ?? null,
