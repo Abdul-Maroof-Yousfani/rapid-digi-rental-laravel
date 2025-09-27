@@ -13,7 +13,7 @@
         "laravel/ui": "^4.6",
         "league/csv": "^9.23",
         "pusher/pusher-php-server": "^7.2",
-        "spatie/laravel-activitylog": "4.8",
+        "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-permission": "^6.16"
     },
     "require-dev": {
