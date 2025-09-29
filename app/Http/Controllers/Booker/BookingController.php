@@ -77,7 +77,11 @@ $booking = Invoice::with('booking', 'bookingData')
         $customers = Customer::orderBy('id', 'DESC')->get();
         $vehicletypes = Vehicletype::all();
         $salePerson = SalePerson::all();
-        $taxlist = $this->zohoinvoice->taxList();
+        try{
+            $taxlist = $this->zohoinvoice->taxList();
+        } catch (\Exception $e) {
+            return response()->view('sitedown-error', [], 500);
+        }
         return view('booker.booking.create', compact('customers', 'vehicletypes', 'salePerson', 'taxlist', 'invoiceTypes'));
     }
 

@@ -21,7 +21,7 @@ class CustomerController extends Controller
 
     public function __construct(ZohoInvoice $zohoinvoice)
     {
-        $this->zohoinvoice= $zohoinvoice;
+        $this->zohoinvoice = $zohoinvoice;
         // $this->middleware(['permission:manage customers'])->only(['index','create', 'store', 'edit', 'update', 'destroy']);
 
         $this->middleware('permission:view customer')->only(['index']);
@@ -34,9 +34,14 @@ class CustomerController extends Controller
      */
     public function index()
     {
+        try {
+            $zohoCustomers = $this->zohoinvoice->getAllCustomers();
+        } catch (\Exception $e) {
+            return response()->view('sitedown-error', [], 500);
+        }
         $zohoCustomers = $this->zohoinvoice->getAllCustomers();
-        $dbCustomerIds= Customer::pluck('zoho_customer_id')->toArray();
-        $missing= [];
+        $dbCustomerIds = Customer::pluck('zoho_customer_id')->toArray();
+        $missing = [];
         foreach ($zohoCustomers as $customer) {
             if (!in_array($customer['contact_id'], $dbCustomerIds)) {
                 $missing[] = $customer['contact_id'];
@@ -61,7 +66,7 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $validator= Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'customer_name' => 'required',
             'email' => 'nullable|email|unique:customers,email',
             'phone' => 'required|unique:customers,phone',
@@ -74,63 +79,65 @@ class CustomerController extends Controller
         ]);
 
         if ($validator->fails()) {
-            if($request->ajax()){
+            if ($request->ajax()) {
                 return response()->json(['error' => $validator->errors()], 422);
             } else {
                 return redirect()->back()->withErrors($validator)->withInput();
             }
-        }else{
-            $customer_name= $request->customer_name;
-            $status= $request->status;
-            $email= $request->email;
-            $phone= $request->phone;
-            $address= $request->address;
-            $city= $request->city;
-            $state= $request->state;
-            $country= $request->country;
-            $postal_code= $request->postal_code;
-            $billing_address= [
+        } else {
+            $customer_name = $request->customer_name;
+            $status = $request->status;
+            $email = $request->email;
+            $phone = $request->phone;
+            $address = $request->address;
+            $city = $request->city;
+            $state = $request->state;
+            $country = $request->country;
+            $postal_code = $request->postal_code;
+            $billing_address = [
                 'address' => $address,
                 'city' => $city,
                 'state' => $state,
                 'country' => $country,
                 'zip' => $postal_code,
             ];
-            $contact_person= [[
-                'email' => $email,
-                'phone' => $phone,
-            ]];
+            $contact_person = [
+                [
+                    'email' => $email,
+                    'phone' => $phone,
+                ]
+            ];
             $contact = $this->zohoinvoice->searchCustomer($email, $phone);
             if ($contact) {
                 $customerId = $contact['contact_id']; // already exists in Zoho
-            }else{
+            } else {
                 $customerResponse = $this->zohoinvoice->createCustomer($customer_name, $status, $contact_person, $billing_address);
                 $customerId = $customerResponse['contact']['contact_id'];
             }
-            if(isset($customerId)){
+            if (isset($customerId)) {
                 // try {
-                    $customer = Customer::create([
-                        'zoho_customer_id' => $customerId,
-                        'customer_name' => $customer_name,
-                        'email' => $email,
-                        'phone' => $phone,
-                        'licence' => $request['licence'],
-                        'cnic' => $request['cnic'],
-                        // 'trn_no' => $request['trn_no'],
-                        'dob' => $request['dob'],
-                        'address' => $address,
-                        'gender' => $request['gender'],
-                        'city' => $city,
-                        'state' => $state,
-                        'country' => $country,
-                        'postal_code' => $postal_code,
-                        'status' => $status,
-                    ]);
-                    if ($request->ajax()){
-                        return response()->json(['success' => 'Customer Added Successfully!','data' => $customer]);
-                    } else {
-                        return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Added Successfully!');
-                    }
+                $customer = Customer::create([
+                    'zoho_customer_id' => $customerId,
+                    'customer_name' => $customer_name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'licence' => $request['licence'],
+                    'cnic' => $request['cnic'],
+                    // 'trn_no' => $request['trn_no'],
+                    'dob' => $request['dob'],
+                    'address' => $address,
+                    'gender' => $request['gender'],
+                    'city' => $city,
+                    'state' => $state,
+                    'country' => $country,
+                    'postal_code' => $postal_code,
+                    'status' => $status,
+                ]);
+                if ($request->ajax()) {
+                    return response()->json(['success' => 'Customer Added Successfully!', 'data' => $customer]);
+                } else {
+                    return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Added Successfully!');
+                }
                 // } catch (\Exception $exp) {
                 //     if ($request->ajax()){
                 //         return response()->json(['error' => $exp->getMessage()]);
@@ -216,7 +223,7 @@ class CustomerController extends Controller
                             'customer_name' => $customer['contact_name'],
                             'email' => $customer['email'] ?? null,
                             'phone' => $customer['phone'] ?? null,
-                            'trn_no' => $billing['tax_reg_no'] ?? null,
+                            'trn_no' => $fullDetail['contact']['tax_reg_no'] ?? null,
                             'address' => $billing['address'] ?? null,
                             'city' => $billing['city'] ?? null,
                             'state' => $billing['state'] ?? null,
@@ -236,7 +243,7 @@ class CustomerController extends Controller
                     'email' => $customer['email'] ?? null,
                     'phone' => $customer['phone'] ?? null,
                     'address' => $billing['address'] ?? null,
-                    'trn_no' => $billing['tax_reg_no'] ?? null,
+                    'trn_no' => $fullDetail['contact']['tax_reg_no'] ?? null,
                     'city' => $billing['city'] ?? null,
                     'state' => $billing['state'] ?? null,
                     'country' => $billing['country'] ?? null,
@@ -272,7 +279,7 @@ class CustomerController extends Controller
      */
     public function show(string $id)
     {
-        $customer= Customer::find($id);
+        $customer = Customer::find($id);
         if (!$customer) {
             return response()->json(['error' => 'Customer not found'], 404);
         }
@@ -286,9 +293,12 @@ class CustomerController extends Controller
      */
     public function edit(string $id)
     {
-        $customers= Customer::find($id);
-        if($customers){ return view('admin.customer.edit', compact('customers')); }
-        else{ return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('error', 'Customer Not Found !'); }
+        $customers = Customer::find($id);
+        if ($customers) {
+            return view('admin.customer.edit', compact('customers'));
+        } else {
+            return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('error', 'Customer Not Found !');
+        }
     }
 
     /**
@@ -296,11 +306,11 @@ class CustomerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validator= Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'customer_name' => 'required',
-            'email' => 'nullable|email|unique:customers,email,'.$id,
-            'phone' => 'required|unique:customers,phone,'.$id,
-            'licence' => 'nullable|unique:customers,licence,'.$id,
+            'email' => 'nullable|email|unique:customers,email,' . $id,
+            'phone' => 'required|unique:customers,phone,' . $id,
+            'licence' => 'nullable|unique:customers,licence,' . $id,
             'cnic' => 'required',
             // 'trn_no' => 'required',
             'dob' => 'required',
@@ -308,34 +318,35 @@ class CustomerController extends Controller
         ]);
 
         if ($validator->fails()) {
-            if($request->ajax()){
+            if ($request->ajax()) {
                 return response()->json(['error' => $validator->errors()], 422);
             } else {
                 return redirect()->back()->withErrors($validator)->withInput();
             }
-        }
-        else{
-            $customer_name= $request->customer_name;
-            $status= $request->status;
-            $email= $request->email;
-            $phone= $request->phone;
-            $address= $request->address;
-            $city= $request->city;
-            $state= $request->state;
-            $country= $request->country;
-            $postal_code= $request->postal_code;
-            $billing_address= [
+        } else {
+            $customer_name = $request->customer_name;
+            $status = $request->status;
+            $email = $request->email;
+            $phone = $request->phone;
+            $address = $request->address;
+            $city = $request->city;
+            $state = $request->state;
+            $country = $request->country;
+            $postal_code = $request->postal_code;
+            $billing_address = [
                 'address' => $address,
                 'city' => $city,
                 'state' => $state,
                 'country' => $country,
                 'zip' => $postal_code,
             ];
-            $contact_person= [[
-                'email' => $email,
-                'phone' => $phone,
-            ]];
-            $response= $this->zohoinvoice->updateCustomer($id, $customer_name, $status, $contact_person, $billing_address);
+            $contact_person = [
+                [
+                    'email' => $email,
+                    'phone' => $phone,
+                ]
+            ];
+            $response = $this->zohoinvoice->updateCustomer($id, $customer_name, $status, $contact_person, $billing_address);
             try {
                 $customer = Customer::findOrFail($id);
                 $customer->update([
@@ -354,13 +365,13 @@ class CustomerController extends Controller
                     'postal_code' => $postal_code,
                     'status' => $status,
                 ]);
-                if ($request->ajax()){
-                    return response()->json(['success' => 'Customer Updated Successfully!','data' => $customer], 200);
+                if ($request->ajax()) {
+                    return response()->json(['success' => 'Customer Updated Successfully!', 'data' => $customer], 200);
                 } else {
                     return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Updated Successfully!');
                 }
             } catch (\Exception $exp) {
-                if ($request->ajax()){
+                if ($request->ajax()) {
                     return response()->json(['error' => $exp->getMessage()]);
                 } else {
                     return redirect()->back()->with('error', $exp->getMessage());
@@ -375,11 +386,11 @@ class CustomerController extends Controller
     public function destroy(string $id)
     {
         try {
-            $customers= Customer::find($id);
-            if($customers){
+            $customers = Customer::find($id);
+            if ($customers) {
                 $customers->delete();
                 return response()->json(['success' => 'Customer Deleted Successfully!'], 200);
-            } else{
+            } else {
                 return response()->json(['error' => 'Customer Not Found!'], 404);
             }
         } catch (\Exception $exp) {
