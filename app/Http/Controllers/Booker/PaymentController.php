@@ -40,8 +40,8 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        $bookings = Booking::whereDoesntHave('payment', function ($query) {
-            $query->where('payment_status', 'paid');
+        $bookings = Booking::whereHas('invoice', function ($query) {
+            $query->where('invoice_status', '!=', 'paid');
         })
             ->with(['payment', 'customer'])
             ->orderBy('id', 'DESC')
@@ -144,6 +144,9 @@ class PaymentController extends Controller
                 // return $paymentStatus;
 
                 $payment = Payment::find($request->payment_id);
+
+                // $tyt=($payment->pending_amount - $amountReceive - $depositUsed);
+                // dd($tyt);   
                 $beforeUpdateAmount = $payment->paid_amount ?? 0;
                 $beforeUpdateDate = $payment->created_at;
                 $payment->update([

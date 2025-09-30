@@ -72,7 +72,7 @@ class ZohoInvoice
         } catch (\GuzzleHttp\Exception\ClientException $exp) {
             $response = json_decode($exp->getResponse()->getBody(), true);
             // if ($response['code'] == 401) {
-                return $this->refreshAccessToken();
+            return $this->refreshAccessToken();
             // } else if ($response['code'] == 57) {
             //     return $this->refreshAccessToken();
             // } else {
@@ -229,7 +229,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        
+
         $body = [
             "status" => "paid"
         ];
@@ -419,24 +419,24 @@ class ZohoInvoice
     }
 
 
-    public static function generateUniqueCode($table,$field,$ref)
+    public static function generateUniqueCode($table, $field, $ref)
     {
-        $maxPos =  DB::table($table)->where('status',1)->max($field);
+        $maxPos = DB::table($table)->where('status', 1)->max($field);
+
         if ($maxPos) {
-            $numericPart = preg_match('/\d+$/', $maxPos, $matches);
-            if ($numericPart) {
-                $numericPart = $matches[0];
-                $numericPart; 
-            }
-            $nextNumericPart = $numericPart + 1;
-            $posNo = $ref.'-' . str_pad($nextNumericPart, 6, '0', STR_PAD_LEFT);
+            preg_match('/(\d+)$/', $maxPos, $matches);
+            $numericPart = isset($matches[1]) ? intval($matches[1]) : 0;
         } else {
-            $posNo = $ref.'-000001';
+            $numericPart = 0;
         }
-        $existingPos = DB::table($table)->where('status',1)->where($field, $posNo)->first();
-        if ($existingPos) {
-            return self::generateUniqueCode($table,$field,$ref);
-        }
+
+        do {
+            $numericPart++;
+            $posNo = $ref . '-' . str_pad($numericPart, 6, '0', STR_PAD_LEFT);
+            $exists = DB::table($table)->where('status', 1)->where($field, $posNo)->exists();
+        } while ($exists);
+
         return $posNo;
     }
+
 }
