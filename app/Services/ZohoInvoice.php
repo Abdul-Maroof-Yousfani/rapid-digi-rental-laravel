@@ -6,6 +6,7 @@ namespace App\Services;
 
 
 use App\Models\SalePerson;
+use DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use GuzzleHttp\Cookie\CookieJar;
@@ -286,6 +287,8 @@ class ZohoInvoice
         $client = new Client();
         $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
         $saleperson = SalePerson::select('zoho_salesperson_id')->where('id', $salesPersonId)->first();
+        $code = $this->generateUniqueCode('invoices', 'zoho_invoice_number', 'INV');
+
         $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
@@ -295,7 +298,7 @@ class ZohoInvoice
             'json' => [
                 'customer_id' => $customer->zoho_customer_id,
                 'salesperson_id' => $saleperson->zoho_salesperson_id,
-                'invoice_number' => 'INV-' . time(),
+                'invoice_number' => $code,
                 'notes' => $notes,
                 'currency_code' => $currency_code,
                 'line_items' => $lineitems
@@ -413,5 +416,27 @@ class ZohoInvoice
         ]);
 
         return json_decode($response->getBody(), true);
+    }
+
+
+    public static function generateUniqueCode($table,$field,$ref)
+    {
+        $maxPos =  DB::table($table)->where('status',1)->max($field);
+        if ($maxPos) {
+            $numericPart = preg_match('/\d+$/', $maxPos, $matches);
+            if ($numericPart) {
+                $numericPart = $matches[0];
+                $numericPart; 
+            }
+            $nextNumericPart = $numericPart + 1;
+            $posNo = $ref.'-' . str_pad($nextNumericPart, 3, '0', STR_PAD_LEFT);
+        } else {
+            $posNo = $ref.'-000001';
+        }
+        $existingPos = DB::table($table)->where('status',1)->where($field, $posNo)->first();
+        if ($existingPos) {
+            return self::generateUniqueCode($table,$field,$ref);
+        }
+        return $posNo;
     }
 }
