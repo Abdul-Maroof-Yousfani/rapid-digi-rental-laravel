@@ -429,7 +429,7 @@ class ZohoInvoice
                 $numericPart; 
             }
             $nextNumericPart = $numericPart + 1;
-            $posNo = $ref.'-' . str_pad($nextNumericPart, 3, '0', STR_PAD_LEFT);
+            $posNo = $ref.'-' . str_pad($nextNumericPart, 6, '0', STR_PAD_LEFT);
         } else {
             $posNo = $ref.'-000001';
         }
