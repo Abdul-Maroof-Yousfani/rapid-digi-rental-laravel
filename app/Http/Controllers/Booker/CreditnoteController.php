@@ -111,17 +111,17 @@ class CreditnoteController extends Controller
             }
 
             // Create local credit note
-            // $creditNote = CreditNote::create([
-            //     'credit_note_no' => $creditNoteNo,
-            //     'booking_id' => $request['booking_id'],
-            //     'payment_method' => $request['refund_method'],
-            //     'bank_id' => $request['bank_id'],
-            //     'remaining_deposit' => $request['remaining_deposit'],
-            //     'refund_amount' => $request['refund_amount'],
-            //     'remarks' => $request['remarks'],
-            //     'refund_date' => $request['refund_date'],
-            //     'status' => 1,
-            // ]);
+            $creditNote = CreditNote::create([
+                'credit_note_no' => $creditNoteNo,
+                'booking_id' => $request['booking_id'],
+                'payment_method' => $request['refund_method'],
+                'bank_id' => $request['bank_id'],
+                'remaining_deposit' => $request['remaining_deposit'],
+                'refund_amount' => $request['refund_amount'],
+                'remarks' => $request['remarks'],
+                'refund_date' => $request['refund_date'],
+                'status' => 1,
+            ]);
 
             // Prepare line items for Zoho credit note
             $lineItems = [
@@ -175,12 +175,12 @@ class CreditnoteController extends Controller
             }
 
             // Save Zoho credit note ID
-            // $creditNote->update(['zoho_credit_note_id' => $zohoCreditNoteId]);
+            $creditNote->update(['zoho_credit_note_id' => $zohoCreditNoteId]);
 
-            // Log::info('Zoho credit note created successfully', [
-            //     'zoho_credit_note_id' => $zohoCreditNoteId,
-            //     'credit_note_no' => $creditNoteNo,
-            // ]);
+            Log::info('Zoho credit note created successfully', [
+                'zoho_credit_note_id' => $zohoCreditNoteId,
+                'credit_note_no' => $creditNoteNo,
+            ]);
 
             DB::commit();
             return redirect()->route('credit-note.index')->with('success', 'Credit Note Created Successfully in both systems.');
