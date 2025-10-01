@@ -281,7 +281,7 @@ class ZohoInvoice
 
 
     // Invoice Manage Functions Zoho
-    public function createInvoice($customerId, $notes, $currency_code, $lineitems, $salesPersonId)
+    public function createInvoice($customerId, $notes, $currency_code, $lineitems, $salesPersonId, $salesPersonName)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
@@ -301,7 +301,14 @@ class ZohoInvoice
                 'invoice_number' => $code,
                 'notes' => $notes,
                 'currency_code' => $currency_code,
-                'line_items' => $lineitems
+                'line_items' => $lineitems,
+                "custom_fields" => [
+                    [
+                        "api_name"=> "cf_sales_person",
+                        "value"=> $salesPersonName
+                    ]
+                ]
+
             ]
         ]);
         return json_decode($response->getBody(), true);

@@ -126,12 +126,14 @@ class InvoiceController extends Controller
             $book = Booking::with('salePerson')->find($request->booking_id);
 
             if ($book && $book->salePerson) {
-                $salesperson_id = $book->salePerson->id; // 'id' because that's the PK in sale_people table
+                $salesperson_id = $book->salePerson->id; 
+                $salesperson_name = $book->salePerson->name; 
             } else {
-                $salesperson_id = null; // handle case if no booking or salesperson
+                $salesperson_id = null; 
+                $salesperson_name = null; 
             }
 
-            $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $salesperson_id);
+            $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $salesperson_id, $salesperson_name);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;

@@ -84,12 +84,13 @@
                             <div class="card-body">
                                 <div class="form-group">
                                     <label>Sale Person <span class="text-danger">*</span></label>
-                                    <select name="sale_person_id" class="form-control select2" required>
+                                    <select name="sale_person_id" id="sale_person_id" class="form-control select2" required>
                                         <option value="">Select Sale Person</option>
                                         @foreach ($salePerson as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                         @endforeach
                                     </select>
+                                    <input type="hidden" name="sale_person_name" id="sale_person_name">
                                     @error('customer_id') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="form-group">
@@ -226,7 +227,7 @@
                     <div class="col-12 col-md-6 col-lg-6">
                         <div class="form-group">
                             <label>Notes <span class="text-danger">*</span></label>
-                            <textarea name="notes" cols="30" style="height: 150px !important;" class="form-control" rows="10" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}</textarea>
+                            <textarea name="notes" cols="30" style="height: 150px !important;" class="form-control" rows="10" required>{{ old('notes', "DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.\nPayment Detail:\nBank Name: WIO\nAccount Name: Rapid Rentals -FZCO\nIBN : AE790860000009637084836\nAccount No: 9637084836\nBIC/SWIFT : WIOBAEADXXX\nQueries: +971 50 366 1754\nComplaints & Suggestions: +971 54 508 2661 or Email: idrees@rapidenterprises.ae") }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -676,6 +677,12 @@
                 }
             }).trigger('change');
         });
+
+        $('#sale_person_id').on('change', function() {
+            var salePersonName = $("#sale_person_id option:selected").text();
+            $('#sale_person_name').val(salePersonName);
+        });
+        
     });
 </script>
 @endsection

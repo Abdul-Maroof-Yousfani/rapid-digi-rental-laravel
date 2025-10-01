@@ -338,7 +338,7 @@
 <div class="col-12 col-md-6 col-lg-6">
     <div class="form-group">
         <label>Invoice Notes <span class="text-danger">*</span></label>
-        <textarea name="notes" style="width:100%; height: 150px !important;" cols="30" class="form-control" rows="20" required>{{ old('notes', "Thank you for your business.\nDEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.") }}</textarea>
+        <textarea name="notes" style="width:100%; height: 150px !important;" cols="30" class="form-control" rows="20" required>{{ old('notes', "DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.\nPayment Detail:\nBank Name: WIO\nAccount Name: Rapid Rentals -FZCO\nIBN : AE790860000009637084836\nAccount No: 9637084836\nBIC/SWIFT : WIOBAEADXXX\nQueries: +971 50 366 1754\nComplaints & Suggestions: +971 54 508 2661 or Email: idrees@rapidenterprises.ae") }}</textarea>
     </div>
 </div>
 
