@@ -134,6 +134,14 @@ class ZohoInvoice
                 'Content-Type' => 'application/json',
             ]
         ]);
+        // $response = $client->get("https://www.zohoapis.com/invoice/v3/contacts?organization_id={$this->orgId}&page=2&per_page=200", [
+        //     'verify' => false,
+        //     'headers' => [
+        //         'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+        //         'Content-Type' => 'application/json',
+        //     ]
+        // ]);
+        
 
         $data = json_decode($response->getBody(), true);
         return $data['contacts'] ?? [];
@@ -304,8 +312,8 @@ class ZohoInvoice
                 'line_items' => $lineitems,
                 "custom_fields" => [
                     [
-                        "api_name"=> "cf_sales_person",
-                        "value"=> $salesPersonName
+                        "api_name" => "cf_sales_person",
+                        "value" => $salesPersonName
                     ]
                 ]
 
@@ -313,21 +321,21 @@ class ZohoInvoice
         ]);
         return json_decode($response->getBody(), true);
     }
-public function getZohoInvoice($invoiceId)
-{
-    $accessToken = $this->getAccessToken();
-    $client = new Client();
+    public function getZohoInvoice($invoiceId)
+    {
+        $accessToken = $this->getAccessToken();
+        $client = new Client();
 
-    $response = $client->get('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceId . '?organization_id=' . $this->orgId, [
-        'verify' => false,
-        'headers' => [
-            'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-            'Content-Type' => 'application/json',
-        ],
-    ]);
+        $response = $client->get('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceId . '?organization_id=' . $this->orgId, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                'Content-Type' => 'application/json',
+            ],
+        ]);
 
-    return json_decode($response->getBody(), true);
-}
+        return json_decode($response->getBody(), true);
+    }
 
     public function createZohoCreditNote($customerId, $invoiceId, $notes, $currency_code, $place_of_supply, $lineItems, $creditNoteNumber, $refundDate)
     {
@@ -339,10 +347,10 @@ public function getZohoInvoice($invoiceId)
         if (!$customer) {
             throw new \Exception('Customer not found.');
         }
-    $zohoInvoice = $this->getZohoInvoice($invoiceId);
-    $placeOfSupply = $zohoInvoice['invoice']['place_of_supply'] ?? null;
+        $zohoInvoice = $this->getZohoInvoice($invoiceId);
+        $placeOfSupply = $zohoInvoice['invoice']['place_of_supply'] ?? null;
 
-    // dd($placeOfSupply);
+        // dd($placeOfSupply);
         $payload = [
             'customer_id' => $customer->zoho_customer_id,
             'invoice_id' => $invoiceId,
