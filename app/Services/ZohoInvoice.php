@@ -313,8 +313,23 @@ class ZohoInvoice
         ]);
         return json_decode($response->getBody(), true);
     }
+public function getZohoInvoice($invoiceId)
+{
+    $accessToken = $this->getAccessToken();
+    $client = new Client();
 
-    public function createZohoCreditNote($customerId, $invoiceId, $notes, $currency_code, $lineItems, $creditNoteNumber, $refundDate)
+    $response = $client->get('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceId . '?organization_id=' . $this->orgId, [
+        'verify' => false,
+        'headers' => [
+            'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+            'Content-Type' => 'application/json',
+        ],
+    ]);
+
+    return json_decode($response->getBody(), true);
+}
+
+    public function createZohoCreditNote($customerId, $invoiceId, $notes, $currency_code, $place_of_supply, $lineItems, $creditNoteNumber, $refundDate)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
@@ -324,8 +339,10 @@ class ZohoInvoice
         if (!$customer) {
             throw new \Exception('Customer not found.');
         }
+    $zohoInvoice = $this->getZohoInvoice($invoiceId);
+    $placeOfSupply = $zohoInvoice['invoice']['place_of_supply'] ?? null;
 
-        // Prepare the payload for Zoho credit note
+    // dd($placeOfSupply);
         $payload = [
             'customer_id' => $customer->zoho_customer_id,
             'invoice_id' => $invoiceId,
@@ -333,6 +350,7 @@ class ZohoInvoice
             'date' => $refundDate,
             'notes' => $notes,
             'currency_code' => $currency_code,
+            'place_of_supply' => $placeOfSupply,
             'line_items' => $lineItems,
         ];
 

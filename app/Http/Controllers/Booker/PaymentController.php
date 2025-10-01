@@ -170,13 +170,12 @@ class PaymentController extends Controller
                     'payment_method' => $request['payment_method'],
                     'bank_id' => $request['bank_id'] ?? null,
                     'booking_amount' => $bookingAmount,
-                    'paid_amount' => $paidAmount,
-                    'pending_amount' => $bookingAmount - $paidAmount,
+                    'paid_amount' => $paidAmount + $depositUsed,
+                    'pending_amount' => $bookingAmount - $amountReceive - $depositUsed,
                     // 'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
             }
-
             if ($payment->paid_amount == $payment->booking_amount) {
                 $payment->update([
                     'payment_status' => 'paid',
@@ -219,8 +218,8 @@ class PaymentController extends Controller
                     $payThisTime = min($pendingBefore, $remainingPayment);
 
                     // Calculate new totals
-                    $newPaidAmount = $currentPaid + $payThisTime;
-                    $newPending = $invoiceAmount - $newPaidAmount;
+                    $newPaidAmount = $currentPaid + $payThisTime + $depositUsed;
+                    $newPending = $newPaidAmount - $depositUsed;
                     $newStatus1 = ($newPending <= 0) ? 'paid' : 'pending';
                     $newStatus = ($newPending <= 0) ? 'paid' : 'partially paid';
 
@@ -229,9 +228,9 @@ class PaymentController extends Controller
                             'invoice_id' => $invoice_ids,
                             'payment_id' => $payment->id,
                             'invoice_amount' => $invoiceAmount,
-                            'paid_amount' => $newPaidAmount + $depositUsed,
+                            'paid_amount' => $newPaidAmount,
                             'status' => $newStatus1,
-                            'pending_amount' => $newPending - $depositUsed,
+                            'pending_amount' => $newPending,
                             'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
                             'remarks' => $request['remarks'][$key] ?? null,
                         ]);
@@ -241,7 +240,7 @@ class PaymentController extends Controller
                             'payment_id' => $payment->id,
                             'status' => $newStatus1,
                             'invoice_amount' => $invoiceAmount,
-                            'paid_amount' => $payThisTime,
+                            'paid_amount' => $newPaidAmount,
                             'pending_amount' => $newPending,
                             'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
                             'remarks' => $request['remarks'][$key] ?? null,
@@ -254,6 +253,7 @@ class PaymentController extends Controller
                         ]);
                     }
 
+// return ($paymentdata);
 
                     // Deduct from remaining payment
                     $remainingPayment -= $payThisTime;
