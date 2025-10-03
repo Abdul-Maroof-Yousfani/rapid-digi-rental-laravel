@@ -99,7 +99,7 @@
                                     <small style="font-size: 16px;" class="agreement-error"></small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Started At <span class="text-danger">*</span></label>
+                                    <label>Invoice Date <span class="text-danger">*</span></label>
                                     <input type="date" value="0" name="started_at" class="form-control started_at" required>
                                 </div>
                             </div>
@@ -326,10 +326,10 @@
             }
         });
 
-        $('.started_at').on('change', function() {
-            let startedAt = $(this).val();
-            applyMinDateToAllDateFields(startedAt);
-        });
+       // $('.started_at').on('change', function() {
+       //     let startedAt = $(this).val();
+       //     applyMinDateToAllDateFields(startedAt);
+       // });
 
 
         $('#addRow').click(function() {
