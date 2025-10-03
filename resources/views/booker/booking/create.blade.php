@@ -193,7 +193,7 @@
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                                <input type="number" value="" name="price[]" class="form-control price" required>
+                                                <input type="text" value="" name="price[]" class="form-control price" required>
                                             </div>
                                         </div>
                                         <div class="col-3">
@@ -404,7 +404,7 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                    <input type="number" value="" name="price[]" class="form-control price"  required>
+                                    <input type="text" value="" name="price[]" class="form-control price"  required>
                                 </div>
                             </div>
                             <div class="col-3">
@@ -519,7 +519,7 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                    <input type="number" name="price[]" class="form-control price" step="0.01" min="0" value="" required>
+                                    <input type="text" name="price[]" class="form-control price" step="0.01" min="0" value="" required>
                                 </div>
                             </div>
                             <div class="col-3">
