@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\ZohoInvoice;
 use Illuminate\Http\Request;
 use App\Events\BookingCreated;
 use Illuminate\Support\Facades\Auth;
@@ -221,7 +222,10 @@ Route::middleware('auth')->group(function () {
     Route::put('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'update'])->name('update.invoice');
     Route::delete('booking/{invoice_id}/delete-invoice', [InvoiceController::class, 'destroy'])->name('destroy.invoice');
 
-
+    Route::post('/invoices/upload', [App\Http\Controllers\Booker\InvoiceUploadController::class, 'uploadInvoices'])->name('invoices.upload');
+    Route::post('/payments/upload', [App\Http\Controllers\Booker\PaymentUploadController::class, 'uploadPayments'])->name('payments.upload');
+    Route::post('/credit-note/upload', [App\Http\Controllers\Booker\CreditNoteUploadController::class, 'uploadCreditNotes'])->name('credit-note.upload');
+    Route::post('/customer/upload', [App\Http\Controllers\Booker\DepositUploadController::class, 'uploadDeposits'])->name('deposit.upload');
 
 
     Route::get('booking-close/{booking_id}', [BookingController::class, 'closeBooking']);
@@ -276,6 +280,10 @@ Route::get('get-payment-history/{payment_id}', [AjaxController::class, 'getPayme
 Route::get('booking-cancellation/{id}', [AjaxController::class, 'bookingCancellation']);
 Route::get('check-bookingis-active/{id}', [BookingController::class, 'isBookingActive']);
 Route::get('is-agreement-no-exist', [AjaxController::class, 'checkAgreementNoExist'])->name("checkAgreementNoExist");
+
+Route::get('/get-invoice-detail/{id}', [ZohoInvoice::class, 'getInvoiceD']);
+
+
 
 // Get Data For Edit Forms
 Route::get('get-vehicle-status-edit-form/{id}', [AjaxController::class, 'getVehicleStatusForEditForm']);

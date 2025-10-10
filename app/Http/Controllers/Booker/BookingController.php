@@ -52,19 +52,19 @@ class BookingController extends Controller
         //             ->orderBy('id', 'desc')->get();
         // return view('booker.booking.index', compact('booking'));
 
-$ids = Invoice::whereHas('bookingData', fn($q) => $q->where('transaction_type', 1))
-    ->whereHas('booking', function ($q) {
-        $q->where('created_at', '>=', Carbon::now()->subDays(15));
-        $q->where('booking_cancel', '0');
-    })
-    ->selectRaw('MAX(id) as id')
-    ->groupBy('booking_id')
-    ->pluck('id');
+        $ids = Invoice::whereHas('bookingData', fn($q) => $q->where('transaction_type', 1))
+            ->whereHas('booking', function ($q) {
+                $q->where('created_at', '>=', Carbon::now()->subDays(15));
+                $q->where('booking_cancel', '0');
+            })
+            ->selectRaw('MAX(id) as id')
+            ->groupBy('booking_id')
+            ->pluck('id');
 
-$booking = Invoice::with('booking', 'bookingData')
-    ->whereIn('id', $ids)
-    ->orderByDesc('id')
-    ->paginate(10);
+        $booking = Invoice::with('booking', 'bookingData')
+            ->whereIn('id', $ids)
+            ->orderByDesc('id')
+            ->paginate(10);
         return view('booker.booking.index', compact('booking'));
     }
 
@@ -77,7 +77,7 @@ $booking = Invoice::with('booking', 'bookingData')
         $customers = Customer::orderBy('id', 'DESC')->get();
         $vehicletypes = Vehicletype::all();
         $salePerson = SalePerson::all();
-        try{
+        try {
             $taxlist = $this->zohoinvoice->taxList();
         } catch (\Exception $e) {
             return response()->view('sitedown-error', [], 500);
@@ -111,7 +111,6 @@ $booking = Invoice::with('booking', 'bookingData')
             'deposit_amount' => 'required_if:deposit_type,null',
             'non_refundable_amount' => 'required_unless:deposit_type,null',
         ]);
-        // return $request->all();
         if ($validator->fails()) {
             $errorMessages = implode("\n", $validator->errors()->all());
             return redirect()->back()->with('error', $errorMessages)->withInput();
@@ -119,31 +118,13 @@ $booking = Invoice::with('booking', 'bookingData')
             $notes = $request->notes;
             $currency_code = "AED";
             $lineitems = [];
-            // foreach ($request->vehicle as $key => $vehicleId) {
-            //     $vehicle = Vehicle::find($vehicleId);
-            //     if (!$vehicle) {
-            //         continue;
-            //     }
-            //     $vehicleName = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
-            //     $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
-            //     if (is_array($description)) {
-            //         $description = implode(', ', $description);
-            //     }
-            //     $lineitems[] = [
-            //         'name' => $vehicleName,
-            //         'description' => $description,
-            //         'rate' => (float) str_replace(',', '', $request->price[$key]),
-            //         'quantity' => 1,
-            //         'tax_id' => $request->tax[$key]
-            //     ];
-            // }
+
             foreach ($request->price as $key => $price) {
                 $vehicleId = $request->vehicle[$key] ?? null;
                 $vehicle = $vehicleId && $vehicleId !== 'null' ? Vehicle::find($vehicleId) : null;
 
                 $vehicleName = $vehicle ? ($vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail) : ($request->invoiceTypes[$key] ? Deductiontype::find($request->invoiceTypes[$key])->name : 'Other Charge');
 
-                // $description = $request->description[$key] ?? ($request->booking_date[$key] . " TO " . $request->return_date[$key]);
                 $description = $request->description[$key] ?? (
                     (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
                     ? $request->booking_date[$key] . " TO " . $request->return_date[$key]
@@ -180,8 +161,7 @@ $booking = Invoice::with('booking', 'bookingData')
                     ];
                 }
             }
-            $customerId =  $request->customer_id;
-            // dd($lineitems);
+            $customerId = $request->customer_id;
 
             $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $request->sale_person_id, $request->sale_person_name);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
@@ -482,7 +462,7 @@ $booking = Invoice::with('booking', 'bookingData')
             }
 
             $invoiceID = $invoice->zoho_invoice_id;
-            $customerId =  $request->customer_id;
+            $customerId = $request->customer_id;
             $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
             $json = [
                 'customer_id' => $customer->zoho_customer_id,
@@ -566,7 +546,7 @@ $booking = Invoice::with('booking', 'bookingData')
                             'description' => $lineItemData['description'] ?? ($request->description[$key] ?? null),
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
-                            'item_total' =>  $itemTotal,
+                            'item_total' => $itemTotal,
                             'tax_name' => $taxName,
                             'deductiontype_id' => is_numeric($request->invoiceTypes[$key] ?? null)
                                 ? $request->invoiceTypes[$key]

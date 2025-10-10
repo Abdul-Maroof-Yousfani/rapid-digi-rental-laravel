@@ -287,14 +287,23 @@
                 <!-- Notes -->
                 <div style="margin-top: 10rem" class="text-dark">
                     <div class="nots">
-                        <h6 class="mb-2">Notes</h6>
-                        <p class="mb-0">Deposit Amount: {{ $initialDeposit }}AED</p>
-                        @foreach($bookingDataDeduct as $bd)
-                        <p class="mb-0">{{ strtoupper($bd->invoice_type->name) }}: {{ $bd->item_total }} AED</p>
-                        @endforeach
-                        <p class="mb-0">RELEASE DEPOSIT AMOUNT: {{ $remainingDeposit }}AED</p>
-                    </div>
-                    <hr>
+    <h6 class="mb-2">Notes</h6>
+
+    @if(is_null($creditNote->zoho_credit_note_id))
+       <p class="mb-0">{!! nl2br(e(strtoupper($creditNote->remarks ?? 'N/A'))) !!}</p>
+
+    @else
+        <p class="mb-0">Deposit Amount: {{ $initialDeposit }} AED</p>
+
+        @foreach($bookingDataDeduct as $bd)
+            <p class="mb-0">{{ strtoupper($bd->invoice_type->name) }}: {{ $bd->item_total }} AED</p>
+        @endforeach
+
+        <p class="mb-0">RELEASE DEPOSIT AMOUNT: {{ $remainingDeposit }} AED</p>
+    @endif
+</div>
+<hr>
+
 
                 </div>
 

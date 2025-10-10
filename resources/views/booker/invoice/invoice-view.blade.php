@@ -258,7 +258,7 @@ $due_bal = $pending_amount;
                         </div>
 
                         <div class="text-dark label">Sale Person:</div>
-                        <div class="text-dark value">{{ $item->booking->salePerson->name }}</div>
+                        <div class="text-dark value">{{ $item->booking->salePerson->name ?? '-'}}</div>
 
                         <div class="text-dark label">TRN Number:</div>
                         <div class="text-dark value">{{ $customer->trn_no ?? '-' }}</div>

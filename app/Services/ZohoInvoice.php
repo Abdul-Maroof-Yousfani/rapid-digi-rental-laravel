@@ -141,7 +141,7 @@ class ZohoInvoice
         //         'Content-Type' => 'application/json',
         //     ]
         // ]);
-        
+
 
         $data = json_decode($response->getBody(), true);
         return $data['contacts'] ?? [];
@@ -295,7 +295,7 @@ class ZohoInvoice
         $client = new Client();
         $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
         $saleperson = SalePerson::select('zoho_salesperson_id')->where('id', $salesPersonId)->first();
-        $code = $this->generateUniqueCode('invoices', 'zoho_invoice_number', 'INV');
+        $code = $this->generateUniqueCode('invoices', 'zoho_invoice_number');
 
         $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices?organization_id=' . $this->orgId, [
             'verify' => false,
@@ -388,6 +388,32 @@ class ZohoInvoice
         return json_decode($response->getBody(), true);
     }
 
+    public function getInvoiceD($id)
+    {
+        try {
+            $accessToken = $this->getAccessToken();
+
+            $client = new \GuzzleHttp\Client();
+            $response = $client->get('https://www.zohoapis.com/invoice/v3/invoices/' . $id, [
+                'verify' => false,
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'X-com-zoho-invoice-organizationid' => $this->orgId,
+                ],
+            ]);
+
+            $data = json_decode($response->getBody(), true);
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
     public function updateInvoice($invoiceID, $json)
     {
         $accessToken = $this->getAccessToken();
@@ -452,24 +478,13 @@ class ZohoInvoice
     }
 
 
-    public static function generateUniqueCode($table, $field, $ref)
+    public static function generateUniqueCode($table, $field)
     {
         $maxPos = DB::table($table)->where('status', 1)->max($field);
 
-        if ($maxPos) {
-            preg_match('/(\d+)$/', $maxPos, $matches);
-            $numericPart = isset($matches[1]) ? intval($matches[1]) : 0;
-        } else {
-            $numericPart = 0;
-        }
-
-        do {
-            $numericPart++;
-            $posNo = $ref . '-' . str_pad($numericPart, 6, '0', STR_PAD_LEFT);
-            $exists = DB::table($table)->where('status', 1)->where($field, $posNo)->exists();
-        } while ($exists);
-
-        return $posNo;
+        $maxPos = $maxPos+1;
+        // dd($maxPos);
+        return $maxPos;
     }
 
 }

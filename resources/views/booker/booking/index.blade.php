@@ -28,6 +28,24 @@
                             </a>
                             @endcan
                         </div>
+                        {{-- <form action="{{ route('invoices.upload') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div>
+                                <label for="xlsx_file">Upload XLSX File</label>
+                                <input type="file" name="xlsx_file" id="xlsx_file" accept=".xlsx">
+                                @error('xlsx_file')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <button type="submit">Upload</button>
+                        </form>
+
+                        @if (session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif --}}
                     </div>
                 </div>
             </div>

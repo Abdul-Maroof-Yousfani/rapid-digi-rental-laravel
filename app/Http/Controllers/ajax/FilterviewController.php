@@ -18,9 +18,15 @@ class FilterviewController extends Controller
         return view('ajaxview.customer-view', compact('customers'));
     }
 
-    public function getPaymentList()
-    {
-        $payment= Payment::with('booking', 'paymentMethod')->where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
-        return view('ajaxview.payment-view', compact('payment'));
-    }
+  public function getPaymentList(Request $request)
+{
+    $payment = Payment::with('booking', 'paymentMethod')
+        ->where('created_at', '>=', Carbon::now()->subDays(15))
+        ->orderBy('id', 'DESC')
+        ->paginate(10);
+
+    // Return only the partial view (for AJAX)
+    return view('ajaxview.payment-view', compact('payment'));
+}
+
 }
