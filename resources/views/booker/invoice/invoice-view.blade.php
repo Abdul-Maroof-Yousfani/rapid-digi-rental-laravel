@@ -288,10 +288,18 @@ $due_bal = $pending_amount;
                     @endphp
                     <tr style="border-bottom: 2px solid #ADADAD;">
                         <td class="text-left">{{ $counter }}</td>
-                        <td class="text-left">
-                            {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail ?? $item->invoice_type->name ?? '' }} <br>
+                       <td class="text-left">
+                            {{
+                                $item->vehicle->vehicle_name
+                                ?? (
+                                    ($item->vehicle->temp_vehicle_detail ?? '') . ' ' . ($item->vehicle->number_plate ?? '')
+                                )
+                                ?? ($item->invoice_type->name ?? '')
+                            }}
+                            <br>
                             <small>{{ $item->description }}</small>
                         </td>
+
                         <td class="text-right">{{ $item->quantity ?? '-' }}</td>
                         <td class="text-right">{{ number_format($item->price * $item->quantity, 2) }}</td>
                         <td class="text-right">{{ $item->tax_name ?? '-'}}</td>

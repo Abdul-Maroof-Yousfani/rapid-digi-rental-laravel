@@ -125,11 +125,14 @@ class BookingController extends Controller
 
                 $vehicleName = $vehicle ? ($vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail) : ($request->invoiceTypes[$key] ? Deductiontype::find($request->invoiceTypes[$key])->name : 'Other Charge');
 
-                $description = $request->description[$key] ?? (
-                    (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
-                    ? $request->booking_date[$key] . " TO " . $request->return_date[$key]
-                    : ''
-                );
+               $description = $request->description[$key] ?? (
+    (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
+        ? Carbon::createFromFormat('Y-m-d', $request->booking_date[$key])->format('d/m/Y') .
+          " TO " .
+          Carbon::createFromFormat('Y-m-d', $request->return_date[$key])->format('d/m/Y')
+        : ''
+);
+
                 if (is_array($description)) {
                     $description = implode(', ', $description);
                 }
