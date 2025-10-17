@@ -71,10 +71,10 @@ class CustomerController extends Controller
             'email' => 'nullable|email|unique:customers,email',
             'phone' => 'required|unique:customers,phone',
             'licence' => 'nullable|unique:customers,licence',
-            'gender' => 'required',
+            // 'gender' => 'required',
             'cnic' => 'required',
             // 'trn_no' => 'required',
-            'dob' => 'required',
+            // 'dob' => 'required',
             'address' => 'required',
         ]);
 
@@ -313,7 +313,7 @@ class CustomerController extends Controller
             'licence' => 'nullable|unique:customers,licence,' . $id,
             'cnic' => 'required',
             // 'trn_no' => 'required',
-            'dob' => 'required',
+            // 'dob' => 'required',
             'address' => 'required',
         ]);
 
