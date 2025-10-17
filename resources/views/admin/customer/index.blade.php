@@ -74,7 +74,7 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Phone</th>
-                                        <th>CNIC</th>
+                                        <th>Emirates Id</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -186,7 +186,7 @@
 
 
                                             <div class="form-group">
-                                                <label>C-NIC <span class="text-danger">*</span></label>
+                                                <label>Emirates Id <span class="text-danger">*</span></label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
@@ -215,7 +215,7 @@
                                 <div class="col-12 col-md-6 col-lg-6">
                                     <div class="card">
                                         <div class="card-body">
-                                            <div class="form-group">
+                                            {{-- <div class="form-group">
                                                 <label>Date Of Birth <span class="text-danger">*</span></label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -227,7 +227,7 @@
                                                    
                                                 </div>
                                                 
-                                            </div>
+                                            </div> --}}
                                             <div class="form-group">
                                                 <label>Country </label> <br>
                                                 <select name="country" class="form-control select2">
@@ -438,7 +438,7 @@
                                             </div>
 
 
-                                            <div class="form-group">
+                                            {{-- <div class="form-group">
                                                 <label>Gender <span class="text-danger">*</span></label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -452,7 +452,7 @@
                                                         <option value="female">Female</option>
                                                     </select>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                             <div class="form-group">
                                                 <label class="form-label">Customer Status</label> <br>
@@ -567,7 +567,7 @@
                                             </div>
 
                                             <div class="form-group">
-                                                <label>C-NIC <span class="text-danger">*</span></label>
+                                                <label>Emirates Id <span class="text-danger">*</span></label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
@@ -598,7 +598,7 @@
                                 <div class="col-12 col-md-6 col-lg-6">
                                     <div class="card">
                                         <div class="card-body">
-                                            <div class="form-group">
+                                            {{-- <div class="form-group">
                                                 <label>Date Of Birth <span class="text-danger">*</span></label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -608,7 +608,7 @@
                                                     </div>
                                                     <input type="date" value="{{ old('dob') }}" name="dob" class="form-control datemask" placeholder="YYYY/MM/DD" required>
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             <div class="form-group">
                                                 <label>Country </label><br>
                                                 <select name="country" class="form-control select2">
@@ -818,14 +818,14 @@
                                                 <textarea name="address" cols="30" class="form-control" rows="10" required>{{ old('address') }}</textarea>
                                             </div>
 
-                                            <div class="form-group">
+                                            {{-- <div class="form-group">
                                                 <label>Gender <span class="text-danger">*</span></label>
                                                 <select name="gender" class="form-control" required>
                                                     <option value="">Select Gender</option>
                                                     <option value="male">Male</option>
                                                     <option value="female">Female</option>
                                                 </select>
-                                            </div>
+                                            </div> --}}
 
                                             <div class="form-group">
                                                 <label class="form-label">Customer Status</label><br>

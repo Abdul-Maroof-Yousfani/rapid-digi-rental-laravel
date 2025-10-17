@@ -57,7 +57,7 @@
                                                                 <option value="">Select Booking</option>
                                                                 @foreach ($bookings as $item)
                                                                     <option value="{{ $item->id }}">
-                                                                        {{ $item->agreement_no }} |
+                                                                        {{ $item->bookingInvoice->zoho_invoice_number }} |
                                                                         {{ $item->customer?->customer_name ?? 'No Customer' }}
                                                                     </option>
 

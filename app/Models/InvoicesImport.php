@@ -45,6 +45,7 @@ class InvoicesImport implements ToCollection, WithHeadingRow, WithChunkReading
                 'item_desc' => $data['item_desc'] ?? '',
                 'quantity' => (int) ($data['quantity'] ?? 1),
                 'item_price' => (float) ($data['item_price'] ?? 0),
+                'item_total' => (float) ($data['item_total'] ?? 0),
                 'tax_id' => $data['tax_id'] ?? null,
                 'tax_percent' => (float) ($data['item_tax'] ?? 0),
                 'tax_name' => $data['item_tax'] ? 'VAT ' . $data['item_tax'] . '%' : null,

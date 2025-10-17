@@ -46,7 +46,7 @@ class PaymentController extends Controller
         $bookings = Booking::whereDoesntHave('payment', function ($query) {
             $query->where('payment_status', 'paid');
         })
-            ->with(['payment', 'customer'])
+            ->with(['invoice', 'payment', 'customer'])
             ->orderBy('id', 'DESC')
             ->get();
 

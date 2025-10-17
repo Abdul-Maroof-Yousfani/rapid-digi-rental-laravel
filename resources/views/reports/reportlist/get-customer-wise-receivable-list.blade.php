@@ -4,52 +4,39 @@
   $paidtotal = 0;
   $receivabletotal = 0;
 @endphp
+
 @foreach ($booking as $item)
   @php
-    $price = $item->bookingData()->first()?->price ?? 0;
+    $price = $item->bookingData->sum('item_total');
     $paidAmount = $item->payment->paid_amount ?? 0;
-    if ($price <= $paidAmount) {
-      $pending_amt = $price;
-      $rece_amt = 0;
-    } else if ($price > $paidAmount) {
-      $pending_amt = $paidAmount;
-      $rece_amt = $price - $paidAmount;
-    }
 
-
-    // Calculate totals per item
+    // Determine pending & receivable amounts
+     $receivableAmt = max($price - $paidAmount, 0);
     $itemBookingTotal = $item->invoice ? $item->invoice->sum('total_amount') : 0;
-    $itemPaidTotal = $item->payment ? $paidAmount : 0;
-    $itemReceivableTotal = $item->payment ? $item->payment->pending_amount : $itemBookingTotal;
+    $itemPaidTotal = $paidAmount;
+    //$itemReceivableTotal = $item->payment->pending_amount ?? $receivableAmt;
 
     // Accumulate totals
-    $bookingtotal += $itemBookingTotal;
+    $bookingtotal += $price;
     $paidtotal += $itemPaidTotal;
-    $receivabletotal += $itemReceivableTotal;
+    $receivabletotal += $receivableAmt;
   @endphp
 
   <tr>
-    <td>{{ $number }}.</td>
+    <td>{{ $number++ }}.</td>
+    <td>{{ $item->agreement_no }}</td>
     <td>
-      {{ $item->agreement_no }}
+      {{ $item->bookingData->pluck('invoice.zoho_invoice_number')->filter()->unique()->implode(', ') }}
     </td>
-
- <td>
-  {{ $item->bookingData->pluck('invoice.zoho_invoice_number')->filter()->unique()->implode(', ') }}
-</td>
-
-
-
     <td>{{ $item->customer->customer_name }}</td>
-    <td align="right">{{ number_format($itemBookingTotal, 2) }}</td>
+    <td align="right">{{ number_format($price, 2) }}</td>
     <td align="right">{{ number_format($itemPaidTotal, 2) }}</td>
-    <td align="right">{{ number_format($itemReceivableTotal, 2) }}</td>
+    <td align="right">{{ number_format($receivableAmt, 2) }}</td>
   </tr>
-  @php $number++; @endphp
 @endforeach
 
 <tr>
-  <td colspan="3" align="right"><b>Sub Total</b></td>
+  <td colspan="4" align="right"><b>Sub Total</b></td>
   <td align="right"><b>{{ number_format($bookingtotal, 2) }}</b></td>
   <td align="right"><b>{{ number_format($paidtotal, 2) }}</b></td>
   <td align="right"><b>{{ number_format($receivabletotal, 2) }}</b></td>

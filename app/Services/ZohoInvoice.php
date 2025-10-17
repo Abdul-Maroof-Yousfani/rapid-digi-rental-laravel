@@ -480,6 +480,8 @@ class ZohoInvoice
 
     public static function generateUniqueCode($table, $field)
     {
+        // return '4438';
+
         $maxPos = DB::table($table)->where('status', 1)->max($field);
 
         $maxPos = $maxPos+1;

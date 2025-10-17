@@ -85,8 +85,7 @@ class InvoiceProcessorService
                     'total_amount' => $zohoInvoiceTotal,
                 ]);
             }
-
-            // ✅ Now process all booking_data records
+$lastVehicleId = null;
             foreach ($items as $index => $item) {
                 $quantity = $item['quantity'] ?? 1;
                 if ($quantity < 1) {
@@ -117,26 +116,28 @@ class InvoiceProcessorService
                     ->where('number_plate', 'LIKE', "%{$numberPlate}%")
                     ->first();
 
-                if (!$vehicle) {
-                    Log::warning('Vehicle not found after parsing', [
-                        'invoice_number' => $invoiceNumber,
-                        'item_index' => $index,
-                        'vehicle_model' => $vehicleModel,
-                        'number_plate' => $numberPlate,
-                        'raw_item_desc' => $item['item_desc'] ?? '',
-                    ]);
-                    continue;
-                }
+                 if ($vehicle) {
+        $vehicleId = $vehicle->id;
+        $lastVehicleId = $vehicleId; // remember this one for next iterations
 
-                $vehicleId = $vehicle->id;
-                Log::info('Vehicle matched successfully', [
-                    'invoice_number' => $invoiceNumber,
-                    'vehicle_id' => $vehicleId,
-                    'vehicle_model' => $vehicleModel,
-                    'number_plate' => $numberPlate,
-                ]);
+        Log::info('Vehicle matched successfully', [
+            'invoice_number' => $invoiceNumber,
+            'vehicle_id' => $vehicleId,
+            'vehicle_model' => $vehicleModel,
+            'number_plate' => $numberPlate,
+        ]);
+    } else {
+        // Use last vehicle ID if exists
+        $vehicleId = $lastVehicleId;
 
-                // ✅ Now you can safely create BookingData
+        Log::warning('Vehicle not found, reusing previous vehicle_id', [
+            'invoice_number' => $invoiceNumber,
+            'item_index' => $index,
+            'used_vehicle_id' => $vehicleId,
+            'raw_item_desc' => $item['item_desc'] ?? '',
+        ]);
+    }
+
                 $bookingData = BookingData::create([
                     'booking_id' => $booking->id,
                     'vehicle_id' => $vehicleId,
@@ -148,14 +149,16 @@ class InvoiceProcessorService
                     'description' => $item['item_desc'] ?? '',
                     'quantity' => $quantity,
                     'tax_percent' => $item['tax_percent'] ?? 0,
-                    'item_total' => number_format(($item['item_price'] ?? 0) * $quantity, 2, '.', ''),
+                    'item_total' => number_format(($item['item_total'] ?? 0), 2, '.', ''),
                     'tax_name' => $item['tax_name'] ?? '',
                     'deductiontype_id' => $item['deductiontype'] ?? null,
                     'view_type' => 2,
                 ]);
 
                 // Update vehicle status
-                Vehicle::where('id', $vehicleId)->update(['vehicle_status_id' => 33]);
+                if ($vehicleId) {
+        Vehicle::where('id', $vehicleId)->update(['vehicle_status_id' => 33]);
+    }
             }
 
 
