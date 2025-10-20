@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Booking;
-use App\Models\BookingData;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Vehicle;
