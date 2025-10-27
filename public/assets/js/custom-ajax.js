@@ -53,7 +53,7 @@ $(document).ready(function () {
     // Render invoices and vehicles against booking in payment form
     $(document).on('change', '.payment_method', function () {
         var paymentMethod = $(this).val();
-        if (paymentMethod == 3) { $('.bank_id').removeAttr('disabled'); }
+        if (paymentMethod == 3 || paymentMethod == 4 || paymentMethod == 5) { $('.bank_id').removeAttr('disabled'); }
         else { $('.bank_id').attr('disabled', true).val(''); }
     });
 

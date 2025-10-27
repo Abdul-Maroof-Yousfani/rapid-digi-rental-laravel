@@ -3,20 +3,14 @@
 namespace App\Http\Controllers\Booker;
 
 use App\Http\Controllers\Controller;
+use App\Models\VehiclesImport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Models\DepositsImport;
-use App\Models\Booking;
-use App\Models\Invoice;
-use App\Models\BookingData;
-use App\Models\Deposit;
-use App\Models\Vehicle;
-use App\Models\Notification;
 use App\Services\ZohoService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class DepositUploadController extends Controller
+class VehicleUploadController extends Controller
 {
     protected $zohoinvoice;
 
@@ -25,18 +19,18 @@ class DepositUploadController extends Controller
         $this->zohoinvoice = $zohoinvoice;
     }
 
-    public function uploadDeposits(Request $request)
+    public function uploadVehicles(Request $request)
     {
         try {
             ini_set('max_execution_time', 0);
             ini_set('memory_limit', '-1');
 
-            $import = new DepositsImport();
+            $import = new VehiclesImport();
             Excel::import($import, $request->file('xlsx_file'));
 
-            return back()->with('success', 'Deposits processed successfully.');
+            return back()->with('success', 'Vehicles processed successfully.');
         } catch (\Exception $e) {
-            Log::error('Deposit upload failed: ' . $e->getMessage());
+            Log::error('Vehicle upload failed: ' . $e->getMessage());
             return back()->with('error', 'Upload failed: ' . $e->getMessage());
         }
     }

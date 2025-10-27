@@ -200,7 +200,7 @@ $due_bal = $pending_amount;
                 </div>
 
                 <div class="col text-right">
-                    <h3 style="color:#00796B; font-size:2.3rem; font-weight:50">TAX INVOICE</h3>
+                    <h3 style="color:#00796B; font-size:2.3rem; font-weight:50">{{ $invoice->bookingData()->where('tax_percent', '>', 0)->first() ? 'TAX INVOICE' : 'INVOICE' }}</h3>
                     <p class="mb-0 font-weight-bold text-dark"># {{ $invoice->zoho_invoice_number }}</p>
                     <?php if ($invoice->invoice_status != 'draft') { ?>
 

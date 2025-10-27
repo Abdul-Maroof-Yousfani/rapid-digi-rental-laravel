@@ -111,11 +111,11 @@
 
                         <div class="header-card head-flex">
                             <h4>Booking Details</h4>
-                            <div class="card-header-form">
+                            {{-- <div class="card-header-form">
                                 <div class="input-group">
                                     <button type="button" style="font-size: 40px" class="btn btn-success" id="addRow">+</button>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                         <hr style=" border-bottom:1px solid #6c757d;">
                         <div class="lineItemBody" id="lineItemBody">

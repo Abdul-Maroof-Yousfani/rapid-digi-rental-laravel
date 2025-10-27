@@ -270,11 +270,11 @@
                 <div class="col-md-12 col-lg-12">
                     <div class="header-card head-flex">
                         <h4>Booking Details</h4>
-                        <div class="card-header-form">
+                        {{-- <div class="card-header-form">
                             <div class="input-group">
                                 <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                     <hr style=" border-bottom:1px solid #6c757d;">
                     <div class="lineItemBody" id="lineItemBody">
@@ -492,7 +492,7 @@
                                 <div class="col-3">
                                     <div class="form-group">
                                         <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                        <input type="number" value="{{ $item->price }}" name="price[]" class="form-control price" required>
+                                        <input type="number" value="{{ $item->item_total }}" name="price[]" class="form-control price" required>
                                     </div>
                                 </div>
                                 <div class="col-3">

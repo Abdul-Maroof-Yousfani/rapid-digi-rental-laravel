@@ -54,39 +54,30 @@ class DepositsImport implements ToCollection, WithHeadingRow, WithChunkReading
                 $depositReturn = (float) ($data['deposit_return'] ?? 0);
                 $remainingDeposit = $depositAmount - $depositReturn;
 
-                $booking = Booking::whereHas('invoice', function ($q) use ($invoiceNo) {
-                    $q->where('zoho_invoice_number', $invoiceNo);
-                })->first();
+                $booking_id = Invoice::where('zoho_invoice_number', $invoiceNo)->value('booking_id');
 
-                if ($booking) {
-                    if ($depositAmount > 0) {
-                        $deposit = Deposit::create([
-                            'deposit_amount' => $remainingDeposit,
-                            'initial_deposit' => $depositAmount,
-                        ]);
-
-                        $booking->update(['deposit_id' => $deposit->id]);
-
-                        Log::info("Deposit created and linked", [
-                            'invoice_no' => $invoiceNo,
-                            'booking_id' => $booking->id,
-                            'deposit_id' => $deposit->id,
-                            'remaining' => $remainingDeposit,
-                        ]);
-                    } else {
-                        $booking->update(['deposit_id' => null]);
-                        Log::info("Deposit cleared (no deposit for booking)", [
-                            'invoice_no' => $invoiceNo,
-                            'booking_id' => $booking->id,
-                        ]);
-                    }
-
-                    $processed++;
-                } else {
-                    Log::warning("Booking not found for invoice: {$invoiceNo}");
+                if (!$booking_id) {
+                    Log::warning("Row {$rowNumber} skipped: No booking found for invoice {$invoiceNo}");
+                    DB::rollBack();
                     $skipped++;
+                    continue;
                 }
 
+                $deposit = Deposit::create([
+                    'deposit_amount' => $remainingDeposit,
+                    'initial_deposit' => $depositAmount,
+                ]);
+
+                Booking::where('id', $booking_id)->update(['deposit_id' => $deposit->id]);
+
+                Log::info("Deposit created and linked", [
+                    'invoice_no' => $invoiceNo,
+                    'booking_id' => $booking_id,
+                    'deposit_id' => $deposit->id,
+                    'remaining' => $remainingDeposit,
+                ]);
+
+                $processed++;
                 DB::commit();
             } catch (\Throwable $e) {
                 DB::rollBack();
@@ -96,7 +87,6 @@ class DepositsImport implements ToCollection, WithHeadingRow, WithChunkReading
                 $skipped++;
             }
         }
-
 
         $summary = [
             'processed' => $processed,
@@ -108,6 +98,7 @@ class DepositsImport implements ToCollection, WithHeadingRow, WithChunkReading
 
         return $summary;
     }
+
 
     /**
      * Convert Excel serial date to Carbon instance

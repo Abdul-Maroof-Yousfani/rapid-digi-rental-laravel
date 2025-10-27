@@ -226,6 +226,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/payments/upload', [App\Http\Controllers\Booker\PaymentUploadController::class, 'uploadPayments'])->name('payments.upload');
     Route::post('/credit-note/upload', [App\Http\Controllers\Booker\CreditNoteUploadController::class, 'uploadCreditNotes'])->name('credit-note.upload');
     Route::post('/customer/upload', [App\Http\Controllers\Booker\DepositUploadController::class, 'uploadDeposits'])->name('deposit.upload');
+    Route::post('/vehicle/upload', [App\Http\Controllers\Booker\VehicleUploadController::class, 'uploadVehicles'])->name('vehicles.upload');
 
 
     Route::get('booking-close/{booking_id}', [BookingController::class, 'closeBooking']);

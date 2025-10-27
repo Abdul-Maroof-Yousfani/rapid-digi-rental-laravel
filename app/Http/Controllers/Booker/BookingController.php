@@ -328,8 +328,12 @@ class BookingController extends Controller
                 return redirect()->back()->with('error', 'Booking not Found');
             } else {
                 $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
-                $booking_data = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->whereNull('deductiontype_id')->orderBy('id', 'ASC')->get();
-                $booking_data_charges = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->whereNotNull('deductiontype_id')->orderBy('id', 'ASC')->get();
+                // $booking_data = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->whereNull('deductiontype_id')->orderBy('id', 'ASC')->get();
+                // $booking_data_charges = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->whereNotNull('deductiontype_id')->orderBy('id', 'ASC')->get();
+                
+                $booking_data = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->where('tax_percent', '>', 0)->orderBy('id', 'ASC')->get();
+                $booking_data_charges = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->where('tax_percent', '==', 0)->orderBy('id', 'ASC')->get();
+                
                 $customers = Customer::all();
                 $vehicletypes = Vehicletype::all();
                 $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
