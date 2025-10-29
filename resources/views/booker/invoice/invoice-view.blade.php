@@ -1,5 +1,6 @@
 @extends('admin.master-main')
-@section('title', ucfirst(Auth::user()->getRoleNames()->first() . ' ' . 'Portals'))
+{{-- @section('title', ucfirst(Auth::user()->getRoleNames()->first() . ' ' . 'Portals')) --}}
+@section('title', 'Invoice #' . ($invoice->zoho_invoice_number ?? ''))
 @section('content')
 @php
 $userRole= Auth::user()->getRoleNames()->first();
