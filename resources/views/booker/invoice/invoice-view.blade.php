@@ -1,5 +1,5 @@
 @extends('admin.master-main')
-@section('title', ucfirst(Auth::user()->getRoleNames()->first() . ' ' . 'Portal'))
+@section('title', ucfirst(Auth::user()->getRoleNames()->first() . ' ' . 'Portals'))
 @section('content')
 @php
 $userRole= Auth::user()->getRoleNames()->first();
