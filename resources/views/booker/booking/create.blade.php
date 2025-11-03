@@ -83,7 +83,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="form-group">
-                                    <label>Sale Person <span class="text-danger">*</span></label>
+                                    <label>Sale Person </label>
                                     <select name="sale_person_id" id="sale_person_id" class="form-control select2">
                                         <option value="">Select Sale Person</option>
                                         @foreach ($salePerson as $item)
