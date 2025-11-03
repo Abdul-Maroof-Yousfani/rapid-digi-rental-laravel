@@ -56,7 +56,7 @@
                         <div class="col-md-2">
                             <label for="saleman_id">Saleman</label>
                             <select name="saleman_id" class="form-control select2" id="saleman_id">
-                                <option value="">Select Salemen</option>
+                                <option value="">Select Saleman</option>
                                 @foreach ($saleman as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                 @endforeach
@@ -95,6 +95,7 @@
                                                         <th>Agreement no.</th>
                                                         <th>Invoice no.</th>
                                                         <th>Customer</th>
+                                                        <th>Saleman name</th>
                                                         <th class="text-center">Received Amount</th>
                                                     </tr>
                                                 </thead>
