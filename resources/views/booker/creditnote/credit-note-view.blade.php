@@ -178,7 +178,7 @@
                         <p class="text-dark"><strong style="margin-right: 60px;">Invoice #:</strong>
                             {{ $creditNote->booking->invoice()->select('zoho_invoice_number')->first()->zoho_invoice_number }}</p>
                         <p class="text-dark"><strong style="margin-right: 60px;">Credit Date:</strong>
-                            {{ $creditNote->refund_date }}</p>
+                            {{ \Carbon\Carbon::parse($creditNote->refund_date)->format('d-M-Y') }}</p>
                         <!-- <p class="text-dark"> <strong style="margin-right: 60px;">Due Date:</strong> </p>
                         <p class="text-dark"><strong style="margin-right: 35px;">Sale Person:</strong> </p>
                         <p class="text-dark"><strong style="margin-right: 140px;">TRN Number:</strong> </p> -->
