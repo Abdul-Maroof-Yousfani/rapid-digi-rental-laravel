@@ -185,7 +185,7 @@ class ReportController extends Controller
                 });
             })
             ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
-                $query->whereBetween('created_at', [$fromDate, $toDate]);
+                $query->whereBetween('started_at', [$fromDate, $toDate]);
             })
             ->get()
             ->map(function ($booking) {
@@ -201,7 +201,7 @@ class ReportController extends Controller
         $toDate = $request['toDate'];
         $customerID = $request['customer_id'];
         $bookings = Booking::with(['bookingData', 'customer', 'payment'])
-            ->when($fromDate && $toDate, fn($q) => $q->whereBetween('created_at', [$fromDate, $toDate]))
+            ->when($fromDate && $toDate, fn($q) => $q->whereBetween('started_at', [$fromDate, $toDate]))
             ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
             ->get();
 
@@ -263,7 +263,7 @@ class ReportController extends Controller
 
     $booking = Booking::with(['invoice', 'payment', 'customer', 'bookingData.invoice'])
         ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
-        ->when($fromDate && $toDate, fn($q) => $q->whereBetween(DB::raw('DATE(created_at)'), [$fromDate, $toDate]))
+        ->when($fromDate && $toDate, fn($q) => $q->whereBetween(DB::raw('DATE(started_at)'), [$fromDate, $toDate]))
         ->get();
 
     return view('reports.reportlist.get-customer-wise-receivable-list', compact('booking'));
@@ -284,7 +284,7 @@ class ReportController extends Controller
         $salemenID = $request->saleman_id;
         $booking = Booking::with('bookingData', 'invoice', 'salePerson')
             ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
-                $query->whereBetween('created_at', [$fromDate, $toDate]);
+                $query->whereBetween('started_at', [$fromDate, $toDate]);
             })
             ->when($salemenID, function ($query) use ($salemenID) {
                 $query->whereHas('salePerson', function ($q1) use ($salemenID) {
