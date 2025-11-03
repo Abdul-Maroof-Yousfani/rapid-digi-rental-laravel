@@ -2,27 +2,9 @@
 @section('content')
     @php
 
-        // $revenue= App\Models\BookingData::with('vehicle', 'invoice')
-        //         ->whereHas('invoice', function($q){
-        //             $q->where('invoice_status', 'sent');
-        //         })->sum('price');
-
-        // $totalAmount= App\Models\BookingData::with('vehicle', 'invoice')
-        //         ->whereHas('invoice', function($q){
-        //              $q->where('invoice_status', 'sent');
-        //         })
-        //         ->whereHas('vehicle.investor', function($q){
-        //              $q->where('user_id', Auth::user()->id);
-        //         })
-        //         ->whereIn('transaction_type', ['1', '2'])->sum('item_total');
-
-
-
-        /* Get total Bookings and customers */
         $booking = App\Models\Booking::count();
         $customers = App\Models\Customer::count();
 
-        /* Get Investor Wise Revenue */
         $userId = Auth::user()->id;
         $bookingIds = App\Models\BookingData::whereHas('vehicle.investor', function ($q) use ($userId) {
             $q->where('user_id', $userId);
@@ -31,24 +13,20 @@
         $totalAmount = App\Models\BookingPaymentHistory::whereIn('booking_id', $bookingIds)->sum('paid_amount');
 
 
-        /* Get Total Revenue for Booker and Admin */
         $receiveable = App\Models\Payment::sum('pending_amount');
 
-        /* Get Total Revenue without Receivable for Booker and Admin */
         $revenue = App\Models\BookingPaymentHistory::sum('paid_amount');
 
-        /* Get Investor Total vehicle */
         $vehicles = App\Models\Vehicle::with(['investor', 'bookingData'])
             ->whereHas('investor', function ($query) {
                 $query->where('user_id', Auth::user()->id);
             })->get();
 
 
-        /* Get Investor */
         $investors = App\Models\Investor::with('vehicle')->get();
 
         $chartData = [
-            'labels' => $investors->pluck('name'), // investor names
+            'labels' => $investors->pluck('name'), 
             'vehicles' => $investors->map(fn($item) => $item->vehicle->count()),
             'revenue' => $investors->map(function ($item) {
                 $investorID = $item->id;
@@ -87,7 +65,6 @@
             }
         }
 
-        // fetch payments summed per booking
         $paymentsPerBooking = [];
         if (!empty($bookingIds)) {
             $paymentsPerBooking = \App\Models\Payment::whereIn('booking_id', $bookingIds)
@@ -97,7 +74,6 @@
                 ->toArray();
         }
 
-        // initialize per-vehicle paid/unpaid
         $vehiclePaid = [];
         $vehicleUnpaid = [];
 
@@ -214,16 +190,12 @@
             return $first;
         })->values();
 
-        // 🔹 Sort customers by total sales and take top 20 only (to avoid chart limit)
         $bookingsGrouped = $bookingsGrouped->sortByDesc('total_price')->take(10)->values();
 
-        // prepare chart dataset
-        // prepare chart dataset
         $customerNames = $bookingsGrouped->pluck('customer.customer_name')->map(function ($name) {
             if (empty($name)) {
                 return 'Unknown';
             }
-            // shorten long customer names for better chart readability
             return mb_strlen($name) > 15 ? mb_strimwidth($name, 0, 15, '...') : $name;
         })->toArray();
 
@@ -231,7 +203,6 @@
         $totalSales = $bookingsGrouped->pluck('total_price')->toArray();
         $totalPaid = $bookingsGrouped->pluck('paid_amount')->toArray();
 
-        // chart config
         $chartConfig3 = [
             'type' => 'bar',
             'data' => [
@@ -261,13 +232,11 @@
             ],
         ];
 
-        // encode chart config and generate chart URL
         $customerChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig3, JSON_UNESCAPED_SLASHES));
 
 
 
 
-        // group by customer
         $receivableData = $bookings->groupBy('customer_id')->map(function ($group) {
             $first = $group->first();
 
@@ -301,15 +270,12 @@
             ];
         })->values();
 
-        // 🔹 Sort by highest receivable and take top 10 only
         $receivableData = $receivableData->sortByDesc('receivable')->take(10)->values();
 
-        // 🔹 Shorten long customer names for chart readability
         $customerNames = $receivableData->pluck('customer_name')->map(function ($name) {
             if (empty($name)) {
                 return 'Unknown';
             }
-            // Take first two words, then limit to 15 chars
             $words = explode(' ', $name);
             $shortName = implode(' ', array_slice($words, 0, 2));
             return mb_strlen($shortName) > 15 ? mb_strimwidth($shortName, 0, 15, '...') : $shortName;
@@ -317,7 +283,6 @@
 
         $receivables = $receivableData->pluck('receivable')->toArray();
 
-        // 🔹 Build chart
         $chartConfig4 = [
             'type' => 'bar',
             'data' => [
