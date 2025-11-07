@@ -25,6 +25,8 @@ class Booking extends Model
     use LogsActivity;
     protected $fillable = [
         'customer_id',
+        'vehicle_id',
+        'replacement_vehicle_id',
         'agreement_no',
         'notes',
         'total_price',

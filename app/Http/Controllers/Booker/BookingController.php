@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Booker;
 
+use App\Models\VehicleStatus;
 use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Deposit;
@@ -97,7 +98,7 @@ class BookingController extends Controller
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no',
             // 'deposit_amount' => 'required',
-            // 'sale_person_id' => 'required',
+            'sale_person_id' => 'nullable',
             'started_at' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
@@ -125,13 +126,13 @@ class BookingController extends Controller
 
                 $vehicleName = $vehicle ? ($vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail) : ($request->invoiceTypes[$key] ? Deductiontype::find($request->invoiceTypes[$key])->name : 'Other Charge');
 
-               $description = $request->description[$key] ?? (
-    (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
-        ? Carbon::createFromFormat('Y-m-d', $request->booking_date[$key])->format('d/m/Y') .
-          " TO " .
-          Carbon::createFromFormat('Y-m-d', $request->return_date[$key])->format('d/m/Y')
-        : ''
-);
+                $description = $request->description[$key] ?? (
+                    (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
+                    ? Carbon::createFromFormat('Y-m-d', $request->booking_date[$key])->format('d/m/Y') .
+                    " TO " .
+                    Carbon::createFromFormat('Y-m-d', $request->return_date[$key])->format('d/m/Y')
+                    : ''
+                );
 
                 if (is_array($description)) {
                     $description = implode(', ', $description);
@@ -182,6 +183,7 @@ class BookingController extends Controller
 
                     $booking = Booking::create([
                         'customer_id' => $customerId,
+                        'vehicle_id' => $request->vehicle[0],
                         'agreement_no' => $request['agreement_no'],
                         'notes' => $request['notes'],
                         'sale_person_id' => $request['sale_person_id'] ?? null,
@@ -228,7 +230,7 @@ class BookingController extends Controller
                         $lineItemData = $zohoLineItems[$key] ?? [];
                         $booking_data = BookingData::create([
                             'booking_id' => $booking->id,
-                            'vehicle_id' => $vehicle_id,
+                            'vehicle_id' => $request->vehicle[0],
                             'invoice_id' => $invoice->id,
                             'start_date' => $request['booking_date'][$key],
                             'end_date' => $request['return_date'][$key],
@@ -330,19 +332,20 @@ class BookingController extends Controller
                 $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
                 // $booking_data = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->whereNull('deductiontype_id')->orderBy('id', 'ASC')->get();
                 // $booking_data_charges = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->whereNotNull('deductiontype_id')->orderBy('id', 'ASC')->get();
-                
+
                 $booking_data = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->where('tax_percent', '>', 0)->orderBy('id', 'ASC')->get();
                 $booking_data_charges = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->where('tax_percent', '==', 0)->orderBy('id', 'ASC')->get();
-                
+
                 $customers = Customer::all();
                 $vehicletypes = Vehicletype::all();
                 $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
-                $vehicleTypeMap = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))
-                    ->pluck('vehicletypes', 'id');
+                $vehicleTypeMap = VehicleType::whereIn('id', $vehicles->pluck('vehicletypes'))
+                    ->get();
                 $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
                 $salePerson = SalePerson::all();
+                $vehiclesStatuses = VehicleStatus::all();
                 $taxlist = $this->zohoinvoice->taxList();
-
+                // dd($vehicleTypeMap);
                 return view('booker.booking.edit', compact(
                     'zohocolumn',
                     'customers',
@@ -350,6 +353,7 @@ class BookingController extends Controller
                     'invoice',
                     'taxlist',
                     'salePerson',
+                    'vehiclesStatuses',
                     'booking_data',
                     'booking_data_charges',
                     'vehicles',
@@ -368,6 +372,8 @@ class BookingController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // dd($request->all());
+
         $invoice = Invoice::with('booking')->find($id);
         $rules = [
             'customer_id' => 'required',
@@ -753,5 +759,27 @@ class BookingController extends Controller
         $vehicleIds = $booking->bookingData->pluck('vehicle_id')->unique();
         Vehicle::whereIn('id', $vehicleIds)->update(['vehicle_status_id' => 1]);
         return response()->json(['success' => true]);
+    }
+
+    public function replaceVehicle(Request $request, $id)
+    {
+        // $request->validate([
+        //     'vehicle_status_id' => 'required'
+        // ]);
+
+        $booking = Booking::findOrFail($id);
+
+        $booking->update([
+            'replacement_vehicle_id' => $request->new_vehicle_id
+        ]);
+
+        $vehicleStatus = VehicleStatus::where('name', $request->curr_vehicle_status)->first();
+        if ($vehicleStatus) {
+            Vehicle::where('id', $booking->vehicle_id)->update([
+                'vehicle_status_id' => $vehicleStatus->id
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Vehicle replaced successfully']);
     }
 }

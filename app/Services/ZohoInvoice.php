@@ -319,6 +319,34 @@ class ZohoInvoice
 
             ]
         ]);
+
+
+        // $payload = [
+        //     'customer_id' => $customer->zoho_customer_id,
+        //     'invoice_number' => $code,
+        //     'notes' => $notes,
+        //     'currency_code' => $currency_code,
+        //     'line_items' => $lineitems,
+        //     "custom_fields" => [
+        //         [
+        //             "api_name" => "cf_sales_person",
+        //             "value" => $salesPersonName
+        //         ]
+        //     ]
+        // ];
+
+        // if ($saleperson && !empty($saleperson->zoho_salesperson_id)) {
+        //     $payload['salesperson_id'] = $saleperson->zoho_salesperson_id;
+        // }
+        // $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices?organization_id=' . $this->orgId, [
+        //     'verify' => false,
+        //     'headers' => [
+        //         'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+        //         'Content-Type' => 'application/json',
+        //     ],
+        //     'json' => $payload
+        // ]);
+
         return json_decode($response->getBody(), true);
     }
     public function getZohoInvoice($invoiceId)
@@ -480,11 +508,11 @@ class ZohoInvoice
 
     public static function generateUniqueCode($table, $field)
     {
-        // return '4438';
+        // return '4803';
 
         $maxPos = DB::table($table)->where('status', 1)->max($field);
 
-        $maxPos = $maxPos+1;
+        $maxPos = $maxPos + 1;
         // dd($maxPos);
         return $maxPos;
     }

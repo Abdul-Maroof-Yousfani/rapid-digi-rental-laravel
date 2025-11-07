@@ -85,6 +85,8 @@
                                         value="{{ $invoice->booking->deposit->deposit_amount ?? 0 }}"
                                         name="deposit_amount"
                                         class="form-control">
+                                    <input type="hidden" value="{{ $invoice->booking->id }}" name="booking_id" class="form-control disableClick booking_id">
+
                                 </div>
 
                                 <div class="form-group" id="non_refundable_amount_group">
@@ -158,107 +160,7 @@
                                             </tr>
                                         </thead>
                                         <tbody id="vehicleTableBody">
-                                            {{-- @foreach ($booking_data as $index => $item)
-                                                @php
-                                                    $selectedVehicleId = $item->vehicle_id;
-                                                    $selectedTypeId = $vehicleTypeMap[$selectedVehicleId] ?? null;
-                                                    $filteredVehicles = $vehiclesByType[$selectedTypeId] ?? collect();
-                                                    $vehicleObj = $vehicles->where('id', $selectedVehicleId)->first();
-                                                @endphp
-                                                <tr>
-                                                    <td class="align-middle"><br>
-                                                        <div class="form-group">
-                                                            <input type="date" value="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}" name="booking_date[]"
-                                            class="form-control datemask booking-date" placeholder="YYYY/MM/DD"
-                                            data-default="{{ \Carbon\Carbon::parse($item->start_date)->format('Y-m-d') }}">
-                                </div>
-                                </td>
-                                <td class="align-middle"><br>
-                                    <div class="form-group">
-                                        <input type="date" value="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}" name="return_date[]"
-                                            class="form-control datemask return-date" placeholder="YYYY/MM/DD"
-                                            data-default="{{ \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') }}">
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group"><br>
-                                        <select name="vehicletypes[]" class="form-control select2 vehicletypes">
-                                            <option value="">Select Vehicle type</option>
-                                            @foreach ($vehicletypes as $vtype)
-                                            <option value="{{ $vtype->id }}" {{ $selectedTypeId == $vtype->id ? 'selected' : '' }}>
-                                                {{ $vtype->name }}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </td>
-                                @php
-                                $selectedVehicleText = ($item->vehicle->vehicle_name) ?? ($item->vehicle->number_plate.' | '.$item->vehicle->temp_vehicle_detail);
-                                @endphp
-                                <td class="text-truncate"><br>
-                                    <div class="form-group">
-                                        <select name="vehicle[]" class="form-control select2 vehicle"
-                                            data-selected="{{ $selectedVehicleId }}"
-                                            data-selected-text="{{ $selectedVehicleText }}">
-                                            <option value="">Select Vehicle</option>
-                                            @foreach ($filteredVehicles as $vehicle)
-                                            @php $disable= $vehicle->status==0 ? 'disabled' : ''; @endphp
-                                            <option value="{{ $vehicle->id }}" {{ $disable }} {{ $selectedVehicleId == $vehicle->id ? 'selected' : '' }}>
-                                                {{ ($vehicle->vehicle_name) ?? ($vehicle->number_plate.' | '.$vehicle->temp_vehicle_detail) }}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </td>
-
-                                <td class="text-truncate"><br>
-                                    <div class="form-group">
-                                        <textarea name="description[]" style="width:200px;" class="form-control" id="" cols="60" rows="3">
-                                        {{ $zohocolumn['invoice']['line_items'][$index]['description'] ?? '' }}
-                                        </textarea>
-                                    </div>
-                                </td>
-
-                                <td style="display: none" class="align-middle investor"><br>
-                                    {{ $vehicleObj->investor->name ?? 'N/A' }}
-                                </td>
-
-                                <td style="display: none" class="align-middle no_plate"><br>
-                                    {{ $vehicleObj->number_plate ?? 'N/A' }}
-                                </td>
-
-                                <td class="align-middle"><br>
-                                    <input type="hidden" name="tax_percent[]" value="{{ $item->tax_percent }}" class="tax">
-                                    <div class="form-group">
-                                        <select name="tax[]"
-                                            class="form-control select2 zohotax" required>
-                                            <option value="">Select Tax</option>
-                                            @foreach ($taxlist['taxes'] as $taxes)
-                                            <option value="{{ $taxes['tax_id'] }}"
-                                                data-percentage="{{ $taxes['tax_percentage'] }}"
-                                                {{ $zohocolumn['invoice']['line_items'][$index]['tax_id']==$taxes['tax_id']  ? 'Selected' : '' }}>
-                                                {{ $taxes['tax_name'] }} ({{ $taxes['tax_percentage'].'%' }})
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </td>
-                                <td class="align-middle"><br>
-                                    <div class="form-group">
-                                        <input type="number" value="{{ $item->price }}" name="price[]" class="form-control price">
-                                    </div>
-                                </td>
-                                <td class="align-middle"><br>
-                                    <div class="form-group">
-                                        <input type="number" value="" name="amount[]" class="form-control amount" disabled>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button type="button"
-                                        class="btn btn-danger btn-md removeRow">X</button>
-                                </td>
-                                </tr>
-                                @endforeach --}}
+                                           
                                 </tbody>
                                 </table>
                             </div>
@@ -270,21 +172,29 @@
                 <div class="col-md-12 col-lg-12">
                     <div class="header-card head-flex">
                         <h4>Booking Details</h4>
-                        {{-- <div class="card-header-form">
-                            <div class="input-group">
+                        <div class="card-header-form">
+                           
+                            <div class="input-group d-flex justify-content-end">
+                                <button type="button" class="btn btn-warning mr-2" data-toggle="modal" data-target="#ReplaceVehicleModal">
+                                    Replace Vehicle
+                                </button>
+
                                 <button type="button" class="btn btn-success btn-md" id="addRow">+</button>
                             </div>
-                        </div> --}}
+                        </div>
+                       
                     </div>
                     <hr style=" border-bottom:1px solid #6c757d;">
                     <div class="lineItemBody" id="lineItemBody">
                         @foreach ($booking_data as $index => $item)
                         @php
-                        $selectedVehicleId = $item->vehicle_id;
+                        $item->selectedTypeId = optional($item->vehicle)->vehicletypes ?? null;
+                        $item->selectedVehicleId = $item->vehicle_id;
+                        // $selectedVehicleId = $item->vehicle_id;
                         $selectedInTyId = $item->invoice_type->id ?? null;
-                        $selectedTypeId = $vehicleTypeMap[$selectedVehicleId] ?? null;
-                        $filteredVehicles = $vehiclesByType[$selectedTypeId] ?? collect();
-                        $vehicleObj = $vehicles->where('id', $selectedVehicleId)->first();
+                        // $selectedTypeId = $vehicleTypeMap[$selectedVehicleId] ?? null;
+                        $filteredVehicles = $vehiclesByType[$item->selectedTypeId] ?? collect();
+                        $vehicleObj = $vehicles->where('id', $item->selectedVehicleId)->first();
                         @endphp
                         <div class="card">
                             <div class="card-body lineItem">
@@ -324,11 +234,13 @@
                                             <select name="vehicletypes[]" class="form-control select2 vehicletypes">
                                                 <option value="">Select Vehicle type</option>
                                                 @foreach ($vehicletypes as $vtype)
-                                                <option value="{{ $vtype->id }}" {{ $selectedTypeId == $vtype->id ? 'selected' : '' }}>
-                                                    {{ $vtype->name }}
-                                                </option>
+                                                    <option value="{{ $vtype->id }}" 
+                                                        {{ $item->selectedTypeId == $vtype->id ? 'selected' : '' }}>
+                                                        {{ $vtype->name }}
+                                                    </option>
                                                 @endforeach
                                             </select>
+
                                         </div>
                                     </div>
                                     @php
@@ -340,17 +252,17 @@
                                     <div class="col-3">
                                         <div class="form-group">
                                             <label for="">Vehicle Name <span class="text-danger">*</span></label><br>
-                                            <select name="vehicle[]" class="form-control select2 vehicle"
-                                                data-selected="{{ $selectedVehicleId }}"
-                                                data-selected-text="{{ $selectedVehicleText }}">
+                                            <select name="vehicle[]" class="form-control select2 vehicle">
                                                 <option value="">Select Vehicle</option>
                                                 @foreach ($filteredVehicles as $vehicle)
-                                                @php $disable= $vehicle->status==0 ? 'disabled' : ''; @endphp
-                                                <option value="{{ $vehicle->id }}" {{ $disable }} {{ $selectedVehicleId == $vehicle->id ? 'selected' : '' }}>
-                                                    {{ ($vehicle->vehicle_name) ?? ($vehicle->number_plate.' | '.$vehicle->temp_vehicle_detail) }}
-                                                </option>
+                                                    @php $disable = $vehicle->status == 0 ? 'disabled' : ''; @endphp
+                                                    <option value="{{ $vehicle->id }}" {{ $disable }} 
+                                                        {{ $item->selectedVehicleId == $vehicle->id ? 'selected' : '' }}>
+                                                        {{ $vehicle->vehicle_name ?? ($vehicle->number_plate . ' | ' . $vehicle->temp_vehicle_detail) }}
+                                                    </option>
                                                 @endforeach
                                             </select>
+
                                         </div>
                                     </div>
                                 </div>
@@ -423,6 +335,8 @@
                     @foreach ($booking_data_charges as $index => $item)
                     @php
                     $selectedInTyId = $item->deductiontype_id ?? $item->invoice_type->id ?? null;
+                    $selectedTypeId = optional($item->vehicle)->vehicletypes ?? null;
+                    $selectedVehicleId = $item->vehicle_id;
                     @endphp
 
                     <div class="card">
@@ -459,22 +373,32 @@
                                         <input type="date" value="null" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD">
                                     </div>
                                 </div>
-                                <div class="col-3" style="display: none;">
+                                <div class="col-3">
                                     <div class="form-group">
                                         <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
                                         <select name="vehicletypes[]"
-                                            class="form-control select2 vehicletypes">
+                                            class="form-control select2 vehicletypes2">
                                             <option value="0">Select Vehicle type</option>
-
+                                            @foreach ($vehicleTypeMap as $vtype)
+                                                <option value="{{ $vtype->id }}" {{ $selectedTypeId == $vtype->id ? 'selected' : '' }}>{{ $vtype->name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-3" style="display: none;">
+                                <div class="col-3">
                                     <div class="form-group">
                                         <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                        <select name="vehicle[]" class="form-control select2 vehicle">
-                                            <option value="null">Select Vehicle</option>
+                                        <select name="vehicle[]" class="form-control select2 vehicle2">
+                                            <option value="">Select Vehicle</option>
+                                            @foreach($vehiclesByType as $type => $vehicles)
+                                                @foreach($vehicles as $vehi)
+                                                    <option value="{{ $vehi->id }}" {{ $selectedVehicleId == $vehi->id ? 'selected' : '' }}>
+                                                        {{ $vehi->vehicle_name }}
+                                                    </option>
+                                                @endforeach
+                                            @endforeach
                                         </select>
+
                                     </div>
                                 </div>
 
@@ -532,6 +456,73 @@
 </div>
 </section>
 </div>
+@php
+                    $selectedVehicleStatusId = App\Models\Vehicle::where('id', $invoice->booking->vehicle_id)->value('vehicle_status_id');
+@endphp
+<div class="modal fade" id="ReplaceVehicleModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Replace Vehicle</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="form-group mt-2">
+                    <label for="curr_vehicle">Current Vehicle</label>
+                    <select id="curr_vehicle" class="form-control select2" disabled>
+                        <option value="">Select Vehicle</option>
+                        @foreach($vehiclesByType as $type => $vehicles)
+                            @foreach($vehicles as $vehi)
+                                <option value="{{ $vehi->id }}" {{ $invoice->booking->vehicle_id == $vehi->id ? 'selected' : '' }}>
+                                    {{ $vehi->number_plate . ' | ' . $vehi->vehicle_name}}
+                                </option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="curr_vehicle_status">Current Vehicle Status</label>
+                    <select id="curr_vehicle_status" class="form-control select2">
+                        <option value="">Select Status</option>
+                        @foreach($vehiclesStatuses as $vehiclesStatus)
+                            <option value="{{ $vehiclesStatus->name }}" {{ $selectedVehicleStatusId == $vehiclesStatus->id ? 'selected' : '' }}>
+                                {{ $vehiclesStatus->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="new_vehicle">Assign New Vehicle</label>
+                    <select id="new_vehicle" class="form-control select2" disabled>
+                        <option value="">Select Vehicle</option>
+                        @foreach($vehiclesByType as $type => $vehicles)
+                            @foreach($vehicles as $vehi)
+                                <option value="{{ $vehi->id }}">
+                                    {{ $vehi->number_plate . ' | ' . $vehi->vehicle_name}}
+                                </option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnReplaceVehicle">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -577,6 +568,9 @@
         // Call on load and on change
         toggleDepositFields();
         $('#deposit_type').change(toggleDepositFields);
+
+
+
     });
 </script>
 <script>
@@ -628,6 +622,16 @@
     }
 
     $(document).ready(function() {
+
+        $(document).on('change', '#curr_vehicle_status', function() {
+            let selectedStatus = $(this).val().toLowerCase();
+
+            if (selectedStatus === 'garage') {
+                $('#new_vehicle').prop('disabled', false);
+            } else {
+                $('#new_vehicle').prop('disabled', true).val('').trigger('change');
+            }
+        });
 
         $(document).on('keypress', '.agreement_no, .price', function(e) {
             if (e.key === '-' || e.which === 45) {
@@ -787,20 +791,22 @@
                                     <input type="date" value="null" name="return_date[]" class="form-control datemask return-date" placeholder="YYYY/MM/DD">
                                 </div>
                             </div>
-                            <div class="col-3" style="display: none;">
+                            <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
                                     <select name="vehicletypes[]"
-                                        class="form-control select2 vehicletypes">
+                                        class="form-control select2 vehicletypes2">
                                         <option value="0">Select Vehicle type</option>
-                                       
+                                        @foreach ($vehicleTypeMap as $vtype)
+                                            <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-3" style="display: none;">
+                            <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                    <select name="vehicle[]" class="form-control select2 vehicle">
+                                    <select name="vehicle[]" class="form-control select2 vehicle2">
                                         <option value="null">Select Vehicle</option>
                                     </select>
                                 </div>
@@ -866,6 +872,37 @@
             } else {
                 vehicleSelect.prop('disabled', true);
             }
+        });
+
+        $(document).on('change', '.vehicletypes2', function() {
+            let id = $(this).val();
+            let $row = $(this).closest('.lineItem');
+            let bookingId = $('.booking_id').val();
+            let $vehicleSelect = $row.find('.vehicle2');
+
+            let invoiceType = $row.find('.invoice_type').val();
+            let bookingDate = $row.find('.booking-date').val();
+            let returnDate = $row.find('.return-date').val();
+
+            $vehicleSelect.empty().append('<option value="">Loading...</option>');
+
+            $.ajax({
+                url: `/get-vehicle-by-booking/${id}/booking/${bookingId}`,
+                type: 'GET',
+                data: {
+                    start_date: bookingDate,
+                    end_date: returnDate,
+                    invoice_type: invoiceType
+                },
+                success: function(response) {
+                    $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
+                    $.each(response, function(key, vehicle) {
+                        $vehicleSelect.append(
+                            `<option value="${vehicle.id}">${vehicle.number_plate} | ${(vehicle.temp_vehicle_detail ?? vehicle.vehicle_name)}</option>`
+                        );
+                    });
+                }
+            });
         });
 
 
@@ -934,6 +971,37 @@
                 }
             });
         });
+
+
+        $(document).on('click', '#btnReplaceVehicle', function () {
+            var currentVehicle = $('#curr_vehicle').val();
+            var newVehicle = $('#new_vehicle').val();
+            var currVehicleStatus = $('#curr_vehicle_status').val();
+            let bookingId = $('.booking_id').val();
+
+
+            $.ajax({
+                url: '/replace-vehicle/' + bookingId,
+                type: 'POST',
+                data: {
+                    current_vehicle_id: currentVehicle,
+                    new_vehicle_id: newVehicle,
+                    curr_vehicle_status: currVehicleStatus,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    $('#ReplaceVehicleModal').modal('hide');
+                    alert('Updated successfully!');
+                 //   $('.vehicletypes2').val('').trigger('change');
+                 $('#lineItemChargersBody .vehicletypes2').val('').trigger('change');
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    alert('Something went wrong!');
+                }
+            });
+        });
+
 
         function calculateAmount(row) {
             var taxVal = row.find('.zohotax').val();

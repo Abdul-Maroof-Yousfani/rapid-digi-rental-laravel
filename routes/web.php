@@ -50,20 +50,20 @@ Route::get('/', function () {
 Auth::routes();
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    Route::get('/redirect-by-role', function () {
-        $user = auth()->user();
-        if ($user->hasRole('admin')) {
-            return redirect()->route('dashboard');
-        } elseif ($user->hasRole('booker')) {
-            return redirect()->route('dashboard');
-        } elseif ($user->hasRole('investor')) {
-            return redirect()->route('dashboard');
-        }
-        return abort(403); // Unauthorized
-    });
+Route::get('/redirect-by-role', function () {
+    $user = auth()->user();
+    if ($user->hasRole('admin')) {
+        return redirect()->route('dashboard');
+    } elseif ($user->hasRole('booker')) {
+        return redirect()->route('dashboard');
+    } elseif ($user->hasRole('investor')) {
+        return redirect()->route('dashboard');
+    }
+    return abort(403); // Unauthorized
+});
 
 Route::get('/zoho/callback', function (Request $request) {
-    return "Authorization Code. ". $request->query('code');
+    return "Authorization Code. " . $request->query('code');
 
     Route::get('/get-accesstoken', [ZohoController::class, 'getAccessToken']);
     Route::get('/zoho/invoice', [ZohoController::class, 'createInvoice']);
@@ -74,7 +74,7 @@ Route::get('/zoho/callback', function (Request $request) {
             'table_id' => '2',
             'receiver_id' => 197,
         ];
-        event(new BookingCreated($data, 2 , 67));
+        event(new BookingCreated($data, 2, 67));
     });
 
 });
@@ -211,7 +211,8 @@ Route::middleware('auth')->group(function () {
     Route::get('assign-permission/{role_id}', [RolePermissionController::class, 'assignPermissionForm']);
     Route::post('assign-permission/{role_id}', [RolePermissionController::class, 'assignPermissions']);
 
-
+    
+    Route::post('replace-vehicle/{id}', [BookingController::class, 'replaceVehicle'])->name('replace.vehicle');
 
     Route::resource('customer-booking', BookingController::class);
     Route::resource('payment', PaymentController::class);
@@ -250,7 +251,7 @@ Route::middleware('auth')->group(function () {
     // Reports Route
     Route::get('/reports/soa-report', [ReportController::class, 'soaReport'])->name('soaReport');
     Route::get('/reports/customer-wise-report', [ReportController::class, 'customerWiseReport'])->name('customerWiseReport');
-  Route::get('/reports/customer-wise-detail-report/{customer_id}', [ReportController::class, 'customerWiseDetailReport'])->name('customerWiseDetailReport');
+    Route::get('/reports/customer-wise-detail-report/{customer_id}', [ReportController::class, 'customerWiseDetailReport'])->name('customerWiseDetailReport');
     Route::get('/reports/customer-wise-receivable', [ReportController::class, 'customerWiseReceivable'])->name('customerWiseReceivable');
     Route::get('/reports/salemen-wise-report', [ReportController::class, 'salemenWiseReport'])->name('salemenWiseReport');
 

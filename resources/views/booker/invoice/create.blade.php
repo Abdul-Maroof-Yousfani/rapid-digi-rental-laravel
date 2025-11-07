@@ -550,7 +550,7 @@
             const depositType = row.find('.deposit_type');
             const vehicleType = row.find('.vehicletypes');
 
-            if ($(this).val() === 'Renew') {
+            if ($(this).val() === 'RENEW') {
                 dateInputs.prop('required', true);
                 dateInputs.prop('disabled', false);
                // Vehicle.prop('disabled', false);
@@ -590,9 +590,9 @@
             let invoiceType = $row.find('.invoice_type').val();
             let bookingDate = $row.find('.booking-date').val();
             let returnDate = $row.find('.return-date').val();
+            if (id != "") {
 
             $vehicleSelect.empty().append('<option value="">Loading...</option>');
-
             $.ajax({
                 url: `/get-vehicle-by-booking/${id}/booking/${bookingId}`,
                 type: 'GET',
@@ -610,6 +610,7 @@
                     });
                 }
             });
+            }
         });
 
         $(document).on('change', '.vehicle', function() {

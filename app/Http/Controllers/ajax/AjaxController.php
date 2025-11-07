@@ -93,36 +93,45 @@ class AjaxController extends Controller
     }
 
     public function getVehicleAgaistBooking(Request $request, $vehicleTypeId, $bookingId)
-    {
-        // $bookedVehicleIds = BookingData::where('booking_id', $bookingId)->pluck('vehicle_id')->unique();
-        // $vehicles = Vehicle::where('vehicletypes', $vehicleTypeId)
-        //     ->whereIn('id', $bookedVehicleIds)
-        //     ->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
-        // return response()->json($vehicles);
+{
+    $startDate = $request->start_date;
+    $endDate = $request->end_date;
 
+    // Base query: only type vehicles
+    $query = Vehicle::where('vehicletypes', $vehicleTypeId);
 
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-        $invoiceType = $request->invoice_type;
-        $bookedVehicleIds = BookingData::where('booking_id', $bookingId)->pluck('vehicle_id')->unique();
-        $query = Vehicle::where('vehicletypes', $vehicleTypeId)
-            ->whereIn('id', $bookedVehicleIds);
+    // If NOT RENEW → limit to vehicles assigned to this booking
+    if ($request->invoice_type != 'RENEW') {
 
-        if ($invoiceType == 2 && $startDate && $endDate) {
-            $bookedInRange = BookingData::where(function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('start_date', [$startDate, $endDate])
-                    ->orWhereBetween('end_date', [$startDate, $endDate])
-                    ->orWhere(function ($q) use ($startDate, $endDate) {
-                        $q->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
-                    });
-            })->pluck('vehicle_id')->unique();
-            $query->whereNotIn('id', $bookedInRange);
-        }
+        $bookedVehicleIds = Booking::where('id', $bookingId)
+            ->get(['vehicle_id', 'replacement_vehicle_id'])
+            ->flatMap(function ($item) {
+                return [$item->vehicle_id, $item->replacement_vehicle_id];
+            })
+            ->filter()
+            ->unique()
+            ->values();
 
-        $vehicles = $query->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
-        return response()->json($vehicles);
+        $query->whereIn('id', $bookedVehicleIds);
     }
+
+    if ($startDate && $endDate) {
+        $bookedInRange = BookingData::where(function ($q) use ($startDate, $endDate) {
+            $q->whereBetween('start_date', [$startDate, $endDate])
+              ->orWhereBetween('end_date', [$startDate, $endDate])
+              ->orWhere(function ($q) use ($startDate, $endDate) {
+                  $q->where('start_date', '<=', $startDate)
+                    ->where('end_date', '>=', $endDate);
+              });
+        })->pluck('vehicle_id')->unique();
+
+        $query->whereNotIn('id', $bookedInRange);
+    }
+
+    return $query->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
+}
+
+
 
     public function getPaymentHistory($paymentId)
     {

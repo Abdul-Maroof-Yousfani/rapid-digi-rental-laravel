@@ -299,9 +299,9 @@ $due_bal = $pending_amount;
                         @endphp
 
                         <td class="text-left">
-                            {{ $vehicleName }}
+                            {{ $vehicleName . ' | ' . $item->vehicle->number_plate}}
                             <br>
-                            <small>{{ $item->description }}</small>
+                            <small>{{ $item->description ? $item->description : $item->invoice_type->name}}</small>
                         </td>
 
 
