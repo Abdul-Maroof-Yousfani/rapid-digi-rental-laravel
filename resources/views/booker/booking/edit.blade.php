@@ -503,7 +503,7 @@
                         <option value="">Select Vehicle</option>
                         @foreach($vehiclesByType as $type => $vehicles)
                             @foreach($vehicles as $vehi)
-                                <option value="{{ $vehi->id }}">
+                                <option value="{{ $vehi->id }}" {{ $invoice->booking->replacement_vehicle_id == $vehi->id ? 'selected' : '' }}>
                                     {{ $vehi->number_plate . ' | ' . $vehi->vehicle_name}}
                                 </option>
                             @endforeach
@@ -511,6 +511,16 @@
                     </select>
                 </div>
 
+                <div class="form-group mt-2">
+                    <label for="reason_of_replacement">
+                        Reason of Replacement <span style="color: red;">*</span>
+                    </label>
+                    <textarea id="reason_of_replacement" 
+                            class="form-control" 
+                            required 
+                            rows="3"
+                            placeholder="Enter reason here..."></textarea>
+                </div>
 
             </div>
 
@@ -977,6 +987,7 @@
             var currentVehicle = $('#curr_vehicle').val();
             var newVehicle = $('#new_vehicle').val();
             var currVehicleStatus = $('#curr_vehicle_status').val();
+            var reasonOfReplacement = $('#reason_of_replacement').val();
             let bookingId = $('.booking_id').val();
 
 
@@ -987,13 +998,14 @@
                     current_vehicle_id: currentVehicle,
                     new_vehicle_id: newVehicle,
                     curr_vehicle_status: currVehicleStatus,
+                    reason_of_replacement: reasonOfReplacement,
                     _token: "{{ csrf_token() }}"
                 },
                 success: function(response) {
                     $('#ReplaceVehicleModal').modal('hide');
                     alert('Updated successfully!');
                  //   $('.vehicletypes2').val('').trigger('change');
-                 $('#lineItemChargersBody .vehicletypes2').val('').trigger('change');
+                 $('#lineItemChargersBody .vehicletypes2 #reason_of_replacement').val('').trigger('change');
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);

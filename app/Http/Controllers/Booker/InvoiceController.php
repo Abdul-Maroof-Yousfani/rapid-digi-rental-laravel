@@ -33,7 +33,8 @@ class InvoiceController extends Controller
     public function index(string $id)
     {
         $invoice = Invoice::with('bookingData')
-            ->where('booking_id', $id)->where('created_at', '>=', Carbon::now()->subDays(15))
+            ->where('booking_id', $id)
+            // ->where('created_at', '>=', Carbon::now()->subDays(15))
             // ->whereHas('bookingData', function ($query) {
             //     $query->where('transaction_type', '!=', 1);
             // })

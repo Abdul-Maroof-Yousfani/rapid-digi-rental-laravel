@@ -19,7 +19,7 @@ class Vehicle extends Model
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
-    protected $fillable= [
+    protected $fillable = [
         'vehicle_name',
         'temp_vehicle_detail',
         'vehicletypes',
@@ -29,6 +29,7 @@ class Vehicle extends Model
         'number_plate',
         'status',
         'vehicle_status_id',
+        'remarks',
     ];
 
     /**
@@ -38,14 +39,16 @@ class Vehicle extends Model
     {
         return LogOptions::defaults()
             ->logOnly([
-                'bank_name',
-                'account_name',
-                'account_number',
-                'iban',
-                'swift_code',
-                'branch',
-                'currency',
-                'notes',
+                'vehicle_name',
+                'temp_vehicle_detail',
+                'vehicletypes',
+                'investor_id',
+                'car_make',
+                'year',
+                'number_plate',
+                'status',
+                'vehicle_status_id',
+                'remarks',
             ])
             ->logOnlyDirty()
             ->useLogName('Vehicle');

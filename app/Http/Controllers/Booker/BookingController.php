@@ -55,7 +55,7 @@ class BookingController extends Controller
 
         $ids = Invoice::whereHas('bookingData', fn($q) => $q->where('transaction_type', 1))
             ->whereHas('booking', function ($q) {
-                $q->where('created_at', '>=', Carbon::now()->subDays(15));
+                // $q->where('created_at', '>=', Carbon::now()->subDays(15));
                 $q->where('booking_cancel', '0');
             })
             ->selectRaw('MAX(id) as id')
@@ -763,23 +763,30 @@ class BookingController extends Controller
 
     public function replaceVehicle(Request $request, $id)
     {
-        // $request->validate([
-        //     'vehicle_status_id' => 'required'
-        // ]);
-
         $booking = Booking::findOrFail($id);
 
         $booking->update([
             'replacement_vehicle_id' => $request->new_vehicle_id
         ]);
 
-        $vehicleStatus = VehicleStatus::where('name', $request->curr_vehicle_status)->first();
-        if ($vehicleStatus) {
-            Vehicle::where('id', $booking->vehicle_id)->update([
-                'vehicle_status_id' => $vehicleStatus->id
-            ]);
+        $vehicle = Vehicle::find($booking->vehicle_id);
+
+        if ($vehicle) {
+            $vehicleStatus = VehicleStatus::where('name', $request->curr_vehicle_status)->first();
+
+            if ($vehicleStatus) {
+                $vehicle->vehicle_status_id = $vehicleStatus->id;
+
+                $vehicle->remarks = $request->reason_of_replacement;
+
+                $vehicle->save();
+            }
         }
 
-        return response()->json(['success' => true, 'message' => 'Vehicle replaced successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Vehicle replaced successfully'
+        ]);
     }
+
 }
