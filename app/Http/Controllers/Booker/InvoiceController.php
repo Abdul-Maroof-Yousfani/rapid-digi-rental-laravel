@@ -127,11 +127,11 @@ class InvoiceController extends Controller
             $book = Booking::with('salePerson')->find($request->booking_id);
 
             if ($book && $book->salePerson) {
-                $salesperson_id = $book->salePerson->id; 
-                $salesperson_name = $book->salePerson->name; 
+                $salesperson_id = $book->salePerson->id;
+                $salesperson_name = $book->salePerson->name;
             } else {
-                $salesperson_id = null; 
-                $salesperson_name = null; 
+                $salesperson_id = null;
+                $salesperson_name = null;
             }
 
             $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $salesperson_id, $salesperson_name);
@@ -142,7 +142,6 @@ class InvoiceController extends Controller
 
             if (!empty($zohoInvoiceId)) {
                 try {
-
                     DB::beginTransaction();
                     $invoice = Invoice::create([
                         'booking_id' => $request->booking_id,
@@ -182,17 +181,17 @@ class InvoiceController extends Controller
                             'end_date' => $request['return_date'][$key] ?? null,
                             'price' => $price,
                             'transaction_type' => isset($request['return_date'][$key]) ? 2 : 1,
-                            'description' => $lineItemData['description'],
+                            'description' => $lineItemData['description'] ?? null,
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
-                            'item_total' => number_format($itemTotal, 2),
+                            'item_total' => round($itemTotal, 2),   // FIX
                             'tax_name' => $taxName,
-                            'deductiontype_id' => $invoiceTypeModel ? $invoiceTypeModel->id : null,
+                            'deductiontype_id' => $invoiceTypeModel->id ?? null,
                             'view_type' => 2,
-                            'non_refundable_amount' => $request['non_refundable_amount'],
-                            'deposit_type' => $request['deposit_type'],
-
+                            'non_refundable_amount' => $request['non_refundable_amount'][$key] ?? 0,
+                            'deposit_type' => $request['deposit_type'][$key] ?? null,
                         ]);
+
                     }
 
                     DB::commit();
