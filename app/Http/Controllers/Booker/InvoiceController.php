@@ -58,7 +58,7 @@ class InvoiceController extends Controller
 
     public function store(Request $request)
     {
-        return $request->all();
+        // return $request->all();
         $rules = [
             'customer_id' => 'required',
             'booking_id' => 'required',
