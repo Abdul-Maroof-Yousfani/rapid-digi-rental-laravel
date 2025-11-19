@@ -864,10 +864,9 @@
         });
 
         $(document).on('click', '.removeChargesRow', function() {
-            if ($('.lineItemChargersBody .card').length > 0) {
-                $(this).closest('.card').remove();
-            }
+            $(this).closest('.card').remove();
         });
+
 
 
         $('#lineItemBody').on('change', '.booking-date, .return-date', function() {
