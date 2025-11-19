@@ -117,10 +117,10 @@ class AjaxController extends Controller
 
     if ($startDate && $endDate) {
         $bookedInRange = BookingData::where(function ($q) use ($startDate, $endDate) {
-            $q->whereBetween('start_date', [$startDate, $endDate])
-              ->orWhereBetween('end_date', [$startDate, $endDate])
-              ->orWhere(function ($q) use ($startDate, $endDate) {
-                  $q->where('start_date', '<=', $startDate)
+            // $q->whereBetween('start_date', [$startDate, $endDate])
+            //   ->orWhereBetween('end_date', [$startDate, $endDate])
+              $q->orWhere(function ($q) use ($startDate, $endDate) {
+                  $q->where('start_date', '<', $startDate)
                     ->where('end_date', '>=', $endDate);
               });
         })->pluck('vehicle_id')->unique();
