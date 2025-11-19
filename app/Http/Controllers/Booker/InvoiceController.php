@@ -58,7 +58,7 @@ class InvoiceController extends Controller
 
     public function store(Request $request)
     {
-        // return $request->all();
+        return $request->all();
         $rules = [
             'customer_id' => 'required',
             'booking_id' => 'required',
@@ -159,6 +159,7 @@ class InvoiceController extends Controller
                             ->first();
 
                         $price = $request['price'][$key];
+                        $amount = $request['amount'][$key];
                         $quantity = $request['quantity'][$key];
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
                         if (!empty($request['tax_percent'][$key])) {
@@ -184,7 +185,7 @@ class InvoiceController extends Controller
                             'description' => $lineItemData['description'] ?? null,
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
-                            'item_total' => round($itemTotal, 2),   // FIX
+                            'item_total' => $amount,   // FIX
                             'tax_name' => $taxName,
                             'deductiontype_id' => $invoiceTypeModel->id ?? null,
                             'view_type' => 2,
