@@ -244,7 +244,7 @@
                     <div class="col-3">
                         <div class="form-group">
                             <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
-                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled>
+                            <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled required>
                                 <option value="">Select Vehicle type</option>
                                 @foreach ($vehicletypes as $vtype)
                                 <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
@@ -255,7 +255,7 @@
                     <div class="col-3">
                         <div class="form-group">
                             <label for="">Vehicle Name<span class="text-danger">*</span></label><br>
-                            <select name="vehicle[]" class="form-control select2 vehicle">
+                            <select name="vehicle[]" class="form-control select2 vehicle" required>
                                 <option value="">Select Vehicle</option>
                             </select>
                         </div>
