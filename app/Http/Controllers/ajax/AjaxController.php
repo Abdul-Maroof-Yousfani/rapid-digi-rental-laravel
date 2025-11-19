@@ -93,43 +93,40 @@ class AjaxController extends Controller
     }
 
     public function getVehicleAgaistBooking(Request $request, $vehicleTypeId, $bookingId)
-{
-    $startDate = $request->start_date;
-    $endDate = $request->end_date;
+    {
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
 
-    // Base query: only type vehicles
-    $query = Vehicle::where('vehicletypes', $vehicleTypeId);
+        $query = Vehicle::where('vehicletypes', $vehicleTypeId);
 
-    // If NOT RENEW → limit to vehicles assigned to this booking
-    if ($request->invoice_type != 'RENEW') {
+        if ($request->invoice_type != 'RENEW') {
 
-        $bookedVehicleIds = Booking::where('id', $bookingId)
-            ->get(['vehicle_id', 'replacement_vehicle_id'])
-            ->flatMap(function ($item) {
-                return [$item->vehicle_id, $item->replacement_vehicle_id];
-            })
-            ->filter()
-            ->unique()
-            ->values();
+            $bookedVehicleIds = Booking::where('id', $bookingId)
+                ->get(['vehicle_id', 'replacement_vehicle_id'])
+                ->flatMap(function ($item) {
+                    return [$item->vehicle_id, $item->replacement_vehicle_id];
+                })
+                ->filter()
+                ->unique()
+                ->values();
 
-        $query->whereIn('id', $bookedVehicleIds);
+            $query->whereIn('id', $bookedVehicleIds);
+        }
+
+        if ($startDate && $endDate) {
+
+            $bookedInRange = BookingData::where(function ($q) use ($startDate, $endDate) {
+
+                $q->whereRaw('start_date < ? AND end_date > ?', [$endDate, $startDate]);
+
+            })->pluck('vehicle_id')->unique();
+
+            $query->whereNotIn('id', $bookedInRange);
+        }
+
+
+        return $query->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
     }
-
-    if ($startDate && $endDate) {
-        $bookedInRange = BookingData::where(function ($q) use ($startDate, $endDate) {
-            // $q->whereBetween('start_date', [$startDate, $endDate])
-            //   ->orWhereBetween('end_date', [$startDate, $endDate])
-              $q->orWhere(function ($q) use ($startDate, $endDate) {
-                  $q->where('start_date', '<', $startDate)
-                    ->where('end_date', '>=', $endDate);
-              });
-        })->pluck('vehicle_id')->unique();
-
-        $query->whereNotIn('id', $bookedInRange);
-    }
-
-    return $query->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
-}
 
 
 

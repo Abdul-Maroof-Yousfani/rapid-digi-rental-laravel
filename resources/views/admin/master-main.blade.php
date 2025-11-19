@@ -249,7 +249,9 @@
                                 @can('vehicle with status')
                                 <li><a class="nav-link" href="{{ route('assined.vehicle') }}">Assigned Vehicles</a></li>
                                 @endcan
+                                @can('view booking')
                                 <li><a class="nav-link" href="{{ route('invoice-type.index') }}">Invoice type</a></li>
+                                @endcan
 
                             </ul>
                         </li>
