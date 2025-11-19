@@ -63,8 +63,8 @@
                                     <label>Deposit Type</label>
                                     <select name="deposit_type" class="form-control select2" id="deposit_type">
                                         <option value="">Select Deposit Type</option>
-                                        <option value="1">Cardo</option>
-                                        <option value="2">LPO</option>
+                                        <option value="1">CARDOO</option>
+                                        <option value="2">DEPOSIT LPO</option>
                                     </select>
                                 </div>
                                 <div class="form-group" id="deposit_amount" style="display: none;">

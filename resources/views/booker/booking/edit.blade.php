@@ -74,8 +74,8 @@
                                     <label>Deposit Type</label>
                                     <select name="deposit_type" class="form-control select2" id="deposit_type">
                                         <option value="">Select Deposit Type</option>
-                                        <option value="1" {{ $invoice->booking->deposit_type == 1 ? 'selected' : '' }}>Cardo</option>
-                                        <option value="2" {{ $invoice->booking->deposit_type == 2 ? 'selected' : '' }}>LPO</option>
+                                        <option value="1" {{ $invoice->booking->deposit_type == 1 ? 'selected' : '' }}>CARDOO</option>
+                                        <option value="2" {{ $invoice->booking->deposit_type == 2 ? 'selected' : '' }}>DEPOSIT LPO</option>
                                     </select>
                                 </div>
 
