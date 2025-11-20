@@ -624,17 +624,16 @@ class AjaxController extends Controller
                     $q->whereHas('invoice', function ($q2) use ($search) {
                         $q2->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
                     })
-                    //     ->orWhereHas('deposit', function ($q2) use ($search) {
-                    //         $q2->where('deposit_amount', 'LIKE', "%$search%");
-                    //     })
-                    //     ->orWhereHas('salePerson', function ($q2) use ($search) {
-                    //         $q2->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
-                    //     })
-                    //     ->orWhereHas('customer', function ($q2) use ($search) {
-                    //         $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%$search%"]);
-                    //     })
-                    // ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"])
-                    ;
+                        ->orWhereHas('deposit', function ($q2) use ($search) {
+                            $q2->where('deposit_amount', 'LIKE', "%$search%");
+                        })
+                        ->orWhereHas('salePerson', function ($q2) use ($search) {
+                            $q2->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
+                        })
+                        ->orWhereHas('customer', function ($q2) use ($search) {
+                            $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%$search%"]);
+                        })
+                    ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
                 });
             })
             ->orderBy('id', 'DESC')->get();
