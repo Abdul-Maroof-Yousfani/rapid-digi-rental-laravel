@@ -528,8 +528,8 @@
             var row = $(this).closest('tr');
             var zohotax = row.find('.zohotax option:selected').data('percentage') || 0;
             row.find('.tax').val(zohotax);
-            var price = parseFloat(row.find('.price').val()) || null;
-            var qty = parseFloat(row.find('.quantity').val()) || null;
+            var price = parseFloat(row.find('.price').val()) || 0;
+            var qty = parseFloat(row.find('.quantity').val()) || 1;
             var tax = parseFloat(row.find('.tax').val()) || null;
             var subtotal = price * qty;
             var taxAmount = (tax / 100) * subtotal;

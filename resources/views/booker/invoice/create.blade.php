@@ -648,7 +648,7 @@
             var zohotax = row.find('.zohotax option[value="' + taxVal + '"]').data('percentage') || 0;
             row.find('.tax').val(zohotax);
 
-            var qty = parseFloat(row.find('.quantity').val()) || null;
+            var qty = parseFloat(row.find('.quantity').val()) || 1;
             var price = parseFloat(row.find('.price').val()) || 0;
             var grossPrice = price * qty;
             var taxAmount = (zohotax / 100) * grossPrice;
