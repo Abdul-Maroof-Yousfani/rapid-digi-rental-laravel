@@ -623,28 +623,42 @@ class AjaxController extends Controller
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('invoice', function ($q2) use ($search) {
                         $q2->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
-                    })
-                        ->orWhereHas('deposit', function ($q2) use ($search) {
-                            $q2->where('deposit_amount', 'LIKE', "%$search%");
-                        })
-                        ->orWhereHas('salePerson', function ($q2) use ($search) {
-                            $q2->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
-                        })
-                        ->orWhereHas('customer', function ($q2) use ($search) {
-                            $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%$search%"]);
-                        })
-                    ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
+                    });
                 });
             })
-            ->orderBy('id', 'DESC')->get();
+            ->orderBy('id', 'DESC')
+            ->paginate(10)
+            // ->get()
+        ;
 
         return response()->json([
-            'bookings' => $bookings,
+            'bookings' => $bookings->items(),
             'can' => [
                 'view' => auth()->user()->can('view booking'),
                 'delete' => auth()->user()->can('delete booking'),
             ],
         ]);
+    }
+
+    public function searchInvoice(Request $request)
+    {
+        $search = strtolower($request->search);
+        $invoices = Invoice::with(['booking.customer'])
+            ->withSum('bookingData as item_total', 'item_total')
+            ->when($search, function ($query, $search) {
+                $query->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
+            })
+            ->orderBy('id', 'DESC')
+            ->paginate(10);
+
+        return response()->json([
+            'invoices' => $invoices->items(), 
+            'can' => [
+                'view' => auth()->user()->can('view booking'),
+                'delete' => auth()->user()->can('delete booking'),
+            ],
+        ]);
+
     }
 
     public function checkAgreementNoExist(Request $request)

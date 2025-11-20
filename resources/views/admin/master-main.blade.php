@@ -245,6 +245,7 @@
                             <a href="#" class="menu-toggle nav-link has-dropdown"><i
                                     data-feather="mail"></i><span>Booking Vehicle</span></a>
                             <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{ route('get.invoice') }}">Invoice list</a></li>
                                 <li><a class="nav-link" href="{{ route('customer-booking.index') }}">Booking list</a></li>
                                 @can('vehicle with status')
                                 <li><a class="nav-link" href="{{ route('assined.vehicle') }}">Assigned Vehicles</a></li>

@@ -215,6 +215,7 @@ Route::middleware('auth')->group(function () {
     Route::post('replace-vehicle/{id}', [BookingController::class, 'replaceVehicle'])->name('replace.vehicle');
 
     Route::resource('customer-booking', BookingController::class);
+    Route::get('customer-invoice', [InvoiceController::class, 'getInvoiceList'])->name('get.invoice');
     Route::resource('payment', PaymentController::class);
     Route::get('booking/{id}', [InvoiceController::class, 'index'])->name('view.invoice');
     Route::get('booking/{id}/create-invoice', [InvoiceController::class, 'create'])->name('create.invoice');
@@ -301,6 +302,7 @@ Route::get('search-payment', [AjaxController::class, 'searchPayment']);
 Route::get('search-creditnote', [AjaxController::class, 'searchCreditNote']);
 Route::get('search-vehicle', [AjaxController::class, 'searchVehicle']);
 Route::get('search-booking', [AjaxController::class, 'searchBooking']);
+Route::get('search-invoice', [AjaxController::class, 'searchInvoice']);
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
 Route::get('get-payment-list', [FilterviewController::class, 'getPaymentList']);
 Route::get('/check-status/{id}', [BookingController::class, 'checkCloseEligibility'])->name('booking.check');

@@ -400,4 +400,15 @@ class InvoiceController extends Controller
 
         return view('booker.invoice.invoice-view', compact('invoice'));
     }
+
+
+    public function getInvoiceList()
+    {
+        $booking = Invoice::with('booking', 'bookingData')
+            ->orderByDesc('id')
+            ->paginate(10); 
+
+        return view('booker.invoice.invoice-list', compact('booking'));
+    }
+
 }
