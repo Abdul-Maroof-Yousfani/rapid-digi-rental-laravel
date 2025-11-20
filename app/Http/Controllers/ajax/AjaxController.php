@@ -635,7 +635,8 @@ class AjaxController extends Controller
                         });
                         // ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
                 });
-            })->get();
+            })
+            ->orderBy('id', 'DESC')->get();
 
         return response()->json([
             'bookings' => $bookings,
