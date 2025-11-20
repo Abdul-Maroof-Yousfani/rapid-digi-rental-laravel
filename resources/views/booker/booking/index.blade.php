@@ -278,7 +278,7 @@
             let search = $(this).val();
             $('#bookingList').html(`
                     <tr>
-                        <td colspan="9" class="text-center">
+                        <td colspan="10" class="text-center">
                             <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
                                 <span class="sr-only">Loading...</span>
                             </div>
