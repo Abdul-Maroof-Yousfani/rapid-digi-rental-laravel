@@ -617,7 +617,7 @@ class AjaxController extends Controller
     public function searchBooking(Request $request)
     {
         $search = strtolower($request->search);
-        $bookings = Booking::with(['customer', 'deposit', 'salePerson', 'payment'])
+        $bookings = Booking::with(['customer', 'deposit', 'salePerson', 'payment', 'invoice'])
             ->withSum('invoice as total_amount', 'total_amount')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -630,7 +630,10 @@ class AjaxController extends Controller
                         ->orWhereHas('salePerson', function ($q2) use ($search) {
                             $q2->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
                         })
-                        ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
+                        ->orWhereHas('invoice', function ($q2) use ($search) {
+                            $q2->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
+                        });
+                        // ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
                 });
             })->get();
 

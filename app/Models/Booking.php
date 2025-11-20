@@ -72,6 +72,10 @@ class Booking extends Model
      */
     public function invoice()
     {
+        return $this->hasOne(Invoice::class, 'booking_id', 'id');
+    }
+    public function invoices()
+    {
         return $this->hasMany(Invoice::class, 'booking_id', 'id');
     }
     public function bookingInvoice()

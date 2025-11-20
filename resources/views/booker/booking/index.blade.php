@@ -68,6 +68,7 @@
                                         <tr>
                                             <th>S.no</th>
                                             <th>Customer</th>
+                                            <th>Invoice</th>
                                             <th>Agreement No.</th>
                                             <th>Sale Person</th>
                                             <th>Deposit</th>
@@ -116,6 +117,7 @@
 
                                             <td>{{ $number }}.</td>
                                             <td>{{ $item->booking->customer->customer_name ?? 0 }}</td>
+                                            <td>{{ $item->booking->invoice->zoho_invoice_number }}</td>
                                             <td>{{ $item->booking->agreement_no ?? 0 }}</td>
                                             <td>{{ $item->booking->salePerson->name ?? 'N/A' }}</td>
                                             <td>{{ $item->booking->deposit->initial_deposit ?? 0 }}</td>
@@ -300,6 +302,7 @@
                                     <tr data-id="${data.id}">
                                         <td>${number}.</td>
                                         <td>${data.customer.customer_name}</td>
+                                        <td>${data.invoice.zoho_invoice_number ?? ''}</td>
                                         <td>${data.agreement_no ?? ''}</td>
                                         <td>${data.sale_person?.name ?? 'N/A'}</td>
                                         <td>${data.deposit?.deposit_amount ?? 0}</td>
