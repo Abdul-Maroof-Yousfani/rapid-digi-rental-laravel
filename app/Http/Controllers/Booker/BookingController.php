@@ -592,7 +592,7 @@ class BookingController extends Controller
     public function destroy(string $id)
     {
         // dd($id);
-        $booking = Invoice::find((int) $id);
+        $booking = Booking::find((int) $id);
         if ($booking) {
             // $invoice= Invoice::where('booking_id', $id)->first();
             // BookingData::where('booking_id', $id)->where('invoice_id', $invoice->id)->delete();

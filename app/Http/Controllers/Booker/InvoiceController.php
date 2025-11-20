@@ -372,6 +372,23 @@ class InvoiceController extends Controller
         }
     }
 
+    public function destroy(string $id)
+    {
+        // dd($id);
+        $invoice = Invoice::where('zoho_invoice_number', $id)->first();
+
+        if (!$invoice) {
+            return redirect()->back()->with('error', 'Invoice Not Found!');
+        }
+
+        BookingData::where('invoice_id', $invoice->id)->delete();
+
+        $invoice->delete();
+
+        return redirect()->back()->with('success', 'Invoice Deleted Successfully!');
+    }
+
+
     public function viewInvoice($id)
     {
         $company =

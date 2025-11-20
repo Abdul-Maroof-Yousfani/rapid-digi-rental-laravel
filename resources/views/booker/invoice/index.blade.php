@@ -65,7 +65,7 @@
                                                         @endif
                                                         @endif
                                                         @can('delete invoice')
-                                                        <form action="" method="POST" style="display:inline;" class="delete-form">
+                                                        <form action="{{ url('booking/'.$item->zoho_invoice_number.'/delete-invoice') }}" method="POST" style="display:inline;" class="delete-form">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="dropdown-item delete-confirm text-danger"><i class="far fa-trash-alt"></i> Delete</button>
