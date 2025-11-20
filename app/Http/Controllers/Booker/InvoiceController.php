@@ -333,6 +333,7 @@ class InvoiceController extends Controller
                     foreach ($request->vehicle as $key => $vehicle_id) {
 
                         $price = $request['price'][$key];
+                        $amount = $request['amount'][$key];
                         $quantity = $request['quantity'][$key];
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
 
@@ -355,7 +356,7 @@ class InvoiceController extends Controller
                             'quantity' => $quantity,
                             'view_type' => 2,
                             'tax_percent' => $taxPercent,
-                            'item_total' => number_format($itemTotal, 2),
+                            'item_total' => $amount,
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
                     }

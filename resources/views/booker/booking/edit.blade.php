@@ -412,6 +412,12 @@
                                     </div>
                                 </div>
 
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Quantity</label><br>
+                                    <input type="number" name="quantity[]" value="1" class="form-control quantity">
+                                </div>
+                            </div>
 
                                 <div class="col-3">
                                     <div class="form-group">
@@ -422,7 +428,7 @@
                                 <div class="col-3">
                                     <div class="form-group">
                                         <label for="">Total Amount</label><br>
-                                        <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                        <input type="number" value="" name="amount[]" class="form-control amount">
                                     </div>
                                 </div>
 
@@ -831,7 +837,12 @@
                                     </select>
                                 </div>
                             </div>
-
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Quantity</label><br>
+                                    <input type="number" name="quantity[]" value="1" class="form-control quantity">
+                                </div>
+                            </div>
 
                           <div class="col-3">
                             <div class="form-group">
@@ -842,7 +853,7 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Total Amount</label><br>
-                                    <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                    <input type="number" value="" name="amount[]" class="form-control amount">
                                 </div>
                             </div>
 
@@ -1039,9 +1050,11 @@
             var zohotax = row.find('.zohotax option[value="' + taxVal + '"]').data('percentage') || 0;
             row.find('.tax').val(zohotax);
 
+            var qty = parseFloat(row.find('.quantity').val()) || null;
             var price = parseFloat(row.find('.price').val()) || 0;
-            var taxAmount = (zohotax / 100) * price;
-            var total = price + taxAmount;
+            var grossPrice = price * qty;
+            var taxAmount = (zohotax / 100) * grossPrice;
+            var total = grossPrice + taxAmount;
 
             row.find('.amount').val(total.toFixed(2));
         }
@@ -1056,8 +1069,14 @@
             calculateAmount(row);
         });
 
+        $(document).on('keyup', '.quantity', function() {
+            let row = $(this).closest('.lineItem');
+            calculateAmount(row);
+        });
+
         $('.zohotax').trigger('change');
         $('.price').trigger('change');
+        $('.quantity').trigger('change');
     });
 </script>
 @endsection

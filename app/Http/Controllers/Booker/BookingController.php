@@ -204,6 +204,7 @@ class BookingController extends Controller
                     foreach ($request->price as $key => $price) {
 
                         $price = $request['price'][$key];
+                        $amount = $request['amount'][$key];
                         $vehicle_id = $request->vehicle[$key];
                         if ($vehicle_id === 'null') {
                             $vehicle_id = null;
@@ -239,7 +240,7 @@ class BookingController extends Controller
                             'description' => $lineItemData['description'] ?? ($request->description[$key] ?? null),
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
-                            'item_total' => $itemTotal,
+                            'item_total' => $amount,
                             'tax_name' => $taxName,
                             'deductiontype_id' => is_numeric($request->invoiceTypes[$key] ?? null)
                                 ? $request->invoiceTypes[$key]
@@ -525,6 +526,7 @@ class BookingController extends Controller
                     BookingData::where('invoice_id', $invoice->id)->forceDelete();
                     foreach ($request->price as $key => $price) {
                         $vehicle_id = $request->vehicle[$key];
+                        $amount = $request->amount[$key];
 
                         // Handle 'null' string
                         if ($vehicle_id === 'null') {
@@ -559,7 +561,7 @@ class BookingController extends Controller
                             'description' => $lineItemData['description'] ?? ($request->description[$key] ?? null),
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
-                            'item_total' => $itemTotal,
+                            'item_total' => $amount,
                             'tax_name' => $taxName,
                             'deductiontype_id' => is_numeric($request->invoiceTypes[$key] ?? null)
                                 ? $request->invoiceTypes[$key]
