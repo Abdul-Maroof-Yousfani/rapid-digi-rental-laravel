@@ -258,7 +258,7 @@
                                                     @php $disable = $vehicle->status == 0 ? 'disabled' : ''; @endphp
                                                     <option value="{{ $vehicle->id }}" {{ $disable }} 
                                                         {{ $item->selectedVehicleId == $vehicle->id ? 'selected' : '' }}>
-                                                        {{ $vehicle->vehicle_name ?? ($vehicle->number_plate . ' | ' . $vehicle->temp_vehicle_detail) }}
+                                                        {{ $vehicle->number_plate . ' | ' . $vehicle->temp_vehicle_detail }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -393,7 +393,7 @@
                                             @foreach($vehiclesByType as $type => $vehicles)
                                                 @foreach($vehicles as $vehi)
                                                     <option value="{{ $vehi->id }}" {{ $selectedVehicleId == $vehi->id ? 'selected' : '' }}>
-                                                        {{ $vehi->vehicle_name }}
+                                                        {{ $vehi->number_plate . ' | ' . $vehi->vehicle_name }}
                                                     </option>
                                                 @endforeach
                                             @endforeach
@@ -915,38 +915,58 @@
         });
 
 
-        $(document).on('change', '.vehicletypes', function() {
-            let $row = $(this).closest('.lineItem');
-            let typeId = $(this).val();
-            let $vehicleSelect = $row.find('select[name="vehicle[]"]');
+        $(document).on('change', '.vehicletypes', function() { 
+    let $row = $(this).closest('.lineItem');
+    let typeId = $(this).val();
+    let $vehicleSelect = $row.find('select[name="vehicle[]"]');
 
-            let bookingDate = $row.find('.booking-date').val();
-            let returnDate = $row.find('.return-date').val();
-            if (!bookingDate || !returnDate) {
-                alert("Please select booking and return date first");
-                return;
+    let bookingDate = $row.find('.booking-date').val();
+    let returnDate = $row.find('.return-date').val();
+    let bookingId = $('.booking_id').val();
+
+
+    if (!bookingDate || !returnDate) {
+        alert("Please select booking and return date first");
+        return;
+    }
+
+    // Store selected vehicle before removing options
+    let previousSelectedVehicle = $vehicleSelect.val();
+
+    $vehicleSelect.empty().append('<option value="">Loading...</option>');
+
+    $.ajax({
+        url: `/get-vehicle-by-Type/${typeId}`,
+        type: 'GET',
+        data: {
+            start_date: bookingDate,
+            end_date: returnDate,
+            bookingID: bookingId
+        },
+        success: function(response) {
+
+            $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
+
+            $.each(response, function(key, vehicle) {
+                $vehicleSelect.append(
+                    `<option value="${vehicle.id}">
+                        ${vehicle.number_plate} | ${vehicle.temp_vehicle_detail ?? vehicle.vehicle_name}
+                    </option>`
+                );
+            });
+
+            // Re-select if vehicle still exists
+            if (previousSelectedVehicle && 
+                $vehicleSelect.find(`option[value="${previousSelectedVehicle}"]`).length > 0) 
+            {
+                $vehicleSelect.val(previousSelectedVehicle).trigger('change');
             }
 
-            $vehicleSelect.empty().append('<option value="">Loading...</option>');
+            updateVehicleOptions();
+        }
+    });
+});
 
-            $.ajax({
-                url: `/get-vehicle-by-Type/${typeId}`,
-                type: 'GET',
-                data: {
-                    start_date: bookingDate,
-                    end_date: returnDate
-                },
-                success: function(response) {
-                    $vehicleSelect.empty().append('<option value="">Select Vehicle</option>');
-                    $.each(response, function(key, vehicle) {
-                        $vehicleSelect.append(
-                            `<option value="${vehicle.id}">${vehicle.number_plate} | ${vehicle.temp_vehicle_detail ?? vehicle.vehicle_name}</option>`
-                        );
-                    });
-                    updateVehicleOptions();
-                }
-            });
-        });
 
 
 

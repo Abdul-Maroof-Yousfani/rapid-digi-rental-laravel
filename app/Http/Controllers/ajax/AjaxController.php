@@ -41,38 +41,32 @@ class AjaxController extends Controller
         $bookingID = $request->bookingID;
         $selectedVehicleId = $request->selectedVehicleId;
 
-        $bookedVehicleIds = BookingData::where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('start_date', [$startDate, $endDate])
-                ->orWhereBetween('end_date', [$startDate, $endDate])
-                ->orWhere(function ($query) use ($startDate, $endDate) {
-                    $query->where('start_date', '<=', $startDate)
-                        ->where('end_date', '>=', $endDate);
-                });
+        // Same logic as getVehicleAgaistBooking
+        $bookedVehicleIds = BookingData::where(function ($q) use ($startDate, $endDate) {
+            $q->whereRaw('start_date < ? AND end_date > ?', [$endDate, $startDate]);
         })
-            ->when($bookingID, function ($query) use ($bookingID) {
-                $query->where('booking_id', '!=', $bookingID);
+            ->when($bookingID, function ($q) use ($bookingID) {
+                $q->where('booking_id', '!=', $bookingID);
             })
-            ->pluck('vehicle_id');
-
-        // $vehicles = Vehicle::where('vehicletypes', $id)
-        // ->whereNotIn('id', $bookedVehicleIds)
-        // ->where('vehicle_status_id', 1) // available wali status
-        // ->get();
+            ->pluck('vehicle_id')
+            ->unique();
 
         $vehicles = Vehicle::where('vehicletypes', $id)
             ->where(function ($query) use ($bookedVehicleIds, $selectedVehicleId) {
-                $query->where(function ($q) use ($bookedVehicleIds) {
-                    $q->whereNotIn('id', $bookedVehicleIds);
-                    // ->where('vehicle_status_id', 1);
-                });
 
+                // Show available vehicles (not booked in this range)
+                $query->whereNotIn('id', $bookedVehicleIds);
+
+                // Also show the currently selected vehicle (for editing mode)
                 if (!empty($selectedVehicleId)) {
-                    $query->orWhere('id', $selectedVehicleId); // booked vehicle bhi lani hai agar dates change nahi hui
+                    $query->orWhere('id', $selectedVehicleId);
                 }
-            })->get();
+            })
+            ->get();
 
         return response()->json($vehicles);
     }
+
 
 
 
@@ -652,7 +646,7 @@ class AjaxController extends Controller
             ->paginate(10);
 
         return response()->json([
-            'invoices' => $invoices->items(), 
+            'invoices' => $invoices->items(),
             'can' => [
                 'view' => auth()->user()->can('view booking'),
                 'delete' => auth()->user()->can('delete booking'),
