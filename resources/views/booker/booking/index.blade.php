@@ -302,7 +302,7 @@
                                     <tr data-id="${data.id}">
                                         <td>${number}.</td>
                                         <td>${data.customer.customer_name}</td>
-                                        <td>${data.invoice.zoho_invoice_number ?? ''}</td>
+                                        <td>${data.invoice?.zoho_invoice_number ?? ''}</td>
                                         <td>${data.agreement_no ?? ''}</td>
                                         <td>${data.sale_person?.name ?? 'N/A'}</td>
                                         <td>${data.deposit?.deposit_amount ?? 0}</td>

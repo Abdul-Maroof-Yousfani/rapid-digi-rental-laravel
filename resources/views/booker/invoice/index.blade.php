@@ -40,7 +40,7 @@
                                         @foreach ($invoice as $item)
                                         <tr>
                                             <td>{{ $number }}.</td>
-                                            <td>{{ $item->zoho_invoice_number }}</td>
+                                            <td>{{ $item->zoho_invoice_number ?? 'N/A' }}</td>
                                             <td>{{ $item->total_amount }}</td>
                                             <td>{{ $item->created_at->format('d-M-Y') }}</td>
                                             <td>
