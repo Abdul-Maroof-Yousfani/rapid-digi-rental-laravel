@@ -621,8 +621,8 @@ class AjaxController extends Controller
             ->withSum('invoice as total_amount', 'total_amount')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->whereHas('customer', function ($q1) use ($search) {
-                        $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%$search%"]);
+                    $q->whereHas('invoice', function ($q2) use ($search) {
+                        $q2->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
                     })
                         ->orWhereHas('deposit', function ($q2) use ($search) {
                             $q2->where('deposit_amount', 'LIKE', "%$search%");
@@ -630,10 +630,10 @@ class AjaxController extends Controller
                         ->orWhereHas('salePerson', function ($q2) use ($search) {
                             $q2->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
                         })
-                        ->orWhereHas('invoice', function ($q2) use ($search) {
-                            $q2->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
+                        ->orWhereHas('customer', function ($q2) use ($search) {
+                            $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%$search%"]);
                         });
-                        // ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
+                    // ->orWhereRaw('LOWER(agreement_no) LIKE ?', ["%$search%"]);
                 });
             })
             ->orderBy('id', 'DESC')->get();
