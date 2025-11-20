@@ -117,7 +117,7 @@
 
                                             <td>{{ $number }}.</td>
                                             <td>{{ $item->booking->customer->customer_name ?? 0 }}</td>
-                                            <td>{{ $item->booking->invoice->zoho_invoice_number }}</td>
+                                            <td>{{ $item->booking->invoice?->zoho_invoice_number ?? 'N/A' }}</td>
                                             <td>{{ $item->booking->agreement_no ?? 0 }}</td>
                                             <td>{{ $item->booking->salePerson->name ?? 'N/A' }}</td>
                                             <td>{{ $item->booking->deposit->initial_deposit ?? 0 }}</td>
