@@ -332,7 +332,10 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    
                                 `;
+                            number++;
+
                         });
                     } else {
                         html = `<tr><td colspan="9" class="text-center">No results found</td></tr>`;
