@@ -199,7 +199,7 @@
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <label for="">Total Amount</label><br>
-                                                <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                                <input type="number" value="" name="amount[]" class="form-control amount" readonly>
                                             </div>
                                         </div>
 

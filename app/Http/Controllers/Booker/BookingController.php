@@ -483,7 +483,7 @@ class BookingController extends Controller
                 'notes' => $notes,
                 'currency_code' => $currency_code,
                 'line_items' => $lineitems,
-                'reason' => $request->reason,
+                'reason'      => $request->reason_of_update,
             ];
             $invoiceResponse = $this->zohoinvoice->updateInvoice($invoiceID, $json);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;

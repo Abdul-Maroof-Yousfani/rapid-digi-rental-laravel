@@ -302,7 +302,7 @@
                                     <div class="col-3">
                                         <div class="form-group">
                                             <label for="">Total Amount</label><br>
-                                            <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                            <input type="number" value="" name="amount[]" class="form-control amount" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -450,14 +450,20 @@
                         <textarea name="notes" cols="30" class="form-control" rows="10" required>{{ $invoice->booking->notes }}</textarea>
                     </div>
                 </div>
+
+                <input type="hidden" name="reason_of_update" id="hidden_reason">
+
         </div>
         <br>
-        <div class="row">
+        {{-- <div class="row">
             <div class="col-12 col-md-6 col-lg-6">
-                <input type="submit" value="Update Booking" id="submitBtn"
+                <input hide type="submit" value="Update Booking" id="submitBtn"
                     class="btn btn-primary">
             </div>
-        </div>
+        </div> --}}
+         <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#UpdateReasonModal">
+                                    Update-Booking
+                                </button>
         </form>
 </div>
 </section>
@@ -539,6 +545,42 @@
 </div>
 
 
+<div class="modal fade" id="UpdateReasonModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reason of Updation</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+           
+
+                <div class="form-group mt-2">
+                    <label for="reason_of_update">
+                        Reason <span style="color: red;">*</span>
+                    </label>
+                    <textarea id="reason_of_update" 
+                            class="form-control" 
+                            required 
+                            rows="3"
+                            placeholder="Enter reason here..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modalSubmitBtn">Update</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -587,6 +629,21 @@
 
 
 
+    });
+
+    $('#modalSubmitBtn').click(function () {
+        let reason = $('#reason_of_update').val().trim();
+
+        if (reason === '') {
+            alert('Reason is required!');
+            return;
+        }
+
+        // Put reason inside hidden input
+        $('#hidden_reason').val(reason);
+
+        // Submit the main form
+        $('form[action*="customer-booking"]').submit();
     });
 </script>
 <script>
@@ -741,7 +798,7 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Total Amount</label><br>
-                                    <input type="number" value="" name="amount[]" class="form-control amount" disabled>
+                                    <input type="number" value="" name="amount[]" class="form-control amount" readonly>
                                 </div>
                             </div>
                         </div>
