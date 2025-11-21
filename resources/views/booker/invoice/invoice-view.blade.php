@@ -239,7 +239,7 @@ $due_bal = $pending_amount;
                 <div class="col text-right">
                     <div class="grid-container">
                         <div class="text-dark label">Invoice Date:</div>
-                        <div class="text-dark value">{{ \Carbon\Carbon::parse($invoice->started_at)->format('d-M-Y') }}</div>
+                        <div class="text-dark value">{{ \Carbon\Carbon::parse($invoice->booking->started_at)->format('d-M-Y') }}</div>
 
                         <div class="text-dark label">Due Date:</div>
                         <div class="text-dark value">
