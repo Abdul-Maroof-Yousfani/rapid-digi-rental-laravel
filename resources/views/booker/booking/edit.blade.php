@@ -82,7 +82,7 @@
                                 <div class="form-group" id="deposit_amount_group">
                                     <label>Deposit Amount <span class="text-danger">*</span></label>
                                     <input type="number"
-                                        value="{{ $invoice->booking->deposit->deposit_amount ?? 0 }}"
+                                        value="{{ $invoice->booking->deposit->initial_deposit ?? 0 }}"
                                         name="deposit_amount"
                                         class="form-control">
                                     <input type="hidden" value="{{ $invoice->booking->id }}" name="booking_id" class="form-control disableClick booking_id">
