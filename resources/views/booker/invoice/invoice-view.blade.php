@@ -244,6 +244,10 @@ $due_bal = $pending_amount;
                         <div class="text-dark label">Due Date:</div>
                         <div class="text-dark value">{{ \Carbon\Carbon::parse($invoice->booking->started_at)->format('d-M-Y') }}</div>
 
+                        <div class="text-dark label">Terms :</div>
+                        <div class="text-dark value">Due on Receipt</div>
+
+
                         {{-- <div class="text-dark value">
                             {{ optional(
                                 $invoice->bookingData()
@@ -276,10 +280,10 @@ $due_bal = $pending_amount;
                         <th class="text-white text-left">#</th>
                         <th class="text-white text-left">Item & Description</th>
                         <th class="text-white text-right">Qty</th>
-                        <th class="text-white text-right">Total</th>
+                        <th class="text-white text-right">Rate</th>
                         <th class="text-white text-right">Tax</th>
-                        <th class="text-white text-right">Tax Amount</th>
-                        <th class="text-white text-right">Net Total</th>
+                        {{-- <th class="text-white text-right">Tax Amount</th> --}}
+                        <th class="text-white text-right">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -307,7 +311,7 @@ $due_bal = $pending_amount;
                         <small>
                             {{ $item->description ?: ($item->invoice_type->name ?? '') }}
                         </small>
-                        <br>
+                        
 
                         @if(!empty($item->start_date))
                             <small>{{ \Carbon\Carbon::parse($item->start_date)->format('d-M-Y') . ' TO ' . \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</small>
@@ -318,15 +322,20 @@ $due_bal = $pending_amount;
 
 
                         <td class="text-right">{{ $item->quantity ?? '-' }}</td>
-                        <td class="text-right">{{ number_format($item->price * $item->quantity, 2) }}</td>
-                        <td class="text-right">{{ $item->tax_name ?? '-'}}</td>
-                        <td class="text-right">
-                            @php
+                        <td class="text-right">{{ number_format($item->price, 2) }}</td>
+                        {{-- <td class="text-right">{{ $item->tax_name ?? '-'}}</td> --}}
+                          @php
                             $subTotal = $item->price * $item->quantity;
                             $taxAmount = ($subTotal * $item->tax_percent) / 100;
                             @endphp
+                         <td class="text-right">{{ number_format($taxAmount, 2) }} <br>
+                       
+                                <small>{{ $item->tax_name ?? '-' }}</small>
+                            </td>
+                        {{-- <td class="text-right">
+                            
                             {{ number_format($taxAmount, 2) }}
-                        </td>
+                        </td> --}}
                         <td class="text-right">{{ number_format($item->item_total, 2) }}</td>
                     </tr>
                     @endforeach
