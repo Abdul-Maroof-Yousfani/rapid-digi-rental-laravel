@@ -171,7 +171,7 @@
                                                             <option value="">Select Invoice type</option>
                                                             @foreach ($invoiceTypes as $dtype)
                                                             <option value="{{ $dtype->name }}"
-                                                                @if ($dtype->name == $item->invoiceType->name) selected @endif>
+                                                                @if ($dtype->name == $item->invoice_type->name) selected @endif>
                                                                 {{ $dtype->name }}
                                                             </option>
 

@@ -221,7 +221,7 @@ class InvoiceController extends Controller
         } else {
             // Get Line Items From Zoho and DB
             $zohocolumn = $this->zohoinvoice->getInvoice($invoice->zoho_invoice_id);
-            $booking_data = BookingData::with('invoiceType')->where('invoice_id', $invoice->id)->where('transaction_type', '!=', 1)->orderBy('id', 'ASC')->get();
+            $booking_data = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', '!=', 1)->orderBy('id', 'ASC')->get();
             $taxlist = $this->zohoinvoice->taxList();
 
             // Get Vehicles and Vehile and Vehicle Type Against booking
