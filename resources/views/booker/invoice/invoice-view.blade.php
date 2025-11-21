@@ -156,10 +156,10 @@ $due_bal = $pending_amount;
             $isOverdue = null;
             $today = \Carbon\Carbon::today(); // Day after today
 
-            $bookingData = $invoice->bookingData()->select('end_date')->first();
+            $booking = $invoice->booking()->select('started_at')->first();
 
-            if ($bookingData) {
-            $endDate = \Carbon\Carbon::parse($bookingData->end_date); // convert string to Carbon
+            if ($booking) {
+            $endDate = \Carbon\Carbon::parse($booking->started_at); // convert string to Carbon
 
             if (strtolower(trim($invoice->invoice_status)) === 'draft' && $endDate->lt($today)) {
             $isOverdue = true;
@@ -242,7 +242,9 @@ $due_bal = $pending_amount;
                         <div class="text-dark value">{{ \Carbon\Carbon::parse($invoice->booking->started_at)->format('d-M-Y') }}</div>
 
                         <div class="text-dark label">Due Date:</div>
-                        <div class="text-dark value">
+                        <div class="text-dark value">{{ \Carbon\Carbon::parse($invoice->booking->started_at)->format('d-M-Y') }}</div>
+
+                        {{-- <div class="text-dark value">
                             {{ optional(
                                 $invoice->bookingData()
                                     ->whereNull('deductiontype_id')
@@ -256,7 +258,7 @@ $due_bal = $pending_amount;
                                         ->first()
                                 )->end_date)->format('d-M-Y')
                                 : '-' }}
-                        </div>
+                        </div> --}}
 
                         <div class="text-dark label">Sale Person:</div>
                         <div class="text-dark value">{{ $item->booking->salePerson->name ?? '-'}}</div>
@@ -298,11 +300,20 @@ $due_bal = $pending_amount;
                             }
                         @endphp
 
-                        <td class="text-left">
-                            {{ $vehicleName . ' | ' . ($item->vehicle?->number_plate ?? '') }}
-                            <br>
-                            <small>{{ $item->description ?: ($item->invoice_type->name ?? '') }}</small>
-                        </td>
+                      <td class="text-left">
+                        {{ $vehicleName . ' | ' . ($item->vehicle->number_plate ?? '') }}
+                        <br>
+
+                        <small>
+                            {{ $item->description ?: ($item->invoice_type->name ?? '') }}
+                        </small>
+                        <br>
+
+                        @if(!empty($item->start_date))
+                            <small>{{ \Carbon\Carbon::parse($item->start_date)->format('d-M-Y') . ' TO ' . \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</small>
+                        @endif
+                    </td>
+
 
 
 
