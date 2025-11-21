@@ -30,12 +30,14 @@ class Booking extends Model
         'agreement_no',
         'notes',
         'total_price',
+        'terms',
         'sale_person_id',
         'deposit_id',
         'non_refundable_amount',
         'deposit_type',
         'booking_status',
         'started_at',
+        'due_date',
         'booking_cancel',
     ];
 

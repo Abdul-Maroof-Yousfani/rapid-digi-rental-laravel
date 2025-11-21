@@ -35,6 +35,8 @@ class InvoiceProcessorService
                 $notes = $items[0]['notes'] ?? '';
                 $salesPersonName = $items[0]['sales_person_name'] ?? null;
                 $invoiceDate = $items[0]['invoice_date'] ?? now();
+                $dueDate = $items[0]['due_date'] ?? now();
+                $paymentTermsLabel = $items[0]['payment_terms_label'] ?? now();
 
                 $salesPersonId = \App\Models\SalePerson::where('name', $salesPersonName)->value('id');
 
@@ -59,6 +61,8 @@ class InvoiceProcessorService
                     'sale_person_id' => $salesPersonId,
                     'deposit_id' => null,
                     'started_at' => \Carbon\Carbon::parse($invoiceDate),
+                    'due_date' => \Carbon\Carbon::parse($dueDate),
+                    'terms' => $paymentTermsLabel
                 ]);
 
                 Log::channel('daily')->info('Created booking', [

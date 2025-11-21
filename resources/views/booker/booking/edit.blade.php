@@ -88,7 +88,31 @@
                                     <input type="hidden" value="{{ $invoice->booking->id }}" name="booking_id" class="form-control disableClick booking_id">
 
                                 </div>
-
+ <div class="form-group">
+                                    <label>Terms </label>
+                                    <select name="terms" id="terms" class="form-control select2">
+                                        <option value="">Select Terms</option>
+                                        <option value="Due on Receipt">Due on Receipt</option>
+                                        <option value="Adjustment Amount">Adjustment Amount</option>
+                                        <option value="Insurance Payment">Insurance Payment</option>
+                                        <option value="Net 15">Net 15</option>
+                                        <option value="Net 30">Net 30</option>
+                                        <option value="Net 45">Net 45</option>
+                                        <option value="Net 60">Net 60</option>
+                                        <option value="Due end of the month">Due end of the month</option>
+                                        <option value="Due end of next month">Due end of next month</option>
+                                        <option value="Custom">Custom</option>
+                                    </select>
+                                    @error('terms') <span class="text-danger">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label>Invoice Date <span class="text-danger">*</span></label>
+                                    <input type="date" value="0" name="started_at" class="form-control started_at" required>
+                                </div>
+                                 <div class="form-group">
+                                    <label>Due Date <span class="text-danger">*</span></label>
+                                    <input type="date" value="0" name="due_date" class="form-control due_date" required>
+                                </div>
                                 <div class="form-group" id="non_refundable_amount_group">
                                     <label>Non Refundable Amount <span class="text-danger">*</span></label>
                                     <input type="number"

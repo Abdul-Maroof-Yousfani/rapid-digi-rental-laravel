@@ -100,6 +100,8 @@ class BookingController extends Controller
             // 'deposit_amount' => 'required',
             'sale_person_id' => 'nullable',
             'started_at' => 'required',
+            'due_date' => 'nullable',
+            'terms' => 'nullable',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -190,7 +192,9 @@ class BookingController extends Controller
                         'deposit_id' => $deposit->id,
                         'deposit_type' => $request['deposit_type'],
                         'non_refundable_amount' => $request['deposit_type'] ? $request['non_refundable_amount'] : null,
-                        'started_at' => $request['started_at']
+                        'started_at' => $request['started_at'],
+                        'due_date' => $request['due_date'],
+                        'terms' => $request['terms']
                     ]);
 
                     $invoice = Invoice::create([
