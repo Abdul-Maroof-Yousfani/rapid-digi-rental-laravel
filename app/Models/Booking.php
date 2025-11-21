@@ -57,6 +57,8 @@ class Booking extends Model
                 'booking_status',
                 'started_at',
                 'booking_cancel',
+                'terms',        
+                'due_date',
             ])
             ->logOnlyDirty()
             ->useLogName('booking');
