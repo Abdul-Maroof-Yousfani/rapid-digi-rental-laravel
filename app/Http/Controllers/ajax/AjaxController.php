@@ -642,7 +642,7 @@ class AjaxController extends Controller
             ->when($search, function ($query, $search) {
                 $query->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
             })
-            ->orderBy('id', 'DESC')
+            ->orderBy('zoho_invoice_number', 'DESC')
             ->paginate(10);
 
         return response()->json([

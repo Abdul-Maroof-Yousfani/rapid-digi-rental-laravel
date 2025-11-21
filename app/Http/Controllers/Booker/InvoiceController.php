@@ -406,7 +406,7 @@ class InvoiceController extends Controller
     public function getInvoiceList()
     {
         $booking = Invoice::with('booking', 'bookingData')
-            ->orderByDesc('id')
+            ->orderByDesc('zoho_invoice_number')
             ->paginate(10); 
 
         return view('booker.invoice.invoice-list', compact('booking'));
