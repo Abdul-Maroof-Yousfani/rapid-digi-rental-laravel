@@ -208,7 +208,7 @@
                                                 </td>
                                                 <td class="align-middle"><br>
                                                     <div class="form-group">
-                                                        <input type="number" value="" name="amount[]" class="form-control amount" readonly>
+                                                        <input type="number" value="{{ $item->item_total }}" name="amount[]" class="form-control amount" readonly>
                                                     </div>
                                                 </td>
                                                 <td>
