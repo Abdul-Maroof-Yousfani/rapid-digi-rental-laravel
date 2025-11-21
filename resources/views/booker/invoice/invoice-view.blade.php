@@ -156,10 +156,10 @@
                     $isOverdue = null;
                     $today = \Carbon\Carbon::today(); // Day after today
 
-                    $booking = $invoice->booking()->select('started_at')->first();
+                    $booking = $invoice->booking()->select('due_date')->first();
 
                     if ($booking) {
-                        $endDate = \Carbon\Carbon::parse($booking->started_at); // convert string to Carbon
+                        $endDate = \Carbon\Carbon::parse($booking->due_date); // convert string to Carbon
 
                         if (strtolower(trim($invoice->invoice_status)) === 'draft' && $endDate->lt($today)) {
                             $isOverdue = true;
@@ -246,10 +246,10 @@
 
                             <div class="text-dark label">Due Date:</div>
                             <div class="text-dark value">
-                                {{ \Carbon\Carbon::parse($invoice->booking->started_at)->format('d-M-Y') }}</div>
+                                {{ \Carbon\Carbon::parse($invoice->booking->due_date)->format('d-M-Y') }}</div>
 
                             <div class="text-dark label">Terms :</div>
-                            <div class="text-dark value">Due on Receipt</div>
+                            <div class="text-dark value">{{ $invoice->booking->terms ?? '-' }}</div>
 
 
                             {{-- <div class="text-dark value">
