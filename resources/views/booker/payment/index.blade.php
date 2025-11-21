@@ -33,7 +33,7 @@
                         </div>
                     </div>
                 </div>
-                {{-- <form action="{{ route('payments.upload') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('payments.upload') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div>
                         <label for="xlsx_file">Upload XLSX File</label>
@@ -51,7 +51,7 @@
                 @if (session('error'))
                     <div class="alert
                      alert-danger">{{ session('error') }}</div>
-                @endif --}}
+                @endif
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
