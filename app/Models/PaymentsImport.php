@@ -104,7 +104,7 @@ class PaymentsImport implements ToCollection, WithHeadingRow, WithChunkReading
 
                 Log::info("Row {$rowNumber}: Created payment ID {$payment->id}");
 
-                $paymentDataStatus = ($invoice->total_amount <= $paymentAmount) ? 'paid' : 'partially paid';
+                $paymentDataStatus = ($invoice->total_amount <= $paymentAmount) ? 'paid' : 'paid';
 
                 $paymentData = PaymentData::create([
                     'invoice_id' => $invoice->id,

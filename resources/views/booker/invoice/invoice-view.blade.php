@@ -7,8 +7,12 @@
         $subtot = 0;
         foreach ($invoice->bookingData as $item) {
             $subtot += $item->item_total;
-            $paid_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->paid_amount ?? 0;
-            $pending_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->pending_amount ?? 0;
+            //$paid_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->paid_amount ?? 0;
+            // $pending_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->pending_amount ?? 0;
+            
+            $paid_amount = $invoice->paymentData()->sum('paid_amount') ?? 0;
+            $pending_amount = $subtot - $paid_amount;
+
             $due_bal = $pending_amount;
         }
     @endphp
@@ -146,11 +150,52 @@
     <div class="main-content">
 
         <!-- Print Button (outside print area, so not printed) -->
-        <div class="text-right mb-3 no-print">
-            <button onclick="printInvoice()" class="btn btn-primary">Print Invoice</button>
-        </div>
+       <div class="text-right mb-3 no-print">
 
-        <section class="section print-area">
+    @if ($invoice->invoice_status == 'draft')
+        <button class="btn btn-warning" data-toggle="modal" data-target="#markAsSentModal">
+            Mark as Sent
+        </button>
+    @endif
+
+     <button class="btn btn-primary prinn pritns" id="printBtn">
+    <span class="glyphicon glyphicon-print"></span> Print
+</button>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="markAsSentModal" tabindex="-1" role="dialog" aria-labelledby="markAsSentLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="markAsSentLabel">Confirm Action</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                Are you sure you want to mark this invoice as <strong>Sent</strong>?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+                <!-- Action Button -->
+                <form action="{{ route('invoice.markSent', $invoice->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-success">Yes, Mark as Sent</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+        <section class="section print-area" id="printReport">
             <div class="container my-5 border p-4 bg-white">
                 @php
                     $isOverdue = null;
@@ -166,16 +211,19 @@
                         }
                     }
                 @endphp
-                <div class="box1" style="background-color: 
-            {{ $isOverdue
+               <div class="box1" style="background-color: 
+    {{ $isOverdue
         ? '#d3660dff'
-        : (in_array($invoice->invoice_status, ['paid', 'partially paid'])
-            ? '#1fcd6d'
-            : '#808080') }}">
-                    <p>
-                        {{ ucwords($isOverdue ? 'Overdue' : $invoice->invoice_status) }}
-                    </p>
-                </div>
+        : ($invoice->invoice_status === 'sent'
+            ? '#268ddd'
+            : (in_array($invoice->invoice_status, ['paid', 'partially paid'])
+                ? '#1fcd6d'
+                : '#808080')) }}">
+    <p>
+        {{ ucwords($isOverdue ? 'Overdue' : $invoice->invoice_status) }}
+    </p>
+</div>
+
 
 
 
@@ -426,55 +474,72 @@
 @endsection
 
  @section('script')
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', fun ction() {
-            const deleteButtons = document.querySelectorAll('.delete-confirm');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault(); // Stop form submit
-                    const form = this.closest('form');
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: "You won't be able to revert this!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Yes, delete it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
-         });
-
-        document.addEventListener('DOMContentLoaded', fun ction() {
-            const deleteButtons = document.querySelectorAll('.status-confirm');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault(); // Stop form submit
-                    const form = this.closest('form');
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: "You won't be able to revert this!",
-                        icon: 'success',
-                        showCancelButton: true,
-                        confirmButtonColor: '#28a745',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Yes, Send It!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    // Delete confirmation
+    const deleteButtons = document.querySelectorAll('.delete-confirm');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Stop form submit
+            const form = this.closest('form');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
             });
         });
+    });
 
-        function printInvoice() {
+    // Status confirmation
+    const statusButtons = document.querySelectorAll('.status-confirm');
+    statusButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Stop form submit
+            const form = this.closest('form');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Send It!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    // Print button
+   const printBtn = document.getElementById('printBtn');
+
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            // Add a class to body so only .print-area is visible in print
+            document.body.classList.add('printing');
+
+            // Hide any additional elements you don't want printed
+            const printHideElements = document.querySelectorAll('.printHide');
+            printHideElements.forEach(el => el.style.display = 'none');
+
+            // Trigger print
             window.print();
-        }
-    </script>
+
+            // After printing, remove the class and restore visibility
+            document.body.classList.remove('printing');
+            printHideElements.forEach(el => el.style.display = '');
+        });
+    }
+});
+</script>
 @endsection

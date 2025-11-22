@@ -236,23 +236,20 @@ class ZohoInvoice
     public function markAsSent($invoiceID)
     {
         $accessToken = $this->getAccessToken();
-        $client = new Client();
+        $client = new \GuzzleHttp\Client();
 
-        $body = [
-            "status" => "paid"
-        ];
-
-        $response = $client->put('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceID, [
+        $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceID . '/status/sent', [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
                 'X-com-zoho-invoice-organizationid' => $this->orgId,
                 'Content-Type' => 'application/json'
             ],
-            'body' => json_encode($body)
         ]);
 
-        return json_decode($response->getBody(), true);
+        $result = json_decode($response->getBody(), true);
+        \Log::info('Zoho markAsSent response:', $result);
+        return $result;
     }
 
 
@@ -508,7 +505,7 @@ class ZohoInvoice
 
     public static function generateUniqueCode($table, $field)
     {
-        // return '5000';
+        return '5000';
 
         $maxPos = DB::table($table)->where('status', 1)->max($field);
 

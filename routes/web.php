@@ -211,7 +211,7 @@ Route::middleware('auth')->group(function () {
     Route::get('assign-permission/{role_id}', [RolePermissionController::class, 'assignPermissionForm']);
     Route::post('assign-permission/{role_id}', [RolePermissionController::class, 'assignPermissions']);
 
-    
+
     Route::post('replace-vehicle/{id}', [BookingController::class, 'replaceVehicle'])->name('replace.vehicle');
 
     Route::resource('customer-booking', BookingController::class);
@@ -241,6 +241,9 @@ Route::middleware('auth')->group(function () {
     Route::get('booking/view-invoice/{invoice_id}', [InvoiceController::class, 'viewInvoice'])->name('view.invoice');
     Route::get('view-credit-note/{cn_id}', [CreditnoteController::class, 'viewCreditNote'])->name('view.creditNote');
     // Route::patch('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'updateInvoiceStatus'])->name('update.status');
+
+    Route::post('/invoice/{id}/mark-sent', [InvoiceController::class, 'markSent'])->name('invoice.markSent');
+
 
     Route::get('assign-status', [VehiclestatusController::class, 'StatusForm'])->name('status.form');
     Route::post('assign-status', [VehiclestatusController::class, 'assignStatus'])->name('assign.status');

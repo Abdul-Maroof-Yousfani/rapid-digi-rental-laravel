@@ -407,9 +407,26 @@ class InvoiceController extends Controller
     {
         $booking = Invoice::with('booking', 'bookingData')
             ->orderByDesc('zoho_invoice_number')
-            ->paginate(10); 
+            ->paginate(10);
 
         return view('booker.invoice.invoice-list', compact('booking'));
     }
+
+
+    public function markSent($invoiceID)
+    {
+        $invoice = Invoice::findOrFail($invoiceID);
+
+        // Update locally
+        $invoice->invoice_status = 'sent';
+        $invoice->save();
+
+        // Update on Zoho
+        $this->zohoinvoice->markAsSent($invoice->zoho_invoice_id);
+
+        return back()->with('success', 'Invoice marked as sent locally and on Zoho.');
+    }
+
+
 
 }
