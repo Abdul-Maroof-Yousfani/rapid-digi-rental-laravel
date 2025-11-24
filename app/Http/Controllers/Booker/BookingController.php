@@ -48,24 +48,25 @@ class BookingController extends Controller
      */
     public function index()
     {
-        // $booking = Booking::with('invoice', 'customer', 'deposit', 'salePerson')
-        //             ->where('created_at', '>=', Carbon::now()->subDays(15))
-        //             ->orderBy('id', 'desc')->get();
+        $booking = Booking::with('invoice', 'invoices', 'customer', 'deposit', 'salePerson')
+                    ->where('created_at', '>=', Carbon::now()->subDays(15))
+                    ->orderByDesc('id')
+             ->paginate(10);
         // return view('booker.booking.index', compact('booking'));
 
-        $ids = Invoice::whereHas('bookingData', fn($q) => $q->where('transaction_type', 1))
-            ->whereHas('booking', function ($q) {
-                // $q->where('created_at', '>=', Carbon::now()->subDays(15));
-                $q->where('booking_cancel', '0');
-            })
-            ->selectRaw('MAX(id) as id')
-            ->groupBy('booking_id')
-            ->pluck('id');
+        // $ids = Invoice::whereHas('bookingData', fn($q) => $q->where('transaction_type', 1))
+        //     ->whereHas('booking', function ($q) {
+        //         // $q->where('created_at', '>=', Carbon::now()->subDays(15));
+        //         $q->where('booking_cancel', '0');
+        //     })
+        //     ->selectRaw('MAX(id) as id')
+        //     ->groupBy('booking_id')
+        //     ->pluck('id');
 
-        $booking = Invoice::with('booking', 'bookingData')
-            ->whereIn('id', $ids)
-            ->orderByDesc('id')
-            ->paginate(10);
+        // $booking = Invoice::with('booking', 'bookingData')
+        //     ->whereIn('id', $ids)
+        //     ->orderByDesc('id')
+        //     ->paginate(10);
         return view('booker.booking.index', compact('booking'));
     }
 

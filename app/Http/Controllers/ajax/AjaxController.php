@@ -611,16 +611,16 @@ class AjaxController extends Controller
     public function searchBooking(Request $request)
     {
         $search = strtolower($request->search);
-        $bookings = Booking::with(['customer', 'deposit', 'salePerson', 'payment', 'invoice'])
+        $bookings = Booking::with(['customer', 'deposit', 'salePerson', 'payment', 'invoice', 'invoices'])
             ->withSum('invoice as total_amount', 'total_amount')
             ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->whereHas('invoice', function ($q2) use ($search) {
-                        $q2->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
-                    });
-                });
+                if (is_numeric($search)) {
+                    $query->where('id', 'LIKE', "$search%");
+                }
             })
-            ->orderBy('id', 'DESC')
+
+             ->orderByDesc('id')
+
             ->paginate(10)
             // ->get()
         ;

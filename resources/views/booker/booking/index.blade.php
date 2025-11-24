@@ -57,7 +57,7 @@
                             <form class="filterForm">
                                 <div class="row">
                                     <div class="col-3 ml-auto">
-                                        <input type="text" placeholder="Search" class="form-control" id="search">
+                                        <input type="text" placeholder="Search Booking No." class="form-control" id="search">
                                     </div>
                                 </div><br>
                             </form>
@@ -69,7 +69,7 @@
                                             <th>S.no</th>
                                             <th>Customer</th>
                                             <th>Invoice</th>
-                                            <th>Agreement No.</th>
+                                            <th>Booking No</th>
                                             <th>Sale Person</th>
                                             <th>Deposit</th>
                                             <th>Booking Status</th>
@@ -92,7 +92,7 @@
                                             $status = 'Draft';
 
                                             // Get the end_date value
-                                            $bookingData = $item->booking->bookingData()->select('end_date')->first();
+                                            $bookingData = $item->bookingData()->select('end_date')->first();
 
                                             if ($bookingData) {
                                             $endDate = \Carbon\Carbon::parse($bookingData->end_date); // convert to Carbon
@@ -103,7 +103,7 @@
                                             }
                                             }
 
-                                            $payments = $item->booking->payment_status;
+                                            $payments = $item->payment_status;
                                             if ($payments->contains('payment_status', 'pending')) {
                                             $paymentStatus = 'Partially Paid';
                                             $status = 'Pending';
@@ -116,17 +116,20 @@
                                             @endphp
 
                                             <td>{{ $number }}.</td>
-                                            <td>{{ $item->booking->customer->customer_name ?? 0 }}</td>
-                                            <td>{{ $item->booking->invoice?->zoho_invoice_number ?? 'N/A' }}</td>
-                                            <td>{{ $item->booking->agreement_no ?? 0 }}</td>
-                                            <td>{{ $item->booking->salePerson->name ?? 'N/A' }}</td>
-                                            <td>{{ $item->booking->deposit->initial_deposit ?? 0 }}</td>
+                                            <td>{{ $item->customer->customer_name ?? 0 }}</td>
+                                            <td>
+                                                {{ $item->invoices->pluck('zoho_invoice_number')->join(', ') ?: 'N/A' }}
+                                            </td>
+
+                                            <td>{{ $item->id ?? 0 }}</td>
+                                            <td>{{ $item->salePerson->name ?? 'N/A' }}</td>
+                                            <td>{{ $item->deposit->initial_deposit ?? 0 }}</td>
                                             <td>{{ $status }}</td>
                                             <td>{{ $paymentStatus }}</td>
                                             <td>
                                                 {{-- {{ $item->total_amount }} --}}
                                                 @php
-                                                $bookingTotal= App\Models\Invoice::where('booking_id', $item->booking->id)->sum('total_amount');
+                                                $bookingTotal= App\Models\Invoice::where('booking_id', $item->id)->sum('total_amount');
                                                 @endphp
                                                 {{ $bookingTotal }}
                                             </td>
@@ -137,25 +140,25 @@
                                                     </button>
                                                     <div class="dropdown-menu">
 
-                                                        <a class="dropdown-item" href="{{ url('booking/'. $item->booking->id) }}">
+                                                        <a class="dropdown-item" href="{{ url('booking/'. $item->id) }}">
                                                             <i class="fas fa-eye"></i> View
                                                         </a>
 
                                                         @can('edit booking')
                                                         <a class="dropdown-item close-booking"
-                                                            data-booking-id="{{ $item->booking->id }}"
+                                                            data-booking-id="{{ $item->id }}"
                                                             data-invoice-id="{{ $item->id }}"
-                                                            {{ $item->booking->booking_status=='closed' ? 'disabled' : '' }}>
+                                                            {{ $item->booking_status=='closed' ? 'disabled' : '' }}>
                                                             <i class="fas fa-lock"></i> Close Booking
                                                         </a>
 
-                                                        @if (is_null($item->booking->started_at) || (\Carbon\Carbon::parse($item->booking->started_at)->isAfter($now) && $item->booking_cancel==0))
-                                                        <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->booking->id }}" href="">
+                                                        @if (is_null($item->started_at) || (\Carbon\Carbon::parse($item->started_at)->isAfter($now) && $item_cancel==0))
+                                                        <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->id }}" href="">
                                                             <i class="fas fa-times"></i> Cancel
                                                         </a>
                                                         @endif
 
-                                                        @if ($item->booking->booking_status != 'closed')
+                                                        @if ($item->booking_status != 'closed')
                                                         <a class="dropdown-item" href="{{ url('customer-booking/'.$item->id.'/edit') }}">
                                                             <i class="far fa-edit"></i> Edit
                                                         </a>
@@ -298,12 +301,16 @@
                         let can = response.can;
 
                         $.each(response.bookings, function(index, data) {
+                            let invoiceNumbers = data.invoices.length > 0 
+        ? data.invoices.map(inv => inv.zoho_invoice_number).join(', ')
+        : 'N/A';
+
                             html += `
                                     <tr data-id="${data.id}">
                                         <td>${number}.</td>
                                         <td>${data.customer.customer_name}</td>
-                                        <td>${data.invoice?.zoho_invoice_number ?? ''}</td>
-                                        <td>${data.agreement_no ?? ''}</td>
+                                        <td>${invoiceNumbers}</td>
+                                        <td>${data.id ?? ''}</td>
                                         <td>${data.sale_person?.name ?? 'N/A'}</td>
                                         <td>${data.deposit?.deposit_amount ?? 0}</td>
                                         <td>${data.booking_status ?? 'overdue'}</td>
