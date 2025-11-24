@@ -338,14 +338,13 @@ class BookingController extends Controller
                 // $booking_data = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->whereNull('deductiontype_id')->orderBy('id', 'ASC')->get();
                 // $booking_data_charges = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->whereNotNull('deductiontype_id')->orderBy('id', 'ASC')->get();
 
-                $booking_data = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->where('tax_percent', '>', 0)->orderBy('id', 'ASC')->get();
-                $booking_data_charges = BookingData::with('invoice_type')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->where('tax_percent', '==', 0)->whereNotNull('deductiontype_id')->orderBy('id', 'ASC')->get();
+                $booking_data = BookingData::with('invoice_type', 'vehicle')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->where('tax_percent', '>', 0)->orderBy('id', 'ASC')->get();
+                $booking_data_charges = BookingData::with('invoice_type', 'vehicle')->where('invoice_id', $invoice->id)->where('transaction_type', 1)->where('tax_percent', '==', 0)->whereNotNull('deductiontype_id')->orderBy('id', 'ASC')->get();
 
                 $customers = Customer::all();
                 $vehicletypes = Vehicletype::all();
                 $vehicles = Vehicle::whereIn('id', $booking_data->pluck('vehicle_id'))->get();
-                $vehicleTypeMap = VehicleType::whereIn('id', $vehicles->pluck('vehicletypes'))
-                    ->get();
+                $vehicleTypeMap = VehicleType::get();
                 $vehiclesByType = Vehicle::all()->groupBy('vehicletypes');
                 $salePerson = SalePerson::all();
                 $vehiclesStatuses = VehicleStatus::all();
@@ -383,6 +382,9 @@ class BookingController extends Controller
         $rules = [
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no,' . $invoice->booking->id,
+            'started_at' => 'required',
+            'due_date' => 'required',
+            'terms' => 'nullable',
             // 'sale_person_id' => 'required',
             // 'deposit_amount' => 'required',
             'notes' => 'required',
@@ -515,6 +517,10 @@ class BookingController extends Controller
                         'sale_person_id' => $request['sale_person_id'] ?? null,
                         'deposit_type' => $request['deposit_type'],
                         'non_refundable_amount' => $request['deposit_type'] ? $request['non_refundable_amount'] : null,
+                        'terms' => $request['terms'],
+                        'started_at' => $request['started_at'],
+                        'due_date' => $request['due_date'],
+
                     ]);
 
                     $invoice->update(
