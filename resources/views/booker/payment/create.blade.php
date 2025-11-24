@@ -48,48 +48,48 @@
                                         <table class="table table-striped" id="sortable-table">
                                             <tbody class="ui-sortable">
                                                 <tr>
-                                                    <td class="align-middle">
+                                                    <td class="align-middle" style="width: 20%;">
                                                         <div class="form-group">
-                                                            <label for="">Booking</label><br>
+                                                            <label>Booking</label><br>
                                                             <select name="booking_id" id="booking_id"
                                                                 onchange="bookingChange()"
-                                                                class="form-control select2 booking_id">
+                                                                class="form-control select2 booking_id"
+                                                                style="width: 100%;">
                                                                 <option value="">Select Booking</option>
                                                                 @foreach ($bookings as $item)
                                                                     <option value="{{ $item->id }}">
                                                                         {{ $item->bookingInvoice->zoho_invoice_number }} |
                                                                         {{ $item->customer?->customer_name ?? 'No Customer' }}
                                                                     </option>
-
                                                                 @endforeach
-
-                                                            </select><br>
-                                                            <input type="hidden" value="" name="payment_id"
-                                                                class="payment_id" readonly>
+                                                            </select>
+                                                            <input type="hidden" name="payment_id" class="payment_id">
                                                         </div>
                                                     </td>
-                                                    <td class="align-middle p-0">
+
+                                                    <td class="align-middle" style="width: 20%;">
                                                         <div class="form-group">
-                                                            <label for="">Booking Amount</label><br>
-                                                            <input type="number" value="" name="booking_amount"
+                                                            <label>Booking Amount</label>
+                                                            <input type="number" name="booking_amount"
                                                                 class="form-control booking_amount" readonly>
                                                         </div>
                                                     </td>
-                                                    <td class="align-middle">
+
+                                                    <td class="align-middle" style="width: 30%;">
                                                         <div class="form-group">
-                                                            <label for="">Customer name</label><br>
-                                                            <input type="text" value="" name="customer_name"
+                                                            <label>Customer Name</label>
+                                                            <input type="text" name="customer_name"
                                                                 class="form-control customer_name" disabled>
                                                         </div>
                                                     </td>
                                                 </tr>
 
                                                 <tr>
-                                                    <td class="align-middle">
+                                                    <td class="align-middle" style="width: 30%;">
                                                         <div class="form-group">
                                                             <label for="">Payment Method</label><br>
                                                             <select name="payment_method"
-                                                                class="form-control payment_method select2" required>
+                                                                class="form-control payment_method select2" style="width: 100%;" required>
                                                                 <option value="">Payment method</option>
                                                                 @foreach ($paymentMethod as $item)
                                                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -113,7 +113,8 @@
                                                                 <option value="">Select Bank</option>
                                                                 @foreach ($bank as $item)
                                                                     <option value="{{ $item->id }}">{{ $item->bank_name }} |
-                                                                        {{ $item->account_number }}</option>
+                                                                        {{ $item->account_number }}
+                                                                    </option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -348,7 +349,7 @@
                 icon: 'error',
                 title: 'Oops...',
                 text: '{{ session('
-                error ') }}',
+                        error ') }}',
             });
         </script>
     @endif
@@ -359,7 +360,7 @@
                 icon: 'success',
                 title: 'Success!',
                 text: '{{ session('
-                success ') }}',
+                        success ') }}',
             });
         </script>
     @endif
