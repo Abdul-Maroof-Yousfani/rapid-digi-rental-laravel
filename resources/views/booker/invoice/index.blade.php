@@ -59,7 +59,9 @@
                                                         @if ($booking->booking_status != 'closed')
                                                         @php $hasNonType1 = $item->bookingData->where('transaction_type', '!=', 1)->count() > 0; @endphp
                                                         @if ($hasNonType1)
-                                                        @can ('edit invoice') <a href="{{ url('booking/'.$item->id.'/edit-invoice') }}" class="dropdown-item"><i class="far fa-edit"></i> Edit</a> @endcan
+                                                        @can ('edit booking') <a href="{{ url('customer-booking/'.$item->id.'/edit') }}" class="dropdown-item"> <i class="far fa-edit"></i> Edit </a> @endcan
+
+                                                        {{-- @can ('edit invoice') <a href="{{ url('booking/'.$item->id.'/edit-invoice') }}" class="dropdown-item"><i class="far fa-edit"></i> Edit</a> @endcan --}}
                                                         @else
                                                         @can ('edit booking') <a href="{{ url('customer-booking/'.$item->id.'/edit') }}" class="dropdown-item"> <i class="far fa-edit"></i> Edit </a> @endcan
                                                         @endif

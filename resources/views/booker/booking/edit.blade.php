@@ -50,7 +50,7 @@
                                     @foreach($booking->invoice as $inv)
                                         {{ $inv->booking_id }}<br>
                                 @endforeach --}}
-                                <h3>Edit Booking #{{ $invoice->zoho_invoice_number }}</h3>
+                                <h3>Edit Booking against INV #{{ $invoice->zoho_invoice_number }}</h3>
                             </div>
                         </div>
                     </div>
@@ -243,17 +243,26 @@
                                 </div>
 
                                 <div class="row">
-
-                                    <div class="col-3" style="display: none;">
-                                        <div class="form-group">
-                                            <select name="invoiceTypes[]" class="form-control select2 invoiceTypes" required>
-                                                <option value="null">Select Type</option>
-
-                                            </select>
-
+                                    @if ($item->transaction_type == 2)
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Type <span class="text-danger">*</span></label><br>
+                                                <select name="invoiceTypes[]" class="form-control select2 invoiceTypes" required>
+                                                    <option value="">Select Type</option>
+                                                    @foreach ($invoiceTypes as $itype)
+                                                        <option value="{{ $itype->id }}" {{ $selectedInTyId == $itype->id ? 'selected' : '' }}>
+                                                            {{ $itype->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
 
+
+
+
+                                    
                                     <div class="col-3">
                                         <div class="form-group">
                                             <label for="">Start Date <span class="text-danger">*</span></label><br>
@@ -283,6 +292,9 @@
 
                                         </div>
                                     </div>
+                                </div>
+                                <div class="row">
+
                                     @php
                                     $selectedVehicleText = optional($item->vehicle)->vehicle_name
                                     ?? (optional($item->vehicle)->number_plate . ' | ' . optional($item->vehicle)->temp_vehicle_detail)
@@ -305,10 +317,8 @@
 
                                         </div>
                                     </div>
-                                </div>
 
 
-                                <div class="row">
 
                                     <div class="col-3">
                                         <div class="form-group">
