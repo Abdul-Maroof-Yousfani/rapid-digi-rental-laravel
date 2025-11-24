@@ -446,7 +446,7 @@
             });
 
             let startedAt = $('.started_at').val();
-            applyMinDateToAllDateFields(startedAt);
+          //  applyMinDateToAllDateFields(startedAt);
 
         });
         $(document).on('click', '.removeRow', function() {
@@ -569,7 +569,7 @@
             });
 
             let startedAt = $('.started_at').val();
-            applyMinDateToAllDateFields(startedAt);
+           // applyMinDateToAllDateFields(startedAt);
 
         });
 
