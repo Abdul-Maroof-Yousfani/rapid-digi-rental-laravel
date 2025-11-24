@@ -257,7 +257,9 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    @endif
+                                     @else  
+                                    <input type="hidden" name="invoiceTypes[]" value="null">
+                                @endif
 
 
 
@@ -763,9 +765,9 @@
         });
 
         let startedAt = $('.started_at').val();
-        applyMinDateToAllDateFields(startedAt);
+        // applyMinDateToAllDateFields(startedAt);
 
-        $('.started_at').trigger('change');
+        // $('.started_at').trigger('change');
 
         $('#addRow').click(function() {
             let newRow = `
@@ -866,7 +868,7 @@
             });
 
             let startedAt = $('.started_at').val();
-            applyMinDateToAllDateFields(startedAt);
+           // applyMinDateToAllDateFields(startedAt);
 
         });
 
@@ -977,7 +979,7 @@
             });
 
             let startedAt = $('.started_at').val();
-            applyMinDateToAllDateFields(startedAt);
+          //  applyMinDateToAllDateFields(startedAt);
 
         });
 
