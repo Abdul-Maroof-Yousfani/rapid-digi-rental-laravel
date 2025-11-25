@@ -70,6 +70,7 @@
                                                 <th>S.no</th>
                                                 <th>Customer</th>
                                                 <th>Invoice</th>
+                                                <th>Booking No.</th>
                                                 <th>Agreement No.</th>
                                                 <th>Amount</th>
                                                 <th>Action</th>
@@ -87,6 +88,7 @@
                                                     <td>{{ $number }}.</td>
                                                     <td>{{ $item->booking->customer->customer_name ?? 0 }}</td>
                                                     <td>{{ $item->zoho_invoice_number ?? 'N/A' }}</td>
+                                                    <td>{{ $item->booking->id ?? 0 }}</td>
                                                     <td>{{ $item->booking->agreement_no ?? 0 }}</td>
                                                     <td>{{ $item->bookingData->sum('item_total') ?? 'N/A' }}</td>
 
