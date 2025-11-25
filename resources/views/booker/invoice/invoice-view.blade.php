@@ -290,11 +290,11 @@
                         <div class="grid-container">
                             <div class="text-dark label">Invoice Date:</div>
                             <div class="text-dark value">
-                                {{ \Carbon\Carbon::parse($invoice->booking->started_at)->format('d-M-Y') }}</div>
+                                {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y') }}</div>
 
                             <div class="text-dark label">Due Date:</div>
                             <div class="text-dark value">
-                                {{ \Carbon\Carbon::parse($invoice->booking->due_date)->format('d-M-Y') }}</div>
+                                {{ \Carbon\Carbon::parse($invoice->due_date)->format('d-M-Y') }}</div>
 
                             <div class="text-dark label">Terms :</div>
                             <div class="text-dark value">{{ $invoice->booking->terms ?? '-' }}</div>

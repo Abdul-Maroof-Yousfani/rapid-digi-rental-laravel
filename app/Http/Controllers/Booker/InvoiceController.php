@@ -148,6 +148,8 @@ class InvoiceController extends Controller
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
                         'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
+                        'invoice_date' => $request->invoice_date,
+                        'due_date' => $request->due_date,
                         'status' => 1,
                     ]);
 
@@ -326,6 +328,8 @@ class InvoiceController extends Controller
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
                         'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
+                        'invoice_date' => $request->invoice_date,
+                        'due_date' => $request->due_date,
                         'status' => 1,
                     ]);
 

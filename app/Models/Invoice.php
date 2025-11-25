@@ -22,6 +22,8 @@ class Invoice extends Model
         'zoho_invoice_number',
         'invoice_status',
         'total_amount',
+        'invoice_date',
+        'due_date',
         'status',
         'deposit_amount'
     ];
@@ -38,6 +40,8 @@ class Invoice extends Model
                 'zoho_invoice_number',
                 'invoice_status',
                 'total_amount',
+                'invoice_date',
+                'due_date',
                 'status',
                 'deposit_amount'
             ])

@@ -47,7 +47,7 @@
                     </div>
                     <hr style=" border-bottom:1px solid #6c757d;">
                     <div class="row">
-                        <div class="col-12 col-md-6 col-lg-6">
+                        <div class="col-12 col-md-4 col-lg-4">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
@@ -63,7 +63,28 @@
                             </div>
                         </div>
 
+                        <div class="col-12 col-md-4 col-lg-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Invoice Date <span class="text-danger">*</span></label>
+                                        <input type="date" value="0" name="invoice_date" class="form-control invoice_date" required>
 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Due Date <span class="text-danger">*</span></label>
+                                        <input type="date" value="0" name="due_date" class="form-control due_date" required>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="col-12">
                             <div class="header-card head-flex">
@@ -229,7 +250,7 @@
                 icon: 'error',
                 title: 'Oops...11',
                 text: '{{ session('
-                error ') }}',
+                                error ') }}',
             });
         </script>
     @endif
@@ -240,7 +261,7 @@
                 icon: 'success',
                 title: 'Success!',
                 text: '{{ session('
-                success ') }}',
+                                success ') }}',
             });
         </script>
     @endif
@@ -266,117 +287,117 @@
 
             $('#addRow').click(function () {
                 let newRow = `
-                    <div class="card">
-                        <div class="card-body lineItem">
-                            <div class="close-btn">
-                                <button type="button" class="btn btn-danger btn-md removeRow">X</button>
-                            </div>
-                            <div class="row">
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Type <span class="text-danger">*</span></label><br>
-                                        <select name="invoice_type[]" class="form-control select2 invoice_type">
-                                           <option value="">Select Invoice type</option>
-                                            @foreach ($invoiceTypes as $dtype)
-                                                <option value="{{ $dtype->name }}">{{ $dtype->name }}</option>
-                                            @endforeach
-                                        </select>
+                            <div class="card">
+                                <div class="card-body lineItem">
+                                    <div class="close-btn">
+                                        <button type="button" class="btn btn-danger btn-md removeRow">X</button>
                                     </div>
-                                </div>
-                                  <div class="col-3">
-                                <div class="form-group">
-                                        <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
-                                        <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled>
-                                            <option value="">Select Vehicle type</option>
-                                            @foreach ($vehicletypes as $vtype)
-                                                <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Vehicle Name<span class="text-danger">*</span></label>
-                                        <select name="vehicle[]" class="form-control select2 vehicle">
-                                            <option value="">Select Vehicle</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Type <span class="text-danger">*</span></label><br>
+                                                <select name="invoice_type[]" class="form-control select2 invoice_type">
+                                                   <option value="">Select Invoice type</option>
+                                                    @foreach ($invoiceTypes as $dtype)
+                                                        <option value="{{ $dtype->name }}">{{ $dtype->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                          <div class="col-3">
+                                        <div class="form-group">
+                                                <label for="">Vehicle Type <span class="text-danger">*</span></label><br>
+                                                <select name="vehicletypes[]" class="form-control select2 vehicletypes" disabled>
+                                                    <option value="">Select Vehicle type</option>
+                                                    @foreach ($vehicletypes as $vtype)
+                                                        <option value="{{ $vtype->id }}">{{ $vtype->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Vehicle Name<span class="text-danger">*</span></label>
+                                                <select name="vehicle[]" class="form-control select2 vehicle">
+                                                    <option value="">Select Vehicle</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
 
 
-                            </div>
-                            <div class="row">
+                                    </div>
+                                    <div class="row">
 
-                                     <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Start Date <span class="text-danger">*</span></label><br>
-                                        <input type="date" name="booking_date[]" class="form-control datemask booking-date">
-                                    </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Return Date <span class="text-danger">*</span></label><br>
-                                        <input type="date" name="return_date[]" class="form-control datemask return-date">
-                                    </div>
-                                </div> 
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for=""> DepositType <span class="text-danger">*</span></label><br>
-                                        <select name="deposit_type[]" class="form-control select2 deposit_type">
-                                            <option value="">Select Deposit type</option>
-                                            <option value="1">Cardo</option>
-                                            <option value="2">LPO</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                             <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Start Date <span class="text-danger">*</span></label><br>
+                                                <input type="date" name="booking_date[]" class="form-control datemask booking-date">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Return Date <span class="text-danger">*</span></label><br>
+                                                <input type="date" name="return_date[]" class="form-control datemask return-date">
+                                            </div>
+                                        </div> 
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for=""> DepositType <span class="text-danger">*</span></label><br>
+                                                <select name="deposit_type[]" class="form-control select2 deposit_type">
+                                                    <option value="">Select Deposit type</option>
+                                                    <option value="1">Cardo</option>
+                                                    <option value="2">LPO</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
 
-                                <div class="col-3">
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label>Non Refundable Amount <span class="text-danger">*</span></label>
+                                                <input type="number" value="0" name="non_refundable_amount[]" class="form-control non_refundable_amount">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Quantity</label><br>
+                                                <input type="number" name="quantity[]" value="1" class="form-control quantity">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Tax (%)</label><br>
+                                                <select name="tax[]" class="form-control select2 zohotax">
+                                                    <option value="">Select Tax</option>
+                                                    @foreach ($taxlist['taxes'] as $item)
+                                                        <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
+                                                            {{ $item['tax_name'] }} ({{ $item['tax_percentage'] }}%)
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Price (AED) <span class="text-danger">*</span></label><br>
+                                                <input type="text" name="price[]" class="form-control price" required>
+                                            </div>  
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Total Amount</label><br>
+                                                <input type="text" name="amount[]" class="form-control amount">
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="form-group">
-                                        <label>Non Refundable Amount <span class="text-danger">*</span></label>
-                                        <input type="number" value="0" name="non_refundable_amount[]" class="form-control non_refundable_amount">
+                                        <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Quantity</label><br>
-                                        <input type="number" name="quantity[]" value="1" class="form-control quantity">
-                                    </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Tax (%)</label><br>
-                                        <select name="tax[]" class="form-control select2 zohotax">
-                                            <option value="">Select Tax</option>
-                                            @foreach ($taxlist['taxes'] as $item)
-                                                <option value="{{ $item['tax_id'] }}" data-percentage="{{ $item['tax_percentage'] }}">
-                                                    {{ $item['tax_name'] }} ({{ $item['tax_percentage'] }}%)
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Price (AED) <span class="text-danger">*</span></label><br>
-                                        <input type="text" name="price[]" class="form-control price" required>
-                                    </div>  
-                                </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Total Amount</label><br>
-                                        <input type="text" name="amount[]" class="form-control amount">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control description" cols="60" rows="3" style="width:200px;"></textarea>
-                            </div>
-                        </div>
-                    </div>`;
+                            </div>`;
                 $('#lineItemBody').append(newRow);
                 $('.select2').select2({
                     width: '100%'

@@ -52,6 +52,29 @@
                         </div>
                     </div>
 
+                     <div class="col-12 col-md-4 col-lg-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Invoice Date <span class="text-danger">*</span></label>
+                                        <input type="date" value="0" name="invoice_date" class="form-control invoice_date" required>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Due Date <span class="text-danger">*</span></label>
+                                        <input type="date" value="0" name="due_date" class="form-control due_date" required>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     @if ($invoice->invoice_status=='sent')
                     <div class="col-12 col-md-6 col-lg-6">
                         <div class="card">
