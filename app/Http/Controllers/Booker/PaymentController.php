@@ -145,7 +145,10 @@ class PaymentController extends Controller
 
             $beforeUpdateAmount = 0;
             $beforeUpdateDate = Carbon::now();
-            $paymentDate = $request['payment_date'];
+            $paymentDate = $request['payment_date']
+                ? Carbon::parse($request['payment_date'])
+                : now();
+
             if ($request->payment_id) {
                 // return $paymentStatus;
 
