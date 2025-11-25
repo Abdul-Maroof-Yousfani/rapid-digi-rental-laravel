@@ -206,7 +206,7 @@
                     if ($booking) {
                         $endDate = \Carbon\Carbon::parse($booking->due_date); // convert string to Carbon
 
-                        if (strtolower(trim($invoice->invoice_status)) === 'draft' && $endDate->lt($today)) {
+                        if (strtolower(trim($invoice->invoice_status)) === 'sent' && $endDate->lt($today)) {
                             $isOverdue = true;
                         }
                     }
