@@ -41,7 +41,7 @@ class PaymentController extends Controller
     public function create()
     {
         $bookings = Booking::whereHas('invoice', function ($query) {
-            $query->where('invoice_status', '!=', 'paid');
+            // $query->where('invoice_status', '!=', 'paid');
         })->orderBy('id', 'DESC')
             ->get();
         // $bookings = Booking::whereDoesntHave('payment', function ($query) {
