@@ -37,14 +37,14 @@
 
             /* Ensure background colors are printed */
             .thead-light {
-                background-color: #2F81B7 !important;
+                background-color: #00796B !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
 
             .thead-light th {
                 color: #ffffff !important;
-                background-color: #2F81B7 !important;
+                background-color: #00796B !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -93,6 +93,7 @@
             .no-print {
                 display: none !important;
             }
+            
         }
 
         .bg-white {
@@ -107,7 +108,7 @@
             color: #fff;
             transform: rotateZ(-45deg);
             margin-left: -71px;
-            font-size: 14px
+            font-size: 14px;
         }
 
         .sent-status {
@@ -196,7 +197,7 @@
 </div>
 
         <section class="section print-area" id="printReport">
-            <div class="container my-5 border p-4 bg-white">
+            <div class="container my-5 p-4 bg-white">
                 @php
                     $isOverdue = null;
                     $today = \Carbon\Carbon::today(); // Day after today
@@ -211,7 +212,7 @@
                         }
                     }
                 @endphp
-               <div class="box1" style="background-color: 
+               <div class="box1 no-print" style="background-color: 
     {{ $isOverdue
         ? '#d3660dff'
         : ($invoice->invoice_status === 'sent'
@@ -283,6 +284,7 @@
                             {{ implode(', ', $addressParts) }}
                         </p>
 
+                        <p class="mb-0 text-dark">{{ $customer->phone }}</p>
                         <p class="mb-0 text-dark">{{ $customer->licence }}</p>
                         <!-- <p class="mb-0 text-dark">{{ $customer->country }}</p> -->
                     </div>
@@ -356,26 +358,26 @@
                                         }
                                     @endphp
 
-                                              <td class="text-left">
-                                                    {{ $vehicleName . ' | ' . ($item->vehicle->number_plate ?? '') }}
-                                                    <br>
+                                            <td class="text-left" style="font-family: Arial, sans-serif; padding: 15px;">
+                                            <span>
+                                                {{ $vehicleName . ' | ' . ($item->vehicle->number_plate ?? '') }}
+                                                </span>
 
-
-
-                            <small>
+                                                <br>
+                                                <span>
                                                     {{ $item->description ?: ($item->invoice_type->name ?? '') }}
-                                                </small>
-
-
-                                                    @if(!empty($item->start_date))
-                                                        <small>{{ \Carbon\Carbon::parse($item->start_date)->format('d-M-Y') . ' TO ' . \Carbon\Carbon::parse($item->end_date)->format('d-M-Y') }}</small>
-                                                    @endif
+                                                </span>
+<br>
+                                                @if(!empty($item->start_date))
+                                                    <span>
+                                                        {{ \Carbon\Carbon::parse($item->start_date)->format('d/m/Y') . ' TO ' . \Carbon\Carbon::parse($item->end_date)->format('d/m/Y') }}
+                                                    </span>
+                                                @endif
                                             </td>
 
 
 
-
-                                              <td class="text-right">{{ $item->quantity ?? '-' }}</td>
+                                              <td class="text-right">{{ number_format($item->quantity, 2) ?? '-' }}</td>
                                             <td class="text-right">{{ number_format($item->price, 2) }}</td>
                                             {{-- <td class="text-right">{{ $item->tax_name ?? '-'}}</td> --}}
                                               @php
@@ -429,18 +431,18 @@
                     <div class="col-md-6">
                         <table class="table">
                             <tr>
-                                <td class="text-right">Sub Total</td>
+                                <td class="text-right"><strong>Sub Total</strong></td>
                                 <td class="text-right">AED{{ number_format($subtot, 2) }}</td>
                             </tr>
 
                             <tr>
-                                <td class="text-right">Paid Amount</td>
+                                <td class="text-right"><strong>Paid Amount</strong></td>
                             <td class="text-right">AED{{ number_format($paid_amount, 2) }}</td>
                         </tr>
                         <?php if ($invoice->invoice_status != 'draft') { ?>
                             <tr class="text-dark" style="background-color: #d3eae4ff">
                                 <td class="text-right">
-                                    Balance Due
+                                    <strong>Balance Due</strong>
                                 </td>
                                 <td class="text-right font-weight-bold">
                                         AED{{ number_format($due_bal, 2) }}
@@ -456,17 +458,19 @@
                 <div style="margin-top: 10rem" class="text-dark">
                     <!-- <h6>Notes</h6> -->
                     <p class="mb-0" style="font-size:16px;">Thank you for your business.</p>
+                <hr>
+
                     <p class="mb-2">DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:12px;">Payment Detail:</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:12px;">Bank Name: WIO</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:12px;">Account Name: Rapid Rentals -FZCO</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:12px;">IBN : AE790860000009637084836</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:12px;">Account No: 9637084836</p>
-                    <p class="mb-2" style="line-height: 1.5; font-size:12px;">BIC/SWIFT : WIOBAEADXXX</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Payment Detail:</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Bank Name: WIO</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Account Name: Rapid Rentals -FZCO</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">IBN : AE790860000009637084836</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Account No: 9637084836</p>
+                    <p class="mb-2" style="line-height: 1.5; font-size:13px;">BIC/SWIFT : WIOBAEADXXX</p>
                     <p class="mb-2">Queries:+971 50 366 1754</p>
                     <p class="mb-0">Complaints & Suggestions: +971 54 508 2661 or Email: idrees@rapidenterprises.ae</p>
                 </div>
-                <hr>
+                {{-- <hr> --}}
             </div>
         </section>
     </div>
@@ -498,11 +502,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Status confirmation
     const statusButtons = document.querySelectorAll('.status-confirm');
     statusButtons.forEach(button => {
         button.addEventListener('click', function(e) {
-            e.preventDefault(); // Stop form submit
+            e.preventDefault();
             const form = this.closest('form');
             Swal.fire({
                 title: 'Are you sure?',
@@ -520,22 +523,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Print button
    const printBtn = document.getElementById('printBtn');
 
     if (printBtn) {
         printBtn.addEventListener('click', function() {
-            // Add a class to body so only .print-area is visible in print
             document.body.classList.add('printing');
 
-            // Hide any additional elements you don't want printed
             const printHideElements = document.querySelectorAll('.printHide');
             printHideElements.forEach(el => el.style.display = 'none');
 
-            // Trigger print
             window.print();
 
-            // After printing, remove the class and restore visibility
             document.body.classList.remove('printing');
             printHideElements.forEach(el => el.style.display = '');
         });
