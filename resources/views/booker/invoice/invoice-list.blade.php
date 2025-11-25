@@ -282,6 +282,7 @@
                 <td>${index + 1}.</td>
                 <td>${data.booking.customer.customer_name}</td>
                 <td>${data.zoho_invoice_number ?? ''}</td>
+                <td>${data.booking.id ?? ''}</td>
                 <td>${data.booking.agreement_no ?? ''}</td>
                 <td>${data.item_total ?? 0}</td>
                 <td>
