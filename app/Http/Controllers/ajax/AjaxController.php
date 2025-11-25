@@ -624,15 +624,20 @@ class AjaxController extends Controller
             ->withSum('invoice as total_amount', 'total_amount')
             ->when($search, function ($query, $search) {
                 if (is_numeric($search)) {
+                    // Filter by booking ID if numeric
                     $query->where('id', 'LIKE', "$search%");
+                } else {
+                    // Filter by customer name (case-insensitive)
+                    $query->whereHas('customer', function ($q1) use ($search) {
+                        $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . strtolower($search) . "%"]);
+                    });
                 }
             })
-
             ->orderByDesc('id')
+            ->paginate(10);
 
-            ->paginate(10)
-            // ->get()
-        ;
+
+
 
         return response()->json([
             'bookings' => $bookings->items(),
@@ -649,10 +654,19 @@ class AjaxController extends Controller
         $invoices = Invoice::with(['booking.customer'])
             ->withSum('bookingData as item_total', 'item_total')
             ->when($search, function ($query, $search) {
-                $query->whereRaw('zoho_invoice_number LIKE ?', ["%$search%"]);
+                $query->where(function ($q) use ($search) {
+                    if (is_numeric($search)) {
+                        $q->where('zoho_invoice_number', $search);
+                    } else {
+                        $q->whereHas('booking.customer', function ($q1) use ($search) {
+                            $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . strtolower($search) . "%"]);
+                        });
+                    }
+                });
             })
             ->orderBy('zoho_invoice_number', 'DESC')
             ->paginate(10);
+
 
         return response()->json([
             'invoices' => $invoices->items(),

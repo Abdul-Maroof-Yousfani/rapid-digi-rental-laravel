@@ -57,7 +57,7 @@
                                 <form class="filterForm">
                                     <div class="row">
                                         <div class="col-3 ml-auto">
-                                            <input type="text" placeholder="Search Invoice No." class="form-control"
+                                            <input type="text" placeholder="Search Invoice No. / Customer" class="form-control"
                                                 id="search">
                                         </div>
                                     </div><br>

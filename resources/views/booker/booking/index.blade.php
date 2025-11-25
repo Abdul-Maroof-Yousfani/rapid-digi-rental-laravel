@@ -57,7 +57,7 @@
                             <form class="filterForm">
                                 <div class="row">
                                     <div class="col-3 ml-auto">
-                                        <input type="text" placeholder="Search Booking No." class="form-control" id="search">
+                                        <input type="text" placeholder="Search Booking No. / Customer" class="form-control" id="search">
                                     </div>
                                 </div><br>
                             </form>
