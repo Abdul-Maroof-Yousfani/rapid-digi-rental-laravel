@@ -242,7 +242,7 @@ class AjaxController extends Controller
             'paid_amount' => $payment->paid_amount ?? 0,
             'remaining_amount' => $remainingAmount,
             'booking_amount' => $bookingAmount,
-            'deposit_amount' => $initialDepositValue,
+            'deposit_amount' => $initialDeposit,
             'initial_deposit' => $booking->deposit->initial_deposit ?? 0,
             'credit_note_detail' => $creditNoteDetail,
             'deduct_amount' => $deductAmount ?? 0,
