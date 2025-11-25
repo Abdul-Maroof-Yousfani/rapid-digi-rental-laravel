@@ -75,6 +75,7 @@ class PaymentController extends Controller
             'booking_id' => 'required',
             'payment_method' => 'required',
             'booking_amount' => 'required',
+            'payment_date' => 'required',
             // 'amount_receive' => 'required',
             'image' => 'nullable|mimes:jpeg,png,jpg,gif,svg,pdf|max:5120',
             'invoice_id.*' => 'required',
@@ -144,6 +145,7 @@ class PaymentController extends Controller
 
             $beforeUpdateAmount = 0;
             $beforeUpdateDate = Carbon::now();
+            $paymentDate = $request['payment_date'];
             if ($request->payment_id) {
                 // return $paymentStatus;
 
@@ -160,6 +162,7 @@ class PaymentController extends Controller
                     'booking_amount' => $bookingAmount,
                     'paid_amount' => $payment->paid_amount + $paidAmount + $depositUsed,
                     'pending_amount' => $payment->pending_amount - $amountReceive - $depositUsed,
+                    'payment_date' => $request['payment_date'],
                     // 'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
@@ -173,6 +176,7 @@ class PaymentController extends Controller
                     'booking_amount' => $bookingAmount,
                     'paid_amount' => $paidAmount,
                     'pending_amount' => $bookingAmount - $paidAmount,
+                    'payment_date' => $request['payment_date'],
                     // 'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
                 ]);
@@ -195,7 +199,7 @@ class PaymentController extends Controller
                 'invoice_id' => $request['invoice_id'],
                 'payment_method_id' => $request['payment_method'],
                 'paid_amount' => $paidAmount + $depositUsed,
-                'payment_date' => $beforeUpdateDate,
+                'payment_date' => $request['payment_date'],
                 'user_id' => Auth::user()->id,
             ]);
 
@@ -326,7 +330,7 @@ class PaymentController extends Controller
                             $customerId,
                             $paymentData->invoice->zoho_invoice_id,
                             $amountToPay,
-                            now()->format('Y-m-d')
+                            $paymentDate->format('Y-m-d')
                         );
                     }
                 }

@@ -253,9 +253,9 @@ class ZohoInvoice
     }
 
 
-    public function recordPayment($customerId, $invoiceId, $amount, $paymentDate = null)
+    public function recordPayment($customerId, $invoiceId, $amount, $paymentDate)
     {
-        $paymentDate = $paymentDate ?? date('Y-m-d'); // default to today
+        $paymentDate = $paymentDate ?? date('Y-m-d'); 
         $accessToken = $this->getAccessToken();
 
         $client = new \GuzzleHttp\Client();

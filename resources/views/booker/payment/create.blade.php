@@ -140,6 +140,28 @@
                                                     </td>
                                                 </tr>
 
+                                                <tr>
+
+                                                    <td class="align-middle">
+                                                        {{-- <div class="form-group">
+                                                            <label for="">Pending Amount</label><br>
+                                                            <input type="number" placeholder="" value=""
+                                                                name="pending_amount" class="form-control pending_amount"
+                                                                readonly>
+                                                            <input type="hidden" class="form-control restrict">
+                                                        </div> --}}
+
+
+                                                        <div class="form-group">
+                                                            <label for="payment_date">Payment Date</label><br>
+                                                            <input type="date" value="0" name="payment_date"
+                                                                class="form-control payment_date" required>
+
+
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
                                                 <tr style="display: none">
                                                     <td class="align-middle">
                                                         {{-- <div class="form-group">
@@ -351,7 +373,7 @@
                 icon: 'error',
                 title: 'Oops...',
                 text: '{{ session('
-                                error ') }}',
+                                        error ') }}',
             });
         </script>
     @endif
@@ -362,7 +384,7 @@
                 icon: 'success',
                 title: 'Success!',
                 text: '{{ session('
-                                success ') }}',
+                                        success ') }}',
             });
         </script>
     @endif
