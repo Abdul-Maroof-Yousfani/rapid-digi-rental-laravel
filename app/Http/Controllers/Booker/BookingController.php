@@ -49,9 +49,9 @@ class BookingController extends Controller
     public function index()
     {
         $booking = Booking::with('invoice', 'invoices', 'customer', 'deposit', 'salePerson')
-                    ->where('created_at', '>=', Carbon::now()->subDays(15))
-                    ->orderByDesc('id')
-             ->paginate(10);
+            ->where('created_at', '>=', Carbon::now()->subDays(15))
+            ->orderByDesc('id')
+            ->paginate(10);
         // return view('booker.booking.index', compact('booking'));
 
         // $ids = Invoice::whereHas('bookingData', fn($q) => $q->where('transaction_type', 1))
@@ -168,6 +168,15 @@ class BookingController extends Controller
                     ];
                 }
             }
+            if (!empty($request->deposit_amount)) {
+                $lineitems[] = [
+                    'name' => 'Deposit',
+                    'description' => '',
+                    'rate' => (float) ($request->deposit_amount ?? 0),
+                    'quantity' => 1,
+                    'tax_id' => null,
+                ];
+            }
             $customerId = $request->customer_id;
 
             $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $request->sale_person_id, $request->sale_person_name);
@@ -280,6 +289,45 @@ class BookingController extends Controller
                         } else {
                             Log::warning("Vehicle not found with ID: $vehicle_id");
                         }
+                    }
+                    if (!empty($request->deposit_type)) {
+                        if ($request->deposit_type == 1) {
+                            $booking_data = BookingData::create([
+                                'booking_id' => $booking->id,
+                                'vehicle_id' => $request->vehicle[0],
+                                'invoice_id' => $invoice->id,
+                                'price' => $request->non_refundable_amount ?? 0,
+                                'quantity' => 1,
+                                'transaction_type' => 1,
+                                'description' => 'CARDOO',
+                                'item_total' => $request->non_refundable_amount ?? 0,
+                            ]);
+
+                        } elseif ($request->deposit_type == 2) {
+                            $booking_data = BookingData::create([
+                                'booking_id' => $booking->id,
+                                'vehicle_id' => $request->vehicle[0],
+                                'invoice_id' => $invoice->id,
+                                'price' => $request->non_refundable_amount ?? 0,
+                                'quantity' => 1,
+                                'transaction_type' => 1,
+                                'description' => 'LPO',
+                                'item_total' => $request->non_refundable_amount ?? 0,
+                            ]);
+                        }
+                    }
+                    if (!empty($request->deposit_amount)) {
+                        $booking_data = BookingData::create([
+                            'booking_id' => $booking->id,
+                            'vehicle_id' => $request->vehicle[0],
+                            'invoice_id' => $invoice->id,
+                            'price' => $request->deposit_amount ?? 0,
+                            'quantity' => 1,
+                            'transaction_type' => 1,
+                            'description' => 'Deposit',
+                            'item_total' => $request->deposit_amount ?? 0,
+                        ]);
+
                     }
 
                     DB::commit();
@@ -481,6 +529,15 @@ class BookingController extends Controller
                     ];
                 }
             }
+            if (!empty($request->deposit_amount)) {
+                $lineitems[] = [
+                    'name' => 'Deposit',
+                    'description' => '',
+                    'rate' => (float) ($request->deposit_amount ?? 0),
+                    'quantity' => 1,
+                    'tax_id' => null,
+                ];
+            }
 
             $invoiceID = $invoice->zoho_invoice_id;
             $customerId = $request->customer_id;
@@ -490,7 +547,7 @@ class BookingController extends Controller
                 'notes' => $notes,
                 'currency_code' => $currency_code,
                 'line_items' => $lineitems,
-                'reason'      => $request->reason_of_update,
+                'reason' => $request->reason_of_update,
             ];
             $invoiceResponse = $this->zohoinvoice->updateInvoice($invoiceID, $json);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
@@ -582,6 +639,46 @@ class BookingController extends Controller
                         Vehicle::where('id', $vehicle_id)->update([
                             'vehicle_status_id' => 33 // yahaan '2' booked wali ID honi chahiye
                         ]);
+                    }
+
+                    if (!empty($request->deposit_type)) {
+                        if ($request->deposit_type == 1) {
+                            $booking_data = BookingData::create([
+                                'booking_id' => $booking->id,
+                                'vehicle_id' => $vehicle_id,
+                                'invoice_id' => $invoice->id,
+                                'price' => $request->non_refundable_amount ?? 0,
+                                'quantity' => 1,
+                                'transaction_type' => 1,
+                                'description' => 'CARDOO',
+                                'item_total' => $request->non_refundable_amount ?? 0,
+                            ]);
+
+                        } elseif ($request->deposit_type == 2) {
+                            $booking_data = BookingData::create([
+                                'booking_id' => $booking->id,
+                                'vehicle_id' => $vehicle_id,
+                                'invoice_id' => $invoice->id,
+                                'price' => $request->non_refundable_amount ?? 0,
+                                'quantity' => 1,
+                                'transaction_type' => 1,
+                                'description' => 'LPO',
+                                'item_total' => $request->non_refundable_amount ?? 0,
+                            ]);
+                        }
+                    }
+                    if (!empty($request->deposit_amount)) {
+                        $booking_data = BookingData::create([
+                            'booking_id' => $booking->id,
+                            'vehicle_id' => $vehicle_id,
+                            'invoice_id' => $invoice->id,
+                            'price' => $request->deposit_amount ?? 0,
+                            'quantity' => 1,
+                            'transaction_type' => 1,
+                            'description' => 'Deposit',
+                            'item_total' => $request->deposit_amount ?? 0,
+                        ]);
+
                     }
                     // return response("ok");
 

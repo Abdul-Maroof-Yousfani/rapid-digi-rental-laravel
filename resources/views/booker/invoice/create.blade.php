@@ -186,7 +186,7 @@
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="">Total Amount</label><br>
-                                                    <input type="number" name="amount[]" class="form-control amount">
+                                                    <input type="text" name="amount[]" class="form-control amount">
                                                 </div>
                                             </div>
                                         </div>
@@ -368,7 +368,7 @@
                                 <div class="col-3">
                                     <div class="form-group">
                                         <label for="">Total Amount</label><br>
-                                        <input type="number" name="amount[]" class="form-control amount">
+                                        <input type="text" name="amount[]" class="form-control amount">
                                     </div>
                                 </div>
                             </div>

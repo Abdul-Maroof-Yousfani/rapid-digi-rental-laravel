@@ -507,7 +507,7 @@ class ZohoInvoice
     {
         // return '5000';
 
-        $maxPos = DB::table($table)->where('status', 1)->max($field);
+        $maxPos = DB::table($table)->where('status', 1)->whereNull('deleted_at')->max($field);
 
         $maxPos = $maxPos + 1;
         // dd($maxPos);

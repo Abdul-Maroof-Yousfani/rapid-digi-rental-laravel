@@ -143,7 +143,7 @@ class AjaxController extends Controller
         // $invoice1 = Invoice::where('booking_id', $booking_id)->value('id');
         $bookingAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
         // $bookingAmount = BookingData::with('booking' if bookings as deposit_id not null then find deposit_id in deposits and get )->where('booking_id', $booking_id)->sum('item_total');
-        
+
         $payment = Payment::where('booking_id', $booking_id)->first();
         $remainingAmount = $bookingAmount - ($payment->paid_amount ?? 0);
 
@@ -231,12 +231,18 @@ class AjaxController extends Controller
             ];
         });
 
+        $paidAmount1 = $payment?->paid_amount ?? 0;
+
+        $allowDeposit = $paidAmount1 > 0 && $initialDeposit > 0;
+
+        $initialDepositValue = $allowDeposit ? $initialDeposit : 0;
+
         return response()->json([
             'payment_id' => $payment->id ?? null, // Payment Primary Key
             'paid_amount' => $payment->paid_amount ?? 0,
             'remaining_amount' => $remainingAmount,
             'booking_amount' => $bookingAmount,
-            'deposit_amount' => $initialDeposit,
+            'deposit_amount' => $initialDepositValue,
             'initial_deposit' => $booking->deposit->initial_deposit ?? 0,
             'credit_note_detail' => $creditNoteDetail,
             'deduct_amount' => $deductAmount ?? 0,
@@ -622,7 +628,7 @@ class AjaxController extends Controller
                 }
             })
 
-             ->orderByDesc('id')
+            ->orderByDesc('id')
 
             ->paginate(10)
             // ->get()

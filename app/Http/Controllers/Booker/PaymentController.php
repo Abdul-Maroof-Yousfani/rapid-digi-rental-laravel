@@ -113,7 +113,7 @@ class PaymentController extends Controller
             $bookingAmount = floatval($request->input('booking_amount', 0));
             $amountReceive = floatval($request->input('amount_receive', 0));
             $initialDeposit = floatval($request->input('initial_deposit', 0));
-            $usedDepositFlag = (int)$request->input('used_deposit_amount') === 1;
+            $usedDepositFlag = (int) $request->input('used_deposit_amount') === 1;
 
             $depositUsed = 0;
             if ($usedDepositFlag) {
@@ -286,8 +286,8 @@ class PaymentController extends Controller
                     foreach ($paymentDataMap as $key => $paymentDataId) {
                         DepositHandling::create([
                             'payment_data_id' => $paymentDataId,
-                            'booking_id'      => $booking->id,
-                            'deduct_deposit'  => $pendingAmounts[$key], // match index with payment
+                            'booking_id' => $booking->id,
+                            'deduct_deposit' => $pendingAmounts[$key], // match index with payment
                         ]);
                     }
                 }
@@ -318,8 +318,8 @@ class PaymentController extends Controller
                     $this->zohoinvoice->markAsSent($paymentData->invoice->zoho_invoice_id);
 
                     $amountToPay = $incrementalPayments[$key] ?? 0;
-                    $customerId  = $paymentData->invoice->booking->customer->zoho_customer_id;
-// dd($amountToPay);
+                    $customerId = $paymentData->invoice->booking->customer->zoho_customer_id;
+                    // dd($amountToPay);
                     if ($amountToPay > 0 && !empty($customerId)) {
                         $this->zohoinvoice->recordPayment(
                             $customerId,
