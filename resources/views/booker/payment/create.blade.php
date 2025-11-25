@@ -89,7 +89,8 @@
                                                         <div class="form-group">
                                                             <label for="">Payment Method</label><br>
                                                             <select name="payment_method"
-                                                                class="form-control payment_method select2" style="width: 100%;" required>
+                                                                class="form-control payment_method select2"
+                                                                style="width: 100%;" required>
                                                                 <option value="">Payment method</option>
                                                                 @foreach ($paymentMethod as $item)
                                                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -133,7 +134,8 @@
                                                         <div class="form-group">
                                                             <label for="image">Upload Image</label><br>
                                                             <input type="file" name="image" id="image" class="form-control"
-                                                                accept="image/*">
+                                                                accept="image/*,application/pdf">
+
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -349,7 +351,7 @@
                 icon: 'error',
                 title: 'Oops...',
                 text: '{{ session('
-                        error ') }}',
+                                error ') }}',
             });
         </script>
     @endif
@@ -360,7 +362,7 @@
                 icon: 'success',
                 title: 'Success!',
                 text: '{{ session('
-                        success ') }}',
+                                success ') }}',
             });
         </script>
     @endif

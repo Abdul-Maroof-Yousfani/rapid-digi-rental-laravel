@@ -76,7 +76,7 @@ class PaymentController extends Controller
             'payment_method' => 'required',
             'booking_amount' => 'required',
             // 'amount_receive' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|mimes:jpeg,png,jpg,gif,svg,pdf|max:5120',
             'invoice_id.*' => 'required',
             'reference_invoice_number.*' => 'nullable',
             'invPaidAmount.*' => 'required',
