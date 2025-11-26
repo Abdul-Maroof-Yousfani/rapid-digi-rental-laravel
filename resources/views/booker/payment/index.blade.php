@@ -69,7 +69,8 @@
                                             <tr>
                                                 <th>S. No</th>
                                                 <th>Customer</th>
-                                                <th>Agreement no</th>
+                                                <th>Booking No</th>
+                                                <th>Invoice No</th>
                                                 <th>Payment Method</th>
                                                 <th>Booking Amount</th>
                                                 <th>Paid Amount</th>
