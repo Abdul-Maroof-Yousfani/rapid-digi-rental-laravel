@@ -21,7 +21,7 @@ class FilterviewController extends Controller
   public function getPaymentList(Request $request)
 {
     $payment = Payment::with('booking', 'paymentMethod')
-        ->where('created_at', '>=', Carbon::now()->subDays(15))
+        // ->where('created_at', '>=', Carbon::now()->subDays(15))
         ->orderBy('id', 'DESC')
         ->paginate(10);
 
