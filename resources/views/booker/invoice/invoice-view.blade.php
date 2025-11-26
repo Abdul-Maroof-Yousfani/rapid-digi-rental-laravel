@@ -202,15 +202,13 @@
                     $isOverdue = null;
                     $today = \Carbon\Carbon::today(); // Day after today
 
-                    $booking = $invoice->booking()->select('due_date')->first();
-
-                    if ($booking) {
-                        $endDate = \Carbon\Carbon::parse($booking->due_date); // convert string to Carbon
+                   
+                        $endDate = \Carbon\Carbon::parse($invoice->due_date); // convert string to Carbon
 
                         if (strtolower(trim($invoice->invoice_status)) === 'sent' && $endDate->lt($today)) {
                             $isOverdue = true;
                         }
-                    }
+                    
                 @endphp
                <div class="box1 no-print" style="background-color: 
     {{ $isOverdue
