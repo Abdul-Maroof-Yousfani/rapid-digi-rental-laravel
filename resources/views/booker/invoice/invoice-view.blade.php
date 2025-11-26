@@ -197,7 +197,7 @@
 </div>
 
         <section class="section print-area" id="printReport">
-            <div class="container my-5 p-4 bg-white">
+            <div class="container p-4 bg-white">
                 @php
                     $isOverdue = null;
                     $today = \Carbon\Carbon::today(); // Day after today
