@@ -201,7 +201,7 @@
 
 
                                         <div class="form-group">
-                                            <label>Emirates Id <span class="text-danger">*</span></label>
+                                            <label>Emirates Id</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">
@@ -577,7 +577,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Emirates Id <span class="text-danger">*</span></label>
+                                            <label>Emirates Id</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">
@@ -585,7 +585,7 @@
                                                     </div>
                                                 </div>
                                                 <input type="number" value="{{ old('cnic') }}" name="cnic"
-                                                    class="form-control cnic" required>
+                                                    class="form-control cnic">
                                             </div>
                                         </div>
 

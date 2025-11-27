@@ -16,28 +16,28 @@ $(document).ready(function(){
 
 
 
-    const input = document.getElementById('uaePhone');
+    // const input = document.getElementById('uaePhone');
 
-    input.addEventListener('input', function(e) {
-        let value = input.value.replace(/\D/g, ''); // Remove non-digits
+    // input.addEventListener('input', function(e) {
+    //     let value = input.value.replace(/\D/g, ''); // Remove non-digits
 
-        // Remove +971 if already there
-        if (value.startsWith('')) {
-            value = value.slice(3);
-        }
+    //     // Remove +971 if already there
+    //     if (value.startsWith('')) {
+    //         value = value.slice(3);
+    //     }
 
-        // Format: +971-5X-XXXXXXX
-        let formatted = '';
+    //     // Format: +971-5X-XXXXXXX
+    //     let formatted = '';
 
-        if (value.length > 0) {
-            formatted += '-' + value.substring(0, 2);
-        }
-        if (value.length > 2) {
-            formatted += '-' + value.substring(2, 9);
-        }
+    //     if (value.length > 0) {
+    //         formatted += '-' + value.substring(0, 2);
+    //     }
+    //     if (value.length > 2) {
+    //         formatted += '-' + value.substring(2, 9);
+    //     }
 
-        input.value = formatted;
-    });
+    //     input.value = formatted;
+    // });
 
     // On focus, auto-fill +971 if empty
     input.addEventListener('focus', function() {
