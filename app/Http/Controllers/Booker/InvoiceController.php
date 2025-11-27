@@ -45,6 +45,8 @@ class InvoiceController extends Controller
 
     public function create($id)
     {
+        $code = ZohoInvoice::generateUniqueCode('invoices', 'zoho_invoice_number');
+
         $invoiceTypes = Deductiontype::where('status', 1)->get();
 
 
@@ -53,7 +55,7 @@ class InvoiceController extends Controller
         $vehicleTypeIds = Vehicle::whereIn('id', $vehicleIds)->pluck('vehicletypes')->unique();
         $vehicletypes = Vehicletype::whereIn('id', $vehicleTypeIds)->get();
         $taxlist = $this->zohoinvoice->taxList();
-        return view('booker.invoice.create', compact('vehicletypes', 'booking', 'taxlist', 'invoiceTypes'));
+        return view('booker.invoice.create', compact('vehicletypes', 'booking', 'taxlist', 'invoiceTypes', 'code'));
     }
 
     public function store(Request $request)
