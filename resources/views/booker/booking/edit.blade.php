@@ -873,12 +873,11 @@
         });
 
         $(document).on('click', '.removeRow', function() {
-            if ($('.lineItemBody .card').length > 1) {
                 $(this).closest('.card').remove();
-            } else {
-                alert("At least one booking box must remain.");
-            }
+          
         });
+
+      
 
         $('#addCharges').click(function() {
             let newChargesRow = `
