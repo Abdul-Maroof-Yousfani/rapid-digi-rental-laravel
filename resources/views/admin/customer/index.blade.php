@@ -181,7 +181,7 @@
                                                 </div>
                                                 {{-- <input type="number" value="{{ old('phone') }}" name="phone"
                                                     class="form-control"> --}}
-                                                <input type="tel" value="" id="uaePhone" name="phone" class="form-control"
+                                                <input type="tel" value="" name="phone" class="form-control"
                                                     placeholder="+xxx-xx-xxxxxxx" maxlength="17" required>
                                             </div>
                                         </div>
@@ -558,7 +558,7 @@
                                                 </div>
                                                 {{-- <input type="number" value="{{ old('phone') }}" name="phone"
                                                     class="form-control"> --}}
-                                                <input type="tel" value="" id="uaePhone" name="phone" class="form-control"
+                                                <input type="tel" value="" name="phone" class="form-control"
                                                     placeholder="+xxx-xx-xxxxxxx" maxlength="17" required>
                                             </div>
                                         </div>
