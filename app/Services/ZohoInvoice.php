@@ -286,13 +286,13 @@ class ZohoInvoice
 
 
     // Invoice Manage Functions Zoho
-    public function createInvoice($customerId, $notes, $currency_code, $lineitems, $salesPersonId, $salesPersonName)
+    public function createInvoice($customerId, $notes, $currency_code, $lineitems, $salesPersonId, $salesPersonName, $code)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
         $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
         $saleperson = SalePerson::select('zoho_salesperson_id')->where('id', $salesPersonId)->first();
-        $code = $this->generateUniqueCode('invoices', 'zoho_invoice_number');
+        // $code = $this->generateUniqueCode('invoices', 'zoho_invoice_number');
 
         $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices?organization_id=' . $this->orgId, [
             'verify' => false,

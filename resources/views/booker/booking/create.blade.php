@@ -37,16 +37,24 @@
         <div class="section-body">
             <form action="{{ url('customer-booking') }}" id="booking_form" method="post" enctype="multipart/form-data">
                 @csrf
-                <div class="row">
-                    <div class="col-12 col-md-12 col-lg-12">
-                        <div class="header-card">
-                            <h4>Create Booking</h4>
+               <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="m-0">Create Booking</h4>
+
+                            <div class="form-group m-0" style="width: 250px;">
+                                <label class="m-0">Invoice No. <span class="text-danger">*</span></label>
+                                <input type="text" value="{{ $code }}" name="code" class="form-control code" required>
+                                <small style="font-size: 16px;" class="code-error"></small>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <hr style=" border-bottom:1px solid #6c757d;">
                 <div class="row">
                     <div class="col-12 col-md-6 col-lg-6">
+                        
                         <div class="card">
                             <div class="card-body">
                                 <div class="form-group">

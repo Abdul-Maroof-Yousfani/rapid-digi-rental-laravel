@@ -75,6 +75,8 @@ class BookingController extends Controller
      */
     public function create()
     {
+        $code = ZohoInvoice::generateUniqueCode('invoices', 'zoho_invoice_number');
+
         $invoiceTypes = Deductiontype::where('status', 1)->get();
         $customers = Customer::orderBy('id', 'DESC')->get();
         $vehicletypes = Vehicletype::all();
@@ -84,7 +86,8 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             return response()->view('sitedown-error', [], 500);
         }
-        return view('booker.booking.create', compact('customers', 'vehicletypes', 'salePerson', 'taxlist', 'invoiceTypes'));
+        // dd($code);
+        return view('booker.booking.create', compact('customers', 'vehicletypes', 'salePerson', 'taxlist', 'invoiceTypes', 'code'));
     }
 
     /**
@@ -98,6 +101,7 @@ class BookingController extends Controller
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no',
+            'code' => 'required|unique:invoices,zoho_invoice_number',
             // 'deposit_amount' => 'required',
             'sale_person_id' => 'nullable',
             'started_at' => 'required',
@@ -179,7 +183,7 @@ class BookingController extends Controller
             }
             $customerId = $request->customer_id;
 
-            $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $request->sale_person_id, $request->sale_person_name);
+            $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $request->sale_person_id, $request->sale_person_name, $request->code);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;

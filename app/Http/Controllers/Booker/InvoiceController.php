@@ -62,6 +62,7 @@ class InvoiceController extends Controller
         $rules = [
             'customer_id' => 'required',
             'booking_id' => 'required',
+            'code' => 'required',
             'notes' => 'required',
             'vehicle.*' => 'required',
             'vehicletypes.*' => 'required',
@@ -124,6 +125,7 @@ class InvoiceController extends Controller
                 ];
             }
             $customerId = $request->customer_id;
+            $code = $request->code;
             $book = Booking::with('salePerson')->find($request->booking_id);
 
             if ($book && $book->salePerson) {
@@ -134,7 +136,7 @@ class InvoiceController extends Controller
                 $salesperson_name = null;
             }
 
-            $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $salesperson_id, $salesperson_name);
+            $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $salesperson_id, $salesperson_name, $code);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
             $zohoInvoiceTotal = $invoiceResponse['invoice']['total'] ?? null;
