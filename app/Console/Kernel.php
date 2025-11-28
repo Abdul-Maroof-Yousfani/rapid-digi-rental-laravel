@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     {
         
         // $schedule->command('inspire')->hourly();
-        $schedule->command('notify:expired-bookings')->everyMinute();
+        // $schedule->command('notify:expired-bookings')->everyMinute();
     }
 
     /**
