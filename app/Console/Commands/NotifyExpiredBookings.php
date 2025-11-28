@@ -30,6 +30,7 @@ class NotifyExpiredBookings extends Command
      */
     public function handle()
     {
+        
         $now = Carbon::now();
         $expiredBookings = Booking::whereHas('bookingData', function ($query) use ($now) {
             $query->where('end_date', '<', $now);
