@@ -53,7 +53,7 @@ class LoginController extends Controller
 
         // Check if user has the 'booker' role
         if ($user->hasRole('booker')) {
-            return redirect()->route('dashboard');
+            return redirect()->route('customer-invoice');
         }
     }
 
