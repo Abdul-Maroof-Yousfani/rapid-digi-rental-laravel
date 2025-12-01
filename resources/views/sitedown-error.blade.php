@@ -19,8 +19,7 @@
     <div class="text-center max-w-lg rounded-lg p-8">
         <h1 class="text-3xl font-bold text-red-500 mb-4">Zoho Service Temporarily Unavailable</h1>
         <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-            We’ve hit the Zoho API limit.  
-            Please give us some time while the limit resets.  
+           Inactive client
         </p>
         <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
             Thank you for your patience.
