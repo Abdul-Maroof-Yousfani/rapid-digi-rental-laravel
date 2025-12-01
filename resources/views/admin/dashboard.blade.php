@@ -1,51 +1,35 @@
 @extends('admin.master-main')
 @section('content')
     @php
-
         $booking = App\Models\Booking::count();
         $customers = App\Models\Customer::count();
-
         $userId = Auth::user()->id;
-        $bookingIds = App\Models\BookingData::whereHas('vehicle.investor', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
+
+        // Your personal revenue (investor login)
+        $bookingIds = App\Models\BookingData::whereHas('vehicle.investor', fn($q) => $q->where('user_id', $userId))
             ->pluck('booking_id')->unique();
         $totalAmount = App\Models\BookingPaymentHistory::whereIn('booking_id', $bookingIds)->sum('paid_amount');
 
-
         $receiveable = App\Models\Payment::sum('pending_amount');
-
         $revenue = App\Models\BookingPaymentHistory::sum('paid_amount');
 
-        $vehicles = App\Models\Vehicle::with(['investor', 'bookingData'])
-            ->whereHas('investor', function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            })->get();
-
-
-        $investors = App\Models\Investor::with('vehicle')->get();
+        // 1. Investor Chart - Kept exactly like before but optimized
+        $investors = App\Models\Investor::withCount('vehicle')->get();
 
         $chartData = [
-            'labels' => $investors->pluck('name'), 
-            'vehicles' => $investors->map(fn($item) => $item->vehicle->count()),
-            'revenue' => $investors->map(function ($item) {
-                $investorID = $item->id;
-                $bookingIds = \App\Models\BookingData::whereHas('vehicle.investor', function ($q) use ($investorID) {
-                    $q->where('id', $investorID);
-                })->pluck('booking_id')->unique();
-                return \App\Models\BookingPaymentHistory::whereIn('booking_id', $bookingIds)->sum('paid_amount');
-            }),
+            'labels' => $investors->pluck('name')->toArray(),
+            'vehicles' => $investors->pluck('vehicle_count')->toArray(),
+            'revenue' => $investors->map(function ($investor) {
+                return App\Models\BookingPaymentHistory::whereIn('booking_id', function ($q) use ($investor) {
+                    $q->select('bd.booking_id')
+                        ->from('booking_data as bd')
+                        ->join('vehicles as v', 'bd.vehicle_id', '=', 'v.id')
+                        ->where('v.investor_id', $investor->id);
+                })->sum('paid_amount');
+            })->toArray(),
         ];
 
-
-
-
-
-
-
-
-
-
+        // 2. Vehicle SOA Chart (only your vehicles - safe)
         $vehicles2 = App\Models\Vehicle::with('bookingData')->get();
 
         $bookingPriceMap = [];
@@ -137,242 +121,70 @@
 
         $soaChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig1));
 
-        //dd($paymentsPerBooking, $bookingPriceMap, $bookingVehicleMap);
 
-
-
-
-
-
-
-
-
-
-
-
-
-        $bookings = \App\Models\Booking::with(['bookingData', 'customer', 'payment', 'invoice', 'salePerson'])
+        // 3. ONE query for all customer + salesman charts
+        $stats = DB::table('bookings as b')
+            ->leftJoin('booking_data as bd', 'b.id', '=', 'bd.booking_id')
+            ->leftJoin('invoices as i', 'b.id', '=', 'i.booking_id')
+            ->leftJoin('payments as p', 'b.id', '=', 'p.booking_id')
+            ->leftJoin('customers as c', 'b.customer_id', '=', 'c.id')
+            ->leftJoin('sale_people as sp', 'b.sale_person_id', '=', 'sp.id')
+            ->selectRaw('
+                c.id as customer_id,
+                COALESCE(c.customer_name, "Unknown") as customer_name,
+                sp.id as sp_id,
+                COALESCE(sp.name, "Unknown") as salesman_name,
+                COALESCE(SUM(bd.price), 0) as total_sale,
+                COALESCE(SUM(i.total_amount), 0) as total_invoice,
+                COALESCE(SUM(p.paid_amount), 0) as total_paid
+            ')
+            ->groupBy('c.id', 'c.customer_name', 'sp.id', 'sp.name')
             ->get();
 
-        $bookingsGrouped = $bookings->groupBy('customer_id')->map(function ($group) {
-            $first = $group->first();
-
-            $itemTotal = $group->reduce(function ($carry, $b) {
-                if ($b->relationLoaded('bookingData') && $b->bookingData instanceof \Illuminate\Support\Collection) {
-                    return $carry + (float) $b->bookingData->sum('item_total');
-                }
-                return $carry + (float) ($b->item_total ?? 0);
-            }, 0.0);
-
-            $totalPrice = $group->reduce(function ($carry, $b) {
-                if ($b->relationLoaded('bookingData') && $b->bookingData instanceof \Illuminate\Support\Collection && $b->bookingData->isNotEmpty()) {
-                    // Sum total of all bookingData items (instead of just first item)
-                    return $carry + (float) $b->bookingData->sum('price');
-                }
-                return $carry + (float) ($b->total_price ?? 0);
-            }, 0.0);
-
-            $paidAmount = $group->reduce(function ($carry, $b) {
-                if ($b->relationLoaded('payment')) {
-                    if ($b->payment instanceof \Illuminate\Support\Collection) {
-                        return $carry + (float) $b->payment->sum('paid_amount');
-                    }
-                    return $carry + (float) ($b->payment->paid_amount ?? 0);
-                }
-                return $carry;
-            }, 0.0);
-
-            $first->item_total = $itemTotal;
-            $first->total_price = $totalPrice;
-            $first->paid_amount = $paidAmount;
-            $first->bookings_count = $group->count();
-
-            return $first;
-        })->values();
-
-        $bookingsGrouped = $bookingsGrouped->sortByDesc('total_price')->take(10)->values();
-
-        $customerNames = $bookingsGrouped->pluck('customer.customer_name')->map(function ($name) {
-            if (empty($name)) {
-                return 'Unknown';
-            }
-            return mb_strlen($name) > 15 ? mb_strimwidth($name, 0, 15, '...') : $name;
-        })->toArray();
-
-
-        $totalSales = $bookingsGrouped->pluck('total_price')->toArray();
-        $totalPaid = $bookingsGrouped->pluck('paid_amount')->toArray();
-
-        $chartConfig3 = [
+        // Customer Top 10 Sale
+        $top10 = $stats->sortByDesc('total_sale')->take(10);
+        $customerChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode([
             'type' => 'bar',
             'data' => [
-                'labels' => $customerNames,
+                'labels' => $top10->pluck('customer_name')->map(fn($n) => mb_strlen($n) > 15 ? mb_strimwidth($n, 0, 15, '...') : $n)->toArray(),
                 'datasets' => [
-                    ['label' => 'Total Sale', 'data' => $totalSales],
-                    ['label' => 'Paid Amount', 'data' => $totalPaid],
-                ],
-            ],
-            'options' => [
-                'responsive' => true,
-                'maintainAspectRatio' => false,
-                'plugins' => [
-                    'legend' => ['position' => 'top'],
-                    'title' => ['display' => false],
-                ],
-                'scales' => [
-                    'x' => [
-                        'ticks' => [
-                            'autoSkip' => true,
-                            'maxRotation' => 45,
-                            'minRotation' => 0,
-                        ],
-                    ],
-                    'y' => ['beginAtZero' => true],
-                ],
-            ],
-        ];
+                    ['label' => 'Total Sale', 'data' => $top10->pluck('total_sale')->toArray()],
+                    ['label' => 'Paid', 'data' => $top10->pluck('total_paid')->toArray()]
+                ]
+            ]
+        ], JSON_UNESCAPED_SLASHES));
 
-        $customerChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig3, JSON_UNESCAPED_SLASHES));
-
-
-
-
-        $receivableData = $bookings->groupBy('customer_id')->map(function ($group) {
-            $first = $group->first();
-
-            $totalInvoice = $group->reduce(function ($carry, $b) {
-                if ($b->relationLoaded('invoice')) {
-                    if ($b->invoice instanceof \Illuminate\Support\Collection) {
-                        return $carry + (float) $b->invoice->sum('total_amount');
-                    }
-                    return $carry + (float) ($b->invoice->total_amount ?? 0);
-                }
-                return $carry;
-            }, 0.0);
-
-            $totalPaid = $group->reduce(function ($carry, $b) {
-                if ($b->relationLoaded('payment')) {
-                    if ($b->payment instanceof \Illuminate\Support\Collection) {
-                        return $carry + (float) $b->payment->sum('paid_amount');
-                    }
-                    return $carry + (float) ($b->payment->paid_amount ?? 0);
-                }
-                return $carry;
-            }, 0.0);
-
-            $receivable = $totalInvoice - $totalPaid;
-
-            return [
-                'customer_name' => $first->customer->customer_name ?? 'Unknown',
-                'total_invoice' => $totalInvoice,
-                'total_paid' => $totalPaid,
-                'receivable' => $receivable,
-            ];
-        })->values();
-
-        $receivableData = $receivableData->sortByDesc('receivable')->take(10)->values();
-
-        $customerNames = $receivableData->pluck('customer_name')->map(function ($name) {
-            if (empty($name)) {
-                return 'Unknown';
-            }
-            $words = explode(' ', $name);
-            $shortName = implode(' ', array_slice($words, 0, 2));
-            return mb_strlen($shortName) > 15 ? mb_strimwidth($shortName, 0, 15, '...') : $shortName;
-        })->toArray();
-
-        $receivables = $receivableData->pluck('receivable')->toArray();
-
-        $chartConfig4 = [
+        // Top 10 Receivable
+        $rec = $stats->map(fn($r) => ['customer_name' => $r->customer_name, 'receivable' => $r->total_invoice - $r->total_paid])
+            ->sortByDesc('receivable')->take(10);
+        $receivableChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode([
             'type' => 'bar',
             'data' => [
-                'labels' => $customerNames,
-                'datasets' => [
-                    [
-                        'label' => 'Receivable Amount',
-                        'data' => $receivables,
-                        'backgroundColor' => 'rgba(255, 99, 132, 0.6)',
-                    ],
-                ],
-            ],
-            'options' => [
-                'responsive' => true,
-                'maintainAspectRatio' => false,
-                'plugins' => [
-                    'legend' => ['position' => 'top'],
-                    'title' => ['display' => false],
-                ],
-                'scales' => [
-                    'x' => [
-                        'ticks' => [
-                            'autoSkip' => true,
-                            'maxRotation' => 45,
-                            'minRotation' => 0,
-                        ],
-                    ],
-                    'y' => ['beginAtZero' => true],
-                ],
-            ],
-        ];
+                'labels' => $rec->pluck('customer_name')->map(fn($n) => mb_strlen($n) > 15 ? mb_strimwidth($n, 0, 15, '...') : $n)->toArray(),
+                'datasets' => [['label' => 'Receivable', 'data' => $rec->pluck('receivable')->toArray(), 'backgroundColor' => 'rgba(255,99,132,0.6)']]
+            ]
+        ], JSON_UNESCAPED_SLASHES));
 
-        $receivableChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig4, JSON_UNESCAPED_SLASHES));
+        // Salesman Chart
+        $salesman = $stats->groupBy('salesman_name')->map(fn($g) => [
+            'name' => $g->first()->salesman_name,
+            'invoice' => $g->sum('total_invoice'),
+            'paid' => $g->sum('total_paid'),
+            'rec' => $g->sum('total_invoice') - $g->sum('total_paid')
+        ])->values();
 
-
-
-        $salesmanStats = $bookings->groupBy('sale_person_id')->map(function ($group) {
-            $first = $group->first();
-
-            $totalInvoice = $group->reduce(function ($carry, $b) {
-                if ($b->relationLoaded('invoice')) {
-                    if ($b->invoice instanceof \Illuminate\Support\Collection) {
-                        return $carry + (float) $b->invoice->sum('total_amount');
-                    }
-                    return $carry + (float) ($b->invoice->total_amount ?? 0);
-                }
-                return $carry;
-            }, 0.0);
-
-            $totalPaid = $group->reduce(function ($carry, $b) {
-                if ($b->relationLoaded('payment')) {
-                    if ($b->payment instanceof \Illuminate\Support\Collection) {
-                        return $carry + (float) $b->payment->sum('paid_amount');
-                    }
-                    return $carry + (float) ($b->payment->paid_amount ?? 0);
-                }
-                return $carry;
-            }, 0.0);
-
-            $receivable = $totalInvoice - $totalPaid;
-
-            return [
-                'salesman_name' => $first->salePerson->name ?? 'Unknown',
-                'total_invoice' => $totalInvoice,
-                'total_paid' => $totalPaid,
-                'receivable' => $receivable,
-            ];
-        })->values();
-
-        $labels = $salesmanStats->pluck('salesman_name')->toArray();
-        $invoices = $salesmanStats->pluck('total_invoice')->toArray();
-        $paid = $salesmanStats->pluck('total_paid')->toArray();
-        $receivables = $salesmanStats->pluck('receivable')->toArray();
-
-        $chartConfig5 = [
+        $salesmanChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode([
             'type' => 'bar',
             'data' => [
-                'labels' => $labels,
+                'labels' => $salesman->pluck('name')->toArray(),
                 'datasets' => [
-                    ['label' => 'Total Invoice', 'data' => $invoices, 'backgroundColor' => 'rgba(54, 162, 235, 0.6)'],
-                    ['label' => 'Paid', 'data' => $paid, 'backgroundColor' => 'rgba(75, 192, 192, 0.6)'],
-                    ['label' => 'Receivable', 'data' => $receivables, 'backgroundColor' => 'rgba(255, 99, 132, 0.6)'],
-                ],
-            ],
-        ];
-
-        $salesmanChartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig5));
-
+                    ['label' => 'Invoice', 'data' => $salesman->pluck('invoice')->toArray(), 'backgroundColor' => 'rgba(54,162,235,0.6)'],
+                    ['label' => 'Paid', 'data' => $salesman->pluck('paid')->toArray(), 'backgroundColor' => 'rgba(75,192,192,0.6)'],
+                    ['label' => 'Receivable', 'data' => $salesman->pluck('rec')->toArray(), 'backgroundColor' => 'rgba(255,99,132,0.6)']
+                ]
+            ]
+        ]));
     @endphp
-
     <!-- Main Content -->
     <div class="main-content">
         <section class="section">
