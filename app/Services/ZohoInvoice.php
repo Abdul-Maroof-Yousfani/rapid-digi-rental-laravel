@@ -28,11 +28,11 @@ class ZohoInvoice
     public function __construct()
     {
         $this->scope = config('services.zoho.scope');
-        $this->clientID = config('services.zoho.client_id');
-        $this->clientSecret = config('services.zoho.client_secret');
+        $this->clientID = '1000.IP19P9N5DEG6Q105YH00QNDFJFDIEI';
+        $this->clientSecret = '0fcc1a0957e78eb16a9b28dae52ac92cd4fd5a3bfc';
         $this->redirectUri = config('services.zoho.redirect_uri');
-        $this->orgId = config('services.zoho.org_id');
-        $this->refreshToken = config('services.zoho.refresh_token');
+        $this->orgId = '869372301';
+        $this->refreshToken = '1000.6d9ddabcca986c8c2bf8e287dbcab075.f6e8c28f1edf76657fccea55d51566fe';
     }
 
     public function refreshAccessToken()
