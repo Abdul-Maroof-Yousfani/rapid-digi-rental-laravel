@@ -49,7 +49,7 @@ class ZohoInvoice
                 'grant_type' => 'refresh_token',
             ]
         ]);
-        // $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getBody(), true);
         //   if (!isset($data['access_token'])) {
         //     \Log::error("Zoho Refresh Token Error", [
         //         'response' => $data
