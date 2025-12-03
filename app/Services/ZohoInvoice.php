@@ -37,11 +37,7 @@ class ZohoInvoice
 
     public function refreshAccessToken()
     {
-        try {
-            $zohoCustomers = $this->zohoinvoice->getAllCustomers();
-        } catch (\Exception $e) {
-            return response()->view('sitedown-error', [], 500);
-        }
+        
         $apiToken = ApiToken::find(2);
         $client = new Client();
         $response = $client->post('https://accounts.zoho.com/oauth/v2/token', [
