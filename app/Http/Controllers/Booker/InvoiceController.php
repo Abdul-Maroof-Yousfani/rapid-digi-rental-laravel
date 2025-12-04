@@ -200,6 +200,45 @@ class InvoiceController extends Controller
                         ]);
 
                     }
+                    if (!empty($request->deposit_type)) {
+                        if ($request->deposit_type == 1) {
+                            $booking_data = BookingData::create([
+                                'booking_id' => $request->booking_id,
+                                'vehicle_id' => $vehicle_id,
+                                'invoice_id' => $invoice->id,
+                                'price' => $request->non_refundable_amount ?? 0,
+                                'quantity' => 1,
+                                'transaction_type' => 1,
+                                'description' => 'CARDOO',
+                                'item_total' => $request->non_refundable_amount ?? 0,
+                            ]);
+
+                        } elseif ($request->deposit_type == 2) {
+                            $booking_data = BookingData::create([
+                                'booking_id' => $request->booking_id,
+                                'vehicle_id' => $vehicle_id,
+                                'invoice_id' => $invoice->id,
+                                'price' => $request->non_refundable_amount ?? 0,
+                                'quantity' => 1,
+                                'transaction_type' => 1,
+                                'description' => 'LPO',
+                                'item_total' => $request->non_refundable_amount ?? 0,
+                            ]);
+                        }
+                    }
+                    // if (!empty($request->deposit_amount)) {
+                    //     $booking_data = BookingData::create([
+                    //         'booking_id' => $request->booking_id,
+                    //         'vehicle_id' => $vehicle_id,
+                    //         'invoice_id' => $invoice->id,
+                    //         'price' => $request->deposit_amount ?? 0,
+                    //         'quantity' => 1,
+                    //         'transaction_type' => 1,
+                    //         'description' => 'Deposit',
+                    //         'item_total' => $request->deposit_amount ?? 0,
+                    //     ]);
+
+                    // }
 
                     DB::commit();
                     return redirect()->route('view.invoice', $invoice->id)->with('success', 'Invoice Created Successfully.')->withInput();
