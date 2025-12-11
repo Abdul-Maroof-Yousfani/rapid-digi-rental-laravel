@@ -56,10 +56,10 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                                <form class="filterForm" style="display: none">
+                                <form class="filterForm">
                                     <div class="row">
                                         <div class="col-3 ml-auto">
-                                            <input type="text" placeholder="Search" class="form-control" id="search">
+                                            <input type="text" placeholder="Search Booking No. / Customer" class="form-control" id="search">
                                         </div>
                                     </div><br>
                                 </form>
@@ -113,41 +113,42 @@
 
 @section('script')
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function () {
-            const deleteButtons = document.querySelectorAll('.delete-confirm');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function (e) {
-                    e.preventDefault(); // Stop form submit
-                    const form = this.closest('form');
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: "You won't be able to revert this!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Yes, delete it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
+        // Use event delegation for dynamically added delete buttons
+        $(document).on('click', '.delete-confirm', function (e) {
+            e.preventDefault(); // Stop form submit
+            const form = $(this).closest('form');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
             });
         });
 
         $(document).ready(function () {
 
-            function loadPaymentList(url = '/get-payment-list') {
+            function loadPaymentList(url = '/get-payment-list', search = '') {
                 $('#paymentList').html(`
                 <tr>
-                    <td colspan="8" class="text-center">
+                    <td colspan="9" class="text-center">
                         <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
                     </td>
                 </tr>
             `);
+
+                // Add search parameter to URL if provided
+                if (search) {
+                    url += (url.includes('?') ? '&' : '?') + 'search=' + encodeURIComponent(search);
+                }
 
                 $.ajax({
                     url: url,
@@ -157,6 +158,7 @@
                     },
                     error: function (xhr) {
                         console.error('Error fetching payment list:', xhr.responseText);
+                        $('#paymentList').html(`<tr><td colspan="9" class="text-center text-danger">Error loading payments</td></tr>`);
                     }
                 });
             }
@@ -168,36 +170,24 @@
             $(document).on('click', '.pagination a', function (e) {
                 e.preventDefault();
                 const url = $(this).attr('href');
-                if (url) loadPaymentList(url);
-            });
-
-            $('#paymentList').html(`
-                    <tr>
-                        <td colspan="8" class="text-center">
-                            <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </td>
-                    </tr>
-            `);
-            $.ajax({
-                url: '/get-payment-list',
-                type: 'get',
-                success: function (response) {
-                    $('#paymentList').html(response);
-                },
-                error: function (xhr) {
-                    console.error('Error fetching payment list:', xhr.responseText);
-                }
+                const search = $('#search').val();
+                if (url) loadPaymentList(url, search);
             });
 
 
             $('#search').on('keyup', function () {
-                let search = $(this).val();
+                let search = $(this).val().trim();
+                
+                // If search is empty, reload the full list
+                if (search === '') {
+                    loadPaymentList();
+                    return;
+                }
+
                 // Show loader while data is loading
                 $('#paymentList').html(`
                     <tr>
-                        <td colspan="8" class="text-center">
+                        <td colspan="9" class="text-center">
                             <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
                                 <span class="sr-only">Loading...</span>
                             </div>
@@ -211,32 +201,50 @@
                     success: function (response) {
                         let html = '';
                         let number = 1;
-                        if (response.payments.length > 0) {
+                        if (response.payments && response.payments.length > 0) {
                             $.each(response.payments, function (index, data) {
                                 html += `
-                                        <tr>
-                                            <td>${data.id}.</td>
-                                            <td>${data}</td>
-                                            <td>${data}</td>
-                                            <td>${data}</td>
-                                            <td>${data.booking_amount}</td>
-                                            <td>${data.paid_amount}</td>
-                                            <td>${data.pending_amount ?? 0}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-success btn-sm paymentHistory" data-payment-id="${data.id}" data-toggle="modal" data-target="#paymentHistoryModal">
-                                                    View
+                                    <tr>
+                                        <td>${number}.</td>
+                                        <td>${data.booking && data.booking.customer ? data.booking.customer.customer_name : 'No Customer'}</td>
+                                        <td>${data.booking ? data.booking.id : '-'}</td>
+                                        <td>${data.booking && data.booking.invoice ? (data.booking.invoice.zoho_invoice_number || '-') : '-'}</td>
+                                        <td>${data.payment_method ? data.payment_method.name : '-'}</td>
+                                        <td>${parseFloat(data.booking_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td>${parseFloat(data.paid_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td>${parseFloat(data.pending_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                    Actions
                                                 </button>
-                                            </td>
-                                        </tr>
+                                                <div class="dropdown-menu">
+                                                    <button type="button" class="dropdown-item paymentHistory" data-payment-id="${data.id}" data-toggle="modal" data-target="#paymentHistoryModal">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </button>
+                                                    <form action="/payment/${data.id}" method="POST" style="display:inline;" class="delete-form">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                        <input type="hidden" name="_method" value="DELETE">
+                                                        <button type="submit" class="dropdown-item delete-confirm text-danger">
+                                                            <i class="far fa-trash-alt"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 `;
                                 number++;
                             });
-
                             $('#paymentList').html(html);
-
                         } else {
-                            html = `<tr><td colspan="7" class="text-center">No results found</td></tr>`;
+                            html = `<tr><td colspan="9" class="text-center">No results found</td></tr>`;
+                            $('#paymentList').html(html);
                         }
+                    },
+                    error: function (xhr) {
+                        console.error('Error searching payments:', xhr.responseText);
+                        $('#paymentList').html(`<tr><td colspan="9" class="text-center text-danger">Error loading payments</td></tr>`);
                     }
                 });
             });

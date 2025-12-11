@@ -20,8 +20,25 @@ class FilterviewController extends Controller
 
   public function getPaymentList(Request $request)
 {
-    $payment = Payment::with('booking', 'paymentMethod')
-        // ->where('created_at', '>=', Carbon::now()->subDays(15))
+    $search = $request->search;
+    $payment = Payment::with(['booking.customer', 'booking.invoice', 'paymentMethod'])
+        ->when($search, function ($query, $search) {
+            $searchLower = strtolower($search);
+            $query->where(function ($q) use ($searchLower, $search) {
+                // Search by booking ID (if numeric)
+                if (is_numeric($search)) {
+                    $q->whereHas('booking', function ($q1) use ($search) {
+                        $q1->where('id', 'LIKE', "%{$search}%");
+                    })
+                    ->orWhere('id', $search);
+                } else {
+                    // Search by customer name
+                    $q->whereHas('booking.customer', function ($q1) use ($searchLower) {
+                        $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . $searchLower . "%"]);
+                    });
+                }
+            });
+        })
         ->orderBy('id', 'DESC')
         ->paginate(10);
 

@@ -380,7 +380,31 @@ class PaymentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            DB::beginTransaction();
+            
+            $payment = Payment::find($id);
+            
+            if (!$payment) {
+                return redirect()->back()->with('error', 'Payment Not Found!');
+            }
+
+            // Delete related PaymentData records
+            PaymentData::where('payment_id', $payment->id)->delete();
+
+            // Delete related BookingPaymentHistory records
+            BookingPaymentHistory::where('payment_id', $payment->id)->delete();
+
+            // Delete the payment
+            $payment->delete();
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Payment Deleted Successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error deleting payment: ' . $e->getMessage());
+        }
     }
 
     // Clear Pending Payment
