@@ -211,8 +211,16 @@ class PaymentController extends Controller
 
             $remainingPayment = $paidAmount; // total payment user made
             $incrementalPayments = [];
+            
+            // Get selected invoice IDs
+            $selectedInvoiceIds = $request->input('selected_invoices', []);
+            
             try {
                 foreach ($request['invoice_id'] as $key => $invoice_ids) {
+                    // Only process invoices that are checked/selected
+                    if (!in_array($invoice_ids, $selectedInvoiceIds)) {
+                        continue;
+                    }
                     $invoiceAmount = floatval($request['invoice_amount'][$key]);
                     $paymentDataID = $request->paymentData_id[$key] ?? null;
 
@@ -442,7 +450,15 @@ class PaymentController extends Controller
             ]);
 
             $paymentDataMap = [];
+            // Get selected invoice IDs
+            $selectedInvoiceIds = $request->input('selected_invoices', []);
+            
             foreach ($request['invoice_id'] as $key => $invoice_ids) {
+                // Only process invoices that are checked/selected
+                if (!empty($selectedInvoiceIds) && !in_array($invoice_ids, $selectedInvoiceIds)) {
+                    continue;
+                }
+                
                 $invoiceAmount = $request['invoice_amount'][$key];
                 $invPaidAmount = $request['invPaidAmount'][$key];
                 $pendingAmount = $invoiceAmount - $invPaidAmount;

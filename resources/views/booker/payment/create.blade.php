@@ -213,6 +213,9 @@
                                         <table class="table table-striped text-center">
                                             <thead>
                                                 <tr>
+                                                    <th>
+                                                        <input type="checkbox" id="selectAllInvoices" title="Select All">
+                                                    </th>
                                                     <th>Invoice No.</th>
                                                     <th>Salik Qty | Amount</th>
                                                     <th>Fine Qty | Amount</th>
@@ -228,11 +231,11 @@
 
                                             <tbody class="ui-sortable" id="booking_detail"></tbody>
                                             <tr>
-                                                <td colspan="8" class="text-center font-weight-bold ">Payment Management
+                                                <td colspan="9" class="text-center font-weight-bold ">Payment Management
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="7" class="text-right align-middle">
+                                                <td colspan="8" class="text-right align-middle">
                                                     <span data-toggle="tooltip"
                                                         title="The initial deposit amount available">Deposit Amount</span>
                                                 </td>
@@ -243,7 +246,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="7" class="text-right align-middle">
+                                                <td colspan="8" class="text-right align-middle">
                                                     <!-- <div class="form-check"> -->
                                                     <input type="hidden" name="used_deposit_amount" value="0">
                                                     <input type="checkbox" id="used_deposit_amount"
@@ -259,7 +262,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="7" class="text-right align-middle">Receive Amount <span
+                                                <td colspan="8" class="text-right align-middle">Receive Amount <span
                                                         class="text-danger">*</span></td>
                                                 <td>
                                                     <input type="number" value="" name="amount_receive"
@@ -270,7 +273,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="7" class="text-right align-middle">Pending Amount</td>
+                                                <td colspan="8" class="text-right align-middle">Pending Amount</td>
                                                 <td>
                                                     <input type="number" class="form-control pending_amount"
                                                         placeholder="0.00" readonly>
@@ -279,14 +282,14 @@
                                             </tr>
 
                                             <tr>
-                                                <td colspan="7" class="text-right align-middle">Remaining Deposit</td>
+                                                <td colspan="8" class="text-right align-middle">Remaining Deposit</td>
                                                 <td>
                                                     <input type="number" class="form-control remaining_deposit"
                                                         placeholder="0.00" readonly>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="7" class="text-right align-middle">
+                                                <td colspan="8" class="text-right align-middle">
                                                     <!-- <div class="form-check"> -->
                                                     <input type="hidden" name="adjust_invoice" value="0">
                                                     <input type="checkbox" id="adjust_invoice" name="adjust_invoice"
@@ -301,7 +304,7 @@
                                                 </td>
                                             </tr>
                                             <tr id="invoice_adjustment_section1" style="display: none;">
-                                                <td colspan="7" class="text-right align-middle">Reference Invoice No.</td>
+                                                <td colspan="8" class="text-right align-middle">Reference Invoice No.</td>
                                                 <td>
                                                     <input type="text" class="form-control reference_invoice_number"
                                                         name="reference_invoice_number[]"
@@ -309,7 +312,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="7" class="text-right align-middle">Remarks (Optional)</td>
+                                                <td colspan="8" class="text-right align-middle">Remarks (Optional)</td>
                                                 <td>
                                                     <textarea name="remarks[]" class="form-control"
                                                         placeholder="e.g., Payment for invoice #123, special instructions"
@@ -361,9 +364,81 @@
 
     <script>
         $(document).ready(function () {
-            $('#payment_form').on('submit', function () {
+            // Select All functionality
+            $(document).on('change', '#selectAllInvoices', function() {
+                $('.invoice-checkbox').prop('checked', $(this).prop('checked'));
+                toggleInvoiceRows();
+            });
+
+            // Individual checkbox change
+            $(document).on('change', '.invoice-checkbox', function() {
+                // Update select all checkbox state
+                var totalCheckboxes = $('.invoice-checkbox').length;
+                var checkedCheckboxes = $('.invoice-checkbox:checked').length;
+                $('#selectAllInvoices').prop('checked', totalCheckboxes === checkedCheckboxes);
+                toggleInvoiceRows();
+            });
+
+            // Toggle row visibility/state based on checkbox
+            function toggleInvoiceRows() {
+                $('.invoice-checkbox').each(function() {
+                    var row = $(this).closest('tr');
+                    if ($(this).is(':checked')) {
+                        row.find('input, select').not('.invoice-checkbox').prop('disabled', false);
+                        row.css('opacity', '1');
+                    } else {
+                        row.find('input, select').not('.invoice-checkbox').prop('disabled', true);
+                        row.css('opacity', '0.5');
+                    }
+                });
+            }
+
+            // Form submission - only process checked invoices
+            $('#payment_form').on('submit', function (e) {
+                // Check if at least one invoice is selected
+                if ($('.invoice-checkbox:checked').length === 0) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Invoice Selected',
+                        text: 'Please select at least one invoice to process payment.',
+                    });
+                    return false;
+                }
+
+                // Re-index arrays to ensure proper alignment
+                var checkedIndex = 0;
+                $('.invoice-checkbox:checked').each(function() {
+                    var row = $(this).closest('tr');
+                    row.find('input[name^="invoice_id"]').attr('name', 'invoice_id[' + checkedIndex + ']');
+                    row.find('input[name^="invoice_amount"]').attr('name', 'invoice_amount[' + checkedIndex + ']');
+                    row.find('input[name^="invPaidAmount"]').attr('name', 'invPaidAmount[' + checkedIndex + ']');
+                    row.find('input[name^="paymentData_id"]').attr('name', 'paymentData_id[' + checkedIndex + ']');
+                    row.find('input[name^="addDepositAmount"]').attr('name', 'addDepositAmount[' + checkedIndex + ']');
+                    if (row.find('input[name^="reference_invoice_number"]').length) {
+                        row.find('input[name^="reference_invoice_number"]').attr('name', 'reference_invoice_number[' + checkedIndex + ']');
+                    }
+                    if (row.find('textarea[name^="remarks"]').length) {
+                        row.find('textarea[name^="remarks"]').attr('name', 'remarks[' + checkedIndex + ']');
+                    }
+                    checkedIndex++;
+                });
+
+                // Remove unchecked invoice rows from form data
+                $('.invoice-checkbox:not(:checked)').each(function() {
+                    var row = $(this).closest('tr');
+                    row.find('input, select, textarea').not('.invoice-checkbox').each(function() {
+                        $(this).removeAttr('name');
+                    });
+                });
+
                 $('#submitBtn').prop('disabled', true).val('Processing...');
             });
+
+            // Initialize on page load
+            setTimeout(function() {
+                toggleInvoiceRows();
+            }, 500);
         });
     </script>
 

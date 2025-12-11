@@ -247,7 +247,10 @@ function bookingChange() {
                     let nonRefundableText = (nonRefundable > 0)
                         ? ' <small class="text-info d-block">(Incl. Non-Refundable)</small>'
                         : '';
-                    var row = '<tr style="' + rowColor + '">' +
+                    var row = '<tr style="' + rowColor + '" data-invoice-id="' + invoice.invoice_id + '">' +
+                        '<td class="text-center">' +
+                        '<input type="checkbox" class="invoice-checkbox" name="selected_invoices[]" value="' + invoice.invoice_id + '" checked>' +
+                        '</td>' +
                         '<td><input type="hidden" name="paymentData_id[]" value="' + paymentDataID + '">' + invoice.zoho_invoice_number + '</td>' +
                         '<td>' + invoice.summary.salik_qty + ' | ' + invoice.summary.salik_amount + '</td>' +
                         '<td>' + invoice.summary.fine_qty + ' | ' + invoice.summary.fine_amount + '</td>' +
