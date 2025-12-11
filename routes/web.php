@@ -185,7 +185,7 @@ Route::get('booking-cancellation/{id}', [AjaxController::class, 'bookingCancella
 Route::get('check-bookingis-active/{id}', [BookingController::class, 'isBookingActive']);
 Route::get('is-agreement-no-exist', [AjaxController::class, 'checkAgreementNoExist'])->name("checkAgreementNoExist");
 
-Route::get('/get-invoice-detail/{id}', [ZohoInvoice::class, 'getInvoiceD']);
+// Route::get('/get-invoice-detail/{id}', [ZohoInvoice::class, 'getInvoiceD']);
 
 
 
