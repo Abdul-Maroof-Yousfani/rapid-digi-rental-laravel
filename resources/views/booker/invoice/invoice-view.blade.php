@@ -150,6 +150,83 @@
     <!-- Main Content -->
     <div class="main-content">
 
+        <!-- Payments Received Section -->
+        <div class="mb-4 no-print">
+            <div class="card">
+                <div class="card-header" style="background-color: #f8f9fa; border-bottom: 2px solid #0d6efd;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0" style="color: #343a40; font-weight: 600;">Payments Received</h5>
+                        <span class="badge badge-primary" style="background-color: #0d6efd; font-size: 0.875rem; padding: 0.35rem 0.65rem;">
+                            {{ $invoice->paymentData->count() }}
+                        </span>
+                    </div>
+                    {{-- <div style="height: 3px; background-color: #0d6efd; margin-top: 8px; width: 100px;"></div> --}}
+                </div>
+                <div class="card-body p-0">
+                    @if($invoice->paymentData->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead style="background-color: #f8f9fa;">
+                                    <tr>
+                                        <th style="padding: 12px; font-weight: 600; color: #495057;">Date</th>
+                                        <th style="padding: 12px; font-weight: 600; color: #495057;">Payment #</th>
+                                        {{-- <th style="padding: 12px; font-weight: 600; color: #495057;">Reference#</th> --}}
+                                        <th style="padding: 12px; font-weight: 600; color: #495057;">Status</th>
+                                        <th style="padding: 12px; font-weight: 600; color: #495057;">Payment Mode</th>
+                                        <th style="padding: 12px; font-weight: 600; color: #495057; text-align: right;">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($invoice->paymentData as $paymentData)
+                                        @php
+                                            $payment = $paymentData->payment;
+                                            $paymentDate = $payment && $payment->payment_date 
+                                                ? \Carbon\Carbon::parse($payment->payment_date)->format('d M Y')
+                                                : ($paymentData->created_at ? $paymentData->created_at->format('d M Y') : '-');
+                                            $paymentNumber = $payment ? $payment->id : '-';
+                                            $referenceNumber = $paymentData->reference_invoice_number ?? '-';
+                                            $status = $paymentData->status ?? 'pending';
+                                            $paymentMode = $payment && $payment->paymentMethod ? $payment->paymentMethod->name : '-';
+                                            $amount = $paymentData->paid_amount ?? 0;
+                                        @endphp
+                                        <tr>
+                                            <td style="padding: 12px; color: #495057;">{{ $paymentDate }}</td>
+                                            <td style="padding: 12px;">
+                                                @if($paymentNumber != '-')
+                                                    <a href="#" style="color: #0d6efd; text-decoration: none;">{{ $paymentNumber }}</a>
+                                                @else
+                                                    {{ $paymentNumber }}
+                                                @endif
+                                            </td>
+                                            {{-- <td style="padding: 12px; color: #6c757d;">{{ $referenceNumber }}</td> --}}
+                                            <td style="padding: 12px;">
+                                                @if($status == 'paid')
+                                                    <span style="color: #28a745; font-weight: 500;">Paid</span>
+                                                @else
+                                                    <span style="color: #ffc107; font-weight: 500;">Partially Paid</span>
+                                                @endif
+                                            </td>
+                                            <td style="padding: 12px; color: #6c757d;">
+                                                <span style="display: inline-block; width: 8px; height: 8px; background-color: #6c757d; border-radius: 50%; margin-right: 6px;"></span>
+                                                {{ $paymentMode }}
+                                            </td>
+                                            <td style="padding: 12px; text-align: right; color: #495057; font-weight: 500;">
+                                                AED{{ number_format($amount, 2) }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="p-3 text-center text-muted">
+                            <p class="mb-0">No payments received yet.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         <!-- Print Button (outside print area, so not printed) -->
        <div class="text-right mb-3 no-print">
 

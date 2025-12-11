@@ -77,6 +77,6 @@ class Invoice extends Model
 
     public function paymentData()
     {
-        return $this->hasOne(PaymentData::class);
+        return $this->hasMany(PaymentData::class, 'invoice_id', 'id');
     }
 }
