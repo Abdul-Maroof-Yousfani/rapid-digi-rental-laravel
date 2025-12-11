@@ -751,7 +751,7 @@
         $(document).on('change', '#curr_vehicle_status', function() {
             let selectedStatus = $(this).val().toLowerCase();
 
-            if (selectedStatus === 'garage') {
+            if (selectedStatus === 'garage' || selectedStatus === 'other') {
                 $('#new_vehicle').prop('disabled', false);
             } else {
                 $('#new_vehicle').prop('disabled', true).val('').trigger('change');
