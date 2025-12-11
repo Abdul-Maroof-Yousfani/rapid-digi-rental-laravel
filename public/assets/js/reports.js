@@ -10,14 +10,18 @@ $(document).ready(function () {
         e.preventDefault();
 
         // Get form data
-        // let fromDate = $('input[name="from_date"]').val();
-        // let toDate = $('input[name="to_date"]').val();
+        let fromDate = $('input[name="from_date"]').val();
+        let toDate = $('input[name="to_date"]').val();
 
-        // // Check if both dates are selected
-        // if (!fromDate || !toDate) {
-        //     alert('Please select both From Date and To Date.');
-        //     return; // stop the AJAX call
-        // }
+        // Check if both dates are selected
+        if (!fromDate || !toDate) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Date Required',
+                text: 'Please select both From Date and To Date.',
+            });
+            return; // stop the AJAX call
+        }
 
         let formData = $(this).serialize();
         $.ajax({

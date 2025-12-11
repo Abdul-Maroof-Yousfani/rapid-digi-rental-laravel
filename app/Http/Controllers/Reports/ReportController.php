@@ -46,13 +46,23 @@ class ReportController extends Controller
     }
     public function getSoaReportList(Request $request)
     {
+        // Validate and parse dates
+        if (!$request->from_date || !$request->to_date) {
+            return response()->json([
+                'html' => '<tr><td colspan="6" class="text-center"><h3 style="color:#0d6efd;">Please select both From Date and To Date</h3></td></tr>',
+                'investor_name' => null,
+                'percentage' => 0,
+                'till_date' => '',
+            ]);
+        }
+
         $from = Carbon::parse($request->from_date)->startOfDay();
         $to = Carbon::parse($request->to_date)->endOfDay();
         $investorId = $request['investor_id'];
         $type = $request['type'];
         $payment_status = $request['payment_status'];
 
-        // Get vehicles with bookings in range
+        // Get vehicles with bookings in range - only vehicles that have bookings in the date range
         $vehicles = Vehicle::with([
             'bookingData' => function ($q) use ($from, $to) {
                 $q->where('start_date', '<=', $to)
@@ -60,6 +70,10 @@ class ReportController extends Controller
                     ->with('invoice'); // eager load invoice inside bookingData
             }
         ])
+            ->whereHas('bookingData', function ($q) use ($from, $to) {
+                $q->where('start_date', '<=', $to)
+                    ->where('end_date', '>=', $from);
+            })
             ->when($investorId, fn($query) => $query->where('investor_id', $investorId))
             ->when($type, function ($query) use ($type, $from, $to) {
                 if ($type == 1) {
@@ -112,41 +126,33 @@ class ReportController extends Controller
                 $bookingsInRange = $vehicle->bookingData
                     ->filter(fn($b) => $b->start_date <= $to && $b->end_date >= $from);
 
-                // Vehicle has no bookings → skip for Pending
+                // Vehicle has no bookings → skip
                 if ($bookingsInRange->isEmpty()) {
                     return false;
                 }
 
-                foreach ($bookingsInRange as $booking) {
+                // Calculate total price (sum of all bookings) - exactly like Blade
+                $price = $bookingsInRange->sum('price');
+                $isRented = $bookingsInRange->isNotEmpty();
 
-                    $payment = $payments->firstWhere('booking_id', $booking->booking_id);
+                // Get payment for the first booking (exactly like Blade)
+                $firstBooking = $bookingsInRange->first();
+                $bookingPayment = $payments->firstWhere('booking_id', $firstBooking->booking_id ?? null);
+                $paidAmount = $bookingPayment->paid_amount ?? 0;
 
-                    // Determine status exactly like Blade
-                    if ($payment) {
-                        $paidAmount = $payment->paid_amount;
-                    } else {
-                        $paidAmount = 0;
-                    }
-
-                    $isRented = true; // since $bookingsInRange is not empty
-                    $price = $booking->price;
-
-                    if ($paidAmount == 0 && $isRented) {
-                        $status = 'Pending';
-                    } elseif ($paidAmount == 0) {
-                        $status = '-';
-                    } elseif ($paidAmount >= $price) {
-                        $status = 'Paid';
-                    } else {
-                        $status = 'Partially Paid';
-                    }
-
-                    if ($status === $payment_status) {
-                        return true; // include this vehicle
-                    }
+                // Determine status exactly like Blade view
+                if ($paidAmount == 0 && $isRented) {
+                    $status = 'Pending';
+                } elseif ($paidAmount == 0) {
+                    $status = '-';
+                } elseif ($paidAmount >= $price) {
+                    $status = 'Paid';
+                } else {
+                    $status = 'Partially Paid';
                 }
 
-                return false; // no booking matched
+                // Match the selected payment status
+                return $status === $payment_status;
             })->values();
         }
 
