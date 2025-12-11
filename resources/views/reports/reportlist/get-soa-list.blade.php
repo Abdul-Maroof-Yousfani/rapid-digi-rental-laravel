@@ -16,13 +16,18 @@
 
     <tr>
         <td>{{ $item->number_plate }}</td>
-        @if ($item->bookingData->isNotEmpty())
-            @foreach ($item->bookingData as $booking)
-                <td>{{ $booking->invoice->zoho_invoice_number ?? '-' }}</td>
-            @endforeach
-        @else
-            <td>-</td>
-        @endif
+        <td>
+            @php
+                $invoiceNumbers = $bookingsInRange
+                    ->map(function ($booking) {
+                        return $booking->invoice->zoho_invoice_number ?? null;
+                    })
+                    ->filter()
+                    ->unique()
+                    ->values();
+            @endphp
+            {{ $invoiceNumbers->isNotEmpty() ? $invoiceNumbers->implode(', ') : '-' }}
+        </td>
         <td>
             {{ $item->temp_vehicle_detail ?? ($item->vehicle_name . ' ' . $item->car_make . ' ' . $item->year) }}
         </td>
