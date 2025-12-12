@@ -144,12 +144,13 @@ class BookingController extends Controller
                 if (is_array($description)) {
                     $description = implode(', ', $description);
                 }
-
+                $amount = (float) str_replace(',', '', $request->amount[$key]);
                 $lineitems[] = [
                     'name' => $vehicleName,
                     'description' => $description,
                     'rate' => (float) str_replace(',', '', $price),
                     'quantity' => 1,
+                    'total' => $amount,
                     'tax_id' => $request->tax[$key] !== 'null' && !empty($request->tax[$key]) ? $request->tax[$key] : null,
                 ];
             }
@@ -160,6 +161,7 @@ class BookingController extends Controller
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
                         'quantity' => 1,
+                        'total' => (float) ($request->non_refundable_amount ?? 0),
                         'tax_id' => null,
                     ];
                 } elseif ($request->deposit_type == 2) {
@@ -168,6 +170,7 @@ class BookingController extends Controller
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
                         'quantity' => 1,
+                        'total' => (float) ($request->non_refundable_amount ?? 0),
                         'tax_id' => null,
                     ];
                 }
@@ -178,6 +181,7 @@ class BookingController extends Controller
                     'description' => '',
                     'rate' => (float) ($request->deposit_amount ?? 0),
                     'quantity' => 1,
+                    'total' => (float) ($request->deposit_amount ?? 0),
                     'tax_id' => null,
                 ];
             }

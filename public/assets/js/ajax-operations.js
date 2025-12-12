@@ -217,7 +217,7 @@ $(document).ready(function () {
                             form.closest("tr").remove();
                             Swal.fire('Deleted!', response.success, 'success');
                         } else {
-                            Swal.fire('Error!', response.error || 'Kuch ghalat hogaya.', 'error');
+                            Swal.fire('Error!', response.error || '', 'error');
                         }
                     },
                     error: function (xhr) {

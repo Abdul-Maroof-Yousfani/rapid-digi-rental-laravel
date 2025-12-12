@@ -121,6 +121,7 @@ class PaymentController extends Controller
             if ($usedDepositFlag) {
                 $depositUsed = array_sum($request->addDepositAmount ?? []);
             }
+            // dd($depositUsed);
             // Calculate paid amount as cash + deposit used
             $paidAmount = $amountReceive;
 
@@ -177,8 +178,8 @@ class PaymentController extends Controller
                     'payment_method' => $request['payment_method'],
                     'bank_id' => $request['bank_id'] ?? null,
                     'booking_amount' => $bookingAmount,
-                    'paid_amount' => $paidAmount,
-                    'pending_amount' => $bookingAmount - $paidAmount,
+                    'paid_amount' => $paidAmount + $depositUsed,
+                    'pending_amount' => $bookingAmount - $paidAmount - $depositUsed,
                     'payment_date' => $request['payment_date'],
                     // 'payment_status' => $paymentStatus,
                     'receipt' => $imagePath,
@@ -257,8 +258,8 @@ class PaymentController extends Controller
                             'payment_id' => $payment->id,
                             'status' => $newStatus1,
                             'invoice_amount' => $invoiceAmount,
-                            'paid_amount' => $payThisTime,
-                            'pending_amount' => $newPending,
+                            'paid_amount' => $payThisTime + $depositUsed,
+                            'pending_amount' => $newPending - $depositUsed,
                             'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
                             'remarks' => $request['remarks'][$key] ?? null,
                         ]);

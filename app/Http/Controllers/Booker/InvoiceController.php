@@ -117,12 +117,14 @@ class InvoiceController extends Controller
                 if (is_array($description)) {
                     $description = implode(', ', $description);
                 }
+                $amount = (float) str_replace(',', '', $request->amount[$key]);
 
                 $lineitems[] = [
                     'name' => $vehicleName,
                     'description' => $description . "\n" . $invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
+                    'amount' => $amount,
                     'tax_id' => $request->tax[$key],
                 ];
             }
@@ -151,7 +153,7 @@ class InvoiceController extends Controller
                         'booking_id' => $request->booking_id,
                         'zoho_invoice_id' => $zohoInvoiceId,
                         'zoho_invoice_number' => $zohoInvoiceNumber,
-                        'total_amount' => number_format($zohoInvoiceTotal, 2, '.', ''),
+                        'total_amount' => number_format($amount, 2, '.', ''),
                         'invoice_date' => $request->invoice_date,
                         'due_date' => $request->due_date,
                         'status' => 1,
