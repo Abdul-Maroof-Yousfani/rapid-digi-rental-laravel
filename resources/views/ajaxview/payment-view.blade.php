@@ -23,7 +23,7 @@
                     </button>
                     @if(!empty($item->receipt))
                         <a href="{{ asset($item->receipt) }}" target="_blank" class="dropdown-item">
-                            <i class="fas fa-paperclip"></i> View Attachment
+                            <span style="font-size: 15px;"><i class="fas fa-paperclip"></i> View Attachment</span>
                         </a>
                     @endif
                     @can('delete payment')
