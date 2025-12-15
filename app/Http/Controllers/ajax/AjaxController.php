@@ -238,7 +238,7 @@ class AjaxController extends Controller
                 'initial_deposit' => $booking->deposit->initial_deposit ?? 0,
                 'zoho_invoice_number' => $invoice->zoho_invoice_number,
                 'invoice_status' => $invoice->invoice_status,
-                'invoice_amount' => $invoice->total_amount,
+                'invoice_amount' => $bookingData->sum('item_total'),
                 'invoice_id' => $invoice->id,
                 'summary' => $summary,
             ];
