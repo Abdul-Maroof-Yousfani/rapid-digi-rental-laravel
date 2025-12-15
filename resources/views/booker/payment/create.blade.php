@@ -332,8 +332,8 @@
                                                 <h5>Transaction Summary</h5>
                                             </div>
                                             <div class="card-body">
-                                                <p><strong>Total Pending Amount:</strong> <span
-                                                        class="pending_amount">0.00</span></p>
+                                                {{-- <p><strong>Total Pending Amount:</strong> <span
+                                                        class="pending_amount">0.00</span></p> --}}
                                                 <!-- <p><strong>Deposit Used:</strong> <span id="summary-deposit">0.00</span></p> -->
                                                 <p><strong>Amount Received:</strong> <span id="summary-received">0.00</span>
                                                 </p>
