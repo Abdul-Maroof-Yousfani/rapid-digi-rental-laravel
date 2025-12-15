@@ -141,7 +141,7 @@ class AjaxController extends Controller
         }
         $nonRefundableAmount = $booking->non_refundable_amount ?? 0;
         // $invoice1 = Invoice::where('booking_id', $booking_id)->value('id');
-        $bookingAmount = Invoice::where('booking_id', $booking_id)->sum('total_amount');
+        $bookingAmount = BookingData::where('booking_id', $booking_id)->sum('item_total');
         // $bookingAmount = BookingData::with('booking' if bookings as deposit_id not null then find deposit_id in deposits and get )->where('booking_id', $booking_id)->sum('item_total');
 
         // Get all payments for this booking and sum the paid amounts
