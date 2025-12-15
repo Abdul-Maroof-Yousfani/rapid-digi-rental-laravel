@@ -253,7 +253,8 @@ function bookingChange() {
                         '</td>' +
                         '<td><input type="hidden" name="paymentData_id[]" value="' + paymentDataID + '">' + invoice.zoho_invoice_number + '</td>' +
                         '<td>' + invoice.summary.salik_qty + ' | ' + invoice.summary.salik_amount + '</td>' +
-                        '<td>' + invoice.summary.fine_qty + ' | ' + invoice.summary.fine_amount + '</td>' +
+                        '<td>' + invoice.summary.park_amount + '</td>' +
+                        '<td>' + invoice.summary.fine_amount + '</td>' +
                         '<td>' + invoice.summary.renew_amount + '</td>' +
                         '<td>' + (invoice.summary.rent_amount).toFixed(2) + '</td>' +
                         '<td>' + invoice.invoice_status + '</td>' +

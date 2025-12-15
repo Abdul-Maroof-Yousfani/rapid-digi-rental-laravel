@@ -218,7 +218,8 @@
                                                     </th>
                                                     <th>Invoice No.</th>
                                                     <th>Salik Qty | Amount</th>
-                                                    <th>Fine Qty | Amount</th>
+                                                    <th>Park Amount</th>
+                                                    <th>Fine Amount</th>
                                                     <th>Renew</th>
                                                     <th>Rent</th>
                                                     <th>Status</th>
@@ -231,11 +232,11 @@
 
                                             <tbody class="ui-sortable" id="booking_detail"></tbody>
                                             <tr>
-                                                <td colspan="9" class="text-center font-weight-bold ">Payment Management
+                                                <td colspan="10" class="text-center font-weight-bold ">Payment Management
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="8" class="text-right align-middle">
+                                                <td colspan="9" class="text-right align-middle">
                                                     <span data-toggle="tooltip"
                                                         title="The initial deposit amount available">Deposit Amount</span>
                                                 </td>
@@ -246,7 +247,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="8" class="text-right align-middle">
+                                                <td colspan="9" class="text-right align-middle">
                                                     <!-- <div class="form-check"> -->
                                                     <input type="hidden" name="used_deposit_amount" value="0">
                                                     <input type="checkbox" id="used_deposit_amount"
@@ -262,7 +263,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="8" class="text-right align-middle">Receive Amount <span
+                                                <td colspan="9" class="text-right align-middle">Receive Amount <span
                                                         class="text-danger">*</span></td>
                                                 <td>
                                                     <input type="number" value="" name="amount_receive"
@@ -273,7 +274,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="8" class="text-right align-middle">Pending Amount</td>
+                                                <td colspan="9" class="text-right align-middle">Pending Amount</td>
                                                 <td>
                                                     <input type="number" class="form-control pending_amount"
                                                         placeholder="0.00" readonly>
@@ -282,14 +283,14 @@
                                             </tr>
 
                                             <tr>
-                                                <td colspan="8" class="text-right align-middle">Remaining Deposit</td>
+                                                <td colspan="9" class="text-right align-middle">Remaining Deposit</td>
                                                 <td>
                                                     <input type="number" class="form-control remaining_deposit"
                                                         placeholder="0.00" readonly>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="8" class="text-right align-middle">
+                                                <td colspan="9" class="text-right align-middle">
                                                     <!-- <div class="form-check"> -->
                                                     <input type="hidden" name="adjust_invoice" value="0">
                                                     <input type="checkbox" id="adjust_invoice" name="adjust_invoice"
@@ -304,7 +305,7 @@
                                                 </td>
                                             </tr>
                                             <tr id="invoice_adjustment_section1" style="display: none;">
-                                                <td colspan="8" class="text-right align-middle">Reference Invoice No.</td>
+                                                <td colspan="9" class="text-right align-middle">Reference Invoice No.</td>
                                                 <td>
                                                     <input type="text" class="form-control reference_invoice_number"
                                                         name="reference_invoice_number[]"
@@ -312,7 +313,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="8" class="text-right align-middle">Remarks (Optional)</td>
+                                                <td colspan="9" class="text-right align-middle">Remarks (Optional)</td>
                                                 <td>
                                                     <textarea name="remarks[]" class="form-control"
                                                         placeholder="e.g., Payment for invoice #123, special instructions"

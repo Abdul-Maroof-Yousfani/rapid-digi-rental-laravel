@@ -192,6 +192,8 @@ class AjaxController extends Controller
             $summary = [
                 'salik_qty' => 0,
                 'salik_amount' => 0,
+                'park_qty' => 0,
+                'park_amount' => 0,
                 'fine_qty' => 0,
                 'fine_amount' => 0,
                 'renew_amount' => 0,
@@ -215,6 +217,10 @@ class AjaxController extends Controller
                         break;
                     case 5: // Renew
                         $summary['renew_amount'] += $data->item_total;
+                        break;
+                    case 6: // Park
+                        $summary['park_qty'] += $data->quantity;
+                        $summary['park_amount'] += $data->item_total;
                         break;
                 }
             }
