@@ -148,7 +148,7 @@ class AjaxController extends Controller
         $allPayments = Payment::where('booking_id', $booking_id)->get();
         $totalPaidAmount = $allPayments->sum('paid_amount');
         $payment = $allPayments->sortByDesc('id')->first(); // Get latest payment for reference
-        
+
         $remainingAmount = $bookingAmount - $totalPaidAmount;
 
         // Calculate Remaining Deposit Amount
@@ -199,20 +199,22 @@ class AjaxController extends Controller
             ];
 
             foreach ($bookingData as $data) {
-                switch ($data->transaction_type) {
-                    case 4: // Salik
+                if (is_null($data->deductiontype_id)) {
+                    // Rent
+                    $summary['rent_amount'] += $data->item_total;
+                    continue;
+                }
+                switch ($data->deductiontype_id) {
+                    case 1: // Salik
                         $summary['salik_qty'] += $data->quantity;
                         $summary['salik_amount'] += $data->item_total;
                         break;
-                    case 3: // Fine
+                    case 2: // Fine
                         $summary['fine_qty'] += $data->quantity;
                         $summary['fine_amount'] += $data->item_total;
                         break;
-                    case 2: // Renew
+                    case 5: // Renew
                         $summary['renew_amount'] += $data->item_total;
-                        break;
-                    case 1: // Rent
-                        $summary['rent_amount'] += $data->item_total;
                         break;
                 }
             }
@@ -220,17 +222,17 @@ class AjaxController extends Controller
             // Get ALL PaymentData records for this invoice and sum the paid amounts
             $allPaymentData = PaymentData::where('invoice_id', $invoice->id)->get();
             $totalPaidAmount = $allPaymentData->sum('paid_amount');
-            
+
             // Get the latest PaymentData ID for reference
             $latestPaymentData = $allPaymentData->sortByDesc('id')->first();
-            
+
             // Sum all deposit amounts from all PaymentData records for this invoice
             $totalDepositAmount = 0;
             if ($allPaymentData->isNotEmpty()) {
                 $paymentDataIds = $allPaymentData->pluck('id');
                 $totalDepositAmount = DepositHandling::whereIn('payment_data_id', $paymentDataIds)->sum('deduct_deposit');
             }
-            
+
             return [
                 'payment_data_id' => $latestPaymentData->id ?? null, // Latest PaymentData Primary Key for reference
                 'paid_amount' => $totalPaidAmount, // Sum of all payments for this invoice
@@ -551,7 +553,7 @@ class AjaxController extends Controller
                         $q->whereHas('booking', function ($q1) use ($search) {
                             $q1->where('id', 'LIKE', "%{$search}%");
                         })
-                        ->orWhere('id', $search);
+                            ->orWhere('id', $search);
                     } else {
                         // Search by customer name
                         $q->whereHas('booking.customer', function ($q1) use ($search) {
