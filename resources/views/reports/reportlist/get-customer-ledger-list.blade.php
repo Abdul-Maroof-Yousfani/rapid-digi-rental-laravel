@@ -1,11 +1,13 @@
 @php
   $number = 1;
+  $totalInvoiceAmount = 0;
   $totalPaymentReceive = 0;
   $totalOutstanding = 0;
 @endphp
 
 @foreach ($ledgerData as $item)
   @php
+    $totalInvoiceAmount += $item->invoice_amount;
     $totalPaymentReceive += $item->payment_receive;
     $totalOutstanding += $item->outstanding;
   @endphp
@@ -25,7 +27,8 @@
 
 @if(count($ledgerData) > 0)
 <tr>
-  <td colspan="5" align="right"><b>Sub Total</b></td>
+  <td colspan="4" align="right"><b>Sub Total</b></td>
+  <td align="right"><b>{{ number_format($totalInvoiceAmount, 2) }}</b></td>
   <td align="right"><b>{{ number_format($totalPaymentReceive, 2) }}</b></td>
   <td align="right"><b>{{ number_format($totalOutstanding, 2) }}</b></td>
   <td></td>
