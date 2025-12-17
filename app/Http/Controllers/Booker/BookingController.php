@@ -113,6 +113,7 @@ class BookingController extends Controller
             'booking_date.*' => 'nullable',
             'return_date.*' => 'nullable',
             'price.*' => 'required',
+            'discount_amount.*' => 'nullable',
             'invoiceTypes.*' => 'nullable',
 
             'deposit_type' => 'nullable',
@@ -127,33 +128,61 @@ class BookingController extends Controller
             $currency_code = "AED";
             $lineitems = [];
 
+
+
             foreach ($request->price as $key => $price) {
                 $vehicleId = $request->vehicle[$key] ?? null;
+                $invoiceTypeId = $request->invoiceTypes[$key] ?? null;
+
                 $vehicle = $vehicleId && $vehicleId !== 'null' ? Vehicle::find($vehicleId) : null;
 
-                $vehicleName = $vehicle ? ($vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail) : ($request->invoiceTypes[$key] ? Deductiontype::find($request->invoiceTypes[$key])->name : 'Other Charge');
+                // Vehicle name (or fallback)
+                $vehicleName = $vehicle ? ($vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail) : 'Other Charge';
 
-                $description = $request->description[$key] ?? (
-                    (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
-                    ? Carbon::createFromFormat('Y-m-d', $request->booking_date[$key])->format('d/m/Y') .
-                    " TO " .
-                    Carbon::createFromFormat('Y-m-d', $request->return_date[$key])->format('d/m/Y')
-                    : ''
-                );
-
-                if (is_array($description)) {
-                    $description = implode(', ', $description);
+                // Deduction/Charge name for description
+                $deductionName = null;
+                if ($invoiceTypeId && is_numeric($invoiceTypeId)) {
+                    $deductionName = Deductiontype::find($invoiceTypeId)?->name ?? null;
                 }
-                $amount = (float) str_replace(',', '', $request->amount[$key]);
+
+                // Booking period as description
+                $bookingDescription = '';
+                if (!empty($request->booking_date[$key]) && !empty($request->return_date[$key])) {
+                    $bookingDescription = Carbon::createFromFormat('Y-m-d', $request->booking_date[$key])->format('d/m/Y') .
+                        " TO " .
+                        Carbon::createFromFormat('Y-m-d', $request->return_date[$key])->format('d/m/Y');
+                }
+
+                // Custom description from request
+                $customDescription = $request->description[$key] ?? '';
+
+                if (is_array($customDescription)) {
+                    $customDescription = implode(', ', $customDescription);
+                }
+
+                // Combine descriptions: custom, booking, and deduction/charge
+                $descriptionParts = array_filter([$customDescription, $bookingDescription, $deductionName]);
+                $description = implode("\n", $descriptionParts); // Zoho will show this on multiple lines
+
+                // Ensure discount is numeric
+                $discount_value = $request->discount_amount[$key] ?? 0;
+                $discount_value = str_replace([',', '%', ' '], '', $discount_value);
+                $discount_amount = (float) $discount_value;
+
+                // Quantity & amount
+                $qty = (float) str_replace(',', '', $request->quantity[$key] ?? 1);
+                $amount = (float) str_replace(',', '', $request->amount[$key] ?? $price);
+
                 $lineitems[] = [
                     'name' => $vehicleName,
                     'description' => $description,
                     'rate' => (float) str_replace(',', '', $price),
-                    'quantity' => 1,
-                    'total' => $amount,
+                    'quantity' => $qty,
+                    'discount' => $discount_amount,
                     'tax_id' => $request->tax[$key] !== 'null' && !empty($request->tax[$key]) ? $request->tax[$key] : null,
                 ];
             }
+
             if (!empty($request->deposit_type)) {
                 if ($request->deposit_type == 1) {
                     $lineitems[] = [
@@ -161,7 +190,7 @@ class BookingController extends Controller
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
                         'quantity' => 1,
-                        'total' => (float) ($request->non_refundable_amount ?? 0),
+                        'discount' => 0,
                         'tax_id' => null,
                     ];
                 } elseif ($request->deposit_type == 2) {
@@ -170,7 +199,7 @@ class BookingController extends Controller
                         'description' => '',
                         'rate' => (float) ($request->non_refundable_amount ?? 0),
                         'quantity' => 1,
-                        'total' => (float) ($request->non_refundable_amount ?? 0),
+                        'discount' => 0,
                         'tax_id' => null,
                     ];
                 }
@@ -181,12 +210,12 @@ class BookingController extends Controller
                     'description' => '',
                     'rate' => (float) ($request->deposit_amount ?? 0),
                     'quantity' => 1,
-                    'total' => (float) ($request->deposit_amount ?? 0),
+                    'discount' => 0,
                     'tax_id' => null,
                 ];
             }
             $customerId = $request->customer_id;
-
+            // dd($lineitems);
             $invoiceResponse = $this->zohoinvoice->createInvoice($customerId, $notes, $currency_code, $lineitems, $request->sale_person_id, $request->sale_person_name, $request->code);
             $zohoInvoiceNumber = $invoiceResponse['invoice']['invoice_number'] ?? null;
             $zohoInvoiceId = $invoiceResponse['invoice']['invoice_id'] ?? null;
@@ -237,7 +266,7 @@ class BookingController extends Controller
                         if ($request->invoiceTypes[$key] == 'null') {
                             $quantity = 1;
                         } else {
-                            $quantity = 1;
+                            $quantity = $request['quantity'][$key];
                         }
                         $taxNam = $request['tax_name'][$key] ?? null;
                         if (!empty($request['tax_percent'][$key])) {
@@ -264,6 +293,7 @@ class BookingController extends Controller
                             'description' => $lineItemData['description'] ?? ($request->description[$key] ?? null),
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
+                            'discount_amount' => $request['discount_amount'][$key] ?? 0,
                             'item_total' => $amount,
                             'tax_name' => $taxName,
                             'deductiontype_id' => is_numeric($request->invoiceTypes[$key] ?? null)
@@ -345,8 +375,8 @@ class BookingController extends Controller
                     // return response("ok");
                 } catch (\Exception $exp) {
                     DB::rollBack();
-                    return redirect()->back()->with('error', $exp->getMessage());
-                    // return response($exp->getMessage(), 500);
+                    // return redirect()->back()->with('error', $exp->getMessage());
+                    return response($exp->getMessage(), 500);
                 }
             } else {
                 return redirect()->back()->with('error', 'Invoice ID Not Fetch');
@@ -452,6 +482,7 @@ class BookingController extends Controller
             'booking_date.*' => 'nullable',
             'return_date.*' => 'nullable',
             'price.*' => 'required',
+            'discount_amount.*' => 'nullable',
             'invoiceTypes.*' => 'nullable',
 
             'deposit_type' => 'nullable',
@@ -490,36 +521,50 @@ class BookingController extends Controller
             // }
             foreach ($request->price as $key => $price) {
                 $vehicleId = $request->vehicle[$key] ?? null;
+                $invoiceTypeId = $request->invoiceTypes[$key] ?? null;
+
                 $vehicle = $vehicleId && $vehicleId !== 'null' ? Vehicle::find($vehicleId) : null;
 
-                if ($vehicle) {
-                    $name = $vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail;
+                // Vehicle info goes into 'name'
+                $name = $vehicle->vehicle_name . ' - ' . $vehicle->number_plate;
+
+                // Deduction/charge goes into 'description' to appear on next line in Zoho
+                if ($invoiceTypeId && is_numeric($invoiceTypeId)) {
+                    $deductionName = Deductiontype::find($invoiceTypeId)?->name ?? $vehicle->temp_vehicle_detail;
+                    // Append existing description if any
+                    $description = $request->description[$key] ?? '';
+                    if (!empty($description)) {
+                        $description .= "\n" . $deductionName;
+                    } else {
+                        $description = $deductionName;
+                    }
                 } else {
-                    // It's a charge, get name from invoiceTypes
-                    $invoiceTypeId = $request->invoiceTypes[$key] ?? null;
-                    $name = $invoiceTypeId && is_numeric($invoiceTypeId)
-                        ? Deductiontype::find($invoiceTypeId)?->name ?? 'Charge'
-                        : 'Charge';
+                    // It's a charge, fallback name for description
+                    $description = $request->description[$key] ?? 'Charge';
                 }
 
-                $description = $request->description[$key] ?? (
-                    (!empty($request->booking_date[$key]) && !empty($request->return_date[$key]))
-                    ? $request->booking_date[$key] . " TO " . $request->return_date[$key]
-                    : ''
-                );
-
+                // If description is still an array, convert to string
                 if (is_array($description)) {
                     $description = implode(', ', $description);
                 }
+
+                // Ensure discount is a numeric amount (not percentage)
+                $discount_value = $request->discount_amount[$key] ?? 0;
+                $discount_value = str_replace([',', '%', ' '], '', $discount_value);
+                $discount_amount = (float) $discount_value;
+
+                $quantity = $request->quantity[$key] ?? 1;
 
                 $lineitems[] = [
                     'name' => $name,
                     'description' => $description,
                     'rate' => (float) str_replace(',', '', $price),
-                    'quantity' => 1,
+                    'quantity' => $quantity,
+                    'discount' => $discount_amount,
                     'tax_id' => $request->tax[$key] !== 'null' && !empty($request->tax[$key]) ? $request->tax[$key] : null,
                 ];
             }
+
             $isFirstInvoice = $invoice->booking->invoices()->first()->zoho_invoice_number == $invoice->zoho_invoice_number;
 
             if ($isFirstInvoice) {
@@ -530,6 +575,7 @@ class BookingController extends Controller
                             'description' => '',
                             'rate' => (float) ($request->non_refundable_amount ?? 0),
                             'quantity' => 1,
+                            'discount' => 0,
                             'tax_id' => null,
                         ];
                     } elseif ($request->deposit_type == 2) {
@@ -538,6 +584,7 @@ class BookingController extends Controller
                             'description' => '',
                             'rate' => (float) ($request->non_refundable_amount ?? 0),
                             'quantity' => 1,
+                            'discount' => 0,
                             'tax_id' => null,
                         ];
                     }
@@ -548,6 +595,7 @@ class BookingController extends Controller
                         'description' => '',
                         'rate' => (float) ($request->deposit_amount ?? 0),
                         'quantity' => 1,
+                        'discount' => 0,
                         'tax_id' => null,
                     ];
                 }
@@ -559,6 +607,7 @@ class BookingController extends Controller
                 'customer_id' => $customer->zoho_customer_id,
                 'notes' => $notes,
                 'currency_code' => $currency_code,
+                'discount_type' => 'item_level',
                 'line_items' => $lineitems,
                 'reason' => $request->reason_of_update,
             ];
@@ -618,7 +667,7 @@ class BookingController extends Controller
                         if ($request->invoiceTypes[$key] == 'null') {
                             $quantity = 1;
                         } else {
-                            $quantity = 1;
+                            $quantity = $request->quantity[$key] ?? 1;
                         }
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
                         $taxNam = $request['tax_name'][$key] ?? null;
@@ -630,6 +679,11 @@ class BookingController extends Controller
                         $subTotal = $price * $quantity;
                         $taxAmount = ($subTotal * $taxPercent) / 100;
                         $itemTotal = $subTotal + $taxAmount;
+
+                        // discount amount for this item
+                        $discount_value = $request->discount_amount[$key] ?? 0;
+                        $discount_value = str_replace([',', '%', ' '], '', $discount_value);
+                        $discount_amount = (float) $discount_value;
 
                         $lineItemData = $zohoLineItems[$key] ?? [];
 
@@ -644,6 +698,7 @@ class BookingController extends Controller
                             'description' => $lineItemData['description'] ?? ($request->description[$key] ?? null),
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
+                            'discount_amount' => $discount_amount,
                             'item_total' => $amount,
                             'tax_name' => $taxName,
                             'deductiontype_id' => is_numeric($request->invoiceTypes[$key] ?? null)

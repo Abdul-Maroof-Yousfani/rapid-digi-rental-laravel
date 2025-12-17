@@ -219,13 +219,21 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        
+                                      
+                                        <input type="hidden" value="1" name="quantity[]" class="form-control quantity">
+                                     
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <label for="">Price (AED) <span class="text-danger">*</span></label><br>
                                                 <input type="text" value="" name="price[]" class="form-control price" required>
                                             </div>
                                         </div>
+                                        {{-- <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="">Discount</label><br> --}}
+                                                <input type="hidden" value="0" name="discount_amount[]" class="form-control discount_amount">
+                                            {{-- </div>
+                                        </div> --}}
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <label for="">Total Amount</label><br>
@@ -559,8 +567,14 @@
                             </div>
                             <div class="col-3">
                                 <div class="form-group">
+                                    <label for="">Discount</label><br>
+                                    <input type="text" name="discount_amount[]" class="form-control discount_amount" step="0.01" min="0" value="">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
                                     <label for="">Total Amount</label><br>
-                                    <input type="number" value="" name="amount[]" class="form-control amount">
+                                    <input type="number" value="" name="amount[]" class="form-control amount" readonly>
                                 </div>
                             </div>
 
@@ -683,14 +697,20 @@
 
             var qty = parseFloat(row.find('.quantity').val()) || 1;
             var price = parseFloat(row.find('.price').val()) || 0;
+            var discount_amount = parseFloat(row.find('.discount_amount').val()) || 0;
             var grossPrice = price * qty;
             var taxAmount = (zohotax / 100) * grossPrice;
-            var total = grossPrice + taxAmount;
+            var total = grossPrice + taxAmount - discount_amount;
 
             row.find('.amount').val(total.toFixed(2));
         }
 
         $(document).on('keyup', '.price', function() {
+            let row = $(this).closest('.lineItem');
+            calculateAmount(row);
+        });
+
+        $(document).on('keyup', '.discount_amount', function() {
             let row = $(this).closest('.lineItem');
             calculateAmount(row);
         });

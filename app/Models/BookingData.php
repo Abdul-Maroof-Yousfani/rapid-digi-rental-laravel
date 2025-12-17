@@ -27,6 +27,7 @@ class BookingData extends Model
         'rate',
         'quantity',
         'tax_percent',
+        'discount_amount',
         'item_total',
         'tax_name',
         'transaction_type',

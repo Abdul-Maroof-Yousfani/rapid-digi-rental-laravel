@@ -159,9 +159,9 @@
                                                         @endif
 
                                                         @if ($item->booking_status != 'closed')
-                                                        <a class="dropdown-item" href="{{ url('customer-booking/'.$item->id.'/edit') }}">
+                                                        {{-- <a class="dropdown-item" href="{{ url('customer-booking/'.$item->id.'/edit') }}">
                                                             <i class="far fa-edit"></i> Edit
-                                                        </a>
+                                                        </a> --}}
                                                         @endif
                                                         @endcan
                                                         @can('delete booking')

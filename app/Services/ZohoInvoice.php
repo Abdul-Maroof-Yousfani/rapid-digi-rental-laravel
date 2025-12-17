@@ -315,6 +315,7 @@ class ZohoInvoice
                 'invoice_number' => $code,
                 'notes' => $notes,
                 'currency_code' => $currency_code,
+                'discount_type' => 'item_level',
                 'line_items' => $lineitems,
                 "custom_fields" => [
                     [

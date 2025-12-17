@@ -62,15 +62,16 @@ class InvoiceController extends Controller
     {
         // return $request->all();
         $rules = [
-            'customer_id' => 'required',
-            'booking_id' => 'required',
-            'code' => 'required',
-            'notes' => 'required',
-            'vehicle.*' => 'required',
-            'vehicletypes.*' => 'required',
-            'quantity.*' => 'required',
-            'invoice_type.*' => 'required',
-            'price.*' => 'required',
+            'customer_id'       => 'required',
+            'booking_id'        => 'required',
+            'code'              => 'required',
+            'notes'             => 'required',
+            'vehicle.*'         => 'required',
+            'vehicletypes.*'    => 'required',
+            'quantity.*'        => 'required',
+            'invoice_type.*'    => 'required',
+            'price.*'           => 'required',
+            'discount_amount.*' => 'nullable',
         ];
         $validator = Validator::make($request->all(), $rules);
         $validator->sometimes('booking_date.*', 'required', function ($input, $key) {
@@ -117,15 +118,20 @@ class InvoiceController extends Controller
                 if (is_array($description)) {
                     $description = implode(', ', $description);
                 }
+
+                // Clean numeric values
                 $amount = (float) str_replace(',', '', $request->amount[$key]);
+                $discountRaw = $request->discount_amount[$key] ?? 0;
+                $discountRaw = str_replace([',', '%', ' '], '', $discountRaw);
+                $discountAmount = (float) $discountRaw; // fixed discount amount (not percentage)
 
                 $lineitems[] = [
-                    'name' => $vehicleName,
-                    'description' => $description . "\n" . $invoiceTypeText,
-                    'rate' => (float) $request->price[$key],
-                    'quantity' => $request->quantity[$key],
-                    'amount' => $amount,
-                    'tax_id' => $request->tax[$key],
+                    'name'            => $vehicleName,
+                    'description'     => $description . "\n" . $invoiceTypeText,
+                    'rate'            => (float) $request->price[$key],
+                    'quantity'        => $request->quantity[$key],
+                    'discount'        => $discountAmount, // Zoho API expects 'discount' field, not 'discount_amount'
+                    'tax_id'          => $request->tax[$key],
                 ];
             }
             $customerId = $request->customer_id;
@@ -169,6 +175,7 @@ class InvoiceController extends Controller
                         $price = $request['price'][$key];
                         $amount = $request['amount'][$key];
                         $quantity = $request['quantity'][$key];
+                        $discount = $request['discount_amount'][$key] ?? 0;
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
                         if (!empty($request['tax_percent'][$key])) {
                             $taxName = 'VAT ' . $taxPercent . '%';
@@ -183,22 +190,23 @@ class InvoiceController extends Controller
 
                         $lineItemData = $zohoLineItems[$key] ?? [];
                         $booking_data = BookingData::create([
-                            'booking_id' => $request->booking_id,
-                            'vehicle_id' => $vehicle_id,
-                            'invoice_id' => $invoice->id,
-                            'start_date' => $request['booking_date'][$key] ?? null,
-                            'end_date' => $request['return_date'][$key] ?? null,
-                            'price' => $price,
-                            'transaction_type' => isset($request['return_date'][$key]) ? 2 : 1,
-                            'description' => $lineItemData['description'] ?? null,
-                            'quantity' => $quantity,
-                            'tax_percent' => $taxPercent,
-                            'item_total' => $amount,   // FIX
-                            'tax_name' => $taxName,
-                            'deductiontype_id' => $invoiceTypeModel->id ?? null,
-                            'view_type' => 2,
-                            'non_refundable_amount' => $request['non_refundable_amount'][$key] ?? 0,
-                            'deposit_type' => $request['deposit_type'][$key] ?? null,
+                            'booking_id'           => $request->booking_id,
+                            'vehicle_id'           => $vehicle_id,
+                            'invoice_id'           => $invoice->id,
+                            'start_date'           => $request['booking_date'][$key] ?? null,
+                            'end_date'             => $request['return_date'][$key] ?? null,
+                            'price'                => $price,
+                            'transaction_type'     => isset($request['return_date'][$key]) ? 2 : 1,
+                            'description'          => $lineItemData['description'] ?? null,
+                            'quantity'             => $quantity,
+                            'tax_percent'          => $taxPercent,
+                            'discount_amount'      => $discount,
+                            'item_total'           => $amount,   // FIX
+                            'tax_name'             => $taxName,
+                            'deductiontype_id'     => $invoiceTypeModel->id ?? null,
+                            'view_type'            => 2,
+                            'non_refundable_amount'=> $request['non_refundable_amount'][$key] ?? 0,
+                            'deposit_type'         => $request['deposit_type'][$key] ?? null,
                         ]);
 
                     }
@@ -293,6 +301,7 @@ class InvoiceController extends Controller
             'quantity.*' => 'required',
             'invoice_type.*' => 'required',
             'price.*' => 'required',
+            'discount_amount.*' => 'nullable',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -341,11 +350,17 @@ class InvoiceController extends Controller
                     $description = implode(', ', $description);
                 }
 
+                // Clean discount amount
+                $discountRaw = $request->discount_amount[$key] ?? 0;
+                $discountRaw = str_replace([',', '%', ' '], '', $discountRaw);
+                $discountAmount = (float) $discountRaw; // fixed discount amount (not percentage)
+
                 $lineitems[] = [
                     'name' => $vehicleName,
                     'description' => $description . "\n" . $invoiceTypeText,
                     'rate' => (float) $request->price[$key],
                     'quantity' => $request->quantity[$key],
+                    'discount' => $discountAmount, // Zoho API expects 'discount' field, not 'discount_amount'
                     'tax_id' => $request->tax[$key]
                 ];
             }
@@ -357,6 +372,7 @@ class InvoiceController extends Controller
                 'customer_id' => $customer->zoho_customer_id,
                 'notes' => $notes,
                 'currency_code' => $currency_code,
+                'discount_type' => 'item_level',
                 'line_items' => $lineitems,
                 'reason' => $request->reason,
             ];
@@ -384,6 +400,7 @@ class InvoiceController extends Controller
                         $price = $request['price'][$key];
                         $amount = $request['amount'][$key];
                         $quantity = $request['quantity'][$key];
+                        $discount = $request['discount_amount'][$key] ?? 0;
                         $taxPercent = $request['tax_percent'][$key] ?? 0;
 
                         // Tax Add Calculation in Item Total
@@ -405,6 +422,7 @@ class InvoiceController extends Controller
                             'quantity' => $quantity,
                             'view_type' => 2,
                             'tax_percent' => $taxPercent,
+                            'discount_amount' => $discount,
                             'item_total' => $amount,
                             'tax_name' => $lineItemData['tax_name'] ?? null,
                         ]);
