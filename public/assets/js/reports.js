@@ -162,7 +162,7 @@ $(document).ready(function () {
     $(document).ready(function () {
         const today = new Date();
         const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); 
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
 
         $('#toDate').val(`${yyyy}-${mm}-${dd}`);
@@ -171,12 +171,13 @@ $(document).ready(function () {
         $('#fromDate').val(`${yyyy}-${mm}-01`);
         $('#from_date').val(`${yyyy}-${mm}-01`);
 
-        
+
 
 
         $('#customerWiseSalesreportForm').submit();
         $('#customerWiseReceivableReportForm').submit();
         $('#salemanWiseReportForm').submit();
+        $('#customerLedgerReportForm').submit();
         $('#soaReportForm').submit();
     });
 
@@ -268,6 +269,56 @@ $(document).ready(function () {
 
                 } else {
                     $('#salemanWiseReportList').html(`
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <div class="text-center">
+                                    <h3 style="color:#0d6efd;">Record Not Found</h3>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                }
+            }
+        });
+    });
+
+
+    $(document).on('submit', '#customerLedgerReportForm', function (e) {
+        e.preventDefault();
+        let formData = $(this).serialize();
+        $.ajax({
+            url: '/get-customer-ledger-list',
+            type: 'get',
+            data: formData,
+            success: function (response) {
+                $('#customerLedgerReportList').html(`
+                    <tr>
+                        <td colspan="8" class="text-center">
+                            <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                if (response) {
+                    setTimeout(() => {
+                        $('#customerLedgerReportList').html(response);
+                    }, 500);
+
+                    // After content is loaded, calculate totals
+                    let total = 0;
+                    $('.rental-amount').each(function () {
+                        total += parseFloat($(this).text().replace(/,/g, '')) || 0;
+                    });
+
+                    let net = total * 0.8;
+                    $('#totalAmount').text(total.toFixed(2));
+                    $('#netAmount').text(net.toFixed(2));
+                    $('#printTotalAmount').text(total.toFixed(2));
+                    $('#printNetAmount').text(net.toFixed(2));
+
+                } else {
+                    $('#customerLedgerReportList').html(`
                         <tr>
                             <td colspan="6" class="text-center">
                                 <div class="text-center">

@@ -262,18 +262,18 @@ class ReportController extends Controller
     }
 
     public function getCustomerWiseReceivableList(Request $request)
-{
-    $fromDate = $request->input('from_date');
-    $toDate = $request->input('to_date');
-    $customerID = $request->input('customer_id');
+    {
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $customerID = $request->input('customer_id');
 
-    $booking = Booking::with(['invoice', 'payment', 'customer', 'bookingData.invoice'])
-        ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
-        ->when($fromDate && $toDate, fn($q) => $q->whereBetween(DB::raw('DATE(started_at)'), [$fromDate, $toDate]))
-        ->get();
+        $booking = Booking::with(['invoice', 'payment', 'customer', 'bookingData.invoice'])
+            ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
+            ->when($fromDate && $toDate, fn($q) => $q->whereBetween(DB::raw('DATE(started_at)'), [$fromDate, $toDate]))
+            ->get();
 
-    return view('reports.reportlist.get-customer-wise-receivable-list', compact('booking'));
-}
+        return view('reports.reportlist.get-customer-wise-receivable-list', compact('booking'));
+    }
 
 
     // Salemen Wise Receivable report functions
@@ -282,6 +282,28 @@ class ReportController extends Controller
         $saleman = SalePerson::all();
         return view('reports.salemen-wise-report', compact('saleman'));
     }
+
+    public function customerLedger()
+    {
+        $customers = Customer::all();
+        $bookings = Booking::all();
+        return view('reports.customer-ledger', compact('bookings', 'customers'));
+    }
+
+    public function getCustomerLedgerList(Request $request)
+    {
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $customerID = $request->input('customer_id');
+
+        $booking = Booking::with(['invoice', 'payment', 'customer', 'bookingData.invoice'])
+            ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
+            ->when($fromDate && $toDate, fn($q) => $q->whereBetween(DB::raw('DATE(started_at)'), [$fromDate, $toDate]))
+            ->get();
+
+        return view('reports.reportlist.get-customer-ledger-list', compact('booking'));
+    }
+    
 
     public function getSalemenWiseReportList(Request $request)
     {

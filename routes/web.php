@@ -157,6 +157,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/customer-wise-receivable', [ReportController::class, 'customerWiseReceivable'])->name('customerWiseReceivable');
     Route::get('/reports/salemen-wise-report', [ReportController::class, 'salemenWiseReport'])->name('salemenWiseReport');
 
+    Route::get('/reports/customer-ledger', [ReportController::class, 'customerLedger'])->name('customerLedger');
+
     // investor Report
     Route::get('/reports/bookingReport', [ReportController::class, 'investorVehicleReport'])->name('bookingReport');
 
@@ -172,6 +174,8 @@ Route::get('get-soa-list', [ReportController::class, 'getSoaReportList'])->name(
 Route::get('get-customer-wise-sales-list', [ReportController::class, 'getCustomerWiseSaleReportList']);
 Route::get('get-customer-wise-receivable-list', [ReportController::class, 'getCustomerWiseReceivableList']);
 Route::get('get-salemen-wise-list', [ReportController::class, 'getSalemenWiseReportList']);
+Route::get('get-customer-ledger-list', [ReportController::class, 'getCustomerLedgerList']);
+
 Route::get('get-investor-vehicle-list', [ReportController::class, 'getInvestorVehicleReportList']);
 
 // AJAX Routes
