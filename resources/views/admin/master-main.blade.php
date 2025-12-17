@@ -275,6 +275,7 @@
                                     data-feather="mail"></i><span>Reports</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ route('soaReport') }}">SOA Report</a></li>
+                                <li><a class="nav-link" href="{{ route('customerLedger') }}">Customer Ledger Report</a></li>
                                 <li><a class="nav-link" href="{{ route('customerWiseReport') }}">Customer Wise Sales Report</a></li>
                                 <li><a class="nav-link" href="{{ route('customerWiseReceivable') }}">Customer Wise Receivable</a></li>
                                 <li><a class="nav-link" href="{{ route('salemenWiseReport') }}">Salemen Wise Report</a></li>
