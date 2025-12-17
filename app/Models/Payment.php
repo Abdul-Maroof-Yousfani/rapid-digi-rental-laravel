@@ -40,6 +40,7 @@ class Payment extends Model
                 'paid_amount',
                 'pending_amount',
                 'payment_status',
+                'payment_date',
             ])
             ->logOnlyDirty()
             ->useLogName('Payment');
