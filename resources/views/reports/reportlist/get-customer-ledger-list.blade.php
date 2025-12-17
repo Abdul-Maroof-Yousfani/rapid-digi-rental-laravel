@@ -1,45 +1,37 @@
 @php
   $number = 1;
-  $bookingtotal = 0;
-  $paidtotal = 0;
-  $receivabletotal = 0;
+  $totalPaymentReceive = 0;
+  $totalOutstanding = 0;
 @endphp
 
-@foreach ($booking as $item)
+@foreach ($ledgerData as $item)
   @php
-    $price = $item->bookingData->sum('item_total');
-    $paidAmount = $item->payment->paid_amount ?? 0;
-
-    // Determine pending & receivable amounts
-     $receivableAmt = max($price - $paidAmount, 0);
-    $itemBookingTotal = $item->invoice ? $item->invoice->sum('total_amount') : 0;
-    $itemPaidTotal = $paidAmount;
-    //$itemReceivableTotal = $item->payment->pending_amount ?? $receivableAmt;
-
-    // Accumulate totals
-    $bookingtotal += $price;
-    $paidtotal += $itemPaidTotal;
-    $receivabletotal += $receivableAmt;
+    $totalPaymentReceive += $item->payment_receive;
+    $totalOutstanding += $item->outstanding;
   @endphp
 
   <tr>
-    <td>{{ $item->invoice->invoice_date }}</td>
-    <td>
-      {{ $item->bookingData->pluck('invoice.zoho_invoice_number')->filter()->unique()->implode(', ') }}
-    </td>
-    <td>{{ $item->bookingData->first()->description }}</td>
-    <td> Item Desc </td>
-    <td align="right">{{ number_format($price, 2) }}</td>
-    <td align="right">{{ number_format($itemPaidTotal, 2) }}</td>
-    <td align="right">{{ number_format($receivableAmt, 2) }}</td>
-    <td>{{ $item->invoice->invoice_status }}</td>
-
+    <td>{{ $item->date }}</td>
+    <td>{{ $item->invoice_number }}</td>
+    <td>{{ $item->description }}</td>
+    <td>{{ $item->item_desc }}</td>
+    <td align="right">{{ $item->invoice_amount }}</td>
+    <td align="right">{{ number_format($item->payment_receive, 2) }}</td>
+    <td align="right">{{ number_format($item->outstanding, 2) }}</td>
+    <td>{{ $item->invoice_status }}</td>
   </tr>
+  @php $number++; @endphp
 @endforeach
 
+@if(count($ledgerData) > 0)
 <tr>
-  <td colspan="4" align="right"><b>Sub Total</b></td>
-  <td align="right"><b>{{ number_format($bookingtotal, 2) }}</b></td>
-  <td align="right"><b>{{ number_format($paidtotal, 2) }}</b></td>
-  <td align="right"><b>{{ number_format($receivabletotal, 2) }}</b></td>
+  <td colspan="5" align="right"><b>Sub Total</b></td>
+  <td align="right"><b>{{ number_format($totalPaymentReceive, 2) }}</b></td>
+  <td align="right"><b>{{ number_format($totalOutstanding, 2) }}</b></td>
+  <td></td>
 </tr>
+@else
+<tr>
+  <td colspan="8" class="text-center">No records found</td>
+</tr>
+@endif

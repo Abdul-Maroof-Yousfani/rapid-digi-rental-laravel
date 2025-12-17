@@ -22,6 +22,7 @@ class Payment extends Model
         'paid_amount',
         'pending_amount',
         'payment_status',
+        'payment_date',
     ];
 
     /**
@@ -62,5 +63,10 @@ class Payment extends Model
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method', 'id');
+    }
+
+    public function bank()
+    {
+        return $this->belongsTo(Bank::class, 'bank_id', 'id');
     }
 }

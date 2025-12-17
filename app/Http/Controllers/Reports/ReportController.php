@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Models\PaymentData;
 use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Invoice;
@@ -296,14 +297,126 @@ class ReportController extends Controller
         $toDate = $request->input('to_date');
         $customerID = $request->input('customer_id');
 
-        $booking = Booking::with(['invoice', 'payment', 'customer', 'bookingData.invoice'])
-            ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
-            ->when($fromDate && $toDate, fn($q) => $q->whereBetween(DB::raw('DATE(started_at)'), [$fromDate, $toDate]))
+        // Query PaymentData with all necessary relationships
+        $paymentData = PaymentData::with([
+            'invoice',
+            'payment.paymentMethod',
+            'payment.bank',
+            'payment.booking.customer',
+            'payment.booking.bookingData'
+        ])
+            ->whereHas('payment.booking', function ($query) use ($customerID) {
+                if ($customerID) {
+                    $query->where('customer_id', $customerID);
+                }
+            })
+            ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                $query->whereHas('payment', function ($q) use ($fromDate, $toDate) {
+                    $q->whereBetween(DB::raw('DATE(created_at)'), [$fromDate, $toDate]);
+                });
+            })
+            ->orderBy('created_at', 'ASC')
             ->get();
 
-        return view('reports.reportlist.get-customer-ledger-list', compact('booking'));
+        // Process data to calculate outstanding amounts
+        $ledgerData = $paymentData->map(function ($item) {
+            $payment = $item->payment;
+            $booking = $payment->booking ?? null;
+            $invoice = $item->invoice;
+
+            // Get payment method name for "Item Desc"
+            $paymentMethodName = $payment->paymentMethod->name ?? 'N/A';
+
+            // Format payment method name based on type
+            $itemDesc = $paymentMethodName;
+            if (stripos($paymentMethodName, 'cash') !== false || stripos($paymentMethodName, 'deposit') !== false) {
+                // Check if payment has a bank (deposit payment)
+                $bank = $payment->bank ?? null;
+                if ($bank && $bank->bank_name) {
+                    // Extract bank name (ADCB or WIO from bank_name)
+                    $bankName = '';
+                    if (stripos($bank->bank_name, 'ADCB') !== false) {
+                        $bankName = 'ADCB';
+                    } elseif (stripos($bank->bank_name, 'WIO') !== false) {
+                        $bankName = 'WIO';
+                    }
+
+                    if ($bankName) {
+                        $itemDesc = 'cash deposit(' . $bankName . ')';
+                    } else {
+                        // Fallback to booking deposit_type
+                        if ($booking && $booking->deposit_type) {
+                            if ($booking->deposit_type == 1) {
+                                $itemDesc = 'cash deposit(ADCB)';
+                            } elseif ($booking->deposit_type == 2) {
+                                $itemDesc = 'cash deposit(WIO)';
+                            } else {
+                                $itemDesc = 'Cash Payment';
+                            }
+                        } else {
+                            $itemDesc = 'Cash Payment';
+                        }
+                    }
+                } else {
+                    // Check booking deposit_type as fallback
+                    if ($booking && $booking->deposit_type) {
+                        if ($booking->deposit_type == 1) {
+                            $itemDesc = 'cash deposit(ADCB)';
+                        } elseif ($booking->deposit_type == 2) {
+                            $itemDesc = 'cash deposit(WIO)';
+                        } else {
+                            $itemDesc = 'Cash Payment';
+                        }
+                    } else {
+                        $itemDesc = 'Cash Payment';
+                    }
+                }
+            }
+
+            // Get invoice number
+            $invoiceNumber = $invoice ? ($invoice->zoho_invoice_number ?? '') : '';
+
+            // Payment amount received
+            $invoiceAmount = $item->invoice->bookingData->sum('item_total') ?? 0;
+            $paymentReceive = $item->paid_amount ?? 0;
+
+            // Calculate outstanding (pending amount for this payment data)
+            $outstanding = $invoiceAmount - $paymentReceive;
+
+            // Invoice status
+            $invoiceStatus = '';
+            if ($outstanding == 0 ) {
+                $invoiceStatus = 'paid';
+                // Check if it's a deposit payment and fully paid
+                if ($booking && $booking->deposit_type && $outstanding <= 0) {
+                    $invoiceStatus = 'deposited full';
+                }
+            }
+             if ($outstanding > 0 ) {
+                $invoiceStatus = 'partially paid';
+               
+            }
+
+            // Payment date
+            $paymentDate = $payment->payment_date
+                ? Carbon::parse($payment->payment_date)->format('Y-m-d')
+                : ($item->created_at ? $item->created_at->format('Y-m-d') : '');
+
+            return (object) [
+                'date' => $paymentDate,
+                'invoice_number' => $invoiceNumber,
+                'description' => '', // Can be empty as per image
+                'item_desc' => $itemDesc,
+                'invoice_amount' => $invoiceAmount, // Shows "-" as per image
+                'payment_receive' => $paymentReceive,
+                'outstanding' => $outstanding,
+                'invoice_status' => $invoiceStatus,
+            ];
+        });
+
+        return view('reports.reportlist.get-customer-ledger-list', compact('ledgerData'));
     }
-    
+
 
     public function getSalemenWiseReportList(Request $request)
     {
