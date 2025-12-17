@@ -377,7 +377,7 @@ class ReportController extends Controller
             $invoiceNumber = $invoice ? ($invoice->zoho_invoice_number ?? '') : '';
 
             // Payment amount received
-            $invoiceAmount = $item->invoice->bookingData->sum('item_total') ?? 0;
+            $invoiceAmount = $item->invoice_amount ?? 0;
             $paymentReceive = $item->paid_amount ?? 0;
 
             // Calculate outstanding (pending amount for this payment data)
@@ -385,16 +385,12 @@ class ReportController extends Controller
 
             // Invoice status
             $invoiceStatus = '';
-            if ($outstanding == 0 ) {
-                $invoiceStatus = 'paid';
+            if ($invoice) {
+                $invoiceStatus = $invoice->invoice_status ?? '';
                 // Check if it's a deposit payment and fully paid
                 if ($booking && $booking->deposit_type && $outstanding <= 0) {
                     $invoiceStatus = 'deposited full';
                 }
-            }
-             if ($outstanding > 0 ) {
-                $invoiceStatus = 'partially paid';
-               
             }
 
             // Payment date
