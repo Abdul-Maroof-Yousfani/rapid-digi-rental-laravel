@@ -93,10 +93,10 @@
 
     <!-- Create Model Code -->
     <div class="modal fade" id="paymentHistoryModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-md" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Payment History</h5>
+                    <h5 class="modal-title">Payment Details</h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
                     </button>
@@ -113,6 +113,8 @@
 
 @section('script')
     <script type="text/javascript">
+        // CSRF Token for AJAX requests
+        var csrfToken = '{{ csrf_token() }}';
         // Use event delegation for dynamically added delete buttons
         $(document).on('click', '.delete-confirm', function (e) {
             e.preventDefault(); // Stop form submit
@@ -258,50 +260,139 @@
             var paymentId = $(this).data('payment-id');
 
             $.ajax({
-                url: '/get-payment-history/' + paymentId,
+                url: '/get-payment-data/' + paymentId,
                 type: 'GET',
                 success: function (response) {
                     if (response.success) {
-                        let paymentHistory = response.data;
+                        let paymentData = response.data;
 
-                        let html = `<hr>`;
-                        html += `<table class="table table-bordered">
-                                    <thead>
+                        if (paymentData.length === 0) {
+                            $('#paymentHistoryModal .modal-body').html('<p class="text-center text-muted">No payment data found</p>');
+                            $('#paymentHistoryModal').modal('show');
+                            return;
+                        }
+
+                        let html = `<div class="table-responsive">`;
+                        html += `<table class="table table-bordered table-hover">
+                                    <thead class="thead-light">
                                         <tr>
                                             <th>S. No</th>
-                                            <th>Method</th>
-                                            <th>Amount</th>
+                                            <th>Invoice Number</th>
+                                            <th>Invoice Amount</th>
+                                            <th>Paid Amount</th>
+                                            <th>Pending Amount</th>
+                                            <th>Status</th>
+                                            <th>Payment Method</th>
                                             <th>Date</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>`;
 
-                        $.each(paymentHistory, function (index, item) {
-                            let dateObj = new Date(item.payment_date);
-                            let day = dateObj.getDate().toString().padStart(2, '0'); // 26
-                            let month = dateObj.toLocaleString('default', { month: 'long' }); // June
-                            let year = dateObj.getFullYear(); // 2025
+                        $.each(paymentData, function (index, item) {
+                            let invoiceNumber = item.invoice ? (item.invoice.zoho_invoice_number || '-') : '-';
+                            let invoiceAmount = parseFloat(item.invoice_amount || 0);
+                            let paidAmount = parseFloat(item.paid_amount || 0);
+                            let pendingAmount = parseFloat(item.pending_amount || 0);
+                            let status = item.status || 'pending';
+                            let paymentMethod = '-';
+                            if (item.payment) {
+                                if (item.payment.payment_method && item.payment.payment_method.name) {
+                                    paymentMethod = item.payment.payment_method.name;
+                                } else if (item.payment.paymentMethod && item.payment.paymentMethod.name) {
+                                    paymentMethod = item.payment.paymentMethod.name;
+                                }
+                            }
+                            
+                            let dateObj = item.created_at ? new Date(item.created_at) : new Date();
+                            let day = dateObj.getDate().toString().padStart(2, '0');
+                            let month = dateObj.toLocaleString('default', { month: 'short' });
+                            let year = dateObj.getFullYear();
                             let formattedDate = `${day}-${month}-${year}`;
+
+                            let statusBadge = status === 'paid' 
+                                ? '<span class="badge badge-success">Paid</span>' 
+                                : '<span class="badge badge-warning">Pending</span>';
 
                             html += `<tr>
                                         <td>${index + 1}</td>
-                                        <td>${item.payment_method ? item.payment_method.name : ''}</td>
-                                        <td>${Number(item.paid_amount).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}</td>
-                                        <td>${formattedDate ?? 'N/A'}</td>
+                                        <td>${invoiceNumber}</td>
+                                        <td>AED ${invoiceAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td>AED ${paidAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td>AED ${pendingAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td>${statusBadge}</td>
+                                        <td>${paymentMethod}</td>
+                                        <td>${formattedDate}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-danger delete-payment-data" 
+                                                data-payment-data-id="${item.id}" 
+                                                data-payment-id="${paymentId}"
+                                                title="Delete this payment entry">
+                                                <i class="far fa-trash-alt"></i>
+                                            </button>
+                                        </td>
                                     </tr>`;
                         });
 
-                        html += `</tbody></table>`;
+                        html += `</tbody></table></div>`;
 
                         $('#paymentHistoryModal .modal-body').html(html);
                         $('#paymentHistoryModal').modal('show');
                     } else {
-                        $('#paymentHistoryModal .modal-body').html('<p class="text-danger">Invoice not found</p>');
+                        $('#paymentHistoryModal .modal-body').html('<p class="text-danger">Payment data not found</p>');
                         $('#paymentHistoryModal').modal('show');
                     }
+                },
+                error: function(xhr) {
+                    $('#paymentHistoryModal .modal-body').html('<p class="text-danger">Error loading payment data</p>');
+                    $('#paymentHistoryModal').modal('show');
+                }
+            });
+        });
+
+        // Delete PaymentData
+        $(document).on('click', '.delete-payment-data', function (e) {
+            e.preventDefault();
+            var paymentDataId = $(this).data('payment-data-id');
+            var paymentId = $(this).data('payment-id');
+            var row = $(this).closest('tr');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this payment entry? This will update the payment totals.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/payment-data/' + paymentDataId,
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Deleted!', response.message, 'success');
+                                row.fadeOut(300, function() {
+                                    $(this).remove();
+                                    // Reload payment list to update totals
+                                    loadPaymentList();
+                                });
+                            } else {
+                                Swal.fire('Error!', response.message, 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            let message = 'Error deleting payment data';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                message = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Error!', message, 'error');
+                        }
+                    });
                 }
             });
         });

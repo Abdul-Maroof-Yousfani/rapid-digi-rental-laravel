@@ -133,6 +133,19 @@ class AjaxController extends Controller
         ]);
     }
 
+    public function getPaymentData($paymentId)
+    {
+        $paymentData = PaymentData::with('invoice', 'payment.paymentMethod')
+            ->where('payment_id', $paymentId)
+            ->orderBy('id', 'DESC')
+            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $paymentData
+        ]);
+    }
+
     public function getBookingDetail($booking_id)
     {
         $booking = Booking::find($booking_id);

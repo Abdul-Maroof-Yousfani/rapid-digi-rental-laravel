@@ -538,4 +538,83 @@ class PaymentController extends Controller
         $paymentHistory = BookingPaymentHistory::with('payment', 'paymentMethod')->where('payment_id', $paymentID)->get();
         return view('booker.payment.view-payment-history', compact('paymentHistory'));
     }
+
+    /**
+     * Delete individual PaymentData entry
+     */
+    public function destroyPaymentData($paymentDataId)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $paymentData = PaymentData::with('payment', 'invoice')->find($paymentDataId);
+            
+            if (!$paymentData) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment Data Not Found!'
+                ], 404);
+            }
+
+            $payment = $paymentData->payment;
+            $paidAmount = $paymentData->paid_amount ?? 0;
+            $invoice = $paymentData->invoice; // Get invoice before deleting
+
+            // Delete related DepositHandling if exists
+            DepositHandling::where('payment_data_id', $paymentDataId)->delete();
+
+            // Delete the PaymentData
+            $paymentData->delete();
+
+            // Recalculate payment totals
+            $totalPaidAmount = PaymentData::where('payment_id', $payment->id)->sum('paid_amount');
+            $pendingAmount = $payment->booking_amount - $totalPaidAmount;
+            $paymentStatus = $pendingAmount <= 0 ? 'paid' : 'pending';
+
+            // Update payment totals
+            $payment->update([
+                'paid_amount' => $totalPaidAmount,
+                'pending_amount' => $pendingAmount,
+                'payment_status' => $paymentStatus,
+            ]);
+
+            // Update invoice status if exists
+            if ($invoice) {
+                $invoicePaidAmount = PaymentData::where('invoice_id', $invoice->id)->sum('paid_amount');
+                $invoiceTotalAmount = floatval($invoice->total_amount);
+                $invoicePendingAmount = $invoiceTotalAmount - $invoicePaidAmount;
+                
+                // Determine invoice status
+                if ($invoicePendingAmount <= 0) {
+                    $invoiceStatus = 'paid';
+                } elseif ($invoicePaidAmount > 0) {
+                    $invoiceStatus = 'partially paid';
+                } else {
+                    $invoiceStatus = 'sent';
+                }
+                
+                $invoice->update([
+                    'invoice_status' => $invoiceStatus,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment Data Deleted Successfully!',
+                'payment' => [
+                    'paid_amount' => $totalPaidAmount,
+                    'pending_amount' => $pendingAmount,
+                    'payment_status' => $paymentStatus,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting payment data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

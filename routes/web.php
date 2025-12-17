@@ -185,6 +185,8 @@ Route::get('get-vehicle-by-booking/{id}/booking/{booking_id}', [AjaxController::
 Route::get('get-booking-detail/{id}', [AjaxController::class, 'getBookingDetail'])->name('get-booking-detail');
 Route::get('get-invoice-detail/{id}', [AjaxController::class, 'getInvoiceDetail']);
 Route::get('get-payment-history/{payment_id}', [AjaxController::class, 'getPaymentHistory']);
+Route::get('get-payment-data/{payment_id}', [AjaxController::class, 'getPaymentData']);
+Route::delete('payment-data/{paymentDataId}', [App\Http\Controllers\Booker\PaymentController::class, 'destroyPaymentData'])->name('payment-data.destroy');
 Route::get('booking-cancellation/{id}', [AjaxController::class, 'bookingCancellation']);
 Route::get('check-bookingis-active/{id}', [BookingController::class, 'isBookingActive']);
 Route::get('is-agreement-no-exist', [AjaxController::class, 'checkAgreementNoExist'])->name("checkAgreementNoExist");
