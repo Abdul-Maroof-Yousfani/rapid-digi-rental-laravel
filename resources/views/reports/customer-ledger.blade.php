@@ -62,6 +62,9 @@
                             <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
                         </div>
                         <div class="col-md-4 text-right">
+                            <button type="button" class="btn btn-success" id="exportExcelBtn" style="margin-right: 10px;">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </button>
                             <button class="btn btn-primary prinn pritns" onclick="printView('printReport','','1')" style="">
                                 <span class="glyphicon glyphicon-print"></span> Print
                             </button>
@@ -112,4 +115,30 @@
             </div>
         </section>
     </div>
+@endsection
+
+@section('script')
+<script>
+    $(document).ready(function() {
+        // Export to Excel button click handler
+        $('#exportExcelBtn').on('click', function() {
+            // Get form values
+            var fromDate = $('#from_date').val();
+            var toDate = $('#to_date').val();
+            var customerId = $('#customer_id').val();
+            
+            // Build query string
+            var params = new URLSearchParams();
+            if (fromDate) params.append('from_date', fromDate);
+            if (toDate) params.append('to_date', toDate);
+            if (customerId) params.append('customer_id', customerId);
+            
+            // Create export URL
+            var exportUrl = '{{ route("customerLedger.export") }}?' + params.toString();
+            
+            // Open in new window to trigger download
+            window.location.href = exportUrl;
+        });
+    });
+</script>
 @endsection

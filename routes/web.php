@@ -158,6 +158,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/salemen-wise-report', [ReportController::class, 'salemenWiseReport'])->name('salemenWiseReport');
 
     Route::get('/reports/customer-ledger', [ReportController::class, 'customerLedger'])->name('customerLedger');
+    Route::get('/reports/customer-ledger/export', [ReportController::class, 'exportCustomerLedger'])->name('customerLedger.export');
 
     // investor Report
     Route::get('/reports/bookingReport', [ReportController::class, 'investorVehicleReport'])->name('bookingReport');

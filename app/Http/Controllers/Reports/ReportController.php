@@ -14,6 +14,8 @@ use App\Models\BookingData;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Exports\CustomerLedgerExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -362,6 +364,92 @@ class ReportController extends Controller
         return view('reports.reportlist.get-customer-ledger-list', compact('ledgerData'));
     }
 
+    public function exportCustomerLedger(Request $request)
+    {
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $customerID = $request->input('customer_id');
+
+        // Query PaymentData with all necessary relationships (same as getCustomerLedgerList)
+        $paymentData = PaymentData::with([
+            'invoice',
+            'payment.paymentMethod',
+            'payment.bank',
+            'payment.booking.customer',
+            'payment.booking.bookingData'
+        ])
+            ->whereHas('payment.booking', function ($query) use ($customerID) {
+                if ($customerID) {
+                    $query->where('customer_id', $customerID);
+                }
+            })
+            ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                $query->whereHas('payment', function ($q) use ($fromDate, $toDate) {
+                    $q->whereBetween(DB::raw('DATE(created_at)'), [$fromDate, $toDate]);
+                });
+            })
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        // Process data (same logic as getCustomerLedgerList)
+        $ledgerData = $paymentData->map(function ($item) {
+            $payment = $item->payment;
+            $booking = $payment->booking ?? null;
+            $invoice = $item->invoice;
+
+            $paymentMethodName = $payment->paymentMethod->name ?? 'N/A';
+            $description = $booking && $booking->bookingData ? ($booking->bookingData->first()->description ?? '') : '';
+
+            $itemDesc = $paymentMethodName;
+
+            $invoiceNumber = $invoice ? ($invoice->zoho_invoice_number ?? '') : '';
+
+            $invoiceAmount = $item->invoice_amount ?? 0;
+            $paymentReceive = $item->paid_amount ?? 0;
+
+            $outstanding = $invoiceAmount - $paymentReceive;
+
+            $invoiceStatus = '';
+            if ($invoice) {
+                $invoiceStatus = $invoice->invoice_status ?? '';
+                if ($booking && $booking->deposit_type && $outstanding <= 0) {
+                    $invoiceStatus = 'deposited full';
+                }
+            }
+
+            $paymentDate = $payment->payment_date
+                ? Carbon::parse($payment->payment_date)->format('Y-m-d')
+                : ($item->created_at ? $item->created_at->format('Y-m-d') : '');
+
+            return (object) [
+                'date' => $paymentDate,
+                'invoice_number' => $invoiceNumber,
+                'description' => $description,
+                'item_desc' => $itemDesc,
+                'invoice_amount' => $invoiceAmount,
+                'payment_receive' => $paymentReceive,
+                'outstanding' => $outstanding,
+                'invoice_status' => $invoiceStatus,
+            ];
+        });
+
+        // Generate filename with date range and customer
+        $customerName = '';
+        if ($customerID) {
+            $customer = Customer::find($customerID);
+            $customerName = $customer ? '_' . str_replace(' ', '_', $customer->customer_name) : '';
+        }
+        
+        $dateRange = '';
+        if ($fromDate && $toDate) {
+            $dateRange = '_' . $fromDate . '_to_' . $toDate;
+        }
+        
+        $filename = 'Customer_Ledger' . $customerName . $dateRange . '_' . date('Y-m-d_His') . '.xlsx';
+
+        return Excel::download(new CustomerLedgerExport($ledgerData), $filename);
+    }
+ 
 
     public function getSalemenWiseReportList(Request $request)
     {
