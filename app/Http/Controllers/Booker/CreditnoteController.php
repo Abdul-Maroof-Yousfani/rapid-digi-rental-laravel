@@ -43,13 +43,11 @@ class CreditnoteController extends Controller
         $creditNoteBookingIds = CreditNote::pluck('booking_id')->toArray();
 
         // Get bookings that have a deposit amount greater than zero
+        // Removed payment condition - bookings with deposit should show regardless of payment status
         $bookings = Booking::whereHas('deposit', function ($query) {
             $query->where('deposit_amount', '>', 0);
         })
-        ->whereHas('payment', function ($query) {
-            $query->where('pending_amount', '=', 0);
-        })
-            ->with('deposit', 'customer', 'depositHandling')
+            ->with('deposit', 'customer', 'depositHandling', 'payment')
             ->orderBy('id', 'DESC')
             ->get();
 
@@ -57,7 +55,8 @@ class CreditnoteController extends Controller
         // - Must have remaining deposit (deposit_amount > 0)
         // - Must not already have a credit note created
         $filterBooking = $bookings->filter(function ($booking) use ($creditNoteBookingIds) {
-            return $booking->deposit->deposit_amount > 0
+            return $booking->deposit 
+                && $booking->deposit->deposit_amount > 0
                 && !in_array($booking->id, $creditNoteBookingIds);
         });
 
