@@ -363,6 +363,7 @@ class ReportController extends Controller
                 'payment.bookingPaymentHistories'
             ]);
 
+            
         $ledgerData = $paymentData->filter(function ($item) {
             return $item->payment !== null;
         })->map(function ($item) use ($fromDate, $toDate) {
