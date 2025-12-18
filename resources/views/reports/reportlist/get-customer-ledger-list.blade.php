@@ -3,13 +3,19 @@
   $totalInvoiceAmount = 0;
   $totalPaymentReceive = 0;
   $totalOutstanding = 0;
+  $countedInvoiceIds = []; // track which invoices are already counted
 @endphp
 
 @foreach ($ledgerData as $item)
   @php
-    $totalInvoiceAmount += $item->invoice_amount;
+    // Only add invoice_amount once per invoice_id
+    if ($item->invoice_id && !in_array($item->invoice_id, $countedInvoiceIds, true)) {
+        $totalInvoiceAmount += $item->invoice_amount;
+        $countedInvoiceIds[] = $item->invoice_id;
+    }
+
     $totalPaymentReceive += $item->payment_receive;
-    $totalOutstanding += $item->outstanding;
+    $totalOutstanding   += $item->outstanding;
   @endphp
 
   <tr>
@@ -30,7 +36,6 @@
     <td align="right">{{ number_format($item->outstanding, 2) }}</td>
     <td>{{ $item->invoice_status }}</td>
   </tr>
-  @php $number++; @endphp
 @endforeach
 
 @if(count($ledgerData) > 0)
