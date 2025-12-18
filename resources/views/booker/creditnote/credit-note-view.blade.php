@@ -215,7 +215,7 @@
                             $depositDifference = $initialDeposit - $remainingDeposit;
 
                             $item = $booking->bookingData()->first();
-                            $bookingDataDeduct = $booking->bookingData()->where('view_type', 2)->with('invoice_type')->get();
+                            $bookingDataDeduct = $booking->bookingData()->where('view_type', 2)->where('deductiontype_id', '!=', null)->with('invoice_type')->get();
 
                         @endphp
                         {{-- @if($booking)

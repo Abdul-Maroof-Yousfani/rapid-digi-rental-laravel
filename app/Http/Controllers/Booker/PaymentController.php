@@ -289,21 +289,48 @@ class PaymentController extends Controller
                     'line' => $e->getLine()
                 ], 500);
             }
+// dd($request->initial_deposit);
 
 
-
-            if ($depositUsed > 0) {
+            if ($request['adjust_invoice'] == 1) {
                 $booking = Booking::find($request->booking_id);
                 $deposit = $booking->deposit()->lockForUpdate()->first();
 
                 if ($deposit) {
-                    $newDepositAmount = max(0, $deposit->deposit_amount - $depositUsed);
+                    $newDepositAmount = max(0, $deposit->deposit_amount - $request->initial_deposit);
                     $deposit->update(['deposit_amount' => $newDepositAmount]);
+
+                    // If adjust_invoice is checked, transfer deposit to selected booking
+                    $targetBookingId = $booking->id; // Default to current booking
+                    if ($request['adjust_invoice'] == 1 && $request->reference_invoice_number) {
+                        $targetBookingId = $request->reference_invoice_number; // Use selected booking
+                        
+                        // Transfer deposit to selected booking
+                        $selectedBooking = Booking::find($targetBookingId);
+                        if ($selectedBooking) {
+                            $selectedDeposit = $selectedBooking->deposit;
+                            
+                            if ($selectedDeposit) {
+                                // Add deposit to existing deposit
+                                $selectedDeposit->update([
+                                    'deposit_amount' => $selectedDeposit->deposit_amount + $request->initial_deposit,
+                                    'initial_deposit' => $selectedDeposit->initial_deposit + $request->initial_deposit,
+                                ]);
+                            } else {
+                                // Create new deposit for selected booking
+                                $newDeposit = Deposit::create([
+                                    'deposit_amount' => $request->initial_deposit,
+                                    'initial_deposit' => $request->initial_deposit,
+                                ]);
+                                $selectedBooking->update(['deposit_id' => $newDeposit->id]);
+                            }
+                        }
+                    }
 
                     foreach ($paymentDataMap as $key => $paymentDataId) {
                         DepositHandling::create([
                             'payment_data_id' => $paymentDataId,
-                            'booking_id' => $booking->id,
+                            'booking_id' => $targetBookingId, // Apply to selected booking if adjust_invoice is checked
                             'deduct_deposit' => $pendingAmounts[$key], // match index with payment
                         ]);
                     }

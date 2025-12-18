@@ -307,9 +307,18 @@
                                             <tr id="invoice_adjustment_section1" style="display: none;">
                                                 <td colspan="9" class="text-right align-middle">Reference Invoice No.</td>
                                                 <td>
-                                                    <input type="text" class="form-control reference_invoice_number"
-                                                        name="reference_invoice_number[]"
-                                                        placeholder="Enter invoice number">
+                                                    <select name="reference_invoice_number" id="reference_invoice_number" class="form-control select2 reference_invoice_number"
+                                                        onchange="usedDepositAgainstInvoice()" style="width: 100%;">
+                                                        <option value="">-- Select Booking / Invoice --</option>
+                                                        @foreach ($bookings as $booking)
+                                                            <option value="{{ $booking->id }}">
+                                                                Booking #{{ $booking->id }}
+                                                                @if($booking->invoice)
+                                                                    - Invoice {{ $booking->invoice->zoho_invoice_number }}
+                                                                @endif
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </td>
                                             </tr>
                                             <tr>
