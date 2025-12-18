@@ -331,6 +331,7 @@ class ReportController extends Controller
             $itemDesc = $paymentMethodName;
 
             $invoiceNumber = $invoice ? ($invoice->zoho_invoice_number ?? '') : '';
+            $invoiceId = $invoice ? ($invoice->id ?? null) : null;
 
             $invoiceAmount = $item->invoice_amount ?? 0;
             $paymentReceive = $item->paid_amount ?? 0;
@@ -352,6 +353,7 @@ class ReportController extends Controller
             return (object) [
                 'date' => $paymentDate,
                 'invoice_number' => $invoiceNumber,
+                'invoice_id' => $invoiceId,
                 'description' => $description, // Can be empty as per image
                 'item_desc' => $itemDesc,
                 'invoice_amount' => $invoiceAmount, // Shows "-" as per image
@@ -403,6 +405,7 @@ class ReportController extends Controller
             $itemDesc = $paymentMethodName;
 
             $invoiceNumber = $invoice ? ($invoice->zoho_invoice_number ?? '') : '';
+            $invoiceId = $invoice ? ($invoice->id ?? null) : null;
 
             $invoiceAmount = $item->invoice_amount ?? 0;
             $paymentReceive = $item->paid_amount ?? 0;
@@ -424,6 +427,7 @@ class ReportController extends Controller
             return (object) [
                 'date' => $paymentDate,
                 'invoice_number' => $invoiceNumber,
+                'invoice_id' => $invoiceId,
                 'description' => $description,
                 'item_desc' => $itemDesc,
                 'invoice_amount' => $invoiceAmount,

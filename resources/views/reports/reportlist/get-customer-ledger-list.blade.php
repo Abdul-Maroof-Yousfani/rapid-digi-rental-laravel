@@ -14,7 +14,15 @@
 
   <tr>
     <td>{{ $item->date }}</td>
-    <td>{{ $item->invoice_number }}</td>
+    <td>
+      @if($item->invoice_id && $item->invoice_number)
+        <a href="{{ route('view.invoice', $item->invoice_id) }}" target="_blank" style="color: #0d6efd; text-decoration: underline;">
+          {{ $item->invoice_number }}
+        </a>
+      @else
+        {{ $item->invoice_number }}
+      @endif
+    </td>
     <td>{{ $item->description }}</td>
     <td>{{ $item->item_desc }}</td>
     <td align="right">{{ $item->invoice_amount }}</td>
