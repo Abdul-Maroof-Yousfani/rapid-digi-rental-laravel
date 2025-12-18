@@ -289,7 +289,7 @@
                                                         placeholder="0.00" readonly>
                                                 </td>
                                             </tr>
-                                            <tr>
+                                            {{-- <tr>
                                                 <td colspan="9" class="text-right align-middle">
                                                     <!-- <div class="form-check"> -->
                                                     <input type="hidden" name="adjust_invoice" value="0">
@@ -320,7 +320,7 @@
                                                         @endforeach
                                                     </select>
                                                 </td>
-                                            </tr>
+                                            </tr> --}}
                                             <tr>
                                                 <td colspan="9" class="text-right align-middle">Remarks (Optional)</td>
                                                 <td>
