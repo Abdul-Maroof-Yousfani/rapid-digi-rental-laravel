@@ -14,6 +14,7 @@ use App\Models\BookingData;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\BookingPaymentHistory;
 use App\Exports\CustomerLedgerExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
@@ -299,107 +300,73 @@ class ReportController extends Controller
         $toDate = $request->input('to_date');
         $customerID = $request->input('customer_id');
 
-        // Query PaymentData with all necessary relationships
-        $paymentData = PaymentData::with([
+        $query = PaymentData::with([
             'invoice',
             'payment.paymentMethod',
             'payment.bank',
             'payment.booking.customer',
-            'payment.booking.bookingData'
+            'payment.booking.bookingData',
+            'payment.bookingPaymentHistories'
         ])
             ->whereHas('payment.booking', function ($query) use ($customerID) {
                 if ($customerID) {
                     $query->where('customer_id', $customerID);
                 }
-            })
-            ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
-                $query->whereHas('payment', function ($q) use ($fromDate, $toDate) {
-                    $q->whereBetween(DB::raw('DATE(created_at)'), [$fromDate, $toDate]);
-                });
-            })
-            ->orderBy('created_at', 'ASC')
-            ->get();
+            });
 
-        $ledgerData = $paymentData->map(function ($item) {
+        if ($fromDate && $toDate) {
+            $query->whereExists(function ($subQuery) use ($fromDate, $toDate) {
+                $subQuery->select(DB::raw(1))
+                    ->from('booking_payment_histories')
+                    ->whereColumn('booking_payment_histories.payment_id', 'payment_data.payment_id')
+                    ->where(function ($q) {
+                        $q->where(function ($invoiceQuery) {
+                            $invoiceQuery->whereColumn('booking_payment_histories.invoice_id', 'payment_data.invoice_id')
+                                ->whereNotNull('payment_data.invoice_id')
+                                ->whereNotNull('booking_payment_histories.invoice_id');
+                        })
+                        ->orWhere(function ($noInvoiceInHistory) {
+                            $noInvoiceInHistory->whereNotNull('payment_data.invoice_id')
+                                ->whereNull('booking_payment_histories.invoice_id');
+                        })
+                        ->orWhere(function ($bothNull) {
+                            $bothNull->whereNull('payment_data.invoice_id')
+                                ->whereNull('booking_payment_histories.invoice_id');
+                        });
+                    })
+                    ->whereBetween(DB::raw('DATE(booking_payment_histories.payment_date)'), [$fromDate, $toDate]);
+            });
+        }
+
+        $paymentData = $query->select('payment_data.*')
+            ->addSelect([
+                DB::raw('(SELECT payment_date FROM booking_payment_histories 
+                    WHERE booking_payment_histories.payment_id = payment_data.payment_id 
+                    AND (
+                        (booking_payment_histories.invoice_id = payment_data.invoice_id AND payment_data.invoice_id IS NOT NULL)
+                        OR (payment_data.invoice_id IS NULL AND booking_payment_histories.invoice_id IS NULL)
+                    )
+                    ORDER BY payment_date ASC LIMIT 1) as history_payment_date')
+            ])
+            ->orderBy(DB::raw('COALESCE(history_payment_date, payment_data.created_at)'), 'ASC')
+            ->get()
+            ->loadMissing([
+                'invoice',
+                'payment.paymentMethod',
+                'payment.bank',
+                'payment.booking.customer',
+                'payment.booking.bookingData',
+                'payment.bookingPaymentHistories'
+            ]);
+
+        $ledgerData = $paymentData->filter(function ($item) {
+            return $item->payment !== null;
+        })->map(function ($item) use ($fromDate, $toDate) {
             $payment = $item->payment;
             $booking = $payment->booking ?? null;
             $invoice = $item->invoice;
 
-            $paymentMethodName = $payment->paymentMethod->name ?? 'N/A';
-            $description = $booking->bookingData->first()->description ?? 'N/A';
-
-            $itemDesc = $paymentMethodName;
-
-            $invoiceNumber = $invoice ? ($invoice->zoho_invoice_number ?? '') : '';
-            $invoiceId = $invoice ? ($invoice->id ?? null) : null;
-
-            $invoiceAmount = $item->invoice_amount ?? 0;
-            $paymentReceive = $item->paid_amount ?? 0;
-
-            $outstanding = $invoiceAmount - $paymentReceive;
-
-            $invoiceStatus = '';
-            if ($invoice) {
-                $invoiceStatus = $invoice->invoice_status ?? '';
-                if ($booking && $booking->deposit_type && $outstanding <= 0) {
-                    $invoiceStatus = 'deposited full';
-                }
-            }
-
-            $paymentDate = $payment->payment_date
-                ? Carbon::parse($payment->payment_date)->format('Y-m-d')
-                : ($item->created_at ? $item->created_at->format('Y-m-d') : '');
-
-            return (object) [
-                'date' => $paymentDate,
-                'invoice_number' => $invoiceNumber,
-                'invoice_id' => $invoiceId,
-                'description' => $description, // Can be empty as per image
-                'item_desc' => $itemDesc,
-                'invoice_amount' => $invoiceAmount, // Shows "-" as per image
-                'payment_receive' => $paymentReceive,
-                'outstanding' => $outstanding,
-                'invoice_status' => $invoiceStatus,
-            ];
-        });
-
-        return view('reports.reportlist.get-customer-ledger-list', compact('ledgerData'));
-    }
-
-    public function exportCustomerLedger(Request $request)
-    {
-        $fromDate = $request->input('from_date');
-        $toDate = $request->input('to_date');
-        $customerID = $request->input('customer_id');
-
-        // Query PaymentData with all necessary relationships (same as getCustomerLedgerList)
-        $paymentData = PaymentData::with([
-            'invoice',
-            'payment.paymentMethod',
-            'payment.bank',
-            'payment.booking.customer',
-            'payment.booking.bookingData'
-        ])
-            ->whereHas('payment.booking', function ($query) use ($customerID) {
-                if ($customerID) {
-                    $query->where('customer_id', $customerID);
-                }
-            })
-            ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
-                $query->whereHas('payment', function ($q) use ($fromDate, $toDate) {
-                    $q->whereBetween(DB::raw('DATE(created_at)'), [$fromDate, $toDate]);
-                });
-            })
-            ->orderBy('created_at', 'ASC')
-            ->get();
-
-        // Process data (same logic as getCustomerLedgerList)
-        $ledgerData = $paymentData->map(function ($item) {
-            $payment = $item->payment;
-            $booking = $payment->booking ?? null;
-            $invoice = $item->invoice;
-
-            $paymentMethodName = $payment->paymentMethod->name ?? 'N/A';
+            $paymentMethodName = $payment && $payment->paymentMethod ? $payment->paymentMethod->name : 'N/A';
             $description = $booking && $booking->bookingData ? ($booking->bookingData->first()->description ?? '') : '';
 
             $itemDesc = $paymentMethodName;
@@ -420,9 +387,205 @@ class ReportController extends Controller
                 }
             }
 
-            $paymentDate = $payment->payment_date
-                ? Carbon::parse($payment->payment_date)->format('Y-m-d')
-                : ($item->created_at ? $item->created_at->format('Y-m-d') : '');
+            $paymentDate = '';
+            if ($payment && $payment->bookingPaymentHistories) {
+                $history = null;
+                
+                if ($fromDate && $toDate) {
+                    $filteredHistories = $payment->bookingPaymentHistories->filter(function ($h) use ($fromDate, $toDate) {
+                        if (!$h->payment_date) return false;
+                        $historyDate = Carbon::parse($h->payment_date)->format('Y-m-d');
+                        return $historyDate >= $fromDate && $historyDate <= $toDate;
+                    });
+                    
+                    if ($invoice && $invoice->id) {
+                        $history = $filteredHistories->where('invoice_id', $invoice->id)->first();
+                    }
+                    
+                    if (!$history) {
+                        $history = $filteredHistories->first();
+                    }
+                }
+                
+                if (!$history && $invoice && $invoice->id) {
+                    $history = $payment->bookingPaymentHistories
+                        ->where('invoice_id', $invoice->id)
+                        ->first();
+                }
+                
+                if (!$history) {
+                    $history = $payment->bookingPaymentHistories->first();
+                }
+                
+                if ($history && $history->payment_date) {
+                    $paymentDate = Carbon::parse($history->payment_date)->format('Y-m-d');
+                }
+            }
+            
+            if (empty($paymentDate)) {
+                if ($payment && $payment->payment_date) {
+                    $paymentDate = Carbon::parse($payment->payment_date)->format('Y-m-d');
+                } elseif ($item->created_at) {
+                    $paymentDate = $item->created_at->format('Y-m-d');
+                } else {
+                    $paymentDate = '';
+                }
+            }
+
+            return (object) [
+                'date' => $paymentDate,
+                'invoice_number' => $invoiceNumber,
+                'invoice_id' => $invoiceId,
+                'description' => $description, 
+                'item_desc' => $itemDesc,
+                'invoice_amount' => $invoiceAmount, 
+                'payment_receive' => $paymentReceive,
+                'outstanding' => $outstanding,
+                'invoice_status' => $invoiceStatus,
+            ];
+        });
+
+        return view('reports.reportlist.get-customer-ledger-list', compact('ledgerData'));
+    }
+
+    public function exportCustomerLedger(Request $request)
+    {
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $customerID = $request->input('customer_id');
+
+        $query = PaymentData::with([
+            'invoice',
+            'payment.paymentMethod',
+            'payment.bank',
+            'payment.booking.customer',
+            'payment.booking.bookingData',
+            'payment.bookingPaymentHistories'
+        ])
+            ->whereHas('payment.booking', function ($query) use ($customerID) {
+                if ($customerID) {
+                    $query->where('customer_id', $customerID);
+                }
+            });
+
+        if ($fromDate && $toDate) {
+            $query->whereExists(function ($subQuery) use ($fromDate, $toDate) {
+                $subQuery->select(DB::raw(1))
+                    ->from('booking_payment_histories')
+                    ->whereColumn('booking_payment_histories.payment_id', 'payment_data.payment_id')
+                    ->where(function ($q) {
+                        $q->where(function ($invoiceQuery) {
+                            $invoiceQuery->whereColumn('booking_payment_histories.invoice_id', 'payment_data.invoice_id')
+                                ->whereNotNull('payment_data.invoice_id')
+                                ->whereNotNull('booking_payment_histories.invoice_id');
+                        })
+                        ->orWhere(function ($noInvoiceInHistory) {
+                            $noInvoiceInHistory->whereNotNull('payment_data.invoice_id')
+                                ->whereNull('booking_payment_histories.invoice_id');
+                        })
+                        ->orWhere(function ($bothNull) {
+                            $bothNull->whereNull('payment_data.invoice_id')
+                                ->whereNull('booking_payment_histories.invoice_id');
+                        });
+                    })
+                    ->whereBetween(DB::raw('DATE(booking_payment_histories.payment_date)'), [$fromDate, $toDate]);
+            });
+        }
+
+       
+        $paymentData = $query->select('payment_data.*')
+            ->addSelect([
+                DB::raw('(SELECT payment_date FROM booking_payment_histories 
+                    WHERE booking_payment_histories.payment_id = payment_data.payment_id 
+                    AND (
+                        (booking_payment_histories.invoice_id = payment_data.invoice_id AND payment_data.invoice_id IS NOT NULL)
+                        OR (payment_data.invoice_id IS NULL AND booking_payment_histories.invoice_id IS NULL)
+                    )
+                    ORDER BY payment_date ASC LIMIT 1) as history_payment_date')
+            ])
+            ->orderBy(DB::raw('COALESCE(history_payment_date, payment_data.created_at)'), 'ASC')
+            ->get()
+            ->loadMissing([
+                'invoice',
+                'payment.paymentMethod',
+                'payment.bank',
+                'payment.booking.customer',
+                'payment.booking.bookingData',
+                'payment.bookingPaymentHistories'
+            ]);
+
+        $ledgerData = $paymentData->filter(function ($item) {
+            return $item->payment !== null;
+        })->map(function ($item) use ($fromDate, $toDate) {
+            $payment = $item->payment;
+            $booking = $payment->booking ?? null;
+            $invoice = $item->invoice;
+
+            $paymentMethodName = $payment && $payment->paymentMethod ? $payment->paymentMethod->name : 'N/A';
+            $description = $booking && $booking->bookingData ? ($booking->bookingData->first()->description ?? '') : '';
+
+            $itemDesc = $paymentMethodName;
+
+            $invoiceNumber = $invoice ? ($invoice->zoho_invoice_number ?? '') : '';
+            $invoiceId = $invoice ? ($invoice->id ?? null) : null;
+
+            $invoiceAmount = $item->invoice_amount ?? 0;
+            $paymentReceive = $item->paid_amount ?? 0;
+
+            $outstanding = $invoiceAmount - $paymentReceive;
+
+            $invoiceStatus = '';
+            if ($invoice) {
+                $invoiceStatus = $invoice->invoice_status ?? '';
+                if ($booking && $booking->deposit_type && $outstanding <= 0) {
+                    $invoiceStatus = 'deposited full';
+                }
+            }
+
+            $paymentDate = '';
+            if ($payment && $payment->bookingPaymentHistories) {
+                $history = null;
+                
+                if ($fromDate && $toDate) {
+                    $filteredHistories = $payment->bookingPaymentHistories->filter(function ($h) use ($fromDate, $toDate) {
+                        if (!$h->payment_date) return false;
+                        $historyDate = Carbon::parse($h->payment_date)->format('Y-m-d');
+                        return $historyDate >= $fromDate && $historyDate <= $toDate;
+                    });
+                    
+                    if ($invoice && $invoice->id) {
+                        $history = $filteredHistories->where('invoice_id', $invoice->id)->first();
+                    }
+                    
+                    if (!$history) {
+                        $history = $filteredHistories->first();
+                    }
+                }
+                
+                if (!$history && $invoice && $invoice->id) {
+                    $history = $payment->bookingPaymentHistories
+                        ->where('invoice_id', $invoice->id)
+                        ->first();
+                }
+                
+                if (!$history) {
+                    $history = $payment->bookingPaymentHistories->first();
+                }
+                
+                if ($history && $history->payment_date) {
+                    $paymentDate = Carbon::parse($history->payment_date)->format('Y-m-d');
+                }
+            }
+            
+            if (empty($paymentDate)) {
+                if ($payment && $payment->payment_date) {
+                    $paymentDate = Carbon::parse($payment->payment_date)->format('Y-m-d');
+                } elseif ($item->created_at) {
+                    $paymentDate = $item->created_at->format('Y-m-d');
+                } else {
+                    $paymentDate = '';
+                }
+            }
 
             return (object) [
                 'date' => $paymentDate,
@@ -437,7 +600,6 @@ class ReportController extends Controller
             ];
         });
 
-        // Generate filename with date range and customer
         $customerName = '';
         if ($customerID) {
             $customer = Customer::find($customerID);
@@ -453,7 +615,7 @@ class ReportController extends Controller
 
         return Excel::download(new CustomerLedgerExport($ledgerData), $filename);
     }
- 
+    
 
     public function getSalemenWiseReportList(Request $request)
     {
