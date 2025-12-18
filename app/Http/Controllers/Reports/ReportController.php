@@ -378,8 +378,8 @@ class ReportController extends Controller
             $invoiceNumber = $invoice ? ($invoice->zoho_invoice_number ?? '') : '';
             $invoiceId = $invoice ? ($invoice->id ?? null) : null;
 
-            $invoiceAmount = $item->payment->invoice->bookingData->sum('price') ?? 0;
-            // $invoiceAmount = $item->invoice_amount ?? 0;
+            // $invoiceAmount = $item->payment->invoice->bookingData->sum('price') ?? 0;
+            $invoiceAmount = $item->invoice_amount ?? 0;
             $paymentReceive = $item->paid_amount ?? 0;
 
             $outstanding = $invoiceAmount - $paymentReceive;

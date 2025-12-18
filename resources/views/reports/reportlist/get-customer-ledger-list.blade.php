@@ -43,7 +43,7 @@
   <td colspan="4" align="right"><b>Sub Total</b></td>
   <td align="right"><b>{{ number_format($totalInvoiceAmount, 2) }}</b></td>
   <td align="right"><b>{{ number_format($totalPaymentReceive, 2) }}</b></td>
-  <td align="right"><b>{{ number_format($totalOutstanding, 2) }}</b></td>
+  <td align="right"><b>{{ number_format($totalInvoiceAmount-$totalPaymentReceive, 2) }}</b></td>
   <td></td>
 </tr>
 @else
