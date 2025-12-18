@@ -180,9 +180,15 @@
                                     @foreach($invoice->paymentData as $paymentData)
                                         @php
                                             $payment = $paymentData->payment;
-                                            $paymentDate = $payment && $payment->payment_date 
+                                            $paymentDate = $payment && $payment->payment_date
                                                 ? \Carbon\Carbon::parse($payment->payment_date)->format('d M Y')
-                                                : ($paymentData->created_at ? $paymentData->created_at->format('d M Y') : '-');
+                                                : (
+                                                    optional($payment->bookingPaymentHistories->first())->payment_date
+                                                        ? \Carbon\Carbon::parse(
+                                                            $payment->bookingPaymentHistories->first()->payment_date
+                                                        )->format('d M Y')
+                                                        : '-'
+                                                );
                                             $paymentNumber = $payment ? $payment->id : '-';
                                             $referenceNumber = $paymentData->reference_invoice_number ?? '-';
                                             $status = $paymentData->status ?? 'pending';

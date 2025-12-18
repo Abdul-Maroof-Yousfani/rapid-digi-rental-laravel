@@ -348,7 +348,10 @@ class ReportController extends Controller
                     )
                     ORDER BY payment_date ASC LIMIT 1) as history_payment_date')
             ])
-            ->orderBy(DB::raw('COALESCE(history_payment_date, payment_data.created_at)'), 'ASC')
+            // Order primarily by history_payment_date from the subquery,
+            // and fall back to payment_data.created_at if it is null
+            ->orderBy('history_payment_date', 'ASC')
+            ->orderBy('payment_data.created_at', 'ASC')
             ->get()
             ->loadMissing([
                 'invoice',
@@ -503,7 +506,10 @@ class ReportController extends Controller
                     )
                     ORDER BY payment_date ASC LIMIT 1) as history_payment_date')
             ])
-            ->orderBy(DB::raw('COALESCE(history_payment_date, payment_data.created_at)'), 'ASC')
+            // Order primarily by history_payment_date from the subquery,
+            // and fall back to payment_data.created_at if it is null
+            ->orderBy('history_payment_date', 'ASC')
+            ->orderBy('payment_data.created_at', 'ASC')
             ->get()
             ->loadMissing([
                 'invoice',
