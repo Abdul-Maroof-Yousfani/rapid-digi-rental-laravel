@@ -76,4 +76,5 @@ class Payment extends Model
     {
         return $this->hasMany(BookingPaymentHistory::class, 'payment_id', 'id');
     }
+    
 }
