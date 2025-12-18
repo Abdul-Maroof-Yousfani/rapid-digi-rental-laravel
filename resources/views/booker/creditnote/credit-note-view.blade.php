@@ -295,11 +295,14 @@
     @else
         <p class="mb-0">Deposit Amount: {{ $initialDeposit }} AED</p>
 
-        @foreach($bookingDataDeduct as $bd)
-           <p class="mb-0">
-    {{ strtoupper($bd->invoice_type?->name ?? 'N/A') }}: {{ $bd->item_total }} AED
-</p>
-        @endforeach
+      @if($bookingDataDeduct->isNotEmpty())
+    @foreach($bookingDataDeduct as $bd)
+        <p class="mb-0">
+            {{ strtoupper($bd->invoice_type?->name ?? 'N/A') }}: {{ $bd->item_total }} AED
+        </p>
+    @endforeach
+@endif
+
 
         <p class="mb-0">RELEASE DEPOSIT AMOUNT: {{ $remainingDeposit }} AED</p>
     @endif
