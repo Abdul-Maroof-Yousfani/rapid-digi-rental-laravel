@@ -17,6 +17,7 @@ use App\Models\Payment;
 use App\Models\BookingPaymentHistory;
 use App\Exports\CustomerLedgerExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Excel as ExcelManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -619,7 +620,14 @@ class ReportController extends Controller
         
         $filename = 'Customer_Ledger' . $customerName . $dateRange . '_' . date('Y-m-d_His') . '.xlsx';
 
-        return Excel::download(new CustomerLedgerExport($ledgerData), $filename);
+        try {
+            // Try using facade first
+            return Excel::download(new CustomerLedgerExport($ledgerData), $filename);
+        } catch (\Exception $e) {
+            // Fallback to direct instantiation if facade fails
+            $excel = app(ExcelManager::class);
+            return $excel->download(new CustomerLedgerExport($ledgerData), $filename);
+        }
     }
     
 
