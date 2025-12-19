@@ -96,7 +96,7 @@ class CreditnoteController extends Controller
             // Generate credit note number
             $lastCreditNote = CreditNote::orderBy('id', 'desc')->first();
             $nextNumber = $lastCreditNote ? $lastCreditNote->id + 1 : 1;
-            $creditNoteNo = 'CN-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            $creditNoteNo = 'CN-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
             // Fetch booking and invoice details
             $booking = Booking::where('id', $request['booking_id'])->first();
