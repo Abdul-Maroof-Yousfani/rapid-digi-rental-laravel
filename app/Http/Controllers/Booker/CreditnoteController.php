@@ -30,7 +30,7 @@ class CreditnoteController extends Controller
 
     public function index()
     {
-        $creditNote = CreditNote::with('paymentMethod', 'booking')->paginate(10);
+        $creditNote = CreditNote::with('paymentMethod', 'booking')->orderBy('id', 'DESC')->paginate(10);
         return view('booker.creditnote.index', compact('creditNote'));
     }
 
