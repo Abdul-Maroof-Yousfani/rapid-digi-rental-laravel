@@ -38,17 +38,17 @@
                         <label for="xlsx_file">Upload XLSX File</label>
                         <input type="file" name="xlsx_file" id="xlsx_file" accept=".xlsx">
                         @error('xlsx_file')
-                            <span class="text-danger">{{ $message }}</span>
+                        <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                     <button type="submit">Upload</button>
                 </form>
 
                 @if (session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
+                <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
                 @if (session('error'))
-                    <div class="alert alert-danger">{{ session('error') }}</div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
                 @endif
 
                 <form action="{{ route('deposit.upload') }}" method="POST" enctype="multipart/form-data">
@@ -57,17 +57,17 @@
                         <label for="xlsx_file">Upload XLSX File</label>
                         <input type="file" name="xlsx_file" id="xlsx_file" accept=".xlsx">
                         @error('xlsx_file')
-                            <span class="text-danger">{{ $message }}</span>
+                        <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                     <button type="submit">Upload Deposit</button>
                 </form>
 
                 @if (session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
+                <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
                 @if (session('error'))
-                    <div class="alert alert-danger">{{ session('error') }}</div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
                 @endif
 
                 <form action="{{ route('vehicles.upload') }}" method="POST" enctype="multipart/form-data">
@@ -76,17 +76,17 @@
                         <label for="xlsx_file">Upload XLSX File</label>
                         <input type="file" name="xlsx_file" id="xlsx_file" accept=".xlsx">
                         @error('xlsx_file')
-                            <span class="text-danger">{{ $message }}</span>
+                        <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                     <button type="submit">Upload Vehicles</button>
                 </form>
 
                 @if (session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
+                <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
                 @if (session('error'))
-                    <div class="alert alert-danger">{{ session('error') }}</div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
                 @endif --}}
 
                 <div class="row">
@@ -116,23 +116,28 @@
                                         </thead>
                                         <tbody id="creditNoteList">
                                             @foreach ($creditNote as $item)
-                                                <tr>
-                                                    <td>{{ $item->credit_note_no }}</td>
-                                                    <td>{{ $item->booking->customer->customer_name ?? 'N/A' }}</td>
-                                                    <td>{{ $item->booking->agreement_no ?? 'N/A' }}</td>
-                                                    <td>{{ $item->paymentMethod->name ?? 'N/A' }}</td>
-                                                    <td>{{ number_format($item->booking->deposit?->initial_deposit ?? '-', 2) }}
-                                                    </td>
-                                                    <td>{{ number_format($item->remaining_deposit, 2) }}</td>
-                                                    <td>{{ number_format($item->refund_amount, 2) }}</td>
-                                                    <td>
-                                                        <a href="{{ url('view-credit-note/' . $item->id) }}"
-                                                            class="btn btn-sm btn-primary">
-                                                            <i class="fas fa-eye"></i>
-                                                            View
-                                                        </a>
-                                                    </td>
-                                                </tr>
+                                                                                <tr>
+                                                                                    <td>{{ $item->credit_note_no }}</td>
+                                                                                    <td>{{ $item->booking->customer->customer_name ?? 'N/A' }}</td>
+                                                                                    <td>{{ $item->booking->agreement_no ?? 'N/A' }}</td>
+                                                                                    <td>{{ $item->paymentMethod->name ?? 'N/A' }}</td>
+                                                                                    <td>
+                                                                                        {{ $item->booking->deposit?->initial_deposit !== null
+                                                                                        ? number_format($item->booking->deposit->initial_deposit, 2)
+                                                                                        : '-' }}
+                                                                                    </td>
+
+                                                                                    </td>
+                                                                                    <td>{{ number_format($item->remaining_deposit, 2) }}</td>
+                                                                                    <td>{{ number_format($item->refund_amount, 2) }}</td>
+                                                                                    <td>
+                                                                                        <a href="{{ url('view-credit-note/' . $item->id) }}"
+                                                                                            class="btn btn-sm btn-primary">
+                                                                                            <i class="fas fa-eye"></i>
+                                                                                            View
+                                                                                        </a>
+                                                                                    </td>
+                                                                                </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -156,14 +161,14 @@
             $('#search').on('keyup', function () {
                 let search = $(this).val();
                 $('#creditNoteList').html(`
-                        <tr>
-                            <td colspan="8" class="text-center">
-                                <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            </td>
-                        </tr>
-                    `);
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        `);
                 $.ajax({
                     url: '/search-creditnote',
                     method: 'get',
@@ -173,21 +178,21 @@
                         if (response.creditNote.length > 0) {
                             $.each(response.creditNote, function (index, data) {
                                 html += `
-                                        <tr data-id="${data.id}">
-                                            <td>${data.credit_note_no}</td>
-                                            <td>${data.booking.customer.customer_name}</td>
-                                            <td>${data.booking.agreement_no}</td>
-                                            <td>${data.booking?.paymentMethod?.name ?? 'N/A'}</td>
-                                            <td>${data.booking.deposit.deposit_amount}</td>
-                                            <td>${data.remaining_deposit}</td>
-                                            <td>${data.refund_amount}</td>
-                                            <td>
-                                                <a href="view-credit-note/${data.id}" class="btn btn-sm btn-primary"> <i class="fas fa-eye"></i>
-                                                    View
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    `;
+                                            <tr data-id="${data.id}">
+                                                <td>${data.credit_note_no}</td>
+                                                <td>${data.booking.customer.customer_name}</td>
+                                                <td>${data.booking.agreement_no}</td>
+                                                <td>${data.booking?.paymentMethod?.name ?? 'N/A'}</td>
+                                                <td>${data.booking.deposit.deposit_amount}</td>
+                                                <td>${data.remaining_deposit}</td>
+                                                <td>${data.refund_amount}</td>
+                                                <td>
+                                                    <a href="view-credit-note/${data.id}" class="btn btn-sm btn-primary"> <i class="fas fa-eye"></i>
+                                                        View
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        `;
                             });
                         } else {
                             html = `<tr><td colspan="8" class="text-center">No results found</td></tr>`;
