@@ -115,7 +115,7 @@ class CreditnoteController extends Controller
                 'booking_id' => $request['booking_id'],
                 'payment_method' => $request['refund_method'],
                 'bank_id' => $request['bank_id'],
-                'remaining_deposit' => $request['remaining_deposit'],
+                'remaining_deposit' => 0,
                 'refund_amount' => $request['refund_amount'],
                 'remarks' => $request['remarks'],
                 'refund_date' => $request['refund_date'],
