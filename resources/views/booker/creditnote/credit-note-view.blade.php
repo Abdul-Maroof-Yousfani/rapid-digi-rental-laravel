@@ -304,8 +304,9 @@
 @endif
 
 
-        <p class="mb-0">RELEASE DEPOSIT AMOUNT: {{ $remainingDeposit }} AED</p>
     @endif
+        <p class="mb-0">RELEASE DEPOSIT AMOUNT: {{ $remainingDeposit }} AED</p>
+
 </div>
 <hr>
 
