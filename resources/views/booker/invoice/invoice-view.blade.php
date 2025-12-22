@@ -476,34 +476,7 @@
                                                 <td class="text-right">{{ number_format($item->item_total, 2) }}</td>
                                             </tr>
                         @endforeach
-                    <?php
-    if ($invoice->bookingData()->orderby('id', 'DESC')->first()->view_type == 1 && $invoice->booking->deposit_type != null) { ?>
-                        <tr>
-                            <td>{{ $counter + 1 }}</td>
-                            <td class="text-left">
-                                @if ($invoice->booking->deposit_type == 1)
-                                    Cardo
-                                @elseif ($invoice->booking->deposit_type == 2)
-                                    LPO
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="text-right">-</td>
-                            <td class="text-right">
-                                {{ $invoice->booking->non_refundable_amount }}
-                            </td>
-                            <td class="text-right">-</td>
-                            <td class="text-right">-</td>
-                                <td class="text-right">
-                                {{ $invoice->booking->non_refundable_amount }}
-                            </td>
-
-                                @php $subtot += $invoice->booking->non_refundable_amount; @endphp
-                            </tr>
-                        <?php
-    }
-                        ?>
+                   
                     </tbody>
                 </table>
 
