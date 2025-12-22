@@ -210,7 +210,7 @@
 
                                                 $booking = $creditNote->booking;
                             $initialDeposit = $booking->deposit->initial_deposit ?? 0;
-                            $remainingDeposit = $creditNote->remaining_deposit ?? 0;
+                            $remainingDeposit = $creditNote->refund_amount ?? 0;
 
                             $depositDifference = $initialDeposit - $remainingDeposit;
 

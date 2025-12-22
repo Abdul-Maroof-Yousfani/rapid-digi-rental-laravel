@@ -121,7 +121,7 @@
                                                     <td>{{ $item->booking->customer->customer_name ?? 'N/A' }}</td>
                                                     <td>{{ $item->booking->agreement_no ?? 'N/A' }}</td>
                                                     <td>{{ $item->paymentMethod->name ?? 'N/A' }}</td>
-                                                    <td>{{ number_format($item->booking->deposit?->initial_deposit ?? 0, 2) }}
+                                                    <td>{{ number_format($item->booking->deposit?->initial_deposit ?? -, 2) }}
                                                     </td>
                                                     <td>{{ number_format($item->remaining_deposit, 2) }}</td>
                                                     <td>{{ number_format($item->refund_amount, 2) }}</td>
