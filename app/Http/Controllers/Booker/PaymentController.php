@@ -130,167 +130,204 @@ class PaymentController extends Controller
 
             $paymentStatus = $pendingAmount <= 0 ? 'paid' : 'pending';
             $bookingStatus = $pendingAmount <= 0 ? 'sent' : 'partially paid';
-            if ($request['adjust_invoice'] == 1) {
-                $booking = Booking::find($request->booking_id);
 
-                if ($booking && $booking->deposit) {
-                    $booking->deposit->update([
+
+            if ($request->adjust_invoice == 1) {
+
+                // Source booking (from which deposit is being moved)
+                $sourceBooking = Booking::find($request->booking_id);
+
+                if ($sourceBooking && $sourceBooking->deposit) {
+                    // Clear the deposit amount from the source booking
+                    $sourceBooking->deposit->update([
                         'deposit_amount' => 0,
                     ]);
                 }
 
-                DepositHandling::where('booking_id', $booking->id)->update([
-                    'deduct_deposit' => 0,
-                ]);
+                // if ($sourceBooking) {
+                //     DepositHandling::where('booking_id', $sourceBooking->id)->update([
+                //         'deduct_deposit' => 0,
+                //     ]);
+                // }
+
+                // Total deposit being transferred
+                // $depositAmount = $request->addDepositAmount[0] ?? 0;
+                $depositAmount = array_sum($request->addDepositAmount ?? []);
+// dd($depositAmount);
+                // Determine the reference booking (where the deposit should go)
+                // reference_invoice_number comes as an array of invoice IDs
+                $referenceInvoiceId = is_array($request->reference_invoice_number)
+                    ? ($request->reference_invoice_number[0] ?? null)
+                    : $request->reference_invoice_number;
+
+             
+                    $refBooking = Booking::find($referenceInvoiceId);
+               
+                    // Create a new deposit record for the reference booking
+                    $deposit = Deposit::create([
+                        'deposit_amount' => $depositAmount,
+                        'initial_deposit' => $depositAmount,
+                        'is_transferred' => 1,
+                        // store the destination booking id where the deposit is now used
+                        'transferred_booking_id' => $refBooking->id,
+                    ]);
+// dd($deposit);
+
+                    // Attach the new deposit to the reference booking
+                    $refBooking->deposit_id = $deposit->id;
+                    $refBooking->save();
+               
+
             }
 
-            $beforeUpdateAmount = 0;
-            $beforeUpdateDate = Carbon::now();
-            $paymentDate = $request['payment_date']
-                ? Carbon::parse($request['payment_date'])
-                : now();
+            if ($amountReceive > 0) {
+                $beforeUpdateAmount = 0;
+                $beforeUpdateDate = Carbon::now();
+                $paymentDate = $request['payment_date']
+                    ? Carbon::parse($request['payment_date'])
+                    : now();
 
-            if ($request->payment_id) {
-                // return $paymentStatus;
+                if ($request->payment_id) {
+                    // return $paymentStatus;
 
-                $payment = Payment::find($request->payment_id);
+                    $payment = Payment::find($request->payment_id);
 
-                // $tyt=($payment->pending_amount - $amountReceive - $depositUsed);
-                // dd($tyt);   
-                $beforeUpdateAmount = $payment->paid_amount ?? 0;
-                $beforeUpdateDate = $payment->created_at;
-                $payment->update([
-                    'booking_id' => $request['booking_id'],
-                    'payment_method' => $request['payment_method'],
-                    'bank_id' => $request['bank_id'] ?? null,
-                    'booking_amount' => $bookingAmount,
-                    'paid_amount' => $payment->paid_amount + $paidAmount + $depositUsed,
-                    'pending_amount' => $payment->pending_amount - $amountReceive - $depositUsed,
-                    'payment_date' => $request['payment_date'],
-                    // 'payment_status' => $paymentStatus,
-                    'receipt' => $imagePath,
-                ]);
-            } else {
-                // return "kk";
+                    // $tyt=($payment->pending_amount - $amountReceive - $depositUsed);
+                    // dd($tyt);   
+                    $beforeUpdateAmount = $payment->paid_amount ?? 0;
+                    $beforeUpdateDate = $payment->created_at;
+                    $payment->update([
+                        'booking_id' => $request['booking_id'],
+                        'payment_method' => $request['payment_method'],
+                        'bank_id' => $request['bank_id'] ?? null,
+                        'booking_amount' => $bookingAmount,
+                        'paid_amount' => $payment->paid_amount + $paidAmount + $depositUsed,
+                        'pending_amount' => $payment->pending_amount - $amountReceive - $depositUsed,
+                        'payment_date' => $request['payment_date'],
+                        // 'payment_status' => $paymentStatus,
+                        'receipt' => $imagePath,
+                    ]);
+                } else {
+                    // return "kk";
 
-                $payment = Payment::create([
-                    'booking_id' => $request['booking_id'],
-                    'payment_method' => $request['payment_method'],
-                    'bank_id' => $request['bank_id'] ?? null,
-                    'booking_amount' => $bookingAmount,
-                    'paid_amount' => $paidAmount + $depositUsed,
-                    'pending_amount' => $bookingAmount - $paidAmount - $depositUsed,
-                    'payment_date' => $request['payment_date'],
-                    // 'payment_status' => $paymentStatus,
-                    'receipt' => $imagePath,
-                ]);
-            }
-
-            if ($payment->paid_amount == $payment->booking_amount) {
-                $payment->update([
-                    'payment_status' => 'paid',
-                ]);
-            } else {
-                $payment->update([
-                    'payment_status' => 'pending',
-                ]);
-            }
-            // return $payment->pending_amount;
-
-            BookingPaymentHistory::create([
-                'booking_id' => $request['booking_id'],
-                'payment_id' => $payment->id,
-                'invoice_id' => $request['invoice_id'],
-                'payment_method_id' => $request['payment_method'],
-                'paid_amount' => $paidAmount + $depositUsed,
-                'payment_date' => $request['payment_date'],
-                'user_id' => Auth::user()->id,
-            ]);
-
-            $paymentDataMap = [];
-            $pendingAmounts = [];
-
-            $remainingPayment = $paidAmount; // total payment user made
-            $incrementalPayments = [];
-            
-            // Get selected invoice IDs
-            $selectedInvoiceIds = $request->input('selected_invoices', []);
-            
-            try {
-                foreach ($request['invoice_id'] as $key => $invoice_ids) {
-                    // Only process invoices that are checked/selected
-                    if (!in_array($invoice_ids, $selectedInvoiceIds)) {
-                        continue;
-                    }
-                    $invoiceAmount = floatval($request['invoice_amount'][$key]);
-                    $paymentDataID = $request->paymentData_id[$key] ?? null;
-
-                    $paymentdata = $paymentDataID ? PaymentData::find($paymentDataID) : null;
-
-                    $currentPaid = $paymentdata ? $paymentdata->paid_amount : 0;
-
-                    // Amount still pending for this invoice
-                    $pendingBefore = $invoiceAmount - $currentPaid;
-
-                    // Decide how much we can pay towards this invoice from remaining payment
-                    $payThisTime = min($pendingBefore, $remainingPayment);
-
-                    // Calculate new totals
-                    $newPaidAmount = $currentPaid + $payThisTime;
-                    $newPending = $invoiceAmount - $newPaidAmount;
-                    $newStatus1 = ($newPending <= 0) ? 'paid' : 'pending';
-                    $newStatus = ($newPending <= 0) ? 'paid' : 'partially paid';
-
-                    if ($paymentdata) {
-                        $paymentdata->update([
-                            'invoice_id' => $invoice_ids,
-                            'payment_id' => $payment->id,
-                            'invoice_amount' => $invoiceAmount,
-                            'paid_amount' => $newPaidAmount + $depositUsed,
-                            'status' => $newStatus1,
-                            'pending_amount' => $newPending - $depositUsed,
-                            'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
-                            'remarks' => $request['remarks'][$key] ?? null,
-                        ]);
-                    } else {
-                        $paymentdata = PaymentData::create([
-                            'invoice_id' => $invoice_ids,
-                            'payment_id' => $payment->id,
-                            'status' => $newStatus1,
-                            'invoice_amount' => $invoiceAmount,
-                            'paid_amount' => $payThisTime + $depositUsed,
-                            'pending_amount' => $newPending - $depositUsed,
-                            'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
-                            'remarks' => $request['remarks'][$key] ?? null,
-                        ]);
-                    }
-                    // Update invoice status
-                    if ($paymentdata->invoice) {
-                        $paymentdata->invoice->update([
-                            'invoice_status' => $newStatus,
-                        ]);
-                    }
-
-
-                    // Deduct from remaining payment
-                    $remainingPayment -= $payThisTime;
-
-                    $paymentDataMap[$key] = $paymentdata->id;
-                    $pendingAmounts[] = $remainingPayment;
-                    $incrementalPayments[$key] = $payThisTime;
+                    $payment = Payment::create([
+                        'booking_id' => $request['booking_id'],
+                        'payment_method' => $request['payment_method'],
+                        'bank_id' => $request['bank_id'] ?? null,
+                        'booking_amount' => $bookingAmount,
+                        'paid_amount' => $paidAmount + $depositUsed,
+                        'pending_amount' => $bookingAmount - $paidAmount - $depositUsed,
+                        'payment_date' => $request['payment_date'],
+                        // 'payment_status' => $paymentStatus,
+                        'receipt' => $imagePath,
+                    ]);
                 }
-                DB::commit();
-            } catch (\Throwable $e) {
-                DB::rollBack();
 
-                return response()->json([
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ], 500);
+                if ($payment->paid_amount == $payment->booking_amount) {
+                    $payment->update([
+                        'payment_status' => 'paid',
+                    ]);
+                } else {
+                    $payment->update([
+                        'payment_status' => 'pending',
+                    ]);
+                }
+                // return $payment->pending_amount;
+
+                BookingPaymentHistory::create([
+                    'booking_id' => $request['booking_id'],
+                    'payment_id' => $payment->id,
+                    'invoice_id' => $request['invoice_id'],
+                    'payment_method_id' => $request['payment_method'],
+                    'paid_amount' => $paidAmount + $depositUsed,
+                    'payment_date' => $request['payment_date'],
+                    'user_id' => Auth::user()->id,
+                ]);
+
+                $paymentDataMap = [];
+                $pendingAmounts = [];
+
+                $remainingPayment = $paidAmount; // total payment user made
+                $incrementalPayments = [];
+
+                // Get selected invoice IDs
+                $selectedInvoiceIds = $request->input('selected_invoices', []);
+
+                try {
+                    foreach ($request['invoice_id'] as $key => $invoice_ids) {
+                        // Only process invoices that are checked/selected
+                        if (!in_array($invoice_ids, $selectedInvoiceIds)) {
+                            continue;
+                        }
+                        $invoiceAmount = floatval($request['invoice_amount'][$key]);
+                        $paymentDataID = $request->paymentData_id[$key] ?? null;
+
+                        $paymentdata = $paymentDataID ? PaymentData::find($paymentDataID) : null;
+
+                        $currentPaid = $paymentdata ? $paymentdata->paid_amount : 0;
+
+                        // Amount still pending for this invoice
+                        $pendingBefore = $invoiceAmount - $currentPaid;
+
+                        // Decide how much we can pay towards this invoice from remaining payment
+                        $payThisTime = min($pendingBefore, $remainingPayment);
+
+                        // Calculate new totals
+                        $newPaidAmount = $currentPaid + $payThisTime;
+                        $newPending = $invoiceAmount - $newPaidAmount;
+                        $newStatus1 = ($newPending <= 0) ? 'paid' : 'pending';
+                        $newStatus = ($newPending <= 0) ? 'paid' : 'partially paid';
+
+                        if ($paymentdata) {
+                            $paymentdata->update([
+                                'invoice_id' => $invoice_ids,
+                                'payment_id' => $payment->id,
+                                'invoice_amount' => $invoiceAmount,
+                                'paid_amount' => $newPaidAmount + $depositUsed,
+                                'status' => $newStatus1,
+                                'pending_amount' => $newPending - $depositUsed,
+                                'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
+                                'remarks' => $request['remarks'][$key] ?? null,
+                            ]);
+                        } else {
+                            $paymentdata = PaymentData::create([
+                                'invoice_id' => $invoice_ids,
+                                'payment_id' => $payment->id,
+                                'status' => $newStatus1,
+                                'invoice_amount' => $invoiceAmount,
+                                'paid_amount' => $payThisTime + $depositUsed,
+                                'pending_amount' => $newPending - $depositUsed,
+                                'reference_invoice_number' => $request['reference_invoice_number'][$key] ?? null,
+                                'remarks' => $request['remarks'][$key] ?? null,
+                            ]);
+                        }
+                        // Update invoice status
+                        if ($paymentdata->invoice) {
+                            $paymentdata->invoice->update([
+                                'invoice_status' => $newStatus,
+                            ]);
+                        }
+
+
+                        // Deduct from remaining payment
+                        $remainingPayment -= $payThisTime;
+
+                        $paymentDataMap[$key] = $paymentdata->id;
+                        $pendingAmounts[] = $remainingPayment;
+                        $incrementalPayments[$key] = $payThisTime;
+                    }
+                    DB::commit();
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'error' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine()
+                    ], 500);
+                }
+
             }
-
-
 
             if ($depositUsed > 0) {
                 $booking = Booking::find($request->booking_id);
@@ -309,47 +346,49 @@ class PaymentController extends Controller
                     }
                 }
             }
+            if ($amountReceive > 0) {
+                $paymentDataList = PaymentData::with('invoice')
+                    ->where('payment_id', $payment->id)
+                    ->get();
+                try {
+                    foreach ($paymentDataList as $paymentData) {
+                        if ($paymentData->invoice) {
+                            $newStatus = $paymentData->pending_amount <= 0 ? 'paid' : 'partially paid';
+                            $paymentData->invoice->update([
+                                'invoice_status' => $newStatus,
+                            ]);
+                        }
+                    }
+                    DB::commit();
+                } catch (\Throwable $e) {
+                    DB::rollBack();
 
-            $paymentDataList = PaymentData::with('invoice')
-                ->where('payment_id', $payment->id)
-                ->get();
-            try {
-                foreach ($paymentDataList as $paymentData) {
+                    return redirect()->back()->with('error', $e->getMessage());
+                }
+
+                // return $paymentDataList;
+                foreach ($paymentDataList as $key => $paymentData) {
                     if ($paymentData->invoice) {
-                        $newStatus = $paymentData->pending_amount <= 0 ? 'paid' : 'partially paid';
-                        $paymentData->invoice->update([
-                            'invoice_status' => $newStatus,
-                        ]);
+                        $this->zohoinvoice->markAsSent($paymentData->invoice->zoho_invoice_id);
+
+                        $amountToPay = $incrementalPayments[$key] ?? 0;
+                        $customerId = $paymentData->invoice->booking->customer->zoho_customer_id;
+                        // dd($amountToPay);
+                        if ($amountToPay > 0 && !empty($customerId)) {
+                            $this->zohoinvoice->recordPayment(
+                                $customerId,
+                                $paymentData->invoice->zoho_invoice_id,
+                                $amountToPay,
+                                $paymentDate->format('Y-m-d')
+                            );
+                        }
                     }
                 }
+
+
                 DB::commit();
-            } catch (\Throwable $e) {
-                DB::rollBack();
-
-                return redirect()->back()->with('error', $e->getMessage());
             }
-
-            // return $paymentDataList;
-            foreach ($paymentDataList as $key => $paymentData) {
-                if ($paymentData->invoice) {
-                    $this->zohoinvoice->markAsSent($paymentData->invoice->zoho_invoice_id);
-
-                    $amountToPay = $incrementalPayments[$key] ?? 0;
-                    $customerId = $paymentData->invoice->booking->customer->zoho_customer_id;
-                    // dd($amountToPay);
-                    if ($amountToPay > 0 && !empty($customerId)) {
-                        $this->zohoinvoice->recordPayment(
-                            $customerId,
-                            $paymentData->invoice->zoho_invoice_id,
-                            $amountToPay,
-                            $paymentDate->format('Y-m-d')
-                        );
-                    }
-                }
-            }
-
-
-            DB::commit();
+                DB::commit();
 
             return redirect()->route('payment.index')->with('success', 'Payment created successfully!');
         } catch (\Exception $exp) {
@@ -391,9 +430,9 @@ class PaymentController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $payment = Payment::find($id);
-            
+
             if (!$payment) {
                 return redirect()->back()->with('error', 'Payment Not Found!');
             }
@@ -453,13 +492,13 @@ class PaymentController extends Controller
             $paymentDataMap = [];
             // Get selected invoice IDs
             $selectedInvoiceIds = $request->input('selected_invoices', []);
-            
+
             foreach ($request['invoice_id'] as $key => $invoice_ids) {
                 // Only process invoices that are checked/selected
                 if (!empty($selectedInvoiceIds) && !in_array($invoice_ids, $selectedInvoiceIds)) {
                     continue;
                 }
-                
+
                 $invoiceAmount = $request['invoice_amount'][$key];
                 $invPaidAmount = $request['invPaidAmount'][$key];
                 $pendingAmount = $invoiceAmount - $invPaidAmount;
@@ -546,9 +585,9 @@ class PaymentController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $paymentData = PaymentData::with('payment', 'invoice')->find($paymentDataId);
-            
+
             if (!$paymentData) {
                 return response()->json([
                     'success' => false,
@@ -583,7 +622,7 @@ class PaymentController extends Controller
                 $invoicePaidAmount = PaymentData::where('invoice_id', $invoice->id)->sum('paid_amount');
                 $invoiceTotalAmount = floatval($invoice->total_amount);
                 $invoicePendingAmount = $invoiceTotalAmount - $invoicePaidAmount;
-                
+
                 // Determine invoice status
                 if ($invoicePendingAmount <= 0) {
                     $invoiceStatus = 'paid';
@@ -592,7 +631,7 @@ class PaymentController extends Controller
                 } else {
                     $invoiceStatus = 'sent';
                 }
-                
+
                 $invoice->update([
                     'invoice_status' => $invoiceStatus,
                 ]);

@@ -289,16 +289,16 @@
                                                         placeholder="0.00" readonly>
                                                 </td>
                                             </tr>
-                                            {{-- <tr>
+                                            <tr>
                                                 <td colspan="9" class="text-right align-middle">
                                                     <!-- <div class="form-check"> -->
                                                     <input type="hidden" name="adjust_invoice" value="0">
                                                     <input type="checkbox" id="adjust_invoice" name="adjust_invoice"
                                                         value="1" onchange="usedDepositAgainstInvoice()" disabled>
                                                     <!-- </div> -->
-                                                    Adjust Deposit Against Invoice
+                                                    Adjust Deposit Against Booking
                                                     <small class="form-text text-muted">Check to link deposit to a specific
-                                                        invoice.</small>
+                                                        booking.</small>
                                                 </td>
                                                 <td>
 
@@ -308,19 +308,19 @@
                                                 <td colspan="9" class="text-right align-middle">Reference Invoice No.</td>
                                                 <td>
                                                     <select name="reference_invoice_number" id="reference_invoice_number" class="form-control select2 reference_invoice_number"
-                                                        onchange="usedDepositAgainstInvoice()" style="width: 100%;">
-                                                        <option value="">-- Select Booking / Invoice --</option>
+                                                         style="width: 100%;">
+                                                        <option value="">-- Select Booking --</option>
                                                         @foreach ($bookings as $booking)
                                                             <option value="{{ $booking->id }}">
                                                                 Booking #{{ $booking->id }}
-                                                                @if($booking->invoice)
+                                                                {{-- @if($booking->invoice)
                                                                     - Invoice {{ $booking->invoice->zoho_invoice_number }}
-                                                                @endif
+                                                                @endif --}}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 </td>
-                                            </tr> --}}
+                                            </tr>
                                             <tr>
                                                 <td colspan="9" class="text-right align-middle">Remarks (Optional)</td>
                                                 <td>

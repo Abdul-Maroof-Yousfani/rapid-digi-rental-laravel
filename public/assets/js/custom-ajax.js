@@ -1,5 +1,6 @@
 function recalculateTotals() {
     let useDeposit = $('#used_deposit_amount').is(':checked');
+    let adjustInvoice = $('#adjust_invoice').is(':checked');
     let bookingAmount = parseFloat($('.booking_amount').val()) || 0;
     let deposit = parseFloat($('.initial_deposit').val()) || 0;
 
@@ -16,6 +17,13 @@ function recalculateTotals() {
         let depositToUse = Math.min(deposit, pending);
         pending -= depositToUse;
         let remaining = deposit - depositToUse;
+        $('.remaining_deposit').val(remaining.toFixed(2));
+    } else {
+        $('.remaining_deposit').val(deposit.toFixed(2));
+    }
+
+    if (adjustInvoice) {
+        let remaining = deposit - deposit;
         $('.remaining_deposit').val(remaining.toFixed(2));
     } else {
         $('.remaining_deposit').val(deposit.toFixed(2));
@@ -361,7 +369,17 @@ function usedDeposit() {
     let deposit = parseFloat($('.initial_deposit').val()) || 0;
     let pending = parseFloat($('.restrict').val()) || 0;
 
+    let remainingDepositBefore = parseFloat($('.remaining_deposit').val()) || 0;
+
+    if (useDeposit && remainingDepositBefore === 0) {
+        $('#used_deposit_amount').prop('checked', false);
+        alert("Deposit amount already used");
+        return;
+    }
+
     if (useDeposit) {
+        $('#adjust_invoice').prop('checked', false).prop('disabled', true);
+
         let deposit = parseFloat($('.initial_deposit').val()) || 0;
         let pending = parseFloat($('.restrict').val()) || 0;
 
@@ -380,6 +398,10 @@ function usedDeposit() {
 
 
     }
+    else {
+        $('#adjust_invoice').prop('disabled', false);
+
+    }
 
 
     recalculateTotals();
@@ -395,8 +417,7 @@ function usedDepositAgainstInvoice() {
 
     let remainingDepositBefore = parseFloat($('.remaining_deposit').val()) || 0;
 
-    // Invoice total can come from server or fixed
-    let invoiceAmount = parseFloat($('.insubtot').val()) || 2100;
+    let invoiceAmount = parseFloat($('.insubtot').val()) || 0;
 
     if (adjustInvoice && remainingDepositBefore === 0) {
         $('#adjust_invoice').prop('checked', false);
@@ -408,26 +429,17 @@ function usedDepositAgainstInvoice() {
         $('#used_deposit_amount').prop('checked', false).prop('disabled', true);
         $('#invoice_adjustment_section1').show();
 
-        // ✅ Only apply deposit if remaining exists
-        let alreadyUsedDeposit = deposit - remainingDepositBefore;
-        let remainingDeposit = deposit - alreadyUsedDeposit;
-        let depositUsed = Math.min(remainingDeposit, invoiceAmount);
-        let pending = invoiceAmount;
-        let newRemainingDeposit = deposit - (alreadyUsedDeposit + depositUsed);
+        $('.pending_amount').val(0);
+        $('.remaining_deposit').val(10)
+        $('.amount_receive').val(0).prop('readonly', true);
 
-        // Update UI
-        $('.invPaidAmount').val(invoice_amount.toFixed(2));
-        $('.pending_amount').val(pending.toFixed(2));
-        $('.amount_receive').val(pending.toFixed(2));
-        $('.remaining_deposit').val(newRemainingDeposit.toFixed(2));
-    } else {
+    }
+    else {
         $('#used_deposit_amount').prop('disabled', false);
         $('#invoice_adjustment_section1').hide();
-        $('.reference_invoice_number').val('');
-        $('.invPaidAmount').val('');
-        $('.insubtot').val('');
-        $('.pending_amount').val('');
-        $('.amount_receive').val('');
+        $('.amount_receive').val(0).prop('readonly', false);
+
+
     }
     recalculateTotals();
 

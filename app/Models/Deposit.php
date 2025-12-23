@@ -13,6 +13,8 @@ class Deposit extends Model
     protected $fillable= [
         'deposit_amount',
         'initial_deposit',
+        'is_transferred',
+        'transferred_booking_id',
     ];
 
 
