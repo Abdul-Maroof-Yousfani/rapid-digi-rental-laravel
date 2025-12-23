@@ -152,7 +152,7 @@
                                                             <i class="fas fa-lock"></i> Close Booking
                                                         </a>
 
-                                                        @if (is_null($item->started_at) || (\Carbon\Carbon::parse($item->started_at)->isAfter($now) && $item_cancel==0))
+                                                        @if (is_null($item->started_at) || (\Carbon\Carbon::parse($item->started_at)->isAfter($now)))
                                                         <a class="dropdown-item booking_cancel" data-booking-id="{{ $item->id }}" href="">
                                                             <i class="fas fa-times"></i> Cancel
                                                         </a>

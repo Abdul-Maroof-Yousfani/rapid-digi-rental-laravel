@@ -137,7 +137,7 @@ class BookingController extends Controller
                 $vehicle = $vehicleId && $vehicleId !== 'null' ? Vehicle::find($vehicleId) : null;
 
                 // Vehicle name (or fallback)
-                $vehicleName = $vehicle ? ($vehicle->vehicle_name ?? $vehicle->temp_vehicle_detail) : 'Other Charge';
+                $vehicleName = $vehicle ? ($vehicle->vehicle_name . ' | ' . $vehicle->number_plate) : 'Other Charge';
 
                 // Deduction/Charge name for description
                 $deductionName = null;
@@ -526,7 +526,7 @@ class BookingController extends Controller
                 $vehicle = $vehicleId && $vehicleId !== 'null' ? Vehicle::find($vehicleId) : null;
 
                 // Vehicle info goes into 'name'
-                $name = $vehicle->vehicle_name . ' - ' . $vehicle->number_plate;
+                $name = $vehicle->vehicle_name . ' | ' . $vehicle->number_plate;
 
                 // Deduction/charge goes into 'description' to appear on next line in Zoho
                 if ($invoiceTypeId && is_numeric($invoiceTypeId)) {
