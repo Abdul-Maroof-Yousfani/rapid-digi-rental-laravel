@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\BookerCrudController;
 use App\Http\Controllers\Admin\SalepersonController;
 use App\Http\Controllers\Admin\VehicleCrudController;
 use App\Http\Controllers\Booker\CreditnoteController;
+use App\Http\Controllers\Booker\DepositController;
 use App\Http\Controllers\Investor\InvestorController;
 use App\Http\Controllers\Admin\InvestorCrudController;
 use App\Http\Controllers\Admin\VehiclestatusController;
@@ -132,6 +133,8 @@ Route::middleware('auth')->group(function () {
     Route::get('booking-close/{booking_id}', [BookingController::class, 'closeBooking']);
     Route::resource('customer', CustomerController::class);
     Route::resource('credit-note', CreditnoteController::class);
+    Route::get('deposit', [DepositController::class, 'index'])->name('get.deposit');
+
     Route::resource('invoice-type', DeductiontypeController::class);
     Route::post('pending-payment/{booking_id}', [PaymentController::class, 'pendingPayment']);
     Route::get('payment-history/{payment_id}', [PaymentController::class, 'paymentHistory']);
@@ -208,6 +211,7 @@ Route::get('search-customer', [AjaxController::class, 'searchCustomer']);
 Route::get('search-bank', [AjaxController::class, 'searchBank']);
 Route::get('search-payment', [AjaxController::class, 'searchPayment']);
 Route::get('search-creditnote', [AjaxController::class, 'searchCreditNote']);
+Route::get('search-deposit', [AjaxController::class, 'searchDeposit']);
 Route::get('search-vehicle', [AjaxController::class, 'searchVehicle']);
 Route::get('search-booking', [AjaxController::class, 'searchBooking']);
 Route::get('search-invoice', [AjaxController::class, 'searchInvoice']);

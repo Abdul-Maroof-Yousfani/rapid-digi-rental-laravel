@@ -252,6 +252,7 @@
                                 @endcan
                                 @can('view booking')
                                 <li><a class="nav-link" href="{{ route('invoice-type.index') }}">Invoice type</a></li>
+                                <li><a class="nav-link" href="{{ route('get.deposit') }}">Deposit list</a></li>
                                 @endcan
 
                             </ul>

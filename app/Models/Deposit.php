@@ -22,4 +22,9 @@ class Deposit extends Model
     {
         return $this->hasOne(Booking::class, 'deposit_id', 'id');
     }
+
+    public function transferredBooking()
+    {
+        return $this->belongsTo(Booking::class, 'transferred_booking_id', 'id');
+    }
 }

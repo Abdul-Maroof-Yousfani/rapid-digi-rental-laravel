@@ -134,49 +134,33 @@ class PaymentController extends Controller
 
             if ($request->adjust_invoice == 1) {
 
-                // Source booking (from which deposit is being moved)
-                $sourceBooking = Booking::find($request->booking_id);
+                $booking = Booking::find($request->booking_id);
 
-                if ($sourceBooking && $sourceBooking->deposit) {
-                    // Clear the deposit amount from the source booking
-                    $sourceBooking->deposit->update([
+                if ($booking && $booking->deposit) {
+                    $booking->deposit->update([
                         'deposit_amount' => 0,
                     ]);
                 }
 
-                // if ($sourceBooking) {
-                //     DepositHandling::where('booking_id', $sourceBooking->id)->update([
-                //         'deduct_deposit' => 0,
-                //     ]);
-                // }
+                DepositHandling::where('booking_id', $booking->id)->update([
+                    'deduct_deposit' => 0,
+                ]);
 
-                // Total deposit being transferred
-                // $depositAmount = $request->addDepositAmount[0] ?? 0;
                 $depositAmount = array_sum($request->addDepositAmount ?? []);
-// dd($depositAmount);
-                // Determine the reference booking (where the deposit should go)
-                // reference_invoice_number comes as an array of invoice IDs
-                $referenceInvoiceId = is_array($request->reference_invoice_number)
-                    ? ($request->reference_invoice_number[0] ?? null)
-                    : $request->reference_invoice_number;
 
-             
-                    $refBooking = Booking::find($referenceInvoiceId);
-               
-                    // Create a new deposit record for the reference booking
-                    $deposit = Deposit::create([
-                        'deposit_amount' => $depositAmount,
-                        'initial_deposit' => $depositAmount,
-                        'is_transferred' => 1,
-                        // store the destination booking id where the deposit is now used
-                        'transferred_booking_id' => $refBooking->id,
-                    ]);
-// dd($deposit);
+                $deposit = Deposit::create([
+                    'deposit_amount' => $depositAmount,
+                    'initial_deposit' => $depositAmount,
+                    'is_transferred' => 1,
+                    'transferred_booking_id' => $request->booking_id,
+                ]);
 
-                    // Attach the new deposit to the reference booking
+                $refBooking = Booking::where('id', $request->reference_invoice_number)->first();
+// dd($deposit->id);
+                if ($refBooking) {
                     $refBooking->deposit_id = $deposit->id;
                     $refBooking->save();
-               
+                }
 
             }
 
@@ -388,8 +372,6 @@ class PaymentController extends Controller
 
                 DB::commit();
             }
-                DB::commit();
-
             return redirect()->route('payment.index')->with('success', 'Payment created successfully!');
         } catch (\Exception $exp) {
             DB::rollback();

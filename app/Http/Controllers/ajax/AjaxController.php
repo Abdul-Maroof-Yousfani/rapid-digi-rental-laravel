@@ -662,6 +662,30 @@ class AjaxController extends Controller
         ]);
     }
 
+    public function searchDeposit(Request $request)
+    {
+        $search = strtolower($request->search);
+
+        $deposits = Deposit::with('booking', 'transferredBooking')
+            ->where(function ($query) use ($search) {
+                $query->whereRaw('LOWER(id) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(deposit_amount) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(initial_deposit) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(transferred_booking_id) LIKE ?', ["%{$search}%"])
+                    ->orWhereHas('booking', function ($q1) use ($search) {
+                        $q1->whereRaw('LOWER(agreement_no) LIKE ?', ["%{$search}%"]);
+                    })
+                    ->orWhereHas('transferredBooking', function ($q2) use ($search) {
+                        $q2->whereRaw('LOWER(agreement_no) LIKE ?', ["%{$search}%"]);
+                    });
+            })
+            ->get();
+
+        return response()->json([
+            'deposits' => $deposits
+        ]);
+    }
+
     public function searchBooking(Request $request)
     {
         $search = strtolower($request->search);
