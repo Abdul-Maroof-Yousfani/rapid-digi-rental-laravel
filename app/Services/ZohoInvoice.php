@@ -37,7 +37,7 @@ class ZohoInvoice
 
     public function refreshAccessToken()
     {
-        
+
         $apiToken = ApiToken::find(2);
         $client = new Client();
         $response = $client->post('https://accounts.zoho.com/oauth/v2/token', [
@@ -62,7 +62,7 @@ class ZohoInvoice
         $apiToken->save();
         return $newAccesstoken;
     }
-    
+
 
     public function getAccessToken()
     {
@@ -262,9 +262,42 @@ class ZohoInvoice
     }
 
 
+    public function applyToInvoice($creditNoteId, $invoiceId, $amount)
+    {
+        $accessToken = $this->getAccessToken();
+        $client = new \GuzzleHttp\Client();
+
+        $response = $client->post(
+            'https://www.zohoapis.com/creditnotes/v3/creditnotes/' . $creditNoteId . '/invoices',
+            [
+                'verify' => false,
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'X-com-zoho-invoice-organizationid' => $this->orgId,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'invoices' => [
+                        [
+                            'invoice_id' => $invoiceId,
+                            'amount_applied' => $amount,
+                        ]
+                    ]
+                ],
+            ]
+        );
+
+        $result = json_decode($response->getBody(), true);
+        // dd($result);
+        \Log::info('Zoho Credit Note Applied:', $result);
+
+        return $result;
+    }
+
+
     public function recordPayment($customerId, $invoiceId, $amount, $paymentDate)
     {
-        $paymentDate = $paymentDate ?? date('Y-m-d'); 
+        $paymentDate = $paymentDate ?? date('Y-m-d');
         $accessToken = $this->getAccessToken();
 
         $client = new \GuzzleHttp\Client();

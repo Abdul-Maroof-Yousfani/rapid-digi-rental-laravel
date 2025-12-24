@@ -55,7 +55,7 @@ class CreditnoteController extends Controller
         // - Must have remaining deposit (deposit_amount > 0)
         // - Must not already have a credit note created
         $filterBooking = $bookings->filter(function ($booking) use ($creditNoteBookingIds) {
-            return $booking->deposit 
+            return $booking->deposit
                 && $booking->deposit->deposit_amount > 0
                 && !in_array($booking->id, $creditNoteBookingIds);
         });
@@ -231,4 +231,23 @@ class CreditnoteController extends Controller
         $creditNote = CreditNote::with('paymentMethod', 'booking')->find($id);
         return view('booker.creditnote.credit-note-view', compact('creditNote'));
     }
+
+
+    public function markClosed($id)
+    {
+       
+            $creditNote = CreditNote::findOrFail($id);
+
+            $this->zohoinvoice->applyToInvoice(
+                $creditNote->zoho_credit_note_id,
+                $creditNote->booking->invoice->zoho_invoice_id,
+                $creditNote->refund_amount
+            );
+
+            $creditNote->status = 0;
+            $creditNote->save();
+
+    }
+
+
 }

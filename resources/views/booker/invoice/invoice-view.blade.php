@@ -11,7 +11,12 @@
             // $pending_amount = $invoice->paymentData()->orderby('id', 'DESC')->first()->pending_amount ?? 0;
             
             $paid_amount = $invoice->paymentData()->sum('paid_amount') ?? 0;
+            $credit_applied_amount = $invoice->booking->creditNote?->refund_amount ?? 0;
+            $credit_applied_status = $invoice->booking->creditNote?->status ?? 1;
             $pending_amount = $subtot - $paid_amount;
+            if($credit_applied_status == 0){
+                $pending_amount = $pending_amount - $credit_applied_amount;
+            }
 
             $due_bal = $pending_amount;
         }
@@ -491,8 +496,16 @@
 
                             <tr>
                                 <td class="text-right"><strong>Paid Amount</strong></td>
-                            <td class="text-right">AED{{ number_format($paid_amount, 2) }}</td>
-                        </tr>
+                                <td class="text-right">AED{{ number_format($paid_amount, 2) }}</td>
+                            </tr>
+                            @if ($credit_applied_status == 0)
+                                <tr>
+                                    <td class="text-right"><strong>Credits Applied</strong></td>
+                                    <td class="text-right">
+                                        AED {{ number_format($credit_applied_amount, 2) }}
+                                    </td>
+                                </tr>
+                            @endif
                         <?php if ($invoice->invoice_status != 'draft') { ?>
                             <tr class="text-dark" style="background-color: #d3eae4ff">
                                 <td class="text-right">

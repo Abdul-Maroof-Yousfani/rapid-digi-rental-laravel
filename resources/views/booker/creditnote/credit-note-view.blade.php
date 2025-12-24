@@ -113,7 +113,11 @@
     <!-- Main Content -->
     <div class="main-content">
 
-        <!-- Print Button (outside print area, so not printed) -->
+        
+        <form action="{{ route('creditNote.markClosed', $creditNote->id) }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-success">Apply to Invoice</button>
+        </form>
         <div class="text-right mb-3 no-print">
             <button onclick="window.print()" class="btn btn-primary">Print Invoice</button>
         </div>
@@ -121,11 +125,13 @@
         <section class="section print-area">
 
             <div class="container my-5 border p-4 bg-white">
-                <div class="box1">
+                <div class="box1 no-print"
+                    style="background-color: {{ $creditNote->status == 1 ? '#268ddd' : '#1fcd6d' }}">
                     <p>
-                        Open
+                        {{ $creditNote->status == 1 ? 'Open' : 'Closed' }}
                     </p>
                 </div>
+
                 <!-- Header -->
                 <div style="margin-bottom: 5rem; margin-top: 3rem;" class="row">
 

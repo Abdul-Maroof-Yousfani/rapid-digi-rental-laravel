@@ -141,6 +141,8 @@ Route::middleware('auth')->group(function () {
     Route::get('sync-zoho-customers', [CustomerController::class, 'syncCustomersFromZoho'])->name('syncCustomersFromZoho');
     Route::get('booking/view-invoice/{invoice_id}', [InvoiceController::class, 'viewInvoice'])->name('view.invoice');
     Route::get('view-credit-note/{cn_id}', [CreditnoteController::class, 'viewCreditNote'])->name('view.creditNote');
+    Route::post('/credit-note/{id}/mark-closed', [CreditnoteController::class, 'markClosed'])->name('creditNote.markClosed');
+
     // Route::patch('booking/{invoice_id}/update-invoice', [InvoiceController::class, 'updateInvoiceStatus'])->name('update.status');
 
     Route::post('/invoice/{id}/mark-sent', [InvoiceController::class, 'markSent'])->name('invoice.markSent');
