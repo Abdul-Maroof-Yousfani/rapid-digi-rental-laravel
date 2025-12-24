@@ -97,7 +97,7 @@ class ReportController extends Controller
 
         $bookings = $bookingQuery->get();
 
-        // Get first invoice for each booking that has payment_data with invoice_id
+        // Get first invoice for each booking that has payment_data with invoice_id and booking_data with tax_percent > 0
         $firstInvoices = $bookings->map(function ($booking) use ($from, $to) {
             // Get first invoice for this booking
             $firstInvoice = $booking->invoices->first();
@@ -118,6 +118,15 @@ class ReportController extends Controller
             $hasPaymentData = PaymentData::where('invoice_id', $firstInvoice->id)->exists();
             
             if (!$hasPaymentData) {
+                return null;
+            }
+
+            // Check if this invoice has booking_data with tax_percent > 0
+            $hasTaxPercent = BookingData::where('invoice_id', $firstInvoice->id)
+                ->where('tax_percent', '>', 0)
+                ->exists();
+            
+            if (!$hasTaxPercent) {
                 return null;
             }
 
