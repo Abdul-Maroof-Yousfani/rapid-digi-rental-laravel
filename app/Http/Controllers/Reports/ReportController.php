@@ -68,18 +68,28 @@ class ReportController extends Controller
         $type = $request['type'];
         $payment_status = $request['payment_status'];
 
-        // Get bookings first
-        $bookingQuery = Booking::with([
-            'invoices' => function ($q) {
-                $q->orderBy('id', 'ASC'); // Order invoices by id to get first one
-            },
-            'bookingData.vehicle',
-            'customer'
-        ]);
+        // Query invoices directly that:
+        // 1. Have invoice_date within date range
+        // 2. Have payment_data with invoice_id
+        // 3. Have booking_data with tax_percent > 0
+        $invoiceQuery = Invoice::with([
+            'booking.bookingData.vehicle',
+            'booking.customer',
+            'bookingData' => function ($q) {
+                $q->where('tax_percent', '>', 0);
+            }
+        ])
+            ->whereBetween(DB::raw('DATE(invoice_date)'), [$from->format('Y-m-d'), $to->format('Y-m-d')])
+            ->whereHas('paymentData', function ($q) {
+                $q->whereNotNull('invoice_id');
+            })
+            ->whereHas('bookingData', function ($q) {
+                $q->where('tax_percent', '>', 0);
+            });
 
         // Filter by investor if selected
         if ($investorId) {
-            $bookingQuery->whereHas('bookingData.vehicle', function ($q) use ($investorId) {
+            $invoiceQuery->whereHas('bookingData.vehicle', function ($q) use ($investorId) {
                 $q->where('investor_id', $investorId);
             });
         }
@@ -88,84 +98,34 @@ class ReportController extends Controller
         if ($type) {
             if ($type == 1) {
                 // Rented - has booking data
-                $bookingQuery->whereHas('bookingData');
+                $invoiceQuery->whereHas('bookingData');
             } elseif ($type == 2) {
                 // Not Rented - no booking data
-                $bookingQuery->whereDoesntHave('bookingData');
+                $invoiceQuery->whereDoesntHave('bookingData');
             }
         }
 
-        $bookings = $bookingQuery->get();
+        $invoices = $invoiceQuery->get();
 
-        // Get first invoice for each booking that has payment_data with invoice_id and booking_data with tax_percent > 0
-        $firstInvoices = $bookings->map(function ($booking) use ($from, $to) {
-            // Get first invoice for this booking
-            $firstInvoice = $booking->invoices->first();
+        // Build SOA data from invoices
+        $soaData = $invoices->map(function ($invoice) {
+            // Get booking_data row where tax_percent > 0 for this invoice
+            $bookingDataWithTax = $invoice->bookingData->where('tax_percent', '>', 0)->first();
             
-            if (!$firstInvoice) {
+            if (!$bookingDataWithTax) {
                 return null;
             }
 
-            // Check if invoice date is in range
-            if ($firstInvoice->invoice_date) {
-                $invoiceDate = Carbon::parse($firstInvoice->invoice_date)->format('Y-m-d');
-                if ($invoiceDate < $from->format('Y-m-d') || $invoiceDate > $to->format('Y-m-d')) {
-                    return null;
-                }
-            }
+            $vehicle = $bookingDataWithTax->vehicle ?? null;
 
-            // Check if this invoice has payment_data with invoice_id
-            $hasPaymentData = PaymentData::where('invoice_id', $firstInvoice->id)->exists();
-            
-            if (!$hasPaymentData) {
-                return null;
-            }
-
-            // Check if this invoice has booking_data with tax_percent > 0
-            $hasTaxPercent = BookingData::where('invoice_id', $firstInvoice->id)
-                ->where('tax_percent', '>', 0)
-                ->exists();
-            
-            if (!$hasTaxPercent) {
-                return null;
-            }
-
-            return $firstInvoice;
-        })->filter(function ($invoice) {
-            return $invoice !== null;
-        });
-
-        // Get payment data for these invoices
-        $invoiceIds = $firstInvoices->pluck('id')->toArray();
-        
-        $paymentDataList = PaymentData::with([
-            'invoice.booking.bookingData.vehicle',
-            'invoice.booking.customer',
-            'payment.booking.bookingData'
-        ])
-            ->whereIn('invoice_id', $invoiceIds)
-            ->get();
-
-        // Group by invoice_id to get unique payment data per invoice
-        $invoicesByBooking = $paymentDataList->groupBy('invoice_id')->map(function ($paymentDataGroup) {
-            return $paymentDataGroup->first();
-        })->values();
-
-        // Build SOA data
-        $soaData = $invoicesByBooking->map(function ($paymentData) {
-            $invoice = $paymentData->invoice;
-            $booking = $invoice->booking ?? null;
-            $firstBookingData = $booking && $booking->bookingData ? $booking->bookingData->first() : null;
-            $vehicle = $firstBookingData && $firstBookingData->vehicle ? $firstBookingData->vehicle : null;
-
-            // Get rental amount from first booking_data row
-            $rentalAmount = $firstBookingData ? ($firstBookingData->price ?? 0) : 0;
+            // Get rental amount from booking_data row
+            $rentalAmount = $bookingDataWithTax->price ?? 0;
 
             // Calculate rental period from start_date and end_date
             $rentalPeriod = '-';
-            if ($firstBookingData && $firstBookingData->start_date && $firstBookingData->end_date) {
-                $startDate = Carbon::parse($firstBookingData->start_date);
-                $endDate = Carbon::parse($firstBookingData->end_date);
+            if ($bookingDataWithTax->start_date && $bookingDataWithTax->end_date) {
+                $startDate = Carbon::parse($bookingDataWithTax->start_date);
+                $endDate = Carbon::parse($bookingDataWithTax->end_date);
                 $days = $startDate->diffInDays($endDate) + 1;
                 
                 if ($days >= 30) {
@@ -198,7 +158,9 @@ class ReportController extends Controller
                 'rental_period' => $rentalPeriod,
                 'rental_amount' => $rentalAmount,
             ];
-        });
+        })->filter(function ($item) {
+            return $item !== null;
+        })->values();
 
         $selectedInvestor = $investorId ? Investor::find($investorId) : null;
 
@@ -603,18 +565,33 @@ class ReportController extends Controller
         $payment_status = $request->input('payment_status');
         $excludedInvoices = $request->input('excluded_invoices') ? explode(',', $request->input('excluded_invoices')) : [];
 
-        // Get bookings first
-        $bookingQuery = Booking::with([
-            'invoices' => function ($q) {
-                $q->orderBy('id', 'ASC'); // Order invoices by id to get first one
-            },
-            'bookingData.vehicle',
-            'customer'
-        ]);
+        // Query invoices directly that:
+        // 1. Have invoice_date within date range
+        // 2. Have payment_data with invoice_id
+        // 3. Have booking_data with tax_percent > 0
+        $invoiceQuery = Invoice::with([
+            'booking.bookingData.vehicle',
+            'booking.customer',
+            'bookingData' => function ($q) {
+                $q->where('tax_percent', '>', 0);
+            }
+        ])
+            ->whereBetween(DB::raw('DATE(invoice_date)'), [$from->format('Y-m-d'), $to->format('Y-m-d')])
+            ->whereHas('paymentData', function ($q) {
+                $q->whereNotNull('invoice_id');
+            })
+            ->whereHas('bookingData', function ($q) {
+                $q->where('tax_percent', '>', 0);
+            });
+
+        // Exclude disabled invoices
+        if (!empty($excludedInvoices)) {
+            $invoiceQuery->whereNotIn('id', $excludedInvoices);
+        }
 
         // Filter by investor if selected
         if ($investorId) {
-            $bookingQuery->whereHas('bookingData.vehicle', function ($q) use ($investorId) {
+            $invoiceQuery->whereHas('bookingData.vehicle', function ($q) use ($investorId) {
                 $q->where('investor_id', $investorId);
             });
         }
@@ -623,80 +600,34 @@ class ReportController extends Controller
         if ($type) {
             if ($type == 1) {
                 // Rented - has booking data
-                $bookingQuery->whereHas('bookingData');
+                $invoiceQuery->whereHas('bookingData');
             } elseif ($type == 2) {
                 // Not Rented - no booking data
-                $bookingQuery->whereDoesntHave('bookingData');
+                $invoiceQuery->whereDoesntHave('bookingData');
             }
         }
 
-        $bookings = $bookingQuery->get();
+        $invoices = $invoiceQuery->get();
 
-        // Get first invoice for each booking that has payment_data with invoice_id
-        $firstInvoices = $bookings->map(function ($booking) use ($from, $to, $excludedInvoices) {
-            // Get first invoice for this booking
-            $firstInvoice = $booking->invoices->first();
+        // Build SOA data from invoices
+        $soaData = $invoices->map(function ($invoice) {
+            // Get booking_data row where tax_percent > 0 for this invoice
+            $bookingDataWithTax = $invoice->bookingData->where('tax_percent', '>', 0)->first();
             
-            if (!$firstInvoice) {
+            if (!$bookingDataWithTax) {
                 return null;
             }
 
-            // Exclude disabled invoices
-            if (!empty($excludedInvoices) && in_array($firstInvoice->id, $excludedInvoices)) {
-                return null;
-            }
+            $vehicle = $bookingDataWithTax->vehicle ?? null;
 
-            // Check if invoice date is in range
-            if ($firstInvoice->invoice_date) {
-                $invoiceDate = Carbon::parse($firstInvoice->invoice_date)->format('Y-m-d');
-                if ($invoiceDate < $from->format('Y-m-d') || $invoiceDate > $to->format('Y-m-d')) {
-                    return null;
-                }
-            }
-
-            // Check if this invoice has payment_data with invoice_id
-            $hasPaymentData = PaymentData::where('invoice_id', $firstInvoice->id)->exists();
-            
-            if (!$hasPaymentData) {
-                return null;
-            }
-
-            return $firstInvoice;
-        })->filter(function ($invoice) {
-            return $invoice !== null;
-        });
-
-        // Get payment data for these invoices
-        $invoiceIds = $firstInvoices->pluck('id')->toArray();
-        
-        $paymentDataList = PaymentData::with([
-            'invoice.booking.bookingData.vehicle',
-            'invoice.booking.customer',
-            'payment.booking.bookingData'
-        ])
-            ->whereIn('invoice_id', $invoiceIds)
-            ->get();
-
-        // Group by invoice_id to get unique payment data per invoice
-        $invoicesByBooking = $paymentDataList->groupBy('invoice_id')->map(function ($paymentDataGroup) {
-            return $paymentDataGroup->first();
-        })->values();
-
-        // Build SOA data
-        $soaData = $invoicesByBooking->map(function ($paymentData) {
-            $invoice = $paymentData->invoice;
-            $booking = $invoice->booking ?? null;
-            $firstBookingData = $booking && $booking->bookingData ? $booking->bookingData->first() : null;
-            $vehicle = $firstBookingData && $firstBookingData->vehicle ? $firstBookingData->vehicle : null;
-
-            // Get rental amount from first booking_data row
-            $rentalAmount = $firstBookingData ? ($firstBookingData->price ?? 0) : 0;
+            // Get rental amount from booking_data row
+            $rentalAmount = $bookingDataWithTax->price ?? 0;
 
             // Calculate rental period from start_date and end_date
             $rentalPeriod = '-';
-            if ($firstBookingData && $firstBookingData->start_date && $firstBookingData->end_date) {
-                $startDate = Carbon::parse($firstBookingData->start_date);
-                $endDate = Carbon::parse($firstBookingData->end_date);
+            if ($bookingDataWithTax->start_date && $bookingDataWithTax->end_date) {
+                $startDate = Carbon::parse($bookingDataWithTax->start_date);
+                $endDate = Carbon::parse($bookingDataWithTax->end_date);
                 $days = $startDate->diffInDays($endDate) + 1;
                 
                 if ($days >= 30) {
@@ -729,7 +660,9 @@ class ReportController extends Controller
                 'rental_period' => $rentalPeriod,
                 'rental_amount' => $rentalAmount,
             ];
-        });
+        })->filter(function ($item) {
+            return $item !== null;
+        })->values();
 
         $selectedInvestor = $investorId ? Investor::find($investorId) : null;
         

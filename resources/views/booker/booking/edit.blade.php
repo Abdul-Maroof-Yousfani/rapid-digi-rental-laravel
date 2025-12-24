@@ -91,7 +91,7 @@
 
                                 <div class="form-group">
                                     <label>Invoice Date <span class="text-danger">*</span></label>
-                                    <input type="date" value="{{ optional($invoice->booking)->started_at ? \Carbon\Carbon::parse($invoice->booking->started_at)->format('Y-m-d') : '' }}" name="started_at" class="form-control started_at" required>
+                                    <input type="date" value="{{ optional($invoice)->started_at ? \Carbon\Carbon::parse($invoice->started_at)->format('Y-m-d') : '' }}" name="started_at" class="form-control started_at" required>
                                 </div>
                                 
                                 <div class="form-group" id="non_refundable_amount_group">
@@ -159,7 +159,7 @@
                                         name="due_date"
                                         class="form-control due_date"
                                         required
-                                        value="{{ optional($invoice->booking)->due_date ? \Carbon\Carbon::parse($invoice->booking->due_date)->format('Y-m-d') : '' }}"
+                                        value="{{ optional($invoice)->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('Y-m-d') : '' }}"
                                     >
 
                                 </div>
