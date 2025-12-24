@@ -112,7 +112,7 @@
 
     <!-- Main Content -->
     <div class="main-content">
-        @php    $credit_applied_status = $invoice->booking->creditNote?->status ?? 1;  @endphp
+        @php    $credit_applied_status = $creditNote->status ?? 1;  @endphp
 
                             @if ($credit_applied_status == 1)
         
