@@ -112,10 +112,11 @@
                                         <div class="row">
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="">Type <span class="text-danger">*</span></label><br>
+                                                    <label for="">Type </label><br>
                                                     <select name="invoice_type[]" class="form-control select2 invoice_type">
                                                         <option value="">Select Invoice type</option>
                                                         @foreach ($invoiceTypes as $dtype)
+                                                            <option value="NEW">NEW</option>
                                                             <option value="{{ $dtype->name }}">{{ $dtype->name }}</option>
                                                         @endforeach
                                                     </select>
@@ -467,6 +468,18 @@
                     // vehicleType.prop('disabled', true);
                     $('#deposit_type_container').show();
                     $('#non_refundable_amount').show();
+
+
+                }
+                else if ($(this).val() === 'NEW') {
+                    dateInputs.prop('required', true);
+                    dateInputs.prop('disabled', false);
+                    // Vehicle.prop('disabled', false);
+                    // depositType.prop('disabled', false);
+                    // nonRefundableAmount.prop('disabled', false);
+                    // vehicleType.prop('disabled', true);
+                    // $('#deposit_type_container').show();
+                    // $('#non_refundable_amount').show();
 
 
                 } else if ($(this).val() === 'Rent') {

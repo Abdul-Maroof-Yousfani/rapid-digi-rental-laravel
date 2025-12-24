@@ -93,6 +93,12 @@ class AjaxController extends Controller
         $startDate = $request->start_date;
         $endDate = $request->end_date;
 
+        // If invoice type is NEW, return all vehicles of this type without any filtering
+        if ($request->invoice_type == 'NEW') {
+            return Vehicle::where('vehicletypes', $vehicleTypeId)
+                ->get(['id', 'number_plate', 'temp_vehicle_detail', 'vehicle_name']);
+        }
+
         $query = Vehicle::where('vehicletypes', $vehicleTypeId);
 
         if ($request->invoice_type != 'RENEW') {

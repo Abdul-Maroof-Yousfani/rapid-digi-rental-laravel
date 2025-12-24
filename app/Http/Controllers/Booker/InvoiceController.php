@@ -69,7 +69,7 @@ class InvoiceController extends Controller
             'vehicle.*'         => 'required',
             'vehicletypes.*'    => 'required',
             'quantity.*'        => 'required',
-            'invoice_type.*'    => 'required',
+            'invoice_type.*'    => 'nullable',
             'price.*'           => 'required',
             'discount_amount.*' => 'nullable',
         ];
@@ -189,6 +189,10 @@ class InvoiceController extends Controller
                         $itemTotal = $subTotal + $taxAmount;
 
                         $lineItemData = $zohoLineItems[$key] ?? [];
+                        
+                        // If invoice type is NEW, set deductiontype_id to null
+                        $deductiontypeId = (strtolower($invoiceTypeText) === 'new') ? null : ($invoiceTypeModel->id ?? null);
+                        
                         $booking_data = BookingData::create([
                             'booking_id'           => $request->booking_id,
                             'vehicle_id'           => $vehicle_id,
@@ -203,7 +207,7 @@ class InvoiceController extends Controller
                             'discount_amount'      => $discount,
                             'item_total'           => $amount,   // FIX
                             'tax_name'             => $taxName,
-                            'deductiontype_id'     => $invoiceTypeModel->id ?? null,
+                            'deductiontype_id'     => $deductiontypeId,
                             'view_type'            => 2,
                             'non_refundable_amount'=> $request['non_refundable_amount'][$key] ?? 0,
                             'deposit_type'         => $request['deposit_type'][$key] ?? null,
