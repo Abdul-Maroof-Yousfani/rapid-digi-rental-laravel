@@ -345,9 +345,9 @@
                         <button type="button" class="btn btn-success mr-2" id="exportSoaExcelBtn">
                             <i class="fas fa-file-excel"></i> Export Excel
                         </button>
-                        <button class="btn btn-primary prinn pritns" onclick="printView('printReport','','1')">
+                        {{-- <button class="btn btn-primary prinn pritns" onclick="printView('printReport','','1')">
                             <span class="glyphicon glyphicon-print"></span> Print
-                        </button>
+                        </button> --}}
                     </div>
 
 
