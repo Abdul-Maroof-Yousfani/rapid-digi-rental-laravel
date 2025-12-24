@@ -22,6 +22,8 @@ use App\Jobs\UpdateZohoInvoiceJob;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Models\BookingPaymentHistory;
 
 class AjaxController extends Controller
@@ -139,7 +141,7 @@ class AjaxController extends Controller
             ->where('payment_id', $paymentId)
             ->orderBy('id', 'DESC')
             ->get();
-        
+
         return response()->json([
             'success' => true,
             'data' => $paymentData
@@ -746,6 +748,114 @@ class AjaxController extends Controller
         ]);
 
     }
+
+
+    public function searchCustomerLedger(Request $request)
+    {
+        $search = trim($request->search ?? '');
+        
+        if (empty($search)) {
+            return response()->json([
+                'ledgerData' => []
+            ]);
+        }
+        
+        $searchLower = strtolower($search);
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+
+        $query = PaymentData::with([
+            'invoice',
+            'payment.paymentMethod',
+            'payment.bank',
+            'payment.booking.customer',
+            'payment.booking.bookingData',
+            'payment.bookingPaymentHistories'
+        ])
+            ->whereHas('payment.booking.customer', function ($q) use ($searchLower) {
+                $q->whereRaw('LOWER(customer_name) LIKE ?', ['%' . $searchLower . '%']);
+            });
+
+        /** Date filter by invoice_date */
+        if ($fromDate && $toDate) {
+            $query->whereHas('invoice', function ($q) use ($fromDate, $toDate) {
+                $q->whereBetween(DB::raw('DATE(invoice_date)'), [$fromDate, $toDate]);
+            });
+        }
+
+        $paymentData = $query
+            ->select('payment_data.*')
+            ->addSelect([
+                DB::raw('(SELECT invoice_date FROM invoices 
+                    WHERE invoices.id = payment_data.invoice_id 
+                    LIMIT 1) as invoice_date_for_sort')
+            ])
+            ->orderBy('invoice_date_for_sort', 'ASC')
+            ->orderBy('payment_data.created_at', 'ASC')
+            ->get()
+            ->loadMissing([
+                'invoice',
+                'payment.paymentMethod',
+                'payment.bank',
+                'payment.booking.customer',
+                'payment.booking.bookingData',
+                'payment.bookingPaymentHistories'
+            ]);
+
+        /** SAME mapping logic as getCustomerLedgerList */
+        $ledgerData = $paymentData->filter(function ($item) {
+            return $item->payment !== null;
+        })->map(function ($item) {
+
+            $payment = $item->payment;
+            $booking = $payment->booking ?? null;
+            $invoice = $item->invoice;
+
+            $paymentMethodName = $payment && $payment->paymentMethod ? $payment->paymentMethod->name : 'N/A';
+            $description = $booking && $booking->bookingData && $booking->bookingData->isNotEmpty() 
+                ? ($booking->bookingData->first()->description ?? '') 
+                : '';
+
+            $invoiceAmount = $item->invoice_amount ?? 0;
+            $paymentReceive = $item->paid_amount ?? 0;
+            $outstanding = $invoiceAmount - $paymentReceive;
+
+            // Use invoice_date instead of payment_date
+            $invoiceDate = '';
+            if ($invoice && $invoice->invoice_date) {
+                $invoiceDate = Carbon::parse($invoice->invoice_date)->format('Y-m-d');
+            } elseif ($invoice && $invoice->created_at) {
+                $invoiceDate = $invoice->created_at->format('Y-m-d');
+            }
+
+            $invoiceStatus = '';
+            if ($invoice) {
+                $invoiceStatus = $invoice->invoice_status ?? '';
+                if ($booking && $booking->deposit_type && $outstanding <= 0) {
+                    $invoiceStatus = 'deposited full';
+                }
+            }
+
+            return (object) [
+                'date' => $invoiceDate,
+                'invoice_number' => $invoice ? ($invoice->zoho_invoice_number ?? '') : '',
+                'invoice_id' => $invoice ? ($invoice->id ?? null) : null,
+                'description' => $description,
+                'item_desc' => $paymentMethodName,
+                'invoice_amount' => $invoiceAmount,
+                'payment_receive' => $paymentReceive,
+                'outstanding' => $outstanding,
+                'invoice_status' => $invoiceStatus,
+            ];
+        });
+
+        return response()->json([
+            'ledgerData' => $ledgerData->values()
+        ]);
+    }
+
+
+
 
     public function checkAgreementNoExist(Request $request)
     {

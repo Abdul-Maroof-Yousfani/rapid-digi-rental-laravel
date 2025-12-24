@@ -77,6 +77,14 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
+                              <form class="filterForm">
+                                    <div class="row">
+                                        <div class="col-3 ml-auto">
+                                            <input type="text" placeholder="Search Invoice No. / Customer" class="form-control"
+                                                id="search">
+                                        </div>
+                                    </div><br>
+                                </form>
                                 <div class="table-scroll">
                                     <div class="table-responsive" id="printReport">
                                         {{-- <table class="table table-bordered table-hover p-0" id="" style="width:100%;">
@@ -138,6 +146,104 @@
             
             // Open in new window to trigger download
             window.location.href = exportUrl;
+        });
+    });
+
+    $(document).ready(function () {
+        let searchTimeout;
+        $('#search').on('keyup', function () {
+            clearTimeout(searchTimeout);
+            let search = $(this).val();
+            
+            // Show loading spinner
+            $('#customerLedgerReportList').html(`
+                <tr>
+                    <td colspan="8" class="text-center">
+                        <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+            `);
+            
+            // Debounce search to avoid too many requests
+            searchTimeout = setTimeout(function() {
+                // Get date values from form inputs
+                let fromDate = $('#from_date').val();
+                let toDate = $('#to_date').val();
+                
+                $.ajax({
+                    url: '/search-customer-ledger',
+                    method: 'get',
+                    data: {
+                        search: search,
+                        from_date: fromDate,
+                        to_date: toDate
+                    },
+                    success: function (response) {
+                        let html = '';
+                        let totalInvoiceAmount = 0;
+                        let totalPaymentReceive = 0;
+                        let totalOutstanding = 0;
+                        let countedInvoiceIds = [];
+                        
+                        if (response.ledgerData && response.ledgerData.length > 0) {
+                            $.each(response.ledgerData, function (index, item) {
+                                // Only add invoice_amount once per invoice_id
+                                if (item.invoice_id && countedInvoiceIds.indexOf(item.invoice_id) === -1) {
+                                    totalInvoiceAmount += parseFloat(item.invoice_amount || 0);
+                                    countedInvoiceIds.push(item.invoice_id);
+                                }
+                                
+                                totalPaymentReceive += parseFloat(item.payment_receive || 0);
+                                totalOutstanding += parseFloat(item.outstanding || 0);
+                                
+                                let invoiceLink = '';
+                                if (item.invoice_id && item.invoice_number) {
+                                    invoiceLink = `<a href="/booking/view-invoice/${item.invoice_id}" target="_blank" style="color: #0d6efd; text-decoration: underline;">${item.invoice_number || ''}</a>`;
+                                } else {
+                                    invoiceLink = item.invoice_number || '';
+                                }
+                                
+                                html += `
+                                    <tr>
+                                        <td>${item.date || ''}</td>
+                                        <td>${invoiceLink}</td>
+                                        <td>${item.description || ''}</td>
+                                        <td>${item.item_desc || ''}</td>
+                                        <td align="right">${parseFloat(item.invoice_amount || 0).toFixed(2)}</td>
+                                        <td align="right">${parseFloat(item.payment_receive || 0).toFixed(2)}</td>
+                                        <td align="right">${parseFloat(item.outstanding || 0).toFixed(2)}</td>
+                                        <td>${item.invoice_status || ''}</td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            // Add subtotal row
+                            html += `
+                                <tr>
+                                    <td colspan="4" align="right"><b>Sub Total</b></td>
+                                    <td align="right"><b>${totalInvoiceAmount.toFixed(2)}</b></td>
+                                    <td align="right"><b>${totalPaymentReceive.toFixed(2)}</b></td>
+                                    <td align="right"><b>${(totalInvoiceAmount - totalPaymentReceive).toFixed(2)}</b></td>
+                                    <td></td>
+                                </tr>
+                            `;
+                        } else {
+                            html = `<tr><td colspan="8" class="text-center">No results found</td></tr>`;
+                        }
+                        
+                        $('#customerLedgerReportList').html(html);
+                    },
+                    error: function(xhr, status, error) {
+                        $('#customerLedgerReportList').html(`
+                            <tr>
+                                <td colspan="8" class="text-center text-danger">Error loading data. Please try again.</td>
+                            </tr>
+                        `);
+                    }
+                });
+            }, 500); // 500ms debounce
         });
     });
 </script>

@@ -217,6 +217,9 @@ Route::get('search-deposit', [AjaxController::class, 'searchDeposit']);
 Route::get('search-vehicle', [AjaxController::class, 'searchVehicle']);
 Route::get('search-booking', [AjaxController::class, 'searchBooking']);
 Route::get('search-invoice', [AjaxController::class, 'searchInvoice']);
+Route::get('search-customer-ledger', [AjaxController::class, 'searchCustomerLedger']);
+
+
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
 Route::get('get-payment-list', [FilterviewController::class, 'getPaymentList']);
 Route::get('/check-status/{id}', [BookingController::class, 'checkCloseEligibility'])->name('booking.check');

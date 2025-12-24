@@ -315,43 +315,20 @@ class ReportController extends Controller
                 }
             });
 
+        /** Date filter by invoice_date */
         if ($fromDate && $toDate) {
-            $query->whereExists(function ($subQuery) use ($fromDate, $toDate) {
-                $subQuery->select(DB::raw(1))
-                    ->from('booking_payment_histories')
-                    ->whereColumn('booking_payment_histories.payment_id', 'payment_data.payment_id')
-                    ->where(function ($q) {
-                        $q->where(function ($invoiceQuery) {
-                            $invoiceQuery->whereColumn('booking_payment_histories.invoice_id', 'payment_data.invoice_id')
-                                ->whereNotNull('payment_data.invoice_id')
-                                ->whereNotNull('booking_payment_histories.invoice_id');
-                        })
-                        ->orWhere(function ($noInvoiceInHistory) {
-                            $noInvoiceInHistory->whereNotNull('payment_data.invoice_id')
-                                ->whereNull('booking_payment_histories.invoice_id');
-                        })
-                        ->orWhere(function ($bothNull) {
-                            $bothNull->whereNull('payment_data.invoice_id')
-                                ->whereNull('booking_payment_histories.invoice_id');
-                        });
-                    })
-                    ->whereBetween(DB::raw('DATE(booking_payment_histories.payment_date)'), [$fromDate, $toDate]);
+            $query->whereHas('invoice', function ($q) use ($fromDate, $toDate) {
+                $q->whereBetween(DB::raw('DATE(invoice_date)'), [$fromDate, $toDate]);
             });
         }
 
         $paymentData = $query->select('payment_data.*')
             ->addSelect([
-                DB::raw('(SELECT payment_date FROM booking_payment_histories 
-                    WHERE booking_payment_histories.payment_id = payment_data.payment_id 
-                    AND (
-                        (booking_payment_histories.invoice_id = payment_data.invoice_id AND payment_data.invoice_id IS NOT NULL)
-                        OR (payment_data.invoice_id IS NULL AND booking_payment_histories.invoice_id IS NULL)
-                    )
-                    ORDER BY payment_date ASC LIMIT 1) as history_payment_date')
+                DB::raw('(SELECT invoice_date FROM invoices 
+                    WHERE invoices.id = payment_data.invoice_id 
+                    LIMIT 1) as invoice_date_for_sort')
             ])
-            // Order primarily by history_payment_date from the subquery,
-            // and fall back to payment_data.created_at if it is null
-            ->orderBy('history_payment_date', 'ASC')
+            ->orderBy('invoice_date_for_sort', 'ASC')
             ->orderBy('payment_data.created_at', 'ASC')
             ->get()
             ->loadMissing([
@@ -393,53 +370,16 @@ class ReportController extends Controller
                 }
             }
 
-            $paymentDate = '';
-            if ($payment && $payment->bookingPaymentHistories) {
-                $history = null;
-                
-                if ($fromDate && $toDate) {
-                    $filteredHistories = $payment->bookingPaymentHistories->filter(function ($h) use ($fromDate, $toDate) {
-                        if (!$h->payment_date) return false;
-                        $historyDate = Carbon::parse($h->payment_date)->format('Y-m-d');
-                        return $historyDate >= $fromDate && $historyDate <= $toDate;
-                    });
-                    
-                    if ($invoice && $invoice->id) {
-                        $history = $filteredHistories->where('invoice_id', $invoice->id)->first();
-                    }
-                    
-                    if (!$history) {
-                        $history = $filteredHistories->first();
-                    }
-                }
-                
-                if (!$history && $invoice && $invoice->id) {
-                    $history = $payment->bookingPaymentHistories
-                        ->where('invoice_id', $invoice->id)
-                        ->first();
-                }
-                
-                if (!$history) {
-                    $history = $payment->bookingPaymentHistories->first();
-                }
-                
-                if ($history && $history->payment_date) {
-                    $paymentDate = Carbon::parse($history->payment_date)->format('Y-m-d');
-                }
-            }
-            
-            if (empty($paymentDate)) {
-                if ($payment && $payment->payment_date) {
-                    $paymentDate = Carbon::parse($payment->payment_date)->format('Y-m-d');
-                } elseif ($item->created_at) {
-                    $paymentDate = $item->created_at->format('Y-m-d');
-                } else {
-                    $paymentDate = '';
-                }
+            // Use invoice_date instead of payment_date
+            $invoiceDate = '';
+            if ($invoice && $invoice->invoice_date) {
+                $invoiceDate = Carbon::parse($invoice->invoice_date)->format('Y-m-d');
+            } elseif ($invoice && $invoice->created_at) {
+                $invoiceDate = $invoice->created_at->format('Y-m-d');
             }
 
             return (object) [
-                'date' => $paymentDate,
+                'date' => $invoiceDate,
                 'invoice_number' => $invoiceNumber,
                 'invoice_id' => $invoiceId,
                 'description' => $description, 
@@ -474,44 +414,21 @@ class ReportController extends Controller
                 }
             });
 
+        /** Date filter by invoice_date */
         if ($fromDate && $toDate) {
-            $query->whereExists(function ($subQuery) use ($fromDate, $toDate) {
-                $subQuery->select(DB::raw(1))
-                    ->from('booking_payment_histories')
-                    ->whereColumn('booking_payment_histories.payment_id', 'payment_data.payment_id')
-                    ->where(function ($q) {
-                        $q->where(function ($invoiceQuery) {
-                            $invoiceQuery->whereColumn('booking_payment_histories.invoice_id', 'payment_data.invoice_id')
-                                ->whereNotNull('payment_data.invoice_id')
-                                ->whereNotNull('booking_payment_histories.invoice_id');
-                        })
-                        ->orWhere(function ($noInvoiceInHistory) {
-                            $noInvoiceInHistory->whereNotNull('payment_data.invoice_id')
-                                ->whereNull('booking_payment_histories.invoice_id');
-                        })
-                        ->orWhere(function ($bothNull) {
-                            $bothNull->whereNull('payment_data.invoice_id')
-                                ->whereNull('booking_payment_histories.invoice_id');
-                        });
-                    })
-                    ->whereBetween(DB::raw('DATE(booking_payment_histories.payment_date)'), [$fromDate, $toDate]);
+            $query->whereHas('invoice', function ($q) use ($fromDate, $toDate) {
+                $q->whereBetween(DB::raw('DATE(invoice_date)'), [$fromDate, $toDate]);
             });
         }
 
        
         $paymentData = $query->select('payment_data.*')
             ->addSelect([
-                DB::raw('(SELECT payment_date FROM booking_payment_histories 
-                    WHERE booking_payment_histories.payment_id = payment_data.payment_id 
-                    AND (
-                        (booking_payment_histories.invoice_id = payment_data.invoice_id AND payment_data.invoice_id IS NOT NULL)
-                        OR (payment_data.invoice_id IS NULL AND booking_payment_histories.invoice_id IS NULL)
-                    )
-                    ORDER BY payment_date ASC LIMIT 1) as history_payment_date')
+                DB::raw('(SELECT invoice_date FROM invoices 
+                    WHERE invoices.id = payment_data.invoice_id 
+                    LIMIT 1) as invoice_date_for_sort')
             ])
-            // Order primarily by history_payment_date from the subquery,
-            // and fall back to payment_data.created_at if it is null
-            ->orderBy('history_payment_date', 'ASC')
+            ->orderBy('invoice_date_for_sort', 'ASC')
             ->orderBy('payment_data.created_at', 'ASC')
             ->get()
             ->loadMissing([
@@ -551,53 +468,16 @@ class ReportController extends Controller
                 }
             }
 
-            $paymentDate = '';
-            if ($payment && $payment->bookingPaymentHistories) {
-                $history = null;
-                
-                if ($fromDate && $toDate) {
-                    $filteredHistories = $payment->bookingPaymentHistories->filter(function ($h) use ($fromDate, $toDate) {
-                        if (!$h->payment_date) return false;
-                        $historyDate = Carbon::parse($h->payment_date)->format('Y-m-d');
-                        return $historyDate >= $fromDate && $historyDate <= $toDate;
-                    });
-                    
-                    if ($invoice && $invoice->id) {
-                        $history = $filteredHistories->where('invoice_id', $invoice->id)->first();
-                    }
-                    
-                    if (!$history) {
-                        $history = $filteredHistories->first();
-                    }
-                }
-                
-                if (!$history && $invoice && $invoice->id) {
-                    $history = $payment->bookingPaymentHistories
-                        ->where('invoice_id', $invoice->id)
-                        ->first();
-                }
-                
-                if (!$history) {
-                    $history = $payment->bookingPaymentHistories->first();
-                }
-                
-                if ($history && $history->payment_date) {
-                    $paymentDate = Carbon::parse($history->payment_date)->format('Y-m-d');
-                }
-            }
-            
-            if (empty($paymentDate)) {
-                if ($payment && $payment->payment_date) {
-                    $paymentDate = Carbon::parse($payment->payment_date)->format('Y-m-d');
-                } elseif ($item->created_at) {
-                    $paymentDate = $item->created_at->format('Y-m-d');
-                } else {
-                    $paymentDate = '';
-                }
+            // Use invoice_date instead of payment_date
+            $invoiceDate = '';
+            if ($invoice && $invoice->invoice_date) {
+                $invoiceDate = Carbon::parse($invoice->invoice_date)->format('Y-m-d');
+            } elseif ($invoice && $invoice->created_at) {
+                $invoiceDate = $invoice->created_at->format('Y-m-d');
             }
 
             return (object) [
-                'date' => $paymentDate,
+                'date' => $invoiceDate,
                 'invoice_number' => $invoiceNumber,
                 'invoice_id' => $invoiceId,
                 'description' => $description,
