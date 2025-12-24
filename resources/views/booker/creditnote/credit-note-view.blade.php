@@ -112,12 +112,16 @@
 
     <!-- Main Content -->
     <div class="main-content">
+        @php    $credit_applied_status = $invoice->booking->creditNote?->status ?? 1;  @endphp
 
+                            @if ($credit_applied_status == 0)
         
         <form action="{{ route('creditNote.markClosed', $creditNote->id) }}" method="POST">
             @csrf
             <button type="submit" class="btn btn-success">Apply to Invoice</button>
         </form>
+                            @endif
+
         <div class="text-right mb-3 no-print">
             <button onclick="window.print()" class="btn btn-primary">Print Invoice</button>
         </div>
@@ -173,12 +177,12 @@
 
                         <p class="mb-0 text-dark" style="line-height: 1.5;">
                             @php
-                                $addressParts = array_filter([$customer?->address ?? 'No Customer address', $customer?->city ?? 'No Customer city', $customer?->state ?? 'No Customer state', $customer?->country ?? 'No Customer country']);
+                                $addressParts = array_filter([$customer?->address ?? '', $customer?->city ?? '', $customer?->state ?? '', $customer?->country ?? '']);
                             @endphp
                             {{ implode(', ', $addressParts) }}
                         </p>
 
-                        <p class="mb-0 text-dark">{{ $customer?->licence ?? 'No Customer licence' }}</p>
+                        <p class="mb-0 text-dark">{{ $customer?->licence ?? '' }}</p>
                     </div>
                     <div class="col text-right align-self-end">
                         <p class="text-dark"><strong style="margin-right: 60px;">Invoice #:</strong>
@@ -230,7 +234,7 @@
                         <tr style="border-bottom: 2px solid #ADADAD;">
                             <td class="text-left">{{ $counter }}</td>
                             <td class="text-left">
-                                {{ $item->vehicle->vehicle_name ?? $item->vehicle->temp_vehicle_detail ?? $item->invoice_type->name ?? '' }} <br>
+                                {{ $item->vehicle->vehicle_name .' | '. $item->vehicle->number_plate}} <br>
                                 <small>{{ "Invoice Deposit Refund" }}</small>
                             </td>
                             <td class="text-right">{{ $item->quantity ?? '-' }}</td>
