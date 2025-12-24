@@ -219,7 +219,7 @@
         }
 
         .table-container {
-            max-height: 400px;
+            max-height: 600px;
             /* Scrollable height */
             overflow-y: auto;
             position: relative;
@@ -233,6 +233,20 @@
             /* Solid background */
             z-index: 2;
             /* Works only with position + background */
+        }
+
+        table tbody tr.soa-totals-row {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+        }
+
+        table tbody tr.soa-totals-row td {
+            position: sticky;
+            bottom: 0;
+            background-color: #f8f9fa !important;
+            border-top: 2px solid #dee2e6;
+            z-index: 2;
         }
 
         @media screen {
@@ -328,6 +342,9 @@
                     </div>
 
                     <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn btn-success mr-2" id="exportSoaExcelBtn">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
                         <button class="btn btn-primary prinn pritns" onclick="printView('printReport','','1')">
                             <span class="glyphicon glyphicon-print"></span> Print
                         </button>
@@ -354,22 +371,19 @@
                                             <table class="table table-striped table-hover" style="width:100%;">
                                                 <thead>
                                                     <tr>
+                                                        <th style="width: 50px;">
+                                                            <input type="checkbox" id="selectAllRows" title="Select/Deselect All">
+                                                        </th>
                                                         <th>Plate no.</th>
                                                         <th>Invoice no.</th>
                                                         <th>Car Make - Model & Year</th>
                                                         <th>Rental Period</th>
                                                         <th>Rental Amount</th>
-                                                        <th>Payment Status</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="soaReportList">
                                                     <tr>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>
+                                                        <td colspan="6" class="text-center">Please select dates and click Filter to view report</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -418,4 +432,40 @@
             </div>
         </section>
     </div>
+@endsection
+
+@section('script')
+<script>
+    $(document).ready(function() {
+        // Export to Excel button click handler
+        $('#exportSoaExcelBtn').on('click', function() {
+            // Get form values
+            var fromDate = $('#from_date').val();
+            var toDate = $('#to_date').val();
+            var investorId = $('#investor_id').val();
+            var type = $('#type').val();
+            var paymentStatus = $('#payment_status').val();
+            
+            // Get disabled rows from sessionStorage
+            var disabledRows = JSON.parse(sessionStorage.getItem('soaDisabledRows') || '[]');
+            
+            // Build query string
+            var params = new URLSearchParams();
+            if (fromDate) params.append('from_date', fromDate);
+            if (toDate) params.append('to_date', toDate);
+            if (investorId) params.append('investor_id', investorId);
+            if (type) params.append('type', type);
+            if (paymentStatus) params.append('payment_status', paymentStatus);
+            if (disabledRows.length > 0) {
+                params.append('excluded_invoices', disabledRows.join(','));
+            }
+            
+            // Create export URL
+            var exportUrl = '{{ route("soaReport.export") }}?' + params.toString();
+            
+            // Open in new window to trigger download
+            window.location.href = exportUrl;
+        });
+    });
+</script>
 @endsection

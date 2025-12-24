@@ -31,7 +31,7 @@ $(document).ready(function () {
             success: function (response) {
                 $('#soaReportList').html(`
                     <tr>
-                        <td colspan="5" class="text-center">
+                        <td colspan="6" class="text-center">
                             <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
                                 <span class="sr-only">Loading...</span>
                             </div>

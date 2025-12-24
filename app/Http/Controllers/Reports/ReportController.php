@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\SoaReportExport;
 use App\Models\PaymentData;
 use Carbon\Carbon;
 use App\Models\Booking;
@@ -54,7 +55,7 @@ class ReportController extends Controller
         // Validate and parse dates
         if (!$request->from_date || !$request->to_date) {
             return response()->json([
-                'html' => '<tr><td colspan="6" class="text-center"><h3 style="color:#0d6efd;">Please select both From Date and To Date</h3></td></tr>',
+                'html' => '<tr><td colspan="7" class="text-center"><h3 style="color:#0d6efd;">Please select both From Date and To Date</h3></td></tr>',
                 'investor_name' => null,
                 'percentage' => 0,
                 'till_date' => '',
@@ -67,105 +68,132 @@ class ReportController extends Controller
         $type = $request['type'];
         $payment_status = $request['payment_status'];
 
-        // Get vehicles with bookings in range - only vehicles that have bookings in the date range
-        $vehicles = Vehicle::with([
-            'bookingData' => function ($q) use ($from, $to) {
-                $q->where('start_date', '<=', $to)
-                    ->where('end_date', '>=', $from)
-                    ->with('invoice'); // eager load invoice inside bookingData
+        // Get bookings first
+        $bookingQuery = Booking::with([
+            'invoices' => function ($q) {
+                $q->orderBy('id', 'ASC'); // Order invoices by id to get first one
+            },
+            'bookingData.vehicle',
+            'customer'
+        ]);
+
+        // Filter by investor if selected
+        if ($investorId) {
+            $bookingQuery->whereHas('bookingData.vehicle', function ($q) use ($investorId) {
+                $q->where('investor_id', $investorId);
+            });
+        }
+
+        // Filter by type (rented/not rented)
+        if ($type) {
+            if ($type == 1) {
+                // Rented - has booking data
+                $bookingQuery->whereHas('bookingData');
+            } elseif ($type == 2) {
+                // Not Rented - no booking data
+                $bookingQuery->whereDoesntHave('bookingData');
             }
-        ])
-            ->whereHas('bookingData', function ($q) use ($from, $to) {
-                $q->where('start_date', '<=', $to)
-                    ->where('end_date', '>=', $from);
-            })
-            ->when($investorId, fn($query) => $query->where('investor_id', $investorId))
-            ->when($type, function ($query) use ($type, $from, $to) {
-                if ($type == 1) {
-                    $query->whereHas('bookingData', fn($q) => $q->where('start_date', '<=', $to)
-                        ->where('end_date', '>=', $from));
-                } elseif ($type == 2) {
-                    $query->whereDoesntHave('bookingData', fn($q) => $q->where('start_date', '<=', $to)
-                        ->where('end_date', '>=', $from));
+        }
+
+        $bookings = $bookingQuery->get();
+
+        // Get first invoice for each booking that has payment_data with invoice_id
+        $firstInvoices = $bookings->map(function ($booking) use ($from, $to) {
+            // Get first invoice for this booking
+            $firstInvoice = $booking->invoices->first();
+            
+            if (!$firstInvoice) {
+                return null;
+            }
+
+            // Check if invoice date is in range
+            if ($firstInvoice->invoice_date) {
+                $invoiceDate = Carbon::parse($firstInvoice->invoice_date)->format('Y-m-d');
+                if ($invoiceDate < $from->format('Y-m-d') || $invoiceDate > $to->format('Y-m-d')) {
+                    return null;
                 }
-            })
+            }
+
+            // Check if this invoice has payment_data with invoice_id
+            $hasPaymentData = PaymentData::where('invoice_id', $firstInvoice->id)->exists();
+            
+            if (!$hasPaymentData) {
+                return null;
+            }
+
+            return $firstInvoice;
+        })->filter(function ($invoice) {
+            return $invoice !== null;
+        });
+
+        // Get payment data for these invoices
+        $invoiceIds = $firstInvoices->pluck('id')->toArray();
+        
+        $paymentDataList = PaymentData::with([
+            'invoice.booking.bookingData.vehicle',
+            'invoice.booking.customer',
+            'payment.booking.bookingData'
+        ])
+            ->whereIn('invoice_id', $invoiceIds)
             ->get();
 
-        // Get all booking IDs in range
-        $bookingIds = $vehicles->pluck('bookingData.*.booking_id')->flatten()->unique();
+        // Group by invoice_id to get unique payment data per invoice
+        $invoicesByBooking = $paymentDataList->groupBy('invoice_id')->map(function ($paymentDataGroup) {
+            return $paymentDataGroup->first();
+        })->values();
 
-        $bookingPriceMap = [];
-        $bookingIsRentedMap = [];
+        // Build SOA data
+        $soaData = $invoicesByBooking->map(function ($paymentData) {
+            $invoice = $paymentData->invoice;
+            $booking = $invoice->booking ?? null;
+            $firstBookingData = $booking && $booking->bookingData ? $booking->bookingData->first() : null;
+            $vehicle = $firstBookingData && $firstBookingData->vehicle ? $firstBookingData->vehicle : null;
 
-        foreach ($vehicles as $vehicle) {
-            foreach ($vehicle->bookingData as $booking) {
-                $bookingPriceMap[$booking->booking_id] = $booking->price;
-                $bookingIsRentedMap[$booking->booking_id] = true; // if booking exists, it’s rented
+            // Get rental amount from first booking_data row
+            $rentalAmount = $firstBookingData ? ($firstBookingData->price ?? 0) : 0;
+
+            // Calculate rental period from start_date and end_date
+            $rentalPeriod = '-';
+            if ($firstBookingData && $firstBookingData->start_date && $firstBookingData->end_date) {
+                $startDate = Carbon::parse($firstBookingData->start_date);
+                $endDate = Carbon::parse($firstBookingData->end_date);
+                $days = $startDate->diffInDays($endDate) + 1;
+                
+                if ($days >= 30) {
+                    $months = round($days / 30); // Round to nearest month
+                    if ($months == 1) {
+                        $rentalPeriod = 'Monthly';
+                    } else {
+                        $rentalPeriod = $months . ' MONTHS';
+                    }
+                } else {
+                    $rentalPeriod = $days . ' DAY' . ($days > 1 ? 'S' : '');
+                }
             }
-        }
 
-        $payments = Payment::whereIn('booking_id', $bookingIds)
-            ->select('booking_id', 'paid_amount')
-            ->get()
-            ->map(function ($payment) use ($bookingPriceMap, $bookingIsRentedMap) {
-                $price = $bookingPriceMap[$payment->booking_id] ?? 0;
-                $isRented = $bookingIsRentedMap[$payment->booking_id] ?? false;
+            // Get plate number from vehicle
+            $plateNo = $vehicle ? ($vehicle->number_plate ?? '-') : '-';
 
-                if ($payment->paid_amount == 0 && $isRented) {
-                    $payment->status = 'Pending';
-                } elseif ($payment->paid_amount == 0) {
-                    $payment->status = '-';
-                } elseif ($payment->paid_amount >= $price) {
-                    $payment->status = 'Paid';
-                } else {
-                    $payment->status = 'Partially Paid';
-                }
+            // Get car make-model & year
+            $carDetails = '-';
+            if ($vehicle) {
+                $carDetails = $vehicle->temp_vehicle_detail ?? 
+                    ($vehicle->vehicle_name . ' ' . $vehicle->car_make . ' ' . $vehicle->year);
+            }
 
-                return $payment;
-            });
-
-
-        if ($payment_status) {
-            $vehicles = $vehicles->filter(function ($vehicle) use ($payments, $payment_status, $from, $to) {
-
-                $bookingsInRange = $vehicle->bookingData
-                    ->filter(fn($b) => $b->start_date <= $to && $b->end_date >= $from);
-
-                // Vehicle has no bookings → skip
-                if ($bookingsInRange->isEmpty()) {
-                    return false;
-                }
-
-                // Calculate total price (sum of all bookings) - exactly like Blade
-                $price = $bookingsInRange->sum('price');
-                $isRented = $bookingsInRange->isNotEmpty();
-
-                // Get payment for the first booking (exactly like Blade)
-                $firstBooking = $bookingsInRange->first();
-                $bookingPayment = $payments->firstWhere('booking_id', $firstBooking->booking_id ?? null);
-                $paidAmount = $bookingPayment->paid_amount ?? 0;
-
-                // Determine status exactly like Blade view
-                if ($paidAmount == 0 && $isRented) {
-                    $status = 'Pending';
-                } elseif ($paidAmount == 0) {
-                    $status = '-';
-                } elseif ($paidAmount >= $price) {
-                    $status = 'Paid';
-                } else {
-                    $status = 'Partially Paid';
-                }
-
-                // Match the selected payment status
-                return $status === $payment_status;
-            })->values();
-        }
-
-
+            return (object) [
+                'invoice_id' => $invoice->id,
+                'invoice_number' => $invoice->zoho_invoice_number ?? '-',
+                'plate_no' => $plateNo,
+                'car_details' => $carDetails,
+                'rental_period' => $rentalPeriod,
+                'rental_amount' => $rentalAmount,
+            ];
+        });
 
         $selectedInvestor = $investorId ? Investor::find($investorId) : null;
 
-        $html = view('reports.reportlist.get-soa-list', compact('vehicles', 'payments', 'from', 'to'))->render();
+        $html = view('reports.reportlist.get-soa-list', compact('soaData', 'from', 'to'))->render();
 
         return response()->json([
             'html' => $html,
@@ -555,5 +583,160 @@ class ReportController extends Controller
 
         $booking = $query->get();
         return view('reports.reportlist.get-investor-vehilce-list', compact('booking'));
+    }
+
+    public function exportSoaReport(Request $request)
+    {
+        $from = Carbon::parse($request->from_date)->startOfDay();
+        $to = Carbon::parse($request->to_date)->endOfDay();
+        $investorId = $request->input('investor_id');
+        $type = $request->input('type');
+        $payment_status = $request->input('payment_status');
+        $excludedInvoices = $request->input('excluded_invoices') ? explode(',', $request->input('excluded_invoices')) : [];
+
+        // Get bookings first
+        $bookingQuery = Booking::with([
+            'invoices' => function ($q) {
+                $q->orderBy('id', 'ASC'); // Order invoices by id to get first one
+            },
+            'bookingData.vehicle',
+            'customer'
+        ]);
+
+        // Filter by investor if selected
+        if ($investorId) {
+            $bookingQuery->whereHas('bookingData.vehicle', function ($q) use ($investorId) {
+                $q->where('investor_id', $investorId);
+            });
+        }
+
+        // Filter by type (rented/not rented)
+        if ($type) {
+            if ($type == 1) {
+                // Rented - has booking data
+                $bookingQuery->whereHas('bookingData');
+            } elseif ($type == 2) {
+                // Not Rented - no booking data
+                $bookingQuery->whereDoesntHave('bookingData');
+            }
+        }
+
+        $bookings = $bookingQuery->get();
+
+        // Get first invoice for each booking that has payment_data with invoice_id
+        $firstInvoices = $bookings->map(function ($booking) use ($from, $to, $excludedInvoices) {
+            // Get first invoice for this booking
+            $firstInvoice = $booking->invoices->first();
+            
+            if (!$firstInvoice) {
+                return null;
+            }
+
+            // Exclude disabled invoices
+            if (!empty($excludedInvoices) && in_array($firstInvoice->id, $excludedInvoices)) {
+                return null;
+            }
+
+            // Check if invoice date is in range
+            if ($firstInvoice->invoice_date) {
+                $invoiceDate = Carbon::parse($firstInvoice->invoice_date)->format('Y-m-d');
+                if ($invoiceDate < $from->format('Y-m-d') || $invoiceDate > $to->format('Y-m-d')) {
+                    return null;
+                }
+            }
+
+            // Check if this invoice has payment_data with invoice_id
+            $hasPaymentData = PaymentData::where('invoice_id', $firstInvoice->id)->exists();
+            
+            if (!$hasPaymentData) {
+                return null;
+            }
+
+            return $firstInvoice;
+        })->filter(function ($invoice) {
+            return $invoice !== null;
+        });
+
+        // Get payment data for these invoices
+        $invoiceIds = $firstInvoices->pluck('id')->toArray();
+        
+        $paymentDataList = PaymentData::with([
+            'invoice.booking.bookingData.vehicle',
+            'invoice.booking.customer',
+            'payment.booking.bookingData'
+        ])
+            ->whereIn('invoice_id', $invoiceIds)
+            ->get();
+
+        // Group by invoice_id to get unique payment data per invoice
+        $invoicesByBooking = $paymentDataList->groupBy('invoice_id')->map(function ($paymentDataGroup) {
+            return $paymentDataGroup->first();
+        })->values();
+
+        // Build SOA data
+        $soaData = $invoicesByBooking->map(function ($paymentData) {
+            $invoice = $paymentData->invoice;
+            $booking = $invoice->booking ?? null;
+            $firstBookingData = $booking && $booking->bookingData ? $booking->bookingData->first() : null;
+            $vehicle = $firstBookingData && $firstBookingData->vehicle ? $firstBookingData->vehicle : null;
+
+            // Get rental amount from first booking_data row
+            $rentalAmount = $firstBookingData ? ($firstBookingData->price ?? 0) : 0;
+
+            // Calculate rental period from start_date and end_date
+            $rentalPeriod = '-';
+            if ($firstBookingData && $firstBookingData->start_date && $firstBookingData->end_date) {
+                $startDate = Carbon::parse($firstBookingData->start_date);
+                $endDate = Carbon::parse($firstBookingData->end_date);
+                $days = $startDate->diffInDays($endDate) + 1;
+                
+                if ($days >= 30) {
+                    $months = round($days / 30); // Round to nearest month
+                    if ($months == 1) {
+                        $rentalPeriod = 'Monthly';
+                    } else {
+                        $rentalPeriod = $months . ' MONTHS';
+                    }
+                } else {
+                    $rentalPeriod = $days . ' DAY' . ($days > 1 ? 'S' : '');
+                }
+            }
+
+            // Get plate number from vehicle
+            $plateNo = $vehicle ? ($vehicle->number_plate ?? '-') : '-';
+
+            // Get car make-model & year
+            $carDetails = '-';
+            if ($vehicle) {
+                $carDetails = $vehicle->temp_vehicle_detail ?? 
+                    ($vehicle->vehicle_name . ' ' . $vehicle->car_make . ' ' . $vehicle->year);
+            }
+
+            return (object) [
+                'invoice_id' => $invoice->id,
+                'invoice_number' => $invoice->zoho_invoice_number ?? '-',
+                'plate_no' => $plateNo,
+                'car_details' => $carDetails,
+                'rental_period' => $rentalPeriod,
+                'rental_amount' => $rentalAmount,
+            ];
+        });
+
+        $selectedInvestor = $investorId ? Investor::find($investorId) : null;
+        
+        $dateRange = '';
+        if ($from && $to) {
+            $dateRange = '_' . $from->format('Y-m-d') . '_to_' . $to->format('Y-m-d');
+        }
+        
+        $investorName = $selectedInvestor ? '_' . str_replace(' ', '_', $selectedInvestor->name) : '';
+        $filename = 'SOA_Report' . $investorName . $dateRange . '_' . date('Y-m-d_His') . '.xlsx';
+
+        try {
+            return Excel::download(new SoaReportExport($soaData), $filename);
+        } catch (\Exception $e) {
+            $excel = app(ExcelManager::class);
+            return $excel->download(new SoaReportExport($soaData), $filename);
+        }
     }
 }

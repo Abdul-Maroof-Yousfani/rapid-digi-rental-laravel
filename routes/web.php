@@ -157,6 +157,7 @@ Route::middleware('auth')->group(function () {
 
     // Reports Route
     Route::get('/reports/soa-report', [ReportController::class, 'soaReport'])->name('soaReport');
+    Route::get('/reports/soa-report/export', [ReportController::class, 'exportSoaReport'])->name('soaReport.export');
     Route::get('/reports/customer-wise-report', [ReportController::class, 'customerWiseReport'])->name('customerWiseReport');
     Route::get('/reports/customer-wise-detail-report/{customer_id}', [ReportController::class, 'customerWiseDetailReport'])->name('customerWiseDetailReport');
     Route::get('/reports/customer-wise-receivable', [ReportController::class, 'customerWiseReceivable'])->name('customerWiseReceivable');
