@@ -114,7 +114,7 @@
     <div class="main-content">
         @php    $credit_applied_status = $invoice->booking->creditNote?->status ?? 1;  @endphp
 
-                            @if ($credit_applied_status == 0)
+                            @if ($credit_applied_status == 1)
         
         <form action="{{ route('creditNote.markClosed', $creditNote->id) }}" method="POST">
             @csrf

@@ -235,8 +235,10 @@ class CreditnoteController extends Controller
 
     public function markClosed($id)
     {
-       
-            $creditNote = CreditNote::findOrFail($id);
+        DB::beginTransaction();
+
+        try {
+            $creditNote = CreditNote::with('booking.invoice')->findOrFail($id);
 
             $this->zohoinvoice->applyToInvoice(
                 $creditNote->zoho_credit_note_id,
@@ -244,9 +246,24 @@ class CreditnoteController extends Controller
                 $creditNote->refund_amount
             );
 
-            $creditNote->status = 0;
+            $creditNote->status = '0'; 
             $creditNote->save();
 
+
+            DB::commit();
+
+            //   dd($creditNote);
+            return redirect()
+                ->route('credit-note.index')
+                ->with('success', 'Credit note has been applied to invoice and marked as closed.');
+
+        } catch (\Exception $e) {
+            DB::rollBack(); 
+
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to apply credit note: ' . $e->getMessage());
+        }
     }
 
 
