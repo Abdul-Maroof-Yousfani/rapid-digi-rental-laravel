@@ -695,7 +695,7 @@ class BookingController extends Controller
                             'end_date' => $request['return_date'][$key],
                             'price' => $price,
                             'transaction_type' => 1,
-                            'description' => $lineItemData['description'] ?? ($request->description[$key] ?? null),
+                            'description' =>$request->description[$key] ?? null,
                             'quantity' => $quantity,
                             'tax_percent' => $taxPercent,
                             'discount_amount' => $discount_amount,
