@@ -454,7 +454,7 @@
                                                     {{ $item->description ?: ($item->invoice_type->name ?? '') }}
                                                 </span>
 <br>
-                                                @if(!empty($item->start_date) && $item->deductiontype_id == 5)
+                                                @if(!empty($item->start_date))
                                                     <span>
                                                         {{ \Carbon\Carbon::parse($item->start_date)->format('d/m/Y') . ' TO ' . \Carbon\Carbon::parse($item->end_date)->format('d/m/Y') }}
                                                     </span>
