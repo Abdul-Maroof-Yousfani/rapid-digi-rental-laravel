@@ -4,6 +4,10 @@
 @section('content')
     @php
         $userRole = Auth::user()->getRoleNames()->first();
+        $firstInvoiceId = \App\Models\Invoice::where('booking_id', $invoice->booking_id)
+    ->orderBy('id', 'asc')
+    ->value('id');
+
         $subtot = 0;
         foreach ($invoice->bookingData as $item) {
             $subtot += $item->item_total;
@@ -14,7 +18,7 @@
             $credit_applied_amount = $invoice->booking->creditNote?->refund_amount ?? 0;
             $credit_applied_status = $invoice->booking->creditNote?->status ?? 1;
             $pending_amount = $subtot - $paid_amount;
-            if($credit_applied_status == 0){
+            if($credit_applied_status == 0 && $invoice->id == $firstInvoiceId){
                 $pending_amount = $pending_amount - $credit_applied_amount;
             }
 
@@ -498,7 +502,7 @@
                                 <td class="text-right"><strong>Paid Amount</strong></td>
                                 <td class="text-right">AED{{ number_format($paid_amount, 2) }}</td>
                             </tr>
-                            @if ($credit_applied_status == 0)
+                            @if ($credit_applied_status == 0 && $invoice->id == $firstInvoiceId)
                                 <tr>
                                     <td class="text-right"><strong>Credits Applied</strong></td>
                                     <td class="text-right">
