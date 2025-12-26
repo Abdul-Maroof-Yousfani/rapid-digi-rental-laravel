@@ -18,8 +18,8 @@
         }
 
         .table-container {
-            max-height: 400px;
-            /* Scrollable height */
+            max-height: 600px;
+            /* Scrollable height - increased */
             overflow-y: auto;
             position: relative;
             /* Ensure sticky elements respect container */
@@ -32,6 +32,20 @@
             /* Solid background */
             z-index: 2;
             /* Works only with position + background */
+        }
+
+        table tbody tr.ledger-totals-row {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            background-color: #f8f9fa !important;
+        }
+
+        table tbody tr.ledger-totals-row td {
+            background-color: #f8f9fa !important;
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
         }
     </style>
 
@@ -230,10 +244,10 @@
                             // Calculate total invoices count
                             let totalInvoices = countedInvoiceIds.length;
                             
-                            // Add subtotal row
+                            // Add total row
                             html += `
-                                <tr>
-                                    <td colspan="3" align="right"><b>Sub Total</b></td>
+                                <tr class="ledger-totals-row">
+                                    <td colspan="3" align="right"><b>Total Invoice</b></td>
                                     <td align="center"><b>${totalInvoices}</b></td>
                                     <td align="right"><b>${formatNumber(totalInvoiceAmount)}</b></td>
                                     <td align="right"><b>${formatNumber(totalPaymentReceive)}</b></td>

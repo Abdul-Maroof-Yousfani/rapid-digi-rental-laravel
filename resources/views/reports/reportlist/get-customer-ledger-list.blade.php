@@ -41,9 +41,12 @@
 @endforeach
 
 @if(count($ledgerData) > 0)
-<tr>
-  <td colspan="3" align="right"><b>Sub Total</b></td>
-  <td align="right"><b>{{ number_format($totalInvoices, 2) }}</b></td>
+@php
+  $uniqueInvoiceCount = count($countedInvoiceIds);
+@endphp
+<tr class="ledger-totals-row">
+  <td colspan="3" align="right"><b>Total Invoice</b></td>
+  <td align="center"><b>{{ $uniqueInvoiceCount }}</b></td>
   <td align="right"><b>{{ number_format($totalInvoiceAmount, 2) }}</b></td>
   <td align="right"><b>{{ number_format($totalPaymentReceive, 2) }}</b></td>
   <td align="right"><b>{{ number_format($totalInvoiceAmount-$totalPaymentReceive, 2) }}</b></td>
