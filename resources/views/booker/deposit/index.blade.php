@@ -109,7 +109,7 @@
                                                         @if ($deposit->transferred_booking_id)
                                                             {{ $deposit->transferred_booking_id }}
                                                         @else
-                                                            <span class="text-muted">NULL</span>
+                                                            <span class="text-muted">N/A</span>
                                                         @endif
                                                     </td>
                                                     <td>
