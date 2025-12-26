@@ -176,6 +176,7 @@
                     },
                     success: function (response) {
                         let html = '';
+                        let serialNumber = (page - 1) * 10 + 1; // Calculate serial number based on page
                         if (response.deposits && response.deposits.length > 0) {
                             $.each(response.deposits, function (index, data) {
                                 const isTransferred = data.is_transferred == 1
@@ -224,7 +225,7 @@
 
                                 html += `
                                     <tr>
-                                        <td>${data.id}</td>
+                                        <td>${serialNumber}</td>
                                         <td>${initialDeposit.toFixed(2)}</td>
                                         <td>${statusText}</td>
                                         <td>${isTransferred}</td>
@@ -234,6 +235,7 @@
                                         <td>${transferButton}</td>
                                     </tr>
                                 `;
+                                serialNumber++; // Increment serial number for next row
                             });
                         } else {
                             html = `<tr><td colspan="8" class="text-center">No results found</td></tr>`;
