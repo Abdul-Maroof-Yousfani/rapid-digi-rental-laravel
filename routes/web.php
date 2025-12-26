@@ -134,6 +134,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('customer', CustomerController::class);
     Route::resource('credit-note', CreditnoteController::class);
     Route::get('deposit', [DepositController::class, 'index'])->name('get.deposit');
+    Route::get('deposit/{depositId}/transfer', [DepositController::class, 'transfer'])->name('deposit.transfer');
+    Route::post('deposit/{depositId}/transfer', [DepositController::class, 'storeTransfer'])->name('deposit.transfer.store');
 
     Route::resource('invoice-type', DeductiontypeController::class);
     Route::post('pending-payment/{booking_id}', [PaymentController::class, 'pendingPayment']);

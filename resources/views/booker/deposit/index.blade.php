@@ -67,8 +67,9 @@
                                                 <th>Status / Remaining Deposit</th>
                                                 <th>Is Transferred</th>
                                                 <th>Transferred Booking ID</th>
-                                                <th>Booking (Agreement No)</th>
+                                                <th>Booking ID</th>
                                                 <th>Created At</th>
+                                                <th>Action</th>
                                                 {{-- <th>Updated At</th> --}}
                                             </tr>
                                         </thead>
@@ -113,14 +114,23 @@
                                                     </td>
                                                     <td>
                                                         @if ($deposit->booking)
-                                                            {{ $deposit->booking->agreement_no ?? 'N/A' }}
+                                                            {{ $deposit->booking->id ?? 'N/A' }}
                                                         @elseif ($deposit->transferredBooking)
-                                                            {{ $deposit->transferredBooking->agreement_no ?? 'N/A' }}
+                                                            {{ $deposit->transferredBooking->id ?? 'N/A' }}
                                                         @else
                                                             <span class="text-muted">N/A</span>
                                                         @endif
                                                     </td>
                                                     <td>{{ $deposit->created_at ? $deposit->created_at->format('Y-m-d') : 'N/A' }}</td>
+                                                    <td>
+                                                        @if ($deposit->is_transferred != 1 && $depositAmount > 0)
+                                                            <a href="{{ route('deposit.transfer', $deposit->id) }}" class="btn btn-sm btn-primary">
+                                                                <i class="fas fa-exchange-alt"></i> Transfer
+                                                            </a>
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
                                                     {{-- <td>{{ $deposit->updated_at ? $deposit->updated_at->format('Y-m-d H:i:s') : 'N/A' }}</td> --}}
                                                 </tr>
                                             @endforeach
@@ -189,6 +199,10 @@
                                     }
                                 }
 
+                                const transferButton = (data.is_transferred != 1 && depositAmount > 0)
+                                    ? `<a href="/deposit/${data.id}/transfer" class="btn btn-sm btn-primary"><i class="fas fa-exchange-alt"></i> Transfer</a>`
+                                    : '<span class="text-muted">-</span>';
+
                                 html += `
                                     <tr>
                                         <td>${data.id}</td>
@@ -198,6 +212,7 @@
                                         <td>${transferredBookingId}</td>
                                         <td>${agreementNo}</td>
                                         <td>${data.created_at || 'N/A'}</td>
+                                        <td>${transferButton}</td>
                                     </tr>
                                 `;
                             });

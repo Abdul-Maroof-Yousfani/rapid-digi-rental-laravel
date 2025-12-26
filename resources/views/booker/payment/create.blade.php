@@ -289,7 +289,7 @@
                                                         placeholder="0.00" readonly>
                                                 </td>
                                             </tr>
-                                            <tr>
+                                            {{-- <tr>
                                                 <td colspan="9" class="text-right align-middle">
                                                     <!-- <div class="form-check"> -->
                                                     <input type="hidden" name="adjust_invoice" value="0">
@@ -313,14 +313,12 @@
                                                         @foreach ($bookings as $booking)
                                                             <option value="{{ $booking->id }}">
                                                                 Booking #{{ $booking->id }}
-                                                                {{-- @if($booking->invoice)
-                                                                    - Invoice {{ $booking->invoice->zoho_invoice_number }}
-                                                                @endif --}}
+                                                              
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 </td>
-                                            </tr>
+                                            </tr> --}}
                                             <tr>
                                                 <td colspan="9" class="text-right align-middle">Remarks (Optional)</td>
                                                 <td>
