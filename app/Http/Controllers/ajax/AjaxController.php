@@ -168,9 +168,10 @@ class AjaxController extends Controller
         // Get all payments for this booking and sum the paid amounts
         $allPayments = Payment::where('booking_id', $booking_id)->get();
         $totalPaidAmount = $allPayments->sum('paid_amount');
+        $totalCreditAmount = CreditNote::where('booking_id', $booking_id)->sum('refund_amount');
         $payment = $allPayments->sortByDesc('id')->first(); // Get latest payment for reference
 
-        $remainingAmount = $bookingAmount - $totalPaidAmount;
+        $remainingAmount = $bookingAmount - $totalPaidAmount - $totalCreditAmount;
 
         // Calculate Remaining Deposit Amount
         $initialDeposit = $booking->deposit->deposit_amount ?? 0;

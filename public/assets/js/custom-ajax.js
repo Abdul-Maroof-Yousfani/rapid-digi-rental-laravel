@@ -3,6 +3,7 @@ function recalculateTotals() {
     let adjustInvoice = $('#adjust_invoice').is(':checked');
     let bookingAmount = parseFloat($('.booking_amount').val()) || 0;
     let deposit = parseFloat($('.initial_deposit').val()) || 0;
+    let creditNoteAmount = parseFloat($('.credit_note_amount').val()) || 0;
 
     let subtotal = 0;
     $('.invPaidAmount').each(function () {
@@ -11,7 +12,7 @@ function recalculateTotals() {
     $('.insubtot').val(subtotal.toFixed(2));
 
     let totalReceived = subtotal;
-    let pending = bookingAmount - totalReceived;
+    let pending = bookingAmount - totalReceived - creditNoteAmount;
 
     if (useDeposit) {
         let depositToUse = Math.min(deposit, pending);
@@ -199,14 +200,30 @@ function bookingChange() {
                 let depositAmount = parseFloat(response.deposit_amount) || 0;
                 let remainingDeposit = parseFloat(response.remaining_deposit) || 0;
                 let alreadyPaid = parseFloat(response.paid_amount) || 0;
+                
+                // Calculate total credit note refund amount
+                let totalCreditAmount = 0;
+                if (response.credit_note_detail && response.credit_note_detail.length > 0) {
+                    response.credit_note_detail.forEach(function(creditNote) {
+                        totalCreditAmount += parseFloat(creditNote.refund_amount) || 0;
+                    });
+                }
+                
+                // Store credit note amount in a hidden field for later use
+                $('.credit_note_amount').remove(); // Remove if exists
+                $('body').append('<input type="hidden" class="credit_note_amount" value="' + totalCreditAmount + '">');
+
+                // Adjust deposit amount by subtracting credit note refund (since deposit is refunded to customer)
+                let adjustedDepositAmount = depositAmount - totalCreditAmount;
+                adjustedDepositAmount = Math.max(0, adjustedDepositAmount); // Prevent negative
 
                 $('.booking_amount').val(bookingAmount);
-                $('.initial_deposit').val(depositAmount);
+                $('.initial_deposit').val(adjustedDepositAmount);
                 $('.deposit_amount').val(remainingDeposit);
                 $('.remaining_deposit').val(remainingDeposit);
                 $('.customer_name').val(response.customer);
 
-                let pending = bookingAmount - alreadyPaid;
+                let pending = bookingAmount - alreadyPaid - totalCreditAmount;
                 $('.pending_amount').val(pending.toFixed(2));
                 $('.restrict').val(pending.toFixed(2));
 
@@ -342,6 +359,7 @@ function updateTransactionSummary() {
     let totalInvoiceAmount = parseFloat($('.booking_amount').val()) || 0;
     let depositUsed = 0;
     let amountReceived = parseFloat($('.amount_receive').val()) || 0;
+    let creditNoteAmount = parseFloat($('.credit_note_amount').val()) || 0;
     let useDeposit = $('#used_deposit_amount').is(':checked');
 
     if (useDeposit) {
@@ -352,7 +370,7 @@ function updateTransactionSummary() {
         });
     }
 
-    let pendingAmount = totalInvoiceAmount - depositUsed - amountReceived;
+    let pendingAmount = totalInvoiceAmount - depositUsed - amountReceived - creditNoteAmount;
     pendingAmount = Math.max(0, pendingAmount); // prevent negative
 
     // Update the summary spans
@@ -368,6 +386,7 @@ function usedDeposit() {
     let useDeposit = $('#used_deposit_amount').is(':checked');
     let deposit = parseFloat($('.initial_deposit').val()) || 0;
     let pending = parseFloat($('.restrict').val()) || 0;
+    let creditNoteAmount = parseFloat($('.credit_note_amount').val()) || 0;
 
     let remainingDepositBefore = parseFloat($('.remaining_deposit').val()) || 0;
 
@@ -382,6 +401,7 @@ function usedDeposit() {
 
         let deposit = parseFloat($('.initial_deposit').val()) || 0;
         let pending = parseFloat($('.restrict').val()) || 0;
+        let creditNoteAmount = parseFloat($('.credit_note_amount').val()) || 0;
 
         let depositToUse = Math.min(deposit, pending); // e.g. 1000
         let newPending = pending - depositToUse;       // e.g. 100
