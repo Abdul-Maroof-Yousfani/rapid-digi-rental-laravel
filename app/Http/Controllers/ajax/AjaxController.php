@@ -770,84 +770,77 @@ class AjaxController extends Controller
         $fromDate = $request->input('from_date');
         $toDate = $request->input('to_date');
 
-        $query = PaymentData::with([
-            'invoice',
-            'payment.paymentMethod',
-            'payment.bank',
-            'payment.booking.customer',
-            'payment.booking.bookingData',
-            'payment.bookingPaymentHistories'
+        // Query from invoices table
+        $query = Invoice::with([
+            'booking.customer',
+            'booking.bookingData',
+            'paymentData.payment.paymentMethod',
+            'paymentData.payment.bank'
         ])
-            ->whereHas('payment.booking.customer', function ($q) use ($searchLower) {
+            ->whereHas('booking.customer', function ($q) use ($searchLower) {
                 $q->whereRaw('LOWER(customer_name) LIKE ?', ['%' . $searchLower . '%']);
             });
 
-        /** Date filter by invoice_date */
+        // Date filter by invoice_date
         if ($fromDate && $toDate) {
-            $query->whereHas('invoice', function ($q) use ($fromDate, $toDate) {
-                $q->whereBetween(DB::raw('DATE(invoice_date)'), [$fromDate, $toDate]);
-            });
+            $query->whereBetween(DB::raw('DATE(invoice_date)'), [$fromDate, $toDate]);
         }
 
-        $paymentData = $query
-            ->select('payment_data.*')
-            ->addSelect([
-                DB::raw('(SELECT invoice_date FROM invoices 
-                    WHERE invoices.id = payment_data.invoice_id 
-                    LIMIT 1) as invoice_date_for_sort')
-            ])
-            ->orderBy('invoice_date_for_sort', 'ASC')
-            ->orderBy('payment_data.created_at', 'ASC')
-            ->get()
-            ->loadMissing([
-                'invoice',
-                'payment.paymentMethod',
-                'payment.bank',
-                'payment.booking.customer',
-                'payment.booking.bookingData',
-                'payment.bookingPaymentHistories'
-            ]);
+        $invoices = $query->orderBy('invoice_date', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get();
 
-        /** SAME mapping logic as getCustomerLedgerList */
-        $ledgerData = $paymentData->filter(function ($item) {
-            return $item->payment !== null;
-        })->map(function ($item) {
-
-            $payment = $item->payment;
-            $booking = $payment->booking ?? null;
-            $invoice = $item->invoice;
-
-            $paymentMethodName = $payment && $payment->paymentMethod ? $payment->paymentMethod->name : 'N/A';
-            $description = $booking && $booking->bookingData && $booking->bookingData->isNotEmpty() 
-                ? ($booking->bookingData->first()->description ?? '') 
-                : '';
-
-            $invoiceAmount = $item->invoice_amount ?? 0;
-            $paymentReceive = $item->paid_amount ?? 0;
-            $outstanding = $invoiceAmount - $paymentReceive;
-
-            // Use invoice_date instead of payment_date
-            $invoiceDate = '';
-            if ($invoice && $invoice->invoice_date) {
-                $invoiceDate = Carbon::parse($invoice->invoice_date)->format('Y-m-d');
-            } elseif ($invoice && $invoice->created_at) {
-                $invoiceDate = $invoice->created_at->format('Y-m-d');
+        // Build ledger data from invoices
+        $ledgerData = $invoices->map(function ($invoice) {
+            $booking = $invoice->booking ?? null;
+            
+            // Get description from booking data
+            $description = '';
+            if ($booking && $booking->bookingData && $booking->bookingData->isNotEmpty()) {
+                $description = $booking->bookingData->first()->description ?? '';
             }
 
-            $invoiceStatus = '';
-            if ($invoice) {
-                $invoiceStatus = $invoice->invoice_status ?? '';
-                if ($booking && $booking->deposit_type && $outstanding <= 0) {
-                    $invoiceStatus = 'deposited full';
-                }
+            // Get payment method name from payment_data (if exists)
+            $itemDesc = 'N/A';
+            $paymentData = $invoice->paymentData->first();
+            if ($paymentData && $paymentData->payment && $paymentData->payment->paymentMethod) {
+                $itemDesc = $paymentData->payment->paymentMethod->name;
+            }
+
+            // Get invoice amount from total_amount or calculate from booking_data
+            $invoiceAmount = 0;
+            if ($invoice->total_amount) {
+                $invoiceAmount = (float) str_replace(',', '', $invoice->total_amount);
+            } elseif ($booking && $booking->bookingData) {
+                $invoiceAmount = $booking->bookingData->sum('item_total') ?? 0;
+            }
+
+            // Calculate payment received by summing all payment_data for this invoice
+            $paymentReceive = $invoice->paymentData->sum('paid_amount') ?? 0;
+
+            // Calculate outstanding
+            $outstanding = $invoiceAmount - $paymentReceive;
+
+            // Get invoice status
+            $invoiceStatus = $invoice->invoice_status ?? '';
+            if ($booking && $booking->deposit_type && $outstanding <= 0) {
+                $invoiceStatus = 'deposited full';
+            }
+
+            // Get invoice date
+            $invoiceDate = '';
+            if ($invoice->invoice_date) {
+                $invoiceDate = Carbon::parse($invoice->invoice_date)->format('Y-m-d');
+            } elseif ($invoice->created_at) {
+                $invoiceDate = $invoice->created_at->format('Y-m-d');
             }
 
             return (object) [
                 'date' => $invoiceDate,
-                'invoice_number' => $invoice ? ($invoice->zoho_invoice_number ?? '') : '',
-                'invoice_id' => $invoice ? ($invoice->id ?? null) : null,
+                'invoice_number' => $invoice->zoho_invoice_number ?? '',
+                'invoice_id' => $invoice->id,
                 'description' => $description,
-                'item_desc' => $paymentMethodName,
+                'item_desc' => $itemDesc,
                 'invoice_amount' => $invoiceAmount,
                 'payment_receive' => $paymentReceive,
                 'outstanding' => $outstanding,

@@ -4,6 +4,8 @@
   $totalPaymentReceive = 0;
   $totalOutstanding = 0;
   $countedInvoiceIds = []; // track which invoices are already counted
+    $totalInvoices = count($ledgerData);
+
 @endphp
 
 @foreach ($ledgerData as $item)
@@ -40,7 +42,8 @@
 
 @if(count($ledgerData) > 0)
 <tr>
-  <td colspan="4" align="right"><b>Sub Total</b></td>
+  <td colspan="3" align="right"><b>Sub Total</b></td>
+  <td align="right"><b>{{ number_format($totalInvoices, 2) }}</b></td>
   <td align="right"><b>{{ number_format($totalInvoiceAmount, 2) }}</b></td>
   <td align="right"><b>{{ number_format($totalPaymentReceive, 2) }}</b></td>
   <td align="right"><b>{{ number_format($totalInvoiceAmount-$totalPaymentReceive, 2) }}</b></td>

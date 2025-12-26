@@ -181,12 +181,20 @@
                         to_date: toDate
                     },
                     success: function (response) {
+                        // Helper function to format numbers with commas
+                        function formatNumber(num) {
+                            return parseFloat(num || 0).toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
+                        
                         let html = '';
                         let totalInvoiceAmount = 0;
                         let totalPaymentReceive = 0;
                         let totalOutstanding = 0;
                         let countedInvoiceIds = [];
-                        
+
                         if (response.ledgerData && response.ledgerData.length > 0) {
                             $.each(response.ledgerData, function (index, item) {
                                 // Only add invoice_amount once per invoice_id
@@ -211,21 +219,25 @@
                                         <td>${invoiceLink}</td>
                                         <td>${item.description || ''}</td>
                                         <td>${item.item_desc || ''}</td>
-                                        <td align="right">${parseFloat(item.invoice_amount || 0).toFixed(2)}</td>
-                                        <td align="right">${parseFloat(item.payment_receive || 0).toFixed(2)}</td>
-                                        <td align="right">${parseFloat(item.outstanding || 0).toFixed(2)}</td>
+                                        <td align="right">${formatNumber(item.invoice_amount)}</td>
+                                        <td align="right">${formatNumber(item.payment_receive)}</td>
+                                        <td align="right">${formatNumber(item.outstanding)}</td>
                                         <td>${item.invoice_status || ''}</td>
                                     </tr>
                                 `;
                             });
                             
+                            // Calculate total invoices count
+                            let totalInvoices = countedInvoiceIds.length;
+                            
                             // Add subtotal row
                             html += `
                                 <tr>
-                                    <td colspan="4" align="right"><b>Sub Total</b></td>
-                                    <td align="right"><b>${totalInvoiceAmount.toFixed(2)}</b></td>
-                                    <td align="right"><b>${totalPaymentReceive.toFixed(2)}</b></td>
-                                    <td align="right"><b>${(totalInvoiceAmount - totalPaymentReceive).toFixed(2)}</b></td>
+                                    <td colspan="3" align="right"><b>Sub Total</b></td>
+                                    <td align="center"><b>${totalInvoices}</b></td>
+                                    <td align="right"><b>${formatNumber(totalInvoiceAmount)}</b></td>
+                                    <td align="right"><b>${formatNumber(totalPaymentReceive)}</b></td>
+                                    <td align="right"><b>${formatNumber(totalInvoiceAmount - totalPaymentReceive)}</b></td>
                                     <td></td>
                                 </tr>
                             `;
