@@ -79,6 +79,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="bookingList">
+                                        {{-- Static data will be replaced by AJAX --}}
                                         @php
                                         $now = \Carbon\Carbon::now();
                                         $number=1;
@@ -181,7 +182,7 @@
                                         @endforeach
                                     </tbody>
                                 </table>
-                                {{ $booking->links('pagination::bootstrap-4') }}
+                                <div id="paginationContainer"></div>
                             </div>
                         </div>
                     </div>
@@ -277,80 +278,163 @@
     // });
 
     $(document).ready(function() {
-        $('#search').on('keyup', function() {
-            let search = $(this).val();
+        let currentSearch = '';
+        let currentPage = 1;
+
+        function loadBookings(search = '', page = 1) {
+            currentSearch = search;
+            currentPage = page;
+
+            // Clear the booking list immediately
             $('#bookingList').html(`
-                    <tr>
-                        <td colspan="10" class="text-center">
-                            <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </td>
-                    </tr>
-                `);
+                <tr>
+                    <td colspan="10" class="text-center">
+                        <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+            `);
+            
+            // Clear pagination container
+            $('#paginationContainer').html('');
+
             $.ajax({
                 url: '/search-booking',
                 method: 'get',
                 data: {
-                    search: search
+                    search: search,
+                    page: page
                 },
                 success: function(response) {
                     let html = '';
-                    let number = 1;
-                    if (response.bookings.length > 0) {
+                    let number = (page - 1) * 10 + 1;
+                    if (response.bookings && response.bookings.length > 0) {
                         let can = response.can;
 
                         $.each(response.bookings, function(index, data) {
-                            let invoiceNumbers = data.invoices.length > 0 
-        ? data.invoices.map(inv => inv.zoho_invoice_number).join(', ')
-        : 'N/A';
+                            let invoiceNumbers = data.invoices && data.invoices.length > 0 
+                                ? data.invoices.map(inv => inv.zoho_invoice_number).join(', ')
+                                : 'N/A';
 
                             html += `
-                                    <tr data-id="${data.id}">
-                                        <td>${number}.</td>
-                                        <td>${data.customer.customer_name}</td>
-                                        <td>${invoiceNumbers}</td>
-                                        <td>${data.id ?? ''}</td>
-                                        <td>${data.sale_person?.name ?? 'N/A'}</td>
-                                        <td>${data.deposit?.deposit_amount ?? 0}</td>
-                                        <td>${data.booking_status ?? 'overdue'}</td>
-                                        <td>${data.payment?.payment_status ?? "pending"}</td>
-                                        <td>${data.total_amount ?? 0}</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                                                    Actions
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    ${can.view ? `
-                                                    <a class="dropdown-item" href="/booking/${data.id}">
-                                                        <i class="fas fa-eye"></i> View
-                                                    </a>` : ''}
-                                                    ${can.delete ? `
-                                                        <form action="/customer-booking/${data.id}" method="POST" class="delete-form">
-                                                            <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                                                            <input type="hidden" name="_method" value="DELETE">
-                                                            <button type="submit" class="dropdown-item text-danger delete-confirm">
-                                                                <i class="far fa-trash-alt"></i> Delete
-                                                            </button>
-                                                        </form>
-                                                    ` : ''}
-                                                </div>
+                                <tr data-id="${data.id}">
+                                    <td>${number}.</td>
+                                    <td>${data.customer?.customer_name || 'N/A'}</td>
+                                    <td>${invoiceNumbers}</td>
+                                    <td>${data.id ?? ''}</td>
+                                    <td>${data.sale_person?.name ?? 'N/A'}</td>
+                                    <td>${data.deposit?.deposit_amount ?? 0}</td>
+                                    <td>${data.booking_status ?? 'overdue'}</td>
+                                    <td>${data.payment?.payment_status ?? "pending"}</td>
+                                    <td>${data.total_amount ?? 0}</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                Actions
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                ${can.view ? `
+                                                <a class="dropdown-item" href="/booking/${data.id}">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>` : ''}
+                                                ${can.delete ? `
+                                                    <form action="/customer-booking/${data.id}" method="POST" class="delete-form">
+                                                        <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                                        <input type="hidden" name="_method" value="DELETE">
+                                                        <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                            <i class="far fa-trash-alt"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                ` : ''}
                                             </div>
-                                        </td>
-                                    </tr>
-                                    
-                                `;
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
                             number++;
-
                         });
                     } else {
-                        html = `<tr><td colspan="9" class="text-center">No results found</td></tr>`;
+                        html = `<tr><td colspan="10" class="text-center">No results found</td></tr>`;
                     }
 
                     $('#bookingList').html(html);
+
+                    // Update pagination
+                    if (response.pagination && response.pagination.last_page > 1) {
+                        let paginationHtml = '<nav><ul class="pagination justify-content-center">';
+                        
+                        // Previous button
+                        if (response.pagination.current_page > 1) {
+                            paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.current_page - 1}">Previous</a></li>`;
+                        } else {
+                            paginationHtml += `<li class="page-item disabled"><span class="page-link">Previous</span></li>`;
+                        }
+
+                        // Page numbers - show max 10 pages around current page
+                        let startPage = Math.max(1, response.pagination.current_page - 5);
+                        let endPage = Math.min(response.pagination.last_page, response.pagination.current_page + 5);
+                        
+                        if (startPage > 1) {
+                            paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
+                            if (startPage > 2) {
+                                paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                            }
+                        }
+
+                        for (let i = startPage; i <= endPage; i++) {
+                            if (i === response.pagination.current_page) {
+                                paginationHtml += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
+                            } else {
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+                            }
+                        }
+
+                        if (endPage < response.pagination.last_page) {
+                            if (endPage < response.pagination.last_page - 1) {
+                                paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                            }
+                            paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.last_page}">${response.pagination.last_page}</a></li>`;
+                        }
+
+                        // Next button
+                        if (response.pagination.current_page < response.pagination.last_page) {
+                            paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.current_page + 1}">Next</a></li>`;
+                        } else {
+                            paginationHtml += `<li class="page-item disabled"><span class="page-link">Next</span></li>`;
+                        }
+
+                        paginationHtml += '</ul></nav>';
+                        paginationHtml += `<div class="text-center mt-2"><small>Showing ${response.pagination.from || 0} to ${response.pagination.to || 0} of ${response.pagination.total} entries</small></div>`;
+                        $('#paginationContainer').html(paginationHtml);
+                    } else {
+                        $('#paginationContainer').html('');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    console.error('Response:', xhr.responseText);
+                    $('#bookingList').html(`<tr><td colspan="10" class="text-center text-danger">Error loading data</td></tr>`);
+                    $('#paginationContainer').html('');
                 }
             });
+        }
+
+        // Initial load
+        loadBookings();
+
+        // Search on keyup
+        $('#search').on('keyup', function() {
+            loadBookings($(this).val(), 1);
+        });
+
+        // Handle pagination clicks
+        $(document).on('click', '#paginationContainer .pagination a', function(e) {
+            e.preventDefault();
+            let page = $(this).data('page');
+            if (page) {
+                loadBookings(currentSearch, page);
+            }
         });
     });
 

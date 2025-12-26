@@ -80,8 +80,7 @@
                                         </thead>
                                         <tbody id="paymentList"></tbody>
                                     </table>
-                                    {{-- {{ $payment->links('pagination::bootstrap-4') }} --}}
-
+                                    <div id="paginationContainer"></div>
                                 </div>
                             </div>
                         </div>
@@ -135,58 +134,13 @@
         });
 
         $(document).ready(function () {
+            let currentSearch = '';
+            let currentPage = 1;
 
-            function loadPaymentList(url = '/get-payment-list', search = '') {
-                $('#paymentList').html(`
-                <tr>
-                    <td colspan="9" class="text-center">
-                        <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </td>
-                </tr>
-            `);
+            function loadPayments(search = '', page = 1) {
+                currentSearch = search;
+                currentPage = page;
 
-                // Add search parameter to URL if provided
-                if (search) {
-                    url += (url.includes('?') ? '&' : '?') + 'search=' + encodeURIComponent(search);
-                }
-
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    success: function (response) {
-                        $('#paymentList').html(response);
-                    },
-                    error: function (xhr) {
-                        console.error('Error fetching payment list:', xhr.responseText);
-                        $('#paymentList').html(`<tr><td colspan="9" class="text-center text-danger">Error loading payments</td></tr>`);
-                    }
-                });
-            }
-
-            // Initial load
-            loadPaymentList();
-
-            // Handle pagination click
-            $(document).on('click', '.pagination a', function (e) {
-                e.preventDefault();
-                const url = $(this).attr('href');
-                const search = $('#search').val();
-                if (url) loadPaymentList(url, search);
-            });
-
-
-            $('#search').on('keyup', function () {
-                let search = $(this).val().trim();
-                
-                // If search is empty, reload the full list
-                if (search === '') {
-                    loadPaymentList();
-                    return;
-                }
-
-                // Show loader while data is loading
                 $('#paymentList').html(`
                     <tr>
                         <td colspan="9" class="text-center">
@@ -196,13 +150,17 @@
                         </td>
                     </tr>
                 `);
+
                 $.ajax({
                     url: '/search-payment',
                     method: 'get',
-                    data: { search: search },
+                    data: { 
+                        search: search,
+                        page: page
+                    },
                     success: function (response) {
                         let html = '';
-                        let number = 1;
+                        let number = (page - 1) * 10 + 1;
                         if (response.payments && response.payments.length > 0) {
                             $.each(response.payments, function (index, data) {
                                 html += `
@@ -238,17 +196,85 @@
                                 `;
                                 number++;
                             });
-                            $('#paymentList').html(html);
                         } else {
                             html = `<tr><td colspan="9" class="text-center">No results found</td></tr>`;
-                            $('#paymentList').html(html);
+                        }
+                        $('#paymentList').html(html);
+
+                        // Update pagination
+                        if (response.pagination && response.pagination.last_page > 1) {
+                            let paginationHtml = '<nav><ul class="pagination justify-content-center">';
+                            
+                            // Previous button
+                            if (response.pagination.current_page > 1) {
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.current_page - 1}">Previous</a></li>`;
+                            } else {
+                                paginationHtml += `<li class="page-item disabled"><span class="page-link">Previous</span></li>`;
+                            }
+
+                            // Page numbers
+                            let startPage = Math.max(1, response.pagination.current_page - 5);
+                            let endPage = Math.min(response.pagination.last_page, response.pagination.current_page + 5);
+                            
+                            if (startPage > 1) {
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
+                                if (startPage > 2) {
+                                    paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                }
+                            }
+
+                            for (let i = startPage; i <= endPage; i++) {
+                                if (i === response.pagination.current_page) {
+                                    paginationHtml += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
+                                } else {
+                                    paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+                                }
+                            }
+
+                            if (endPage < response.pagination.last_page) {
+                                if (endPage < response.pagination.last_page - 1) {
+                                    paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                }
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.last_page}">${response.pagination.last_page}</a></li>`;
+                            }
+
+                            // Next button
+                            if (response.pagination.current_page < response.pagination.last_page) {
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.current_page + 1}">Next</a></li>`;
+                            } else {
+                                paginationHtml += `<li class="page-item disabled"><span class="page-link">Next</span></li>`;
+                            }
+
+                            paginationHtml += '</ul></nav>';
+                            paginationHtml += `<div class="text-center mt-2"><small>Showing ${response.pagination.from || 0} to ${response.pagination.to || 0} of ${response.pagination.total} entries</small></div>`;
+                            $('#paginationContainer').html(paginationHtml);
+                        } else {
+                            $('#paginationContainer').html('');
                         }
                     },
                     error: function (xhr) {
                         console.error('Error searching payments:', xhr.responseText);
                         $('#paymentList').html(`<tr><td colspan="9" class="text-center text-danger">Error loading payments</td></tr>`);
+                        $('#paginationContainer').html('');
                     }
                 });
+            }
+
+            // Initial load
+            loadPayments();
+
+            // Search on keyup
+            $('#search').on('keyup', function () {
+                loadPayments($(this).val().trim(), 1);
+            });
+
+            // Handle pagination clicks
+            $(document).on('click', '#paginationContainer .pagination a', function(e) {
+                e.preventDefault();
+                let page = $(this).data('page');
+                if (page) {
+                    loadPayments(currentSearch, page);
+                }
             });
 
 

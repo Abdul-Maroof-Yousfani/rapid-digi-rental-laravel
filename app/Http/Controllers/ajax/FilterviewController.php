@@ -20,29 +20,47 @@ class FilterviewController extends Controller
 
   public function getPaymentList(Request $request)
 {
-    $search = $request->search;
-    $payment = Payment::with(['booking.customer', 'booking.invoice', 'paymentMethod'])
-        ->when($search, function ($query, $search) {
-            $searchLower = strtolower($search);
-            $query->where(function ($q) use ($searchLower, $search) {
-                // Search by booking ID (if numeric)
-                if (is_numeric($search)) {
-                    $q->whereHas('booking', function ($q1) use ($search) {
-                        $q1->where('id', 'LIKE', "%{$search}%");
-                    })
-                    ->orWhere('id', $search);
-                } else {
-                    // Search by customer name
-                    $q->whereHas('booking.customer', function ($q1) use ($searchLower) {
-                        $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . $searchLower . "%"]);
-                    });
-                }
-            });
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate(10);
+    $search = $request->search ?? '';
+    $page = $request->input('page', 1);
 
-    // Return only the partial view (for AJAX)
+    $query = Payment::with(['booking.customer', 'booking.invoice', 'paymentMethod']);
+
+    if (!empty($search)) {
+        $searchLower = strtolower($search);
+        $query->where(function ($q) use ($searchLower, $search) {
+            // Search by booking ID (if numeric)
+            if (is_numeric($search)) {
+                $q->whereHas('booking', function ($q1) use ($search) {
+                    $q1->where('id', 'LIKE', "%{$search}%");
+                })
+                ->orWhere('id', $search);
+            } else {
+                // Search by customer name
+                $q->whereHas('booking.customer', function ($q1) use ($searchLower) {
+                    $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . $searchLower . "%"]);
+                });
+            }
+        });
+    }
+
+    $payment = $query->orderBy('id', 'DESC')->paginate(10, ['*'], 'page', $page);
+
+    // Return JSON with pagination data for AJAX
+    if ($request->ajax() || $request->wantsJson()) {
+        return response()->json([
+            'payments' => $payment->items(),
+            'pagination' => [
+                'current_page' => $payment->currentPage(),
+                'last_page' => $payment->lastPage(),
+                'per_page' => $payment->perPage(),
+                'total' => $payment->total(),
+                'from' => $payment->firstItem(),
+                'to' => $payment->lastItem(),
+            ]
+        ]);
+    }
+
+    // Return only the partial view (for non-AJAX)
     return view('ajaxview.payment-view', compact('payment'));
 }
 

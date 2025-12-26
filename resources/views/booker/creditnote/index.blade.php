@@ -106,7 +106,7 @@
                                             <tr>
                                                 <th>Credit No.</th>
                                                 <th>Customer</th>
-                                                <th>Agreement no</th>
+                                                <th>Booking ID</th>
                                                 <th>Refund Method</th>
                                                 <th>Initial Deposit</th>
                                                 <th>Remaining</th>
@@ -119,7 +119,7 @@
                                                                                 <tr>
                                                                                     <td>{{ $item->credit_note_no }}</td>
                                                                                     <td>{{ $item->booking->customer->customer_name ?? 'N/A' }}</td>
-                                                                                    <td>{{ $item->booking->agreement_no ?? 'N/A' }}</td>
+                                                                                    <td>{{ $item->booking->id ?? 'N/A' }}</td>
                                                                                     <td>{{ $item->paymentMethod->name ?? 'N/A' }}</td>
                                                                                     <td>
                                                                                         {{ $item->booking->deposit?->initial_deposit !== null
@@ -141,7 +141,7 @@
                                             @endforeach
                                         </tbody>
                                     </table>
-                                    {{ $creditNote->links('pagination::bootstrap-4') }}
+                                    <div id="paginationContainer"></div>
                                 </div>
                             </div>
                         </div>
@@ -158,50 +158,132 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-            $('#search').on('keyup', function () {
-                let search = $(this).val();
+            let currentSearch = '';
+            let currentPage = 1;
+
+            function loadCreditNotes(search = '', page = 1) {
+                currentSearch = search;
+                currentPage = page;
+
                 $('#creditNoteList').html(`
-                            <tr>
-                                <td colspan="8" class="text-center">
-                                    <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
-                                        <span class="sr-only">Loading...</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        `);
+                    <tr>
+                        <td colspan="8" class="text-center">
+                            <div class="spinner-border custom-blue text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+
                 $.ajax({
                     url: '/search-creditnote',
                     method: 'get',
-                    data: { search: search },
+                    data: { 
+                        search: search,
+                        page: page
+                    },
                     success: function (response) {
                         let html = '';
-                        if (response.creditNote.length > 0) {
+                        let number = (page - 1) * 10 + 1;
+                        if (response.creditNote && response.creditNote.length > 0) {
                             $.each(response.creditNote, function (index, data) {
                                 html += `
-                                            <tr data-id="${data.id}">
-                                                <td>${data.credit_note_no}</td>
-                                                <td>${data.booking.customer.customer_name}</td>
-                                                <td>${data.booking.agreement_no}</td>
-                                                <td>${data.booking?.paymentMethod?.name ?? 'N/A'}</td>
-                                                <td>${data.booking.deposit.deposit_amount}</td>
-                                                <td>${data.remaining_deposit}</td>
-                                                <td>${data.refund_amount}</td>
-                                                <td>
-                                                    <a href="view-credit-note/${data.id}" class="btn btn-sm btn-primary"> <i class="fas fa-eye"></i>
-                                                        View
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        `;
+                                    <tr data-id="${data.id}">
+                                        <td>${data.credit_note_no || 'N/A'}</td>
+                                        <td>${data.booking?.customer?.customer_name || 'N/A'}</td>
+                                        <td>${data.booking?.id || 'N/A'}</td>
+                                        <td>${data.paymentMethod?.name || 'N/A'}</td>
+                                        <td>${data.booking?.deposit?.initial_deposit ? parseFloat(data.booking.deposit.initial_deposit).toFixed(2) : '-'}</td>
+                                        <td>${parseFloat(data.remaining_deposit || 0).toFixed(2)}</td>
+                                        <td>${parseFloat(data.refund_amount || 0).toFixed(2)}</td>
+                                        <td>
+                                            <a href="view-credit-note/${data.id}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                `;
+                                number++;
                             });
                         } else {
                             html = `<tr><td colspan="8" class="text-center">No results found</td></tr>`;
                         }
 
-
                         $('#creditNoteList').html(html);
+
+                        // Update pagination
+                        if (response.pagination && response.pagination.last_page > 1) {
+                            let paginationHtml = '<nav><ul class="pagination justify-content-center">';
+                            
+                            // Previous button
+                            if (response.pagination.current_page > 1) {
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.current_page - 1}">Previous</a></li>`;
+                            } else {
+                                paginationHtml += `<li class="page-item disabled"><span class="page-link">Previous</span></li>`;
+                            }
+
+                            // Page numbers
+                            let startPage = Math.max(1, response.pagination.current_page - 5);
+                            let endPage = Math.min(response.pagination.last_page, response.pagination.current_page + 5);
+                            
+                            if (startPage > 1) {
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
+                                if (startPage > 2) {
+                                    paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                }
+                            }
+
+                            for (let i = startPage; i <= endPage; i++) {
+                                if (i === response.pagination.current_page) {
+                                    paginationHtml += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
+                                } else {
+                                    paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+                                }
+                            }
+
+                            if (endPage < response.pagination.last_page) {
+                                if (endPage < response.pagination.last_page - 1) {
+                                    paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                }
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.last_page}">${response.pagination.last_page}</a></li>`;
+                            }
+
+                            // Next button
+                            if (response.pagination.current_page < response.pagination.last_page) {
+                                paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${response.pagination.current_page + 1}">Next</a></li>`;
+                            } else {
+                                paginationHtml += `<li class="page-item disabled"><span class="page-link">Next</span></li>`;
+                            }
+
+                            paginationHtml += '</ul></nav>';
+                            paginationHtml += `<div class="text-center mt-2"><small>Showing ${response.pagination.from || 0} to ${response.pagination.to || 0} of ${response.pagination.total} entries</small></div>`;
+                            $('#paginationContainer').html(paginationHtml);
+                        } else {
+                            $('#paginationContainer').html('');
+                        }
+                    },
+                    error: function() {
+                        $('#creditNoteList').html(`<tr><td colspan="8" class="text-center text-danger">Error loading data</td></tr>`);
+                        $('#paginationContainer').html('');
                     }
                 });
+            }
+
+            // Initial load
+            loadCreditNotes();
+
+            // Search on keyup
+            $('#search').on('keyup', function () {
+                loadCreditNotes($(this).val(), 1);
+            });
+
+            // Handle pagination clicks
+            $(document).on('click', '#paginationContainer .pagination a', function(e) {
+                e.preventDefault();
+                let page = $(this).data('page');
+                if (page) {
+                    loadCreditNotes(currentSearch, page);
+                }
             });
         });
 

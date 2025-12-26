@@ -573,25 +573,28 @@ class AjaxController extends Controller
     public function searchPayment(Request $request)
     {
         $search = strtolower($request->search ?? '');
-        $payments = Payment::with(['booking.customer', 'booking.invoice', 'paymentMethod'])
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    // Search by booking ID (if numeric)
-                    if (is_numeric($search)) {
-                        $q->whereHas('booking', function ($q1) use ($search) {
-                            $q1->where('id', 'LIKE', "%{$search}%");
-                        })
-                            ->orWhere('id', $search);
-                    } else {
-                        // Search by customer name
-                        $q->whereHas('booking.customer', function ($q1) use ($search) {
-                            $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . $search . "%"]);
-                        });
-                    }
-                });
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate(10);
+        $page = $request->input('page', 1);
+
+        $query = Payment::with(['booking.customer', 'booking.invoice', 'paymentMethod']);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                // Search by booking ID (if numeric)
+                if (is_numeric($search)) {
+                    $q->whereHas('booking', function ($q1) use ($search) {
+                        $q1->where('id', 'LIKE', "%{$search}%");
+                    })
+                        ->orWhere('id', $search);
+                } else {
+                    // Search by customer name
+                    $q->whereHas('booking.customer', function ($q1) use ($search) {
+                        $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . $search . "%"]);
+                    });
+                }
+            });
+        }
+
+        $payments = $query->orderBy('id', 'DESC')->paginate(10, ['*'], 'page', $page);
 
         return response()->json([
             'payments' => $payments->items(),
@@ -600,6 +603,8 @@ class AjaxController extends Controller
                 'last_page' => $payments->lastPage(),
                 'per_page' => $payments->perPage(),
                 'total' => $payments->total(),
+                'from' => $payments->firstItem(),
+                'to' => $payments->lastItem(),
             ]
         ]);
     }
@@ -650,10 +655,13 @@ class AjaxController extends Controller
 
     public function searchCreditNote(Request $request)
     {
-        $search = strtolower($request->search);
+        $search = strtolower($request->search ?? '');
+        $page = $request->input('page', 1);
 
-        $creditNote = CreditNote::with('booking.customer', 'booking.deposit', 'paymentMethod')
-            ->where(function ($query) use ($search) {
+        $query = CreditNote::with('booking.customer', 'booking.deposit', 'paymentMethod');
+
+        if (!empty($search)) {
+            $query->where(function ($query) use ($search) {
                 $query->whereRaw('LOWER(credit_note_no) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(remaining_deposit) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(refund_amount) LIKE ?', ["%{$search}%"])
@@ -663,62 +671,95 @@ class AjaxController extends Controller
                                 $q2->whereRaw('LOWER(customer_name) LIKE ?', ["%{$search}%"]);
                             });
                     });
-            })
-            ->get();
+            });
+        }
+
+        $creditNote = $query->orderBy('id', 'DESC')->paginate(10, ['*'], 'page', $page);
 
         return response()->json([
-            'creditNote' => $creditNote
+            'creditNote' => $creditNote->items(),
+            'pagination' => [
+                'current_page' => $creditNote->currentPage(),
+                'last_page' => $creditNote->lastPage(),
+                'per_page' => $creditNote->perPage(),
+                'total' => $creditNote->total(),
+                'from' => $creditNote->firstItem(),
+                'to' => $creditNote->lastItem(),
+            ]
         ]);
     }
 
     public function searchDeposit(Request $request)
     {
-        $search = strtolower($request->search);
+        $search = strtolower($request->search ?? '');
+        $page = $request->input('page', 1);
 
-        $deposits = Deposit::with('booking', 'transferredBooking')
-            ->where(function ($query) use ($search) {
+        $query = Deposit::with('booking', 'transferredBooking')
+            ->where('initial_deposit', '>', 0);
+
+        if (!empty($search)) {
+            $query->where(function ($query) use ($search) {
                 $query->whereRaw('LOWER(id) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(deposit_amount) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(initial_deposit) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(transferred_booking_id) LIKE ?', ["%{$search}%"])
+                    
                     ->orWhereHas('booking', function ($q1) use ($search) {
-                        $q1->whereRaw('LOWER(agreement_no) LIKE ?', ["%{$search}%"]);
+                        $q1->whereRaw('LOWER(id) LIKE ?', ["%{$search}%"]);
                     })
                     ->orWhereHas('transferredBooking', function ($q2) use ($search) {
-                        $q2->whereRaw('LOWER(agreement_no) LIKE ?', ["%{$search}%"]);
+                        $q2->whereRaw('LOWER(id) LIKE ?', ["%{$search}%"]);
                     });
-            })
-            ->get();
+            });
+        }
+
+        $deposits = $query->latest()->paginate(10, ['*'], 'page', $page);
 
         return response()->json([
-            'deposits' => $deposits
+            'deposits' => $deposits->items(),
+            'pagination' => [
+                'current_page' => $deposits->currentPage(),
+                'last_page' => $deposits->lastPage(),
+                'per_page' => $deposits->perPage(),
+                'total' => $deposits->total(),
+                'from' => $deposits->firstItem(),
+                'to' => $deposits->lastItem(),
+            ]
         ]);
     }
 
     public function searchBooking(Request $request)
     {
-        $search = strtolower($request->search);
-        $bookings = Booking::with(['customer', 'deposit', 'salePerson', 'payment', 'invoice', 'invoices'])
-            ->withSum('invoice as total_amount', 'total_amount')
-            ->when($search, function ($query, $search) {
-                if (is_numeric($search)) {
-                    // Filter by booking ID if numeric
-                    $query->where('id', 'LIKE', "$search%");
-                } else {
-                    // Filter by customer name (case-insensitive)
-                    $query->whereHas('customer', function ($q1) use ($search) {
-                        $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . strtolower($search) . "%"]);
-                    });
-                }
-            })
-            ->orderByDesc('id')
-            ->paginate(10);
+        $search = strtolower($request->search ?? '');
+        $page = $request->input('page', 1);
 
+        $query = Booking::with(['customer', 'deposit', 'salePerson', 'payment', 'invoice', 'invoices'])
+            ->withSum('invoice as total_amount', 'total_amount');
 
+        if (!empty($search)) {
+            if (is_numeric($search)) {
+                // Filter by booking ID if numeric
+                $query->where('id', 'LIKE', "$search%");
+            } else {
+                // Filter by customer name (case-insensitive)
+                $query->whereHas('customer', function ($q1) use ($search) {
+                    $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . strtolower($search) . "%"]);
+                });
+            }
+        }
 
+        $bookings = $query->orderByDesc('id')->paginate(10, ['*'], 'page', $page);
 
         return response()->json([
             'bookings' => $bookings->items(),
+            'pagination' => [
+                'current_page' => $bookings->currentPage(),
+                'last_page' => $bookings->lastPage(),
+                'per_page' => $bookings->perPage(),
+                'total' => $bookings->total(),
+                'from' => $bookings->firstItem(),
+                'to' => $bookings->lastItem(),
+            ],
             'can' => [
                 'view' => auth()->user()->can('view booking'),
                 'delete' => auth()->user()->can('delete booking'),
@@ -728,26 +769,36 @@ class AjaxController extends Controller
 
     public function searchInvoice(Request $request)
     {
-        $search = strtolower($request->search);
-        $invoices = Invoice::with(['booking.customer'])
-            ->withSum('bookingData as item_total', 'item_total')
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    if (is_numeric($search)) {
-                        $q->where('zoho_invoice_number', $search);
-                    } else {
-                        $q->whereHas('booking.customer', function ($q1) use ($search) {
-                            $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . strtolower($search) . "%"]);
-                        });
-                    }
-                });
-            })
-            ->orderBy('zoho_invoice_number', 'DESC')
-            ->paginate(10);
+        $search = strtolower($request->search ?? '');
+        $page = $request->input('page', 1);
 
+        $query = Invoice::with(['booking.customer'])
+            ->withSum('bookingData as item_total', 'item_total');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                if (is_numeric($search)) {
+                    $q->where('zoho_invoice_number', $search);
+                } else {
+                    $q->whereHas('booking.customer', function ($q1) use ($search) {
+                        $q1->whereRaw('LOWER(customer_name) LIKE ?', ["%" . strtolower($search) . "%"]);
+                    });
+                }
+            });
+        }
+
+        $invoices = $query->orderBy('zoho_invoice_number', 'DESC')->paginate(10, ['*'], 'page', $page);
 
         return response()->json([
             'invoices' => $invoices->items(),
+            'pagination' => [
+                'current_page' => $invoices->currentPage(),
+                'last_page' => $invoices->lastPage(),
+                'per_page' => $invoices->perPage(),
+                'total' => $invoices->total(),
+                'from' => $invoices->firstItem(),
+                'to' => $invoices->lastItem(),
+            ],
             'can' => [
                 'view' => auth()->user()->can('view booking'),
                 'delete' => auth()->user()->can('delete booking'),
@@ -871,5 +922,33 @@ class AjaxController extends Controller
             'exists' => $exists,
             'message' => $exists ? 'Agreement No. already exists' : 'Agreement No. is available',
         ], 200);
+    }
+
+    public function searchDeductiontype(Request $request)
+    {
+        $search = strtolower($request->search ?? '');
+        $page = $request->input('page', 1);
+
+        $query = \App\Models\Deductiontype::query();
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
+            });
+        }
+
+        $deductionTypes = $query->orderBy('id', 'DESC')->paginate(10, ['*'], 'page', $page);
+
+        return response()->json([
+            'deductionType' => $deductionTypes->items(),
+            'pagination' => [
+                'current_page' => $deductionTypes->currentPage(),
+                'last_page' => $deductionTypes->lastPage(),
+                'per_page' => $deductionTypes->perPage(),
+                'total' => $deductionTypes->total(),
+                'from' => $deductionTypes->firstItem(),
+                'to' => $deductionTypes->lastItem(),
+            ]
+        ]);
     }
 }

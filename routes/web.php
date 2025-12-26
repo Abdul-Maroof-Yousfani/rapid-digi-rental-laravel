@@ -221,6 +221,7 @@ Route::get('search-vehicle', [AjaxController::class, 'searchVehicle']);
 Route::get('search-booking', [AjaxController::class, 'searchBooking']);
 Route::get('search-invoice', [AjaxController::class, 'searchInvoice']);
 Route::get('search-customer-ledger', [AjaxController::class, 'searchCustomerLedger']);
+Route::get('search-deductiontype', [AjaxController::class, 'searchDeductiontype']);
 
 
 Route::get('getCustomerList', [FilterviewController::class, 'getCustomerList']);
