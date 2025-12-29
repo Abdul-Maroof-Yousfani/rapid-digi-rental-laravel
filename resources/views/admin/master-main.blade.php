@@ -216,7 +216,7 @@
                             </ul>
                         </li>
                         @endcan
-                        @can('view sale men')
+                        @can('view customer')
                         <li class="dropdown">
                             <a href="#" class="menu-toggle nav-link has-dropdown">
                                 <i class="fas fa-user-tie" style="width: 16px; margin-right: 8px; text-align: left;"></i>
