@@ -537,8 +537,8 @@
                     <p class="mb-0" style="line-height: 1.5; font-size:13px;">Account Name: RAPID RENTALS FZCO</p>
                     <p class="mb-0" style="line-height: 1.5; font-size:13px;">IBN : AE630030014188030820001</p>
                     <p class="mb-0" style="line-height: 1.5; font-size:13px;">Account No: 14188030820001</p>
-                    <p class="mb-2" style="line-height: 1.5; font-size:13px;">BIC/SWIFT : ADCBAEAAXXX</p>
-                    <p class="mb-2" style="line-height: 1.5; font-size:13px;">Branch Code : 759</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">BIC/SWIFT : ADCBAEAAXXX</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Branch Code : 759</p>
                     <p class="mb-2" style="line-height: 1.5; font-size:13px;">Branch Name : IBD-Dubai Mall</p>
                     <p class="mb-2">Queries:+971 50 366 1754</p>
                     <p class="mb-0">Complaints & Suggestions: +971 54 508 2661 or Email: idrees@rapidenterprises.ae</p>
