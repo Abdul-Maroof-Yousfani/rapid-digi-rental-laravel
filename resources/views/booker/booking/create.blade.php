@@ -265,7 +265,7 @@
                     <div class="col-12 col-md-6 col-lg-6">
                         <div class="form-group">
                             <label>Notes <span class="text-danger">*</span></label>
-                            <textarea name="notes" cols="30" style="height: 150px !important;" class="form-control" rows="10" required>{{ old('notes', "DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.\nPayment Detail:\nBank Name: WIO\nAccount Name: Rapid Rentals -FZCO\nIBN : AE790860000009637084836\nAccount No: 9637084836\nBIC/SWIFT : WIOBAEADXXX\nQueries: +971 50 366 1754\nComplaints & Suggestions: +971 54 508 2661 or Email: idrees@rapidenterprises.ae") }}</textarea>
+                            <textarea name="notes" cols="30" style="height: 150px !important;" class="form-control" rows="10" required>{{ old('notes', "DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.\nPayment Detail:\nBank Name: ABU DHABI COMMERCIAL BANK\nAccount Name: RAPID RENTALS FZCO\nIBN : AE630030014188030820001\nAccount No: 14188030820001\nBIC/SWIFT : ADCBAEAAXXX\nBranch Code : 759\nBranch Name : IBD-Dubai Mall\nQueries: +971 50 366 1754\nComplaints & Suggestions: +971 54 508 2661 or Email: idrees@rapidenterprises.ae") }}</textarea>
                         </div>
                     </div>
                 </div>

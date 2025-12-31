@@ -533,11 +533,13 @@
 
                     <p class="mb-2">DEPOSIT WILL BE RETURNED 30 DAYS AFTER RETURNING THE VEHICLE.</p>
                     <p class="mb-0" style="line-height: 1.5; font-size:13px;">Payment Detail:</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Bank Name: WIO</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Account Name: Rapid Rentals -FZCO</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">IBN : AE790860000009637084836</p>
-                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Account No: 9637084836</p>
-                    <p class="mb-2" style="line-height: 1.5; font-size:13px;">BIC/SWIFT : WIOBAEADXXX</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Bank Name: ABU DHABI COMMERCIAL BANK</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Account Name: RAPID RENTALS FZCO</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">IBN : AE630030014188030820001</p>
+                    <p class="mb-0" style="line-height: 1.5; font-size:13px;">Account No: 14188030820001</p>
+                    <p class="mb-2" style="line-height: 1.5; font-size:13px;">BIC/SWIFT : ADCBAEAAXXX</p>
+                    <p class="mb-2" style="line-height: 1.5; font-size:13px;">Branch Code : 759</p>
+                    <p class="mb-2" style="line-height: 1.5; font-size:13px;">Branch Name : IBD-Dubai Mall</p>
                     <p class="mb-2">Queries:+971 50 366 1754</p>
                     <p class="mb-0">Complaints & Suggestions: +971 54 508 2661 or Email: idrees@rapidenterprises.ae</p>
                 </div>
