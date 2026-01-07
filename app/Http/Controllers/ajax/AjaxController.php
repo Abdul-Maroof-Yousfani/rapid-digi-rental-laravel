@@ -56,8 +56,15 @@ class AjaxController extends Controller
         $vehicles = Vehicle::where('vehicletypes', $id)
             ->where(function ($query) use ($bookedVehicleIds, $selectedVehicleId) {
 
+                $query->where('vehicle_status_id', 45);
+
                 // Show available vehicles (not booked in this range)
-                $query->whereNotIn('id', $bookedVehicleIds);
+                // $query->whereNotIn('id', $bookedVehicleIds);
+
+                $query->orWhere(function ($q) use ($bookedVehicleIds) {
+                    $q->whereNotIn('id', $bookedVehicleIds)
+                        ->where('vehicle_status_id', '!=', 45);
+                });
 
                 // Also show the currently selected vehicle (for editing mode)
                 if (!empty($selectedVehicleId)) {
@@ -703,7 +710,7 @@ class AjaxController extends Controller
                     ->orWhereRaw('LOWER(deposit_amount) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(initial_deposit) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(transferred_booking_id) LIKE ?', ["%{$search}%"])
-                    
+
                     ->orWhereHas('booking', function ($q1) use ($search) {
                         $q1->whereRaw('LOWER(id) LIKE ?', ["%{$search}%"]);
                     })
@@ -811,13 +818,13 @@ class AjaxController extends Controller
     public function searchCustomerLedger(Request $request)
     {
         $search = trim($request->search ?? '');
-        
+
         if (empty($search)) {
             return response()->json([
                 'ledgerData' => []
             ]);
         }
-        
+
         $searchLower = strtolower($search);
         $fromDate = $request->input('from_date');
         $toDate = $request->input('to_date');
@@ -845,7 +852,7 @@ class AjaxController extends Controller
         // Build ledger data from invoices
         $ledgerData = $invoices->map(function ($invoice) {
             $booking = $invoice->booking ?? null;
-            
+
             // Get description from booking data
             $description = '';
             if ($booking && $booking->bookingData && $booking->bookingData->isNotEmpty()) {
