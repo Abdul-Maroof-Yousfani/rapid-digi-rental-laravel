@@ -32,7 +32,7 @@ class ZohoInvoice
         $this->clientSecret = '0fcc1a0957e78eb16a9b28dae52ac92cd4fd5a3bfc';
         $this->redirectUri = config('services.zoho.redirect_uri');
         $this->orgId = '869372301';
-        $this->refreshToken = '1000.6d9ddabcca986c8c2bf8e287dbcab075.f6e8c28f1edf76657fccea55d51566fe';
+        $this->refreshToken = '1000.313568e21282d424ab4627167493d1dd.d5741fa5e927952958a14e8bdd5e938b';
     }
 
     public function refreshAccessToken()
@@ -70,7 +70,7 @@ class ZohoInvoice
         $accessToken = $apiToken->zoho_access_token;
         $client = new Client();
         try {
-            $client->get('https://www.zohoapis.com/invoice/v3/contacts?organization_id=' . $this->orgId, [
+            $client->get('https://www.zohoapis.com/billing/v1/contacts?organization_id=' . $this->orgId, [
                 'verify' => false,
                 'headers' => [
                     'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -96,7 +96,7 @@ class ZohoInvoice
         $accessToken = $this->getAccessToken();
         $client = new Client();
         $searchText = $email ? $email : $phone;
-        $response = $client->get("https://www.zohoapis.com/invoice/v3/contacts?organization_id={$this->orgId}&search_text={$searchText}", [
+        $response = $client->get("https://www.zohoapis.com/billing/v1/contacts?organization_id={$this->orgId}&search_text={$searchText}", [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -113,7 +113,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->post('https://www.zohoapis.com/invoice/v3/contacts?organization_id=' . $this->orgId, [
+        $response = $client->post('https://www.zohoapis.com/billing/v1/contacts?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -136,14 +136,14 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/invoice/v3/contacts?organization_id=' . $this->orgId, [
+        $response = $client->get('https://www.zohoapis.com/billing/v1/contacts?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
                 'Content-Type' => 'application/json',
             ]
         ]);
-        // $response = $client->get("https://www.zohoapis.com/invoice/v3/contacts?organization_id={$this->orgId}&page=2&per_page=200", [
+        // $response = $client->get("https://www.zohoapis.com/billing/v1/contacts?organization_id={$this->orgId}&page=2&per_page=200", [
         //     'verify' => false,
         //     'headers' => [
         //         'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -160,7 +160,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/invoice/v3/salespersons?organization_id=' . $this->orgId, [
+        $response = $client->get('https://www.zohoapis.com/billing/v1/salespersons?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -177,7 +177,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/invoice/v3/contacts/' . $customerId . '?organization_id=' . $this->orgId, [
+        $response = $client->get('https://www.zohoapis.com/billing/v1/contacts/' . $customerId . '?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -192,7 +192,7 @@ class ZohoInvoice
         $accessToken = $this->getAccessToken();
         $client = new Client();
         $customerId = Customer::select('zoho_customer_id')->where('id', $id)->first();
-        $response = $client->put('https://www.zohoapis.com/invoice/v3/contacts/' . $customerId->zoho_customer_id, [
+        $response = $client->put('https://www.zohoapis.com/billing/v1/contacts/' . $customerId->zoho_customer_id, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -216,7 +216,7 @@ class ZohoInvoice
         $accessToken = $this->getAccessToken();
         $customerId = Customer::select('zoho_customer_id')->where('id', $id)->first();
         $client = new Client();
-        $response = $client->delete('https://www.zohoapis.com/invoice/v3/contacts/' . $customerId->zoho_customer_id, [
+        $response = $client->delete('https://www.zohoapis.com/billing/v1/contacts/' . $customerId->zoho_customer_id, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -231,7 +231,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceID . '/status/draft', [
+        $response = $client->post('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID . '/status/draft', [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -247,7 +247,7 @@ class ZohoInvoice
         $accessToken = $this->getAccessToken();
         $client = new \GuzzleHttp\Client();
 
-        $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceID . '/status/sent', [
+        $response = $client->post('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID . '/status/sent', [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -313,7 +313,7 @@ class ZohoInvoice
                 ]
             ]
         ];
-        $response = $client->post('https://www.zohoapis.com/invoice/v3/customerpayments', [
+        $response = $client->post('https://www.zohoapis.com/billing/v1/customerpayments', [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -328,73 +328,73 @@ class ZohoInvoice
 
 
     // Invoice Manage Functions Zoho
-    public function createInvoice($customerId, $notes, $currency_code, $lineitems, $salesPersonId, $salesPersonName, $code)
-    {
+    public function createInvoice(
+        $customerId,
+        $notes,
+        $currency_code,
+        $lineitems,
+        $salesPersonId,
+        $salesPersonName,
+        $code
+    ) {
         $accessToken = $this->getAccessToken();
         $client = new Client();
+
         $customer = Customer::select('zoho_customer_id')->where('id', $customerId)->first();
         $saleperson = SalePerson::select('zoho_salesperson_id')->where('id', $salesPersonId)->first();
-        // $code = $this->generateUniqueCode('invoices', 'zoho_invoice_number');
 
-        $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices?organization_id=' . $this->orgId, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'Content-Type' => 'application/json',
-            ],
-            'json' => [
-                'customer_id' => $customer->zoho_customer_id,
-                'salesperson_id' => $saleperson->zoho_salesperson_id,
-                'invoice_number' => $code,
-                'notes' => $notes,
-                'currency_code' => $currency_code,
-                'discount_type' => 'item_level',
-                'line_items' => $lineitems,
-                "custom_fields" => [
-                    [
-                        "api_name" => "cf_sales_person",
-                        "value" => $salesPersonName
-                    ]
+        // Convert your line items to billing format
+        $invoiceItems = [];
+        foreach ($lineitems as $item) {
+            $invoiceItems[] = [
+                "product_id" => $item['product_id'] ?? null,   // required if you have product id
+                "name" => $item['name'],
+                "description" => $item['description'],
+                "price" => (float) $item['rate'],
+                "quantity" => (int) $item['quantity'],
+                "discount" => (float) $item['discount'],
+                "tax_id" => $item['tax_id'] ?? null,
+            ];
+        }
+
+        $payload = [
+            "customer_id" => $customer->zoho_customer_id,
+            "invoice_number" => $code,
+            "reference_number" => $code,
+            "currency_code" => $currency_code,
+            "discount_type" => "item_level",
+            "salesperson_name" => $salesPersonName,
+            "notes" => $notes,
+            "invoice_items" => $invoiceItems,
+            "custom_fields" => [
+                [
+                    "label" => "Sales Person",
+                    "value" => $salesPersonName
                 ]
-
             ]
-        ]);
+        ];
 
-
-        // $payload = [
-        //     'customer_id' => $customer->zoho_customer_id,
-        //     'invoice_number' => $code,
-        //     'notes' => $notes,
-        //     'currency_code' => $currency_code,
-        //     'line_items' => $lineitems,
-        //     "custom_fields" => [
-        //         [
-        //             "api_name" => "cf_sales_person",
-        //             "value" => $salesPersonName
-        //         ]
-        //     ]
-        // ];
-
-        // if ($saleperson && !empty($saleperson->zoho_salesperson_id)) {
-        //     $payload['salesperson_id'] = $saleperson->zoho_salesperson_id;
-        // }
-        // $response = $client->post('https://www.zohoapis.com/invoice/v3/invoices?organization_id=' . $this->orgId, [
-        //     'verify' => false,
-        //     'headers' => [
-        //         'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-        //         'Content-Type' => 'application/json',
-        //     ],
-        //     'json' => $payload
-        // ]);
+        $response = $client->post(
+            'https://www.zohoapis.com/billing/v1/invoices?organization_id=' . $this->orgId,
+            [
+                'verify' => false,
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $payload
+            ]
+        );
 
         return json_decode($response->getBody(), true);
     }
+
     public function getZohoInvoice($invoiceId)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
 
-        $response = $client->get('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceId . '?organization_id=' . $this->orgId, [
+        $response = $client->get('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceId . '?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -430,7 +430,7 @@ class ZohoInvoice
             'line_items' => $lineItems,
         ];
 
-        $response = $client->post('https://www.zohoapis.com/invoice/v3/creditnotes?organization_id=' . $this->orgId, [
+        $response = $client->post('https://www.zohoapis.com/billing/v1/creditnotes?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -446,7 +446,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/invoice/v3/invoices/' . $id, [
+        $response = $client->get('https://www.zohoapis.com/billing/v1/invoices/' . $id, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -462,7 +462,7 @@ class ZohoInvoice
             $accessToken = $this->getAccessToken();
 
             $client = new \GuzzleHttp\Client();
-            $response = $client->get('https://www.zohoapis.com/invoice/v3/invoices/' . $id, [
+            $response = $client->get('https://www.zohoapis.com/billing/v1/invoices/' . $id, [
                 'verify' => false,
                 'headers' => [
                     'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -486,7 +486,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->put('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceID, [
+        $response = $client->put('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -502,7 +502,7 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->delete('https://www.zohoapis.com/invoice/v3/invoices/' . $invoiceID, [
+        $response = $client->delete('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -517,33 +517,42 @@ class ZohoInvoice
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/invoice/v3/settings/taxes', [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'X-com-zoho-invoice-organizationid' => $this->orgId
-            ],
-        ]);
+
+        $response = $client->get(
+            'https://www.zohoapis.com/billing/v1/settings/taxes?organization_id=' . $this->orgId,
+            [
+                'verify' => false,
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
 
         return json_decode($response->getBody(), true);
     }
+
 
     public function taxCreate($tax)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->post('https://www.zohoapis.com/invoice/v3/settings/taxes', [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => 'Zoho-oauthtoken ' . '1000.49614085541dc3de8f0ff163b97d5fd9.ebd8422fc81c91e9ec459f247ebba4d1',
-                'X-com-zoho-invoice-organizationid' => $this->orgId,
-                'content-type' => 'application/json',
-            ],
-            'json' => $tax
-        ]);
+
+        $response = $client->post(
+            'https://www.zohoapis.com/billing/v1/settings/taxes?organization_id=' . $this->orgId,
+            [
+                'verify' => false,
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $tax
+            ]
+        );
 
         return json_decode($response->getBody(), true);
     }
+
 
 
     public static function generateUniqueCode($table, $field)

@@ -34,11 +34,11 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        try {
-            $zohoCustomers = $this->zohoinvoice->getAllCustomers();
-        } catch (\Exception $e) {
-            return response()->view('sitedown-error', [], 500);
-        }
+        // try {
+        //     $zohoCustomers = $this->zohoinvoice->getAllCustomers();
+        // } catch (\Exception $e) {
+        //     return response()->view('sitedown-error', [], 500);
+        // }
         $zohoCustomers = $this->zohoinvoice->getAllCustomers();
         $dbCustomerIds = Customer::pluck('zoho_customer_id')->toArray();
         $missing = [];

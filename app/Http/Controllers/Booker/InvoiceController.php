@@ -129,7 +129,7 @@ class InvoiceController extends Controller
                     'name'            => $vehicleName,
                     'description'     => $description . "\n" . $invoiceTypeText,
                     'rate'            => (float) $request->price[$key],
-                    'quantity'        => $request->quantity[$key],
+                    'quantity'        => (int) $request->quantity[$key],
                     'discount'        => $discountAmount, // Zoho API expects 'discount' field, not 'discount_amount'
                     'tax_id'          => $request->tax[$key],
                 ];
