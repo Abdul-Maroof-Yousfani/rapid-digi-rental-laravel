@@ -32,7 +32,7 @@ class ZohoInvoice
         $this->clientSecret = '0fcc1a0957e78eb16a9b28dae52ac92cd4fd5a3bfc';
         $this->redirectUri = config('services.zoho.redirect_uri');
         $this->orgId = '869372301';
-        $this->refreshToken = '1000.313568e21282d424ab4627167493d1dd.d5741fa5e927952958a14e8bdd5e938b';
+        $this->refreshToken = '1000.4689d534dcb2476cf5f2e49ea139f761.cbd43fab74d5e6bbbc8bee90db79c89a';
     }
 
     public function refreshAccessToken()
@@ -132,29 +132,28 @@ class ZohoInvoice
         return json_decode($response->getBody(), true);
     }
 
-    public function getAllCustomers()
-    {
-        $accessToken = $this->getAccessToken();
-        $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/billing/v1/contacts?organization_id=' . $this->orgId, [
+public function getAllCustomers()
+{
+    $accessToken = $this->getAccessToken();
+    $client = new Client();
+
+    $response = $client->get(
+        'https://www.zohoapis.com/billing/v1/customers',
+        [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
                 'Content-Type' => 'application/json',
+                'X-com-zoho-subscriptions-organizationid' => $this->orgId,
             ]
-        ]);
-        // $response = $client->get("https://www.zohoapis.com/billing/v1/contacts?organization_id={$this->orgId}&page=2&per_page=200", [
-        //     'verify' => false,
-        //     'headers' => [
-        //         'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-        //         'Content-Type' => 'application/json',
-        //     ]
-        // ]);
+        ]
+    );
 
+    $data = json_decode($response->getBody(), true);
 
-        $data = json_decode($response->getBody(), true);
-        return $data['contacts'] ?? [];
-    }
+    return $data['customers'] ?? [];
+}
+
 
     public function getAllSalespersons()
     {
@@ -247,7 +246,7 @@ class ZohoInvoice
         $accessToken = $this->getAccessToken();
         $client = new \GuzzleHttp\Client();
 
-        $response = $client->post('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID . '/status/sent', [
+        $response = $client->post('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID . '/sent', [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
