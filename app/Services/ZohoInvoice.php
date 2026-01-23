@@ -32,7 +32,7 @@ class ZohoInvoice
         $this->clientSecret = '0fcc1a0957e78eb16a9b28dae52ac92cd4fd5a3bfc';
         $this->redirectUri = config('services.zoho.redirect_uri');
         $this->orgId = '869372301';
-        $this->refreshToken = '1000.4689d534dcb2476cf5f2e49ea139f761.cbd43fab74d5e6bbbc8bee90db79c89a';
+        $this->refreshToken = '1000.871cfa30c4f7783caefe2820e096a3d2.3c202174c17284f756ad07917b2b0a4c';
     }
 
     public function refreshAccessToken()
@@ -246,11 +246,32 @@ public function getAllCustomers()
         $accessToken = $this->getAccessToken();
         $client = new \GuzzleHttp\Client();
 
-        $response = $client->post('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID . '/sent', [
+        // First verify the invoice exists
+        try {
+            $invoiceCheck = $this->getZohoInvoice($invoiceID);
+            if (!isset($invoiceCheck['invoice'])) {
+                \Log::error('Zoho markAsSent: Invoice not found', ['invoice_id' => $invoiceID]);
+                return [
+                    'code' => 1002,
+                    'message' => 'Invoice does not exist or cannot be accessed.'
+                ];
+            }
+        } catch (\Exception $e) {
+            \Log::error('Zoho markAsSent: Error checking invoice', [
+                'invoice_id' => $invoiceID,
+                'error' => $e->getMessage()
+            ]);
+            return [
+                'code' => 1002,
+                'message' => 'Invoice does not exist or cannot be accessed.'
+            ];
+        }
+
+        // Use query parameter for organization_id like getZohoInvoice does
+        $response = $client->post('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID . '/converttoopen?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'X-com-zoho-invoice-organizationid' => $this->orgId,
                 'Content-Type' => 'application/json'
             ],
         ]);
@@ -312,14 +333,14 @@ public function getAllCustomers()
                 ]
             ]
         ];
-        $response = $client->post('https://www.zohoapis.com/billing/v1/customerpayments', [
+        // Use correct endpoint: /payments (not /customerpayments) and query parameter for organization_id
+        $response = $client->post('https://www.zohoapis.com/billing/v1/payments?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'X-com-zoho-invoice-organizationid' => $this->orgId,
                 'Content-Type' => 'application/json'
             ],
-            'body' => json_encode($body)
+            'json' => $body
         ]);
 
         return json_decode($response->getBody(), true);
