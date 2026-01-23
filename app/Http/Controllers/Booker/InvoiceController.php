@@ -466,7 +466,7 @@ class InvoiceController extends Controller
         $company =
             $invoice = Invoice::with([
                 'bookingData.invoice_type', 
-                'booking', 
+                'booking.salePerson', 
                 'paymentData.payment.paymentMethod'
             ])->find($id);
         if (!$invoice) {

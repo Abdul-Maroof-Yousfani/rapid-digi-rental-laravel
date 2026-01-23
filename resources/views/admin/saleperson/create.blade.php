@@ -48,6 +48,14 @@
                                         <span class="selectgroup-button">Inactive</span>
                                     </label>
                                     </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="is_manager" value="1" id="is_manager" {{ old('is_manager') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="is_manager">
+                                            Is Manager
+                                        </label>
+                                    </div>
                                 </div><br>
                             </div>
                       </div>

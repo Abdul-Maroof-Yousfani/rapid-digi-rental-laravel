@@ -20,6 +20,7 @@ class SalePerson extends Model
         'email',
         'zoho_salesperson_id',
         'status',
+        'is_manager',
     ];
 
     /**

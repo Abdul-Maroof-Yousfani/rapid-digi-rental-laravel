@@ -409,8 +409,14 @@
                             </div> --}}
                             <div class="text-dark label">TRN Number:</div>
                             <div class="text-dark value">{{ $customer->trn_no ?? '-' }}</div>
-                            <div class="text-dark label">Sale Person:</div>
-                            <div class="text-dark value">{{ $item->booking->salePerson->name ?? '-'}}</div>
+                            <div class="text-dark label">
+                                @php
+                                    $salePerson = $invoice->booking->salePerson ?? null;
+                                    $isManager = $salePerson && $salePerson->is_manager;
+                                @endphp
+                                {{ $isManager ? 'Sale Manager:' : 'Sale Person:' }}
+                            </div>
+                            <div class="text-dark value">{{ $salePerson->name ?? '-' }}</div>
 
 
                         </div>

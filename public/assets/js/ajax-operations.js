@@ -326,6 +326,7 @@ $(document).ready(function () {
         form.attr('action', urlWithId);
         form.find('input[name="name"]').val(data.name);
         form.find('input[name="status"][value="' + data.status + '"]').prop('checked', true);
+        form.find('input[name="is_manager"]').prop('checked', data.is_manager == 1 || data.is_manager === true);
     };
 
     // Populate Data in Vehicle Status Edit Form

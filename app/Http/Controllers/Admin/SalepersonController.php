@@ -112,6 +112,7 @@ class SalepersonController extends Controller
                 $salemen = SalePerson::create([
                     'name' => $request->name,
                     'status' => $request->status,
+                    'is_manager' => $request->has('is_manager') ? 1 : 0,
                 ]);
                 DB::commit();
                 if ($request->ajax()) {
@@ -169,6 +170,7 @@ class SalepersonController extends Controller
                 $salePerson->update([
                     'name' => $request->name,
                     'status' => $request->status,
+                    'is_manager' => $request->has('is_manager') ? 1 : 0,
                 ]);
                 DB::commit();
                 if ($request->ajax()) {

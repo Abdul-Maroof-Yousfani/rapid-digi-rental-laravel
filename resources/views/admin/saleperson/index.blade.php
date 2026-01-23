@@ -120,6 +120,18 @@
                                                     </div>
                                                 </td>
                                             </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-group">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="is_manager" value="1" id="is_manager_modal">
+                                                            <label class="form-check-label" for="is_manager_modal">
+                                                                Is Manager
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         </table>
                                     </div>
                                 </div>
@@ -187,6 +199,18 @@
                                                             <input type="radio" name="status" value="0" class="selectgroup-input-radio">
                                                             <span class="selectgroup-button">Inactive</span>
                                                         </label>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-group">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="is_manager" value="1" id="is_manager_edit_modal">
+                                                            <label class="form-check-label" for="is_manager_edit_modal">
+                                                                Is Manager
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </td>
