@@ -488,20 +488,22 @@ public function updateCustomer($zohoCustomerId, array $data)
         $accessToken = $this->getAccessToken();
         $client = new \GuzzleHttp\Client();
 
+        // Use the correct endpoint: /billing/v1/invoices/{invoice_id}/credits
+        // Payload format: apply_creditnotes array with creditnote_id and amount_applied
         $response = $client->post(
-            'https://www.zohoapis.com/creditnotes/v3/creditnotes/' . $creditNoteId . '/invoices',
+            'https://www.zohoapis.com/billing/v1/invoices/' . $invoiceId . '/credits',
             [
                 'verify' => false,
                 'headers' => [
                     'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                    'X-com-zoho-invoice-organizationid' => $this->orgId,
+                    'X-com-zoho-subscriptions-organizationid' => $this->orgId,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'invoices' => [
+                    'apply_creditnotes' => [
                         [
-                            'invoice_id' => $invoiceId,
-                            'amount_applied' => $amount,
+                            'creditnote_id' => $creditNoteId,
+                            'amount_applied' => (float) $amount,
                         ]
                     ]
                 ],
@@ -509,8 +511,12 @@ public function updateCustomer($zohoCustomerId, array $data)
         );
 
         $result = json_decode($response->getBody(), true);
-        // dd($result);
-        \Log::info('Zoho Credit Note Applied:', $result);
+        \Log::info('Zoho Credit Note Applied to Invoice', [
+            'creditnote_id' => $creditNoteId,
+            'invoice_id' => $invoiceId,
+            'amount_applied' => $amount,
+            'response' => $result
+        ]);
 
         return $result;
     }
