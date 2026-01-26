@@ -48,7 +48,7 @@ class CustomerController extends Controller
             }
         }
         $shouldEnableSync = count($missing) > 0;
-        $customers= Customer::where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
+        $customers = Customer::where('created_at', '>=', Carbon::now()->subDays(15))->orderBy('id', 'DESC')->get();
         $customers = Customer::orderBy('id', 'DESC')->paginate(10);
         return view('admin.customer.index', compact('customers', 'shouldEnableSync'));
     }
@@ -108,12 +108,34 @@ class CustomerController extends Controller
                 ]
             ];
             $contact = $this->zohoinvoice->searchCustomer($email, $phone);
+
             if ($contact) {
-                $customerId = $contact['contact_id']; // already exists in Zoho
+                $customerId = $contact['customer_id'];
             } else {
-                $customerResponse = $this->zohoinvoice->createCustomer($customer_name, $status, $contact_person, $billing_address);
-                $customerId = $customerResponse['contact']['contact_id'];
+
+                $data = [
+                    'display_name' => $customer_name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'company_name' => $customer_name,
+                    'currency_code' => 'PKR',
+                    'billing_address' => [
+                        'attention' => $customer_name,
+                        'street' => $address,
+                        'city' => $city,
+                        'state' => $state,
+                        'country' => $country,
+                        'zip' => $postal_code,
+                    ],
+                ];
+
+                // Remove nulls
+                $data = array_filter($data, fn($v) => $v !== null && $v !== '');
+
+                $customerResponse = $this->zohoinvoice->createCustomer($data);
+                $customerId = $customerResponse['customer']['customer_id'];
             }
+
             if (isset($customerId)) {
                 // try {
                 $customer = Customer::create([
@@ -311,74 +333,83 @@ class CustomerController extends Controller
             'email' => 'nullable|email|unique:customers,email,' . $id,
             'phone' => 'required|unique:customers,phone,' . $id,
             'licence' => 'nullable|unique:customers,licence,' . $id,
-            // 'cnic' => 'required',
             'trn_no' => 'required',
-            // 'dob' => 'required',
             'address' => 'required',
         ]);
 
         if ($validator->fails()) {
-            if ($request->ajax()) {
-                return response()->json(['error' => $validator->errors()], 422);
-            } else {
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
-        } else {
-            $customer_name = $request->customer_name;
-            $status = $request->status;
-            $email = $request->email;
-            $phone = $request->phone;
-            $address = $request->address;
-            $city = $request->city;
-            $state = $request->state;
-            $country = $request->country;
-            $postal_code = $request->postal_code;
-            $billing_address = [
-                'address' => $address,
-                'city' => $city,
-                'state' => $state,
-                'country' => $country,
-                'zip' => $postal_code,
+            return $request->ajax()
+                ? response()->json(['error' => $validator->errors()], 422)
+                : redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            $customer = Customer::findOrFail($id);
+
+            // -----------------------
+            // Build Zoho Billing payload
+            // -----------------------
+            $zohoPayload = [
+                'display_name' => $request->customer_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'company_name' => $request->customer_name,
+                'billing_address' => [
+                    'attention' => $request->customer_name,
+                    'street' => $request->address,
+                    'city' => $request->city,
+                    'state' => $request->state,
+                    'country' => $request->country,
+                    'zip' => $request->postal_code,
+                ],
             ];
-            $contact_person = [
-                [
-                    'email' => $email,
-                    'phone' => $phone,
-                ]
-            ];
-            $response = $this->zohoinvoice->updateCustomer($id, $customer_name, $status, $contact_person, $billing_address);
-            try {
-                $customer = Customer::findOrFail($id);
-                $customer->update([
-                    'customer_name' => $customer_name,
-                    'email' => $email,
-                    'phone' => $phone,
-                    'licence' => $request['licence'],
-                    'cnic' => $request['cnic'] ?? null,
-                    'trn_no' => $request['trn_no'],
-                    'dob' => null,
-                    'address' => $address,
-                    'gender' => null,
-                    'city' => $city,
-                    'state' => $state,
-                    'country' => $country,
-                    'postal_code' => $postal_code,
-                    'status' => $status,
-                ]);
-                if ($request->ajax()) {
-                    return response()->json(['success' => 'Customer Updated Successfully!', 'data' => $customer], 200);
-                } else {
-                    return redirect()->route(auth()->user()->hasRole('admin') ? 'admin.customer.index' : 'booker.customer.index')->with('success', 'Customer Updated Successfully!');
-                }
-            } catch (\Exception $exp) {
-                if ($request->ajax()) {
-                    return response()->json(['error' => $exp->getMessage()]);
-                } else {
-                    return redirect()->back()->with('error', $exp->getMessage());
-                }
+
+            // Remove null / empty values (VERY IMPORTANT)
+            $zohoPayload = array_filter($zohoPayload, fn($v) => $v !== null && $v !== '');
+
+            // -----------------------
+            // Update customer in Zoho
+            // -----------------------
+            if ($customer->zoho_customer_id) {
+                $this->zohoinvoice->updateCustomer(
+                    $customer->zoho_customer_id,
+                    $zohoPayload
+                );
             }
+
+            // -----------------------
+            // Update local DB
+            // -----------------------
+            $customer->update([
+                'customer_name' => $request->customer_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'licence' => $request->licence,
+                'cnic' => $request->cnic ?? null,
+                'trn_no' => $request->trn_no,
+                'address' => $request->address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'country' => $request->country,
+                'postal_code' => $request->postal_code,
+                'status' => $request->status,
+            ]);
+
+            return $request->ajax()
+                ? response()->json(['success' => 'Customer Updated Successfully!', 'data' => $customer], 200)
+                : redirect()->route(
+                    auth()->user()->hasRole('admin')
+                    ? 'admin.customer.index'
+                    : 'booker.customer.index'
+                )->with('success', 'Customer Updated Successfully!');
+
+        } catch (\Exception $e) {
+            return $request->ajax()
+                ? response()->json(['error' => $e->getMessage()], 500)
+                : redirect()->back()->with('error', $e->getMessage());
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

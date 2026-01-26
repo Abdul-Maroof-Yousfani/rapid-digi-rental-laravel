@@ -91,68 +91,77 @@ class ZohoInvoice
     }
 
     // Customer Manage Functions Zoho
-    public function searchCustomer($email, $phone)
-    {
-        $accessToken = $this->getAccessToken();
-        $client = new Client();
-        $searchText = $email ? $email : $phone;
-        $response = $client->get("https://www.zohoapis.com/billing/v1/contacts?organization_id={$this->orgId}&search_text={$searchText}", [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-            ],
-        ]);
-        $data = json_decode($response->getBody(), true);
-        if (!empty($data['contacts'])) {
-            return $data['contacts'][0];
-        }
-        return null;
-    }
-
-    public function createCustomer($customer_name, $status, $contact_person, $billing_address)
-    {
-        $accessToken = $this->getAccessToken();
-        $client = new Client();
-        $response = $client->post('https://www.zohoapis.com/billing/v1/contacts?organization_id=' . $this->orgId, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'content-type' => 'application/json',
-            ],
-            'json' => [
-                'contact_name' => $customer_name,
-                'company_name' => "ABC & Co",
-                'payment_terms' => 15,
-                'website' => 'www.muhammadali.org',
-                'status' => $status == 1 ? "Active" : "Inactive",
-                'contact_persons' => $contact_person,
-                'billing_address' => $billing_address,
-            ]
-        ]);
-        return json_decode($response->getBody(), true);
-    }
-
-public function getAllCustomers()
+public function searchCustomer($email = null, $phone = null)
 {
     $accessToken = $this->getAccessToken();
     $client = new Client();
 
+    $params = [];
+    if ($email) {
+        $params['email'] = $email;
+    } elseif ($phone) {
+        $params['phone'] = $phone;
+    }
+
     $response = $client->get(
         'https://www.zohoapis.com/billing/v1/customers',
         [
-            'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'Content-Type' => 'application/json',
                 'X-com-zoho-subscriptions-organizationid' => $this->orgId,
-            ]
+            ],
+            'query' => $params,
         ]
     );
 
     $data = json_decode($response->getBody(), true);
 
-    return $data['customers'] ?? [];
+    return $data['customers'][0] ?? null;
 }
+
+
+    public function createCustomer($data)
+    {
+        $accessToken = $this->getAccessToken();
+
+        $client = new Client();
+        $response = $client->post(
+            'https://www.zohoapis.com/billing/v1/customers',
+            [
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'X-com-zoho-subscriptions-organizationid' => $this->orgId,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $data
+            ]
+        );
+
+        return json_decode($response->getBody(), true);
+    }
+
+
+    public function getAllCustomers()
+    {
+        $accessToken = $this->getAccessToken();
+        $client = new Client();
+
+        $response = $client->get(
+            'https://www.zohoapis.com/billing/v1/customers',
+            [
+                'verify' => false,
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                    'X-com-zoho-subscriptions-organizationid' => $this->orgId,
+                ]
+            ]
+        );
+
+        $data = json_decode($response->getBody(), true);
+
+        return $data['customers'] ?? [];
+    }
 
 
     public function getAllSalespersons()
@@ -186,29 +195,26 @@ public function getAllCustomers()
         return json_decode($response->getBody(), true);
     }
 
-    public function updateCustomer($id, $customer_name, $status, $contact_person, $billing_address)
-    {
-        $accessToken = $this->getAccessToken();
-        $client = new Client();
-        $customerId = Customer::select('zoho_customer_id')->where('id', $id)->first();
-        $response = $client->put('https://www.zohoapis.com/billing/v1/contacts/' . $customerId->zoho_customer_id, [
-            'verify' => false,
+public function updateCustomer($zohoCustomerId, array $data)
+{
+    $accessToken = $this->getAccessToken();
+    $client = new Client();
+
+    $response = $client->put(
+        'https://www.zohoapis.com/billing/v1/customers/' . $zohoCustomerId,
+        [
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'X-com-zoho-invoice-organizationid' => $this->orgId,
+                'X-com-zoho-subscriptions-organizationid' => $this->orgId,
                 'Content-Type' => 'application/json',
             ],
-            'json' => [
-                'contact_name' => $customer_name,
-                'company_name' => "ABC & Co",
-                'payment_terms' => 15,
-                'website' => 'www.muhammadali.org',
-                'status' => $status == 1 ? "Active" : "Inactive",
-                'contact_persons' => $contact_person,
-                'billing_address' => $billing_address,
-            ]
-        ]);
-    }
+            'json' => $data,
+        ]
+    );
+
+    return json_decode($response->getBody(), true);
+}
+
 
     public function deleteCustomer($id)
     {
