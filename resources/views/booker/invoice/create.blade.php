@@ -115,8 +115,8 @@
                                                     <label for="">Type </label><br>
                                                     <select name="invoice_type[]" class="form-control select2 invoice_type">
                                                         <option value="">Select Invoice type</option>
+                                                        <option value="NEW">NEW</option>
                                                         @foreach ($invoiceTypes as $dtype)
-                                                            <option value="NEW">NEW</option>
                                                             <option value="{{ $dtype->name }}">{{ $dtype->name }}</option>
                                                         @endforeach
                                                     </select>
