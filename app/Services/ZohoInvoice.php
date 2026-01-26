@@ -283,16 +283,96 @@ public function searchCustomer($email = null, $phone = null)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/billing/v1/salespersons?organization_id=' . $this->orgId, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'Content-Type' => 'application/json',
-            ]
-        ]);
+        
+        // List of endpoints to try
+        $endpoints = [
+            'https://www.zohoapis.com/billing/v1/salespersons?organization_id=' . $this->orgId,
+            'https://www.zohoapis.com/billing/v1/settings/salespersons?organization_id=' . $this->orgId,
+            'https://www.zohoapis.com/billing/v1/settings/salespersons',
+        ];
+        
+        $lastError = null;
+        
+        foreach ($endpoints as $endpoint) {
+            try {
+                $response = $client->get($endpoint, [
+                    'verify' => false,
+                    'headers' => [
+                        'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                        'Content-Type' => 'application/json',
+                        'X-com-zoho-subscriptions-organizationid' => $this->orgId,
+                    ]
+                ]);
 
-        $data = json_decode($response->getBody(), true);
-        return $data['data'] ?? [];
+                $data = json_decode($response->getBody(), true);
+                
+                // Check if response has salespersons data
+                if (isset($data['salespersons']) && is_array($data['salespersons'])) {
+                    \Log::info("Zoho getAllSalespersons Success", ['endpoint' => $endpoint, 'count' => count($data['salespersons'])]);
+                    return $data['salespersons'];
+                }
+                
+                if (isset($data['data']) && is_array($data['data'])) {
+                    \Log::info("Zoho getAllSalespersons Success", ['endpoint' => $endpoint, 'count' => count($data['data'])]);
+                    return $data['data'];
+                }
+                
+                // If we get a successful response but no data, log it
+                if ($response->getStatusCode() == 200) {
+                    \Log::warning("Zoho getAllSalespersons: Success but no salespersons data", [
+                        'endpoint' => $endpoint,
+                        'response' => $data
+                    ]);
+                    return [];
+                }
+                
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                $statusCode = $e->getResponse()->getStatusCode();
+                $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
+                
+                $lastError = [
+                    'status_code' => $statusCode,
+                    'message' => $responseBody['message'] ?? $e->getMessage(),
+                    'code' => $responseBody['code'] ?? null,
+                    'endpoint' => $endpoint
+                ];
+                
+                \Log::warning("Zoho getAllSalespersons Endpoint Failed", $lastError);
+                
+                // If it's a 401/403, continue to next endpoint
+                // If it's 404, the endpoint doesn't exist, try next
+                if ($statusCode == 404) {
+                    continue;
+                }
+                
+                // For 401/403, try next endpoint
+                if ($statusCode == 401 || $statusCode == 403) {
+                    continue;
+                }
+                
+                // For other errors, break and throw
+                break;
+            } catch (\Exception $e) {
+                $lastError = [
+                    'message' => $e->getMessage(),
+                    'endpoint' => $endpoint
+                ];
+                \Log::error("Zoho getAllSalespersons Exception", $lastError);
+                continue;
+            }
+        }
+        
+        // If all endpoints failed, log and return empty array with warning
+        \Log::error("Zoho getAllSalespersons: All endpoints failed", [
+            'last_error' => $lastError,
+            'org_id' => $this->orgId,
+            'note' => 'The salespersons endpoint may not be available or requires different OAuth scopes. ' .
+                     'Check Zoho Billing API documentation or verify OAuth scope includes: ZohoSubscriptions.settings.READ'
+        ]);
+        
+        // Return empty array instead of throwing exception to prevent breaking the sync process
+        // The calling code can check if array is empty
+        return [];
     }
 
 

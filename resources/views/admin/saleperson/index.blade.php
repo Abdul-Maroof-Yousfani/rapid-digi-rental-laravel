@@ -15,9 +15,9 @@
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSaleManModal">
                                     Add Salesperson
                                 </button>
-                                 <a href="{{ route('syncSalespersonFromZoho') }}" class="btn btn-primary" >
+                                 {{-- <a href="{{ route('syncSalespersonFromZoho') }}" class="btn btn-primary" >
                                     Sync From Zoho
-                                </a>
+                                </a> --}}
                             </span>
                     </div>
                   </div>

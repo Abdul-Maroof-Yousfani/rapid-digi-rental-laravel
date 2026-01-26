@@ -27,11 +27,32 @@ class SalepersonController extends Controller
 
     public function syncSalespersonFromZoho()
     {
-        $salespersons = $this->zohoinvoice->getAllSalespersons();
         try {
+            $salespersons = $this->zohoinvoice->getAllSalespersons();
+            
+            // Check if no salespersons were returned
+            if (empty($salespersons)) {
+                return redirect()->back()->with('warning', 
+                    'No salespersons found in Zoho. This may be due to: ' .
+                    '1) The salespersons endpoint is not available in your Zoho Billing plan, ' .
+                    '2) OAuth scope does not include salespersons access, or ' .
+                    '3) No salespersons exist in your Zoho organization. ' .
+                    'Please check your Zoho Billing API documentation and OAuth scopes.'
+                );
+            }
+            
             DB::beginTransaction();
+            $syncedCount = 0;
+            $updatedCount = 0;
+            $createdCount = 0;
 
             foreach ($salespersons as $sp) {
+                // Validate required fields
+                if (!isset($sp['salesperson_id']) || !isset($sp['salesperson_name'])) {
+                    \Log::warning('Zoho salesperson missing required fields', ['data' => $sp]);
+                    continue;
+                }
+                
                 $existingSalesPerson = SalePerson::withTrashed()
                     ->where('zoho_salesperson_id', $sp['salesperson_id'])
                     ->first();
@@ -43,35 +64,44 @@ class SalepersonController extends Controller
 
                     $existingSalesPerson->update([
                         'name' => $sp['salesperson_name'],
-                        'email' => $sp['salesperson_email'],
+                        'email' => $sp['salesperson_email'] ?? null,
                         'status' => '1',
                     ]);
-
-                    continue;
+                    $updatedCount++;
+                } else {
+                    SalePerson::create([
+                        'zoho_salesperson_id' => $sp['salesperson_id'],
+                        'name' => $sp['salesperson_name'],
+                        'email' => $sp['salesperson_email'] ?? null,
+                        'status' => '1',
+                    ]);
+                    $createdCount++;
                 }
-
-                SalePerson::create([
-                    'zoho_salesperson_id' => $sp['salesperson_id'],
-                    'name' => $sp['salesperson_name'],
-                    'email' => $sp['salesperson_email'],
-                    'status' => '1',
-                ]);
+                $syncedCount++;
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Salespersons synced successfully with Rapid System.');
+            
+            $message = "Salespersons synced successfully! ";
+            $message .= "Total: {$syncedCount}, ";
+            $message .= "Created: {$createdCount}, ";
+            $message .= "Updated: {$updatedCount}.";
+            
+            return redirect()->back()->with('success', $message);
 
         } catch (QueryException $e) {
             DB::rollBack();
-            // dd($e);
             if ($e->getCode() == 23000) {
                 return redirect()->back()->with('error', 'Duplicate entry found.');
             }
-
-            return redirect()->back()->with('error', 'Database error occurred.');
+            return redirect()->back()->with('error', 'Database error occurred: ' . $e->getMessage());
         } catch (\Exception $exp) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Something went wrong: ' . $exp->getMessage());
+            \Log::error('Zoho syncSalespersonFromZoho error', [
+                'error' => $exp->getMessage(),
+                'trace' => $exp->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', 'Failed to sync salespersons: ' . $exp->getMessage());
         }
     }
 
