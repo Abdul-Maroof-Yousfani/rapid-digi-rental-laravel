@@ -39,15 +39,66 @@ class ZohoService
         return $response->json();
     }
     
-    public function getAccessToken()
+    public function getAccessToken($retryCount = 0, $maxRetries = 3)
     {
-        $response = Http::withOptions(['verify' => false])->asForm()->post('https://accounts.zoho.com/oauth/v2/token', [
-            'refresh_token' => $this->refreshToken,
-            'client_id' => $this->clientID,
-            'client_secret' => $this->clientSecret,
-            'redirect_uri' => $this->redirectUri,
-            'grant_type' => 'refresh_token',
-        ]);
-        return $response->json();
+        try {
+            $response = Http::withOptions(['verify' => false])->asForm()->post('https://accounts.zoho.com/oauth/v2/token', [
+                'refresh_token' => $this->refreshToken,
+                'client_id' => $this->clientID,
+                'client_secret' => $this->clientSecret,
+                'redirect_uri' => $this->redirectUri,
+                'grant_type' => 'refresh_token',
+            ]);
+            
+            $data = $response->json();
+            
+            // Check for rate limiting error
+            if ($response->status() === 400 && isset($data['error'])) {
+                $errorDescription = $data['error_description'] ?? '';
+                
+                // Check if it's a rate limit error
+                if (stripos($errorDescription, 'too many requests') !== false || 
+                    stripos($errorDescription, 'try again after') !== false) {
+                    
+                    \Log::warning("Zoho Rate Limit Error (ZohoService)", [
+                        'error' => $data['error'],
+                        'description' => $errorDescription,
+                        'retry_count' => $retryCount
+                    ]);
+                    
+                    // Retry with exponential backoff
+                    if ($retryCount < $maxRetries) {
+                        $waitTime = pow(2, $retryCount) * 2; // 2, 4, 8 seconds
+                        \Log::info("Retrying Zoho token refresh after {$waitTime} seconds", [
+                            'retry_count' => $retryCount + 1
+                        ]);
+                        
+                        sleep($waitTime);
+                        return $this->getAccessToken($retryCount + 1, $maxRetries);
+                    } else {
+                        \Log::error("Zoho Rate Limit: Max retries exceeded (ZohoService)", [
+                            'max_retries' => $maxRetries
+                        ]);
+                        return [
+                            'error' => 'Access Denied',
+                            'error_description' => 'Zoho API rate limit exceeded. Please try again later.'
+                        ];
+                    }
+                }
+            }
+            
+            return $data;
+            
+        } catch (\Exception $e) {
+            \Log::error("Zoho Service Exception", [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return [
+                'error' => 'error',
+                'error_description' => $e->getMessage()
+            ];
+        }
     }
 }

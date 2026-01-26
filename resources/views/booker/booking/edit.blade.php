@@ -91,7 +91,7 @@
 
                                 <div class="form-group">
                                     <label>Invoice Date <span class="text-danger">*</span></label>
-                                    <input type="date" value="{{ optional($invoice)->started_at ? \Carbon\Carbon::parse($invoice->started_at)->format('Y-m-d') : '' }}" name="started_at" class="form-control started_at" required>
+                                    <input type="date" value="{{ optional($invoice)->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '' }}" name="started_at" class="form-control started_at" required>
                                 </div>
                                 
                                 <div class="form-group" id="non_refundable_amount_group">
@@ -332,16 +332,17 @@
                                                 class="form-control select2 zohotax" required>
                                                 <option value="">Select Tax</option>
                                                 @foreach ($taxlist['taxes'] as $taxes)
-                                                @php
-                                                $currentTaxId = data_get($zohocolumn, "invoice.line_items.$index.tax_id");
-                                                @endphp
-                                                <option value="{{ $taxes['tax_id'] }}"
-                                                    data-percentage="{{ $taxes['tax_percentage'] }}"
-                                                    {{ $currentTaxId == $taxes['tax_id'] ? 'selected' : '' }}>
-                                                    {{ $taxes['tax_name'] }} ({{ $taxes['tax_percentage'].'%' }})
-                                                </option>
+                                                    @php
+                                                        $currentTaxId = data_get($zohocolumn, "invoice.invoice_items.$index.tax_id");
+                                                    @endphp
 
+                                                    <option value="{{ $taxes['tax_id'] }}"
+                                                        data-percentage="{{ $taxes['tax_percentage'] }}"
+                                                        {{ $currentTaxId == $taxes['tax_id'] ? 'selected' : '' }}>
+                                                        {{ $taxes['tax_name'] }} ({{ $taxes['tax_percentage'] }}%)
+                                                    </option>
                                                 @endforeach
+
                                             </select>
                                         </div>
                                     </div>
@@ -367,7 +368,8 @@
                                 <div class="form-group">
                                     <label for="">Description</label><br>
                                     <textarea name="description[]" style="width:100%;height: 100px !important;" class="form-control" id="" cols="60" rows="4" placeholder="Description">
-                                    {{ $zohocolumn['invoice']['line_items'][$index]['description'] ?? '' }}
+                                    {{-- {{ $zohocolumn['invoice']['line_items'][$index]['description'] ?? '' }} --}}
+                                    {{ $item->description }}
                                     </textarea>
                                 </div>
 

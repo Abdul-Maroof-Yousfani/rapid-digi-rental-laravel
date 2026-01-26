@@ -35,58 +35,173 @@ class ZohoInvoice
         $this->refreshToken = '1000.871cfa30c4f7783caefe2820e096a3d2.3c202174c17284f756ad07917b2b0a4c';
     }
 
-    public function refreshAccessToken()
+    public function refreshAccessToken($retryCount = 0, $maxRetries = 3)
     {
-
         $apiToken = ApiToken::find(2);
         $client = new Client();
-        $response = $client->post('https://accounts.zoho.com/oauth/v2/token', [
-            'verify' => false,
-            'form_params' => [
-                'refresh_token' => $this->refreshToken,
-                'client_id' => $this->clientID,
-                'client_secret' => $this->clientSecret,
-                'grant_type' => 'refresh_token',
-            ]
-        ]);
-        $data = json_decode($response->getBody(), true);
-        //   if (!isset($data['access_token'])) {
-        //     \Log::error("Zoho Refresh Token Error", [
-        //         'response' => $data
-        //     ]);
-
-        //     return response()->view('sitedown-error', [], 500);
-        // }
-        $newAccesstoken = $data['access_token'];
-        $apiToken->zoho_access_token = $newAccesstoken;
-        $apiToken->save();
-        return $newAccesstoken;
+        
+        try {
+            $response = $client->post('https://accounts.zoho.com/oauth/v2/token', [
+                'verify' => false,
+                'form_params' => [
+                    'refresh_token' => $this->refreshToken,
+                    'client_id' => $this->clientID,
+                    'client_secret' => $this->clientSecret,
+                    'grant_type' => 'refresh_token',
+                ]
+            ]);
+            
+            $data = json_decode($response->getBody(), true);
+            
+            // Check for rate limiting error (can be "Access Denied" or other error types)
+            if (isset($data['error'])) {
+                $errorDescription = $data['error_description'] ?? '';
+                
+                // Check if it's a rate limit error
+                if (stripos($errorDescription, 'too many requests') !== false || 
+                    stripos($errorDescription, 'try again after') !== false ||
+                    stripos($errorDescription, 'too many requests continuously') !== false) {
+                    
+                    \Log::warning("Zoho Rate Limit Error", [
+                        'error' => $data['error'],
+                        'description' => $errorDescription,
+                        'retry_count' => $retryCount
+                    ]);
+                    
+                    // Retry with exponential backoff
+                    if ($retryCount < $maxRetries) {
+                        $waitTime = pow(2, $retryCount) * 2; // 2, 4, 8 seconds
+                        \Log::info("Retrying Zoho token refresh after {$waitTime} seconds", [
+                            'retry_count' => $retryCount + 1
+                        ]);
+                        
+                        sleep($waitTime);
+                        return $this->refreshAccessToken($retryCount + 1, $maxRetries);
+                    } else {
+                        \Log::error("Zoho Rate Limit: Max retries exceeded", [
+                            'max_retries' => $maxRetries
+                        ]);
+                        throw new \Exception("Zoho API rate limit exceeded. Please try again later.");
+                    }
+                }
+            }
+            
+            // Check if access token is present
+            if (!isset($data['access_token'])) {
+                \Log::error("Zoho Refresh Token Error", [
+                    'response' => $data
+                ]);
+                throw new \Exception("Failed to refresh Zoho access token: " . ($data['error_description'] ?? 'Unknown error'));
+            }
+            
+            $newAccesstoken = $data['access_token'];
+            $apiToken->zoho_access_token = $newAccesstoken;
+            $apiToken->save();
+            
+            // Cache the new token for 50 minutes (tokens typically expire in 1 hour)
+            $cacheKey = 'zoho_access_token_' . $this->orgId;
+            Cache::put($cacheKey, $newAccesstoken, now()->addMinutes(50));
+            
+            return $newAccesstoken;
+            
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
+            $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
+            
+            // Handle rate limiting (400 Bad Request with specific error)
+            if ($statusCode === 400 && isset($responseBody['error'])) {
+                $errorDescription = $responseBody['error_description'] ?? '';
+                
+                if (stripos($errorDescription, 'too many requests') !== false || 
+                    stripos($errorDescription, 'try again after') !== false) {
+                    
+                    \Log::warning("Zoho Rate Limit Error (ClientException)", [
+                        'error' => $responseBody['error'],
+                        'description' => $errorDescription,
+                        'retry_count' => $retryCount
+                    ]);
+                    
+                    // Retry with exponential backoff
+                    if ($retryCount < $maxRetries) {
+                        $waitTime = pow(2, $retryCount) * 2; // 2, 4, 8 seconds
+                        \Log::info("Retrying Zoho token refresh after {$waitTime} seconds", [
+                            'retry_count' => $retryCount + 1
+                        ]);
+                        
+                        sleep($waitTime);
+                        return $this->refreshAccessToken($retryCount + 1, $maxRetries);
+                    } else {
+                        \Log::error("Zoho Rate Limit: Max retries exceeded", [
+                            'max_retries' => $maxRetries
+                        ]);
+                        throw new \Exception("Zoho API rate limit exceeded. Please try again later.");
+                    }
+                }
+            }
+            
+            \Log::error("Zoho Refresh Token ClientException", [
+                'status_code' => $statusCode,
+                'response' => $responseBody,
+                'message' => $e->getMessage()
+            ]);
+            
+            throw new \Exception("Failed to refresh Zoho access token: " . ($responseBody['error_description'] ?? $e->getMessage()));
+            
+        } catch (\Exception $e) {
+            \Log::error("Zoho Refresh Token Exception", [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
 
     public function getAccessToken()
     {
+        // Check cache first to avoid unnecessary API calls
+        $cacheKey = 'zoho_access_token_' . $this->orgId;
+        $cachedToken = Cache::get($cacheKey);
+        
+        if ($cachedToken) {
+            return $cachedToken;
+        }
+        
         $apiToken = ApiToken::find(2);
         $accessToken = $apiToken->zoho_access_token;
         $client = new Client();
+        
         try {
-            $client->get('https://www.zohoapis.com/billing/v1/contacts?organization_id=' . $this->orgId, [
+            $client->get('https://www.zohoapis.com/billing/v1/customers?organization_id=' . $this->orgId, [
                 'verify' => false,
                 'headers' => [
                     'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
                     'Content-Type' => 'application/json',
                 ],
             ]);
+            
+            // Cache the token for 50 minutes (tokens typically expire in 1 hour)
+            Cache::put($cacheKey, $accessToken, now()->addMinutes(50));
+            
             return $accessToken;
         } catch (\GuzzleHttp\Exception\ClientException $exp) {
             $response = json_decode($exp->getResponse()->getBody(), true);
-            // if ($response['code'] == 401) {
-            return $this->refreshAccessToken();
-            // } else if ($response['code'] == 57) {
-            //     return $this->refreshAccessToken();
-            // } else {
-            //     return $exp;
-            // }
+            $statusCode = $exp->getResponse()->getStatusCode();
+            
+            // Refresh token on 401 (Unauthorized) or 403 (Forbidden)
+            if ($statusCode == 401 || $statusCode == 403) {
+                $newToken = $this->refreshAccessToken();
+                // Cache the new token
+                Cache::put($cacheKey, $newToken, now()->addMinutes(50));
+                return $newToken;
+            }
+            
+            \Log::error("Zoho API Error in getAccessToken", [
+                'status_code' => $statusCode,
+                'response' => $response
+            ]);
+            
+            throw $exp;
         }
     }
 
@@ -185,7 +300,7 @@ public function searchCustomer($email = null, $phone = null)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/billing/v1/contacts/' . $customerId . '?organization_id=' . $this->orgId, [
+        $response = $client->get('https://www.zohoapis.com/billing/v1/customers/' . $customerId . '?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -221,7 +336,7 @@ public function updateCustomer($zohoCustomerId, array $data)
         $accessToken = $this->getAccessToken();
         $customerId = Customer::select('zoho_customer_id')->where('id', $id)->first();
         $client = new Client();
-        $response = $client->delete('https://www.zohoapis.com/billing/v1/contacts/' . $customerId->zoho_customer_id, [
+        $response = $client->delete('https://www.zohoapis.com/billing/v1/customers/' . $customerId->zoho_customer_id, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
@@ -472,11 +587,11 @@ public function updateCustomer($zohoCustomerId, array $data)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->get('https://www.zohoapis.com/billing/v1/invoices/' . $id, [
+        $response = $client->get('https://www.zohoapis.com/billing/v1/invoices/' . $id . '?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'X-com-zoho-invoice-organizationid' => $this->orgId,
+                'Content-Type' => 'application/json',
             ]
         ]);
         return json_decode($response->getBody(), true);
@@ -512,12 +627,11 @@ public function updateCustomer($zohoCustomerId, array $data)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
-        $response = $client->put('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID, [
+        $response = $client->put('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceID . '?organization_id=' . $this->orgId, [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'X-com-zoho-invoice-organizationid' => $this->orgId,
-                'content-type' => 'application/json',
+                'Content-Type' => 'application/json',
             ],
             'json' => $json
         ]);
