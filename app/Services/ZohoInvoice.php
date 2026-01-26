@@ -185,11 +185,22 @@ class ZohoInvoice
             
             return $accessToken;
         } catch (\GuzzleHttp\Exception\ClientException $exp) {
-            $response = json_decode($exp->getResponse()->getBody(), true);
+            $responseBody = $exp->getResponse()->getBody();
+            $response = json_decode($responseBody->getContents(), true);
             $statusCode = $exp->getResponse()->getStatusCode();
             
-            // Refresh token on 401 (Unauthorized) or 403 (Forbidden)
-            if ($statusCode == 401 || $statusCode == 403) {
+            // Refresh token on 401 (Unauthorized) or 403 (Forbidden) or error code 57
+            if ($statusCode == 401 || $statusCode == 403 || 
+                (isset($response['code']) && $response['code'] == 57)) {
+                
+                // Clear cache before refreshing
+                Cache::forget($cacheKey);
+                
+                \Log::info("Zoho getAccessToken: Token validation failed, refreshing token", [
+                    'status_code' => $statusCode,
+                    'error_code' => $response['code'] ?? null
+                ]);
+                
                 $newToken = $this->refreshAccessToken();
                 // Cache the new token
                 Cache::put($cacheKey, $newToken, now()->addMinutes(50));
@@ -616,20 +627,76 @@ public function updateCustomer($zohoCustomerId, array $data)
         return json_decode($response->getBody(), true);
     }
 
-    public function getZohoInvoice($invoiceId)
+    public function getZohoInvoice($invoiceId, $retryCount = 0)
     {
         $accessToken = $this->getAccessToken();
         $client = new Client();
 
-        $response = $client->get('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceId . '?organization_id=' . $this->orgId, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
-                'Content-Type' => 'application/json',
-            ],
-        ]);
+        try {
+            $response = $client->get('https://www.zohoapis.com/billing/v1/invoices/' . $invoiceId . '?organization_id=' . $this->orgId, [
+                'verify' => false,
+                'headers' => [
+                    'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+            ]);
 
-        return json_decode($response->getBody(), true);
+            return json_decode($response->getBody(), true);
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
+            $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
+            
+            // Handle 401 Unauthorized or error code 57 (authorization error)
+            if (($statusCode == 401 || $statusCode == 403) || 
+                (isset($responseBody['code']) && $responseBody['code'] == 57)) {
+                
+                \Log::warning("Zoho getZohoInvoice: Authorization error", [
+                    'status_code' => $statusCode,
+                    'error_code' => $responseBody['code'] ?? null,
+                    'message' => $responseBody['message'] ?? null,
+                    'invoice_id' => $invoiceId,
+                    'retry_count' => $retryCount
+                ]);
+                
+                // Only retry once
+                if ($retryCount == 0) {
+                    // Clear the cache to force token refresh
+                    $cacheKey = 'zoho_access_token_' . $this->orgId;
+                    Cache::forget($cacheKey);
+                    
+                    // Refresh the token and retry
+                    $newToken = $this->refreshAccessToken();
+                    \Log::info("Zoho getZohoInvoice: Token refreshed, retrying request", [
+                        'invoice_id' => $invoiceId
+                    ]);
+                    
+                    return $this->getZohoInvoice($invoiceId, $retryCount + 1);
+                } else {
+                    \Log::error("Zoho getZohoInvoice: Failed after token refresh", [
+                        'invoice_id' => $invoiceId,
+                        'status_code' => $statusCode,
+                        'response' => $responseBody
+                    ]);
+                    throw new \Exception("Failed to get Zoho invoice: " . ($responseBody['message'] ?? 'Unauthorized'));
+                }
+            }
+            
+            // For other errors, log and rethrow
+            \Log::error("Zoho getZohoInvoice: API Error", [
+                'status_code' => $statusCode,
+                'response' => $responseBody,
+                'invoice_id' => $invoiceId
+            ]);
+            
+            throw $e;
+        } catch (\Exception $e) {
+            \Log::error("Zoho getZohoInvoice: Exception", [
+                'message' => $e->getMessage(),
+                'invoice_id' => $invoiceId,
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     public function createZohoCreditNote($customerId, $invoiceId, $notes, $currency_code, $place_of_supply, $lineItems, $creditNoteNumber, $refundDate)
