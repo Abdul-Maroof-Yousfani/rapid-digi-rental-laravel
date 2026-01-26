@@ -637,30 +637,88 @@ public function updateCustomer($zohoCustomerId, array $data)
             throw new \Exception('Customer not found.');
         }
         $zohoInvoice = $this->getZohoInvoice($invoiceId);
-        $placeOfSupply = $zohoInvoice['invoice']['place_of_supply'] ?? null;
+        $placeOfSupply = $zohoInvoice['invoice']['place_of_supply'] ?? $place_of_supply;
 
-        // dd($placeOfSupply);
+        // Format line items to match Zoho API requirements (creditnote_items format)
+        $creditnoteItems = [];
+        foreach ($lineItems as $item) {
+            // Description is mandatory - ensure it's never empty
+            $description = $item['description'] ?? $item['name'] ?? 'Credit Note Item';
+            
+            // Use 'price' instead of 'rate' to match Zoho API format
+            $price = isset($item['price']) ? (float) $item['price'] : (isset($item['rate']) ? (float) $item['rate'] : 0);
+            
+            $creditnoteItem = [
+                'description' => $description,
+                'quantity' => isset($item['quantity']) ? (int) $item['quantity'] : 1,
+                'price' => $price,
+            ];
+            
+            // Add optional fields if present
+            if (isset($item['code']) && $item['code']) {
+                $creditnoteItem['code'] = $item['code'];
+            }
+            
+            if (isset($item['account_id']) && $item['account_id']) {
+                $creditnoteItem['account_id'] = $item['account_id'];
+            }
+            
+            if (isset($item['tax_id']) && $item['tax_id']) {
+                $creditnoteItem['tax_id'] = $item['tax_id'];
+            }
+            
+            if (isset($item['item_id']) && $item['item_id']) {
+                $creditnoteItem['item_id'] = $item['item_id'];
+            }
+            
+            $creditnoteItems[] = $creditnoteItem;
+        }
+
+        // Validate that we have at least one item with description
+        if (empty($creditnoteItems)) {
+            throw new \Exception('At least one credit note item with description is required.');
+        }
+
         $payload = [
             'customer_id' => $customer->zoho_customer_id,
             'invoice_id' => $invoiceId,
-            'creditnote_number' => $creditNoteNumber,
             'date' => $refundDate,
-            'notes' => $notes,
+            'notes' => $notes ?? '',
             'currency_code' => $currency_code,
-            'place_of_supply' => $placeOfSupply,
-            'line_items' => $lineItems,
+            'creditnote_items' => $creditnoteItems,
         ];
 
-        $response = $client->post('https://www.zohoapis.com/billing/v1/creditnotes?organization_id=' . $this->orgId, [
+        // Add optional fields
+        if ($placeOfSupply) {
+            $payload['place_of_supply'] = $placeOfSupply;
+        }
+        
+        if ($creditNoteNumber) {
+            $payload['creditnote_number'] = $creditNoteNumber;
+        }
+
+        \Log::info('Creating Zoho credit note', [
+            'customer_id' => $customer->zoho_customer_id,
+            'invoice_id' => $invoiceId,
+            'items_count' => count($creditnoteItems),
+        ]);
+
+        // Use header instead of query parameter as per API documentation
+        $response = $client->post('https://www.zohoapis.com/billing/v1/creditnotes', [
             'verify' => false,
             'headers' => [
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+                'X-com-zoho-subscriptions-organizationid' => $this->orgId,
                 'Content-Type' => 'application/json',
             ],
             'json' => $payload,
         ]);
 
-        return json_decode($response->getBody(), true);
+        $result = json_decode($response->getBody(), true);
+        
+        \Log::info('Zoho credit note creation response', ['response' => $result]);
+        
+        return $result;
     }
 
     public function getInvoice($id)

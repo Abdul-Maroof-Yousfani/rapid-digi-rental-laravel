@@ -123,12 +123,17 @@ class CreditnoteController extends Controller
             ]);
 
             // Prepare line items for Zoho credit note
+            // Description is mandatory - ensure it's never empty
+            $itemDescription = !empty($request['remarks']) 
+                ? $request['remarks'] 
+                : 'Refund for Booking #' . $booking->id;
+            
             $lineItems = [
                 [
                     'name' => 'Refund for Booking #' . $booking->id,
-                    'description' => $request['remarks'] ?? 'Refund for booking',
+                    'description' => $itemDescription, // Mandatory field for Zoho API
                     'quantity' => 1,
-                    'rate' => $request['refund_amount'],
+                    'rate' => $request['refund_amount'], // Service will convert to 'price'
                     'item_id' => null, // Optional: Fetch from Zoho if needed
                     'tax_id' => null, // Optional: Add if applicable
                 ],
