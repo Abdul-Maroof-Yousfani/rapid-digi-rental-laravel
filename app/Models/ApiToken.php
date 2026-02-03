@@ -9,6 +9,7 @@ class ApiToken extends Model
 {
     use HasFactory;
     protected $fillable= [
+        'expires_at',
         'zoho_access_token'
     ];
 }
