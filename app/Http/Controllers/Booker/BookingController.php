@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\ZohoController;
 use App\Models\Deductiontype;
+use Illuminate\Validation\Rule;
 
 class BookingController extends Controller
 {
@@ -101,7 +102,10 @@ class BookingController extends Controller
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required',
             'agreement_no' => 'required|unique:bookings,agreement_no',
-            'code' => 'required|unique:invoices,zoho_invoice_number',
+            'code' => [
+                'required',
+                Rule::unique('invoices', 'zoho_invoice_number')->whereNull('deleted_at'),
+            ],
             // 'deposit_amount' => 'required',
             'sale_person_id' => 'nullable',
             'started_at' => 'required',
@@ -127,7 +131,6 @@ class BookingController extends Controller
             $notes = $request->notes;
             $currency_code = "AED";
             $lineitems = [];
-
 
 
             foreach ($request->price as $key => $price) {
