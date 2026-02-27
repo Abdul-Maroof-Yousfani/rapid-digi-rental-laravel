@@ -326,15 +326,20 @@
                                 <option value="2">Not Rented</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <label for="payment_status">Status</label>
-                            <select name="payment_status" class="form-control select2" id="payment_status">
-                                <option value="">Select Status</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Paid">Paid</option>
-                                <option value="Partially Paid">Partially Paid</option>
-                            </select>
-                        </div>
+                      <div class="col-md-2">
+    <label for="payment_status">Status</label>
+    <select 
+        name="payment_status[]" 
+        class="form-control select2" 
+        id="payment_status" 
+        multiple="multiple"
+    >
+        <option value="">Select Status</option>
+        <option value="Pending">Pending</option>
+        <option value="Paid">Paid</option>
+        <option value="Partially Paid">Partially Paid</option>
+    </select>
+</div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
                         </div>

@@ -66,7 +66,7 @@ class ReportController extends Controller
         $to = Carbon::parse($request->to_date)->endOfDay();
         $investorId = $request['investor_id'];
         $type = $request['type'];
-        $payment_status = $request['payment_status'];
+        $paymentStatuses = $request->input('payment_status', []);
 
         // Query invoices directly that:
         // 1. Have invoice_date within date range
@@ -94,6 +94,11 @@ class ReportController extends Controller
             });
         }
 
+        if (!empty($paymentStatuses)) {
+            $invoiceQuery->whereHas('paymentData', function ($q) use ($paymentStatuses) {
+                $q->whereIn('status', $paymentStatuses);
+            });
+        }
         // Filter by type (rented/not rented)
         if ($type) {
             if ($type == 1) {
@@ -111,7 +116,7 @@ class ReportController extends Controller
         $soaData = $invoices->map(function ($invoice) {
             // Get booking_data row where tax_percent > 0 for this invoice
             $bookingDataWithTax = $invoice->bookingData->where('tax_percent', '>', 0)->first();
-            
+
             if (!$bookingDataWithTax) {
                 return null;
             }
@@ -127,7 +132,7 @@ class ReportController extends Controller
                 $startDate = Carbon::parse($bookingDataWithTax->start_date);
                 $endDate = Carbon::parse($bookingDataWithTax->end_date);
                 $days = $startDate->diffInDays($endDate) + 1;
-                
+
                 if ($days >= 30) {
                     $months = round($days / 30); // Round to nearest month
                     if ($months == 1) {
@@ -146,7 +151,7 @@ class ReportController extends Controller
             // Get car make-model & year
             $carDetails = '-';
             if ($vehicle) {
-                $carDetails = $vehicle->temp_vehicle_detail ?? 
+                $carDetails = $vehicle->temp_vehicle_detail ??
                     ($vehicle->vehicle_name . ' ' . $vehicle->car_make . ' ' . $vehicle->year);
             }
 
@@ -325,7 +330,7 @@ class ReportController extends Controller
         // Build ledger data from invoices
         $ledgerData = $invoices->map(function ($invoice) {
             $booking = $invoice->booking ?? null;
-            
+
             // Get description from booking data
             $description = '';
             if ($booking && $booking->bookingData && $booking->bookingData->isNotEmpty()) {
@@ -414,7 +419,7 @@ class ReportController extends Controller
         // Build ledger data from invoices
         $ledgerData = $invoices->map(function ($invoice) {
             $booking = $invoice->booking ?? null;
-            
+
             // Get description from booking data
             $description = '';
             if ($booking && $booking->bookingData && $booking->bookingData->isNotEmpty()) {
@@ -474,12 +479,12 @@ class ReportController extends Controller
             $customer = Customer::find($customerID);
             $customerName = $customer ? '_' . str_replace(' ', '_', $customer->customer_name) : '';
         }
-        
+
         $dateRange = '';
         if ($fromDate && $toDate) {
             $dateRange = '_' . $fromDate . '_to_' . $toDate;
         }
-        
+
         $filename = 'Customer_Ledger' . $customerName . $dateRange . '_' . date('Y-m-d_His') . '.xlsx';
 
         try {
@@ -491,7 +496,7 @@ class ReportController extends Controller
             return $excel->download(new CustomerLedgerExport($ledgerData), $filename);
         }
     }
-    
+
 
     public function getSalemenWiseReportList(Request $request)
     {
@@ -594,7 +599,7 @@ class ReportController extends Controller
         $soaData = $invoices->map(function ($invoice) {
             // Get booking_data row where tax_percent > 0 for this invoice
             $bookingDataWithTax = $invoice->bookingData->where('tax_percent', '>', 0)->first();
-            
+
             if (!$bookingDataWithTax) {
                 return null;
             }
@@ -610,7 +615,7 @@ class ReportController extends Controller
                 $startDate = Carbon::parse($bookingDataWithTax->start_date);
                 $endDate = Carbon::parse($bookingDataWithTax->end_date);
                 $days = $startDate->diffInDays($endDate) + 1;
-                
+
                 if ($days >= 30) {
                     $months = round($days / 30); // Round to nearest month
                     if ($months == 1) {
@@ -629,7 +634,7 @@ class ReportController extends Controller
             // Get car make-model & year
             $carDetails = '-';
             if ($vehicle) {
-                $carDetails = $vehicle->temp_vehicle_detail ?? 
+                $carDetails = $vehicle->temp_vehicle_detail ??
                     ($vehicle->vehicle_name . ' ' . $vehicle->car_make . ' ' . $vehicle->year);
             }
 
@@ -646,12 +651,12 @@ class ReportController extends Controller
         })->values();
 
         $selectedInvestor = $investorId ? Investor::find($investorId) : null;
-        
+
         $dateRange = '';
         if ($from && $to) {
             $dateRange = '_' . $from->format('Y-m-d') . '_to_' . $to->format('Y-m-d');
         }
-        
+
         $investorName = $selectedInvestor ? '_' . str_replace(' ', '_', $selectedInvestor->name) : '';
         $filename = 'SOA_Report' . $investorName . $dateRange . '_' . date('Y-m-d_His') . '.xlsx';
 
