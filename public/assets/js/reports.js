@@ -14,14 +14,14 @@ $(document).ready(function () {
         let toDate = $('input[name="to_date"]').val();
 
         // Check if both dates are selected
-        if (!fromDate || !toDate) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Date Required',
-                text: 'Please select both From Date and To Date.',
-            });
-            return; // stop the AJAX call
-        }
+        // if (!fromDate || !toDate) {
+        //     Swal.fire({
+        //         icon: 'warning',
+        //         title: 'Date Required',
+        //         text: 'Please select both From Date and To Date.',
+        //     });
+        //     return; // stop the AJAX call
+        // }
 
         let formData = $(this).serialize();
         $.ajax({

@@ -35,8 +35,10 @@ class SoaReportExport implements FromCollection, WithHeadings, WithMapping, With
         return [
             'INVOICE NO',
             'Plate No',
+            'Customer Name',
             'Car Make-Model & Year',
             'Rental Period',
+            'VAT Percent',
             'Rental Amount',
         ];
     }
@@ -51,8 +53,10 @@ class SoaReportExport implements FromCollection, WithHeadings, WithMapping, With
         return [
             $item->invoice_number ?? '',
             $item->plate_no ?? '',
+            $item->customer_name ?? '',
             $item->car_details ?? '',
             $item->rental_period ?? '',
+            $item->vat_percent ?? '',
             number_format($item->rental_amount ?? 0, 2),
         ];
     }
@@ -62,9 +66,11 @@ class SoaReportExport implements FromCollection, WithHeadings, WithMapping, With
         return [
             'A' => 15,  // INVOICE NO
             'B' => 15,  // Plate No
-            'C' => 30,  // Car Make-Model & Year
-            'D' => 20,  // Rental Period
-            'E' => 15,  // Rental Amount
+            'C' => 40,  // Car Make-Model & Year
+            'D' => 30,  // Car Make-Model & Year
+            'E' => 20,  // Rental Period
+            'F' => 15,  // Rental Amount
+            'G' => 15,  // Rental Amount
         ];
     }
 
@@ -104,9 +110,11 @@ class SoaReportExport implements FromCollection, WithHeadings, WithMapping, With
                 // Row 4: Table Headers (overwrite the default headers with correct spelling)
                 $sheet->setCellValue('A4', 'INVOICE NO');
                 $sheet->setCellValue('B4', 'Plate No');
-                $sheet->setCellValue('C4', 'Car Make-Model & Year');
-                $sheet->setCellValue('D4', 'Retal Period');
-                $sheet->setCellValue('E4', 'Rental Amoun');
+                $sheet->setCellValue('C4', 'Customer Name');
+                $sheet->setCellValue('D4', 'Car Make-Model & Year');
+                $sheet->setCellValue('E4', 'Retal Period');
+                $sheet->setCellValue('F4', 'VAT Percent');
+                $sheet->setCellValue('G4', 'Rental Amount');
                 
                 // Style header row (row 4)
                 $headerStyle = [
@@ -126,7 +134,7 @@ class SoaReportExport implements FromCollection, WithHeadings, WithMapping, With
                     ],
                 ];
                 
-                $sheet->getStyle('A4:E4')->applyFromArray($headerStyle);
+                $sheet->getStyle('A4:G4')->applyFromArray($headerStyle);
                 
                 // Set row height for header
                 $sheet->getRowDimension(4)->setRowHeight(20);

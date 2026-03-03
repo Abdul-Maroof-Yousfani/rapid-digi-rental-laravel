@@ -53,17 +53,17 @@ class ReportController extends Controller
     public function getSoaReportList(Request $request)
     {
         // Validate and parse dates
-        if (!$request->from_date || !$request->to_date) {
-            return response()->json([
-                'html' => '<tr><td colspan="7" class="text-center"><h3 style="color:#0d6efd;">Please select both From Date and To Date</h3></td></tr>',
-                'investor_name' => null,
-                'percentage' => 0,
-                'till_date' => '',
-            ]);
-        }
-
-        $from = Carbon::parse($request->from_date)->startOfDay();
-        $to = Carbon::parse($request->to_date)->endOfDay();
+        // if (!$request->from_date || !$request->to_date) {
+        //     return response()->json([
+        //         'html' => '<tr><td colspan="7" class="text-center"><h3 style="color:#0d6efd;">Please select both From Date and To Date</h3></td></tr>',
+        //         'investor_name' => null,
+        //         'percentage' => 0,
+        //         'till_date' => '',
+        //     ]);
+        // }
+// dd($request->all());
+        $from = Carbon::parse($request->soa_from_data)->startOfDay();
+        $to = Carbon::parse($request->soa_to_data)->endOfDay();
         $investorId = $request['investor_id'];
         $type = $request['type'];
         $paymentStatuses = $request->input('payment_status', []);
@@ -79,12 +79,18 @@ class ReportController extends Controller
                 $q->where('tax_percent', '>', 0);
             }
         ])
-            ->whereBetween(DB::raw('DATE(invoice_date)'), [$from->format('Y-m-d'), $to->format('Y-m-d')])
-            ->whereHas('paymentData', function ($q) {
-                $q->whereNotNull('invoice_id');
-            })
+            // ->whereBetween(DB::raw('DATE(invoice_date)'), [$from->format('Y-m-d'), $to->format('Y-m-d')])
+            // ->whereHas('paymentData', function ($q) {
+            //     $q->whereNotNull('invoice_id');
+            // })
             ->whereHas('bookingData', function ($q) {
                 $q->where('tax_percent', '>', 0);
+            })
+            ->when($request->filled('soa_from_data') && $request->filled('soa_to_data'), function ($q) use ($from, $to) {
+                $q->whereBetween(DB::raw('DATE(invoice_date)'), [
+                    $from->format('Y-m-d'),
+                    $to->format('Y-m-d')
+                ]);
             });
 
         // Filter by investor if selected
@@ -93,12 +99,68 @@ class ReportController extends Controller
                 $q->where('investor_id', $investorId);
             });
         }
-
         if (!empty($paymentStatuses)) {
-            $invoiceQuery->whereHas('paymentData', function ($q) use ($paymentStatuses) {
-                $q->whereIn('status', $paymentStatuses);
+
+            $invoiceQuery->where(function ($q) use ($paymentStatuses) {
+
+                // PAID
+                if (in_array('Paid', $paymentStatuses)) {
+                    $q->orWhereHas('paymentData', function ($sub) {
+                        $sub->select(DB::raw('SUM(paid_amount)'))
+                            ->groupBy('invoice_id')
+                            ->havingRaw('
+                        SUM(paid_amount) + 
+                        COALESCE(
+                            (SELECT refund_amount 
+                             FROM credit_notes cn
+                             JOIN bookings b ON b.id = cn.booking_id
+                             WHERE b.id = invoices.booking_id
+                             LIMIT 1),
+                        0)
+                        >= invoices.total_amount
+                    ');
+                    });
+                }
+
+                // PENDING
+                if (in_array('Pending', $paymentStatuses)) {
+                    $q->orWhere(function ($subQuery) {
+                        $subQuery->whereDoesntHave('paymentData')
+                            ->orWhereHas('paymentData', function ($sub) {
+                                $sub->select(DB::raw('SUM(paid_amount)'))
+                                    ->groupBy('invoice_id')
+                                    ->havingRaw('SUM(paid_amount) = 0');
+                            });
+                    });
+                }
+
+                // PARTIALLY PAID
+                if (in_array('Partially Paid', $paymentStatuses)) {
+                    $q->orWhereHas('paymentData', function ($sub) {
+                        $sub->select(DB::raw('SUM(paid_amount) as total'))
+                            ->groupBy('invoice_id')
+                            ->havingRaw('
+                        total > 0 AND
+                        total + 
+                        COALESCE(
+                            (SELECT refund_amount 
+                             FROM credit_notes cn
+                             JOIN bookings b ON b.id = cn.booking_id
+                             WHERE b.id = invoices.booking_id
+                             LIMIT 1),
+                        0)
+                        < invoices.total_amount
+                    ');
+                    });
+                }
+
             });
         }
+        // if (!empty($paymentStatuses)) {
+        //     $invoiceQuery->whereHas('paymentData', function ($q) use ($paymentStatuses) {
+        //         $q->whereIn('status', $paymentStatuses);
+        //     });
+        // }
         // Filter by type (rented/not rented)
         if ($type) {
             if ($type == 1) {
@@ -112,7 +174,6 @@ class ReportController extends Controller
 
         $invoices = $invoiceQuery->get();
 
-        // Build SOA data from invoices
         $soaData = $invoices->map(function ($invoice) {
             // Get booking_data row where tax_percent > 0 for this invoice
             $bookingDataWithTax = $invoice->bookingData->where('tax_percent', '>', 0)->first();
@@ -125,6 +186,7 @@ class ReportController extends Controller
 
             // Get rental amount from booking_data row
             $rentalAmount = $bookingDataWithTax->price ?? 0;
+            $VATPercent = $bookingDataWithTax->tax_percent ?? 0;
 
             // Calculate rental period from start_date and end_date
             $rentalPeriod = '-';
@@ -158,9 +220,11 @@ class ReportController extends Controller
             return (object) [
                 'invoice_id' => $invoice->id,
                 'invoice_number' => $invoice->zoho_invoice_number ?? '-',
+                'customer_name' => $invoice->booking?->customer?->customer_name ?? '-',
                 'plate_no' => $plateNo,
                 'car_details' => $carDetails,
                 'rental_period' => $rentalPeriod,
+                'vat_percent' => $VATPercent,
                 'rental_amount' => $rentalAmount,
             ];
         })->filter(function ($item) {
@@ -545,10 +609,15 @@ class ReportController extends Controller
     public function exportSoaReport(Request $request)
     {
         $from = Carbon::parse($request->from_date)->startOfDay();
-        $to = Carbon::parse($request->to_date)->endOfDay();
+        $to = Carbon::parse($request->soa_to_data)->endOfDay();
         $investorId = $request->input('investor_id');
         $type = $request->input('type');
-        $payment_status = $request->input('payment_status');
+        $paymentStatuses = $request->input('payment_status', []);
+
+        $paymentStatuses = is_array($paymentStatuses)
+            ? $paymentStatuses
+            : explode(',', $paymentStatuses);
+
         $excludedInvoices = $request->input('excluded_invoices') ? explode(',', $request->input('excluded_invoices')) : [];
 
         // Query invoices directly that:
@@ -562,17 +631,81 @@ class ReportController extends Controller
                 $q->where('tax_percent', '>', 0);
             }
         ])
-            ->whereBetween(DB::raw('DATE(invoice_date)'), [$from->format('Y-m-d'), $to->format('Y-m-d')])
-            ->whereHas('paymentData', function ($q) {
-                $q->whereNotNull('invoice_id');
-            })
+            // ->whereBetween(DB::raw('DATE(invoice_date)'), [$from->format('Y-m-d'), $to->format('Y-m-d')])
+            // ->whereHas('paymentData', function ($q) {
+            //     $q->whereNotNull('invoice_id');
+            // })
             ->whereHas('bookingData', function ($q) {
                 $q->where('tax_percent', '>', 0);
+            })
+            ->when($request->filled('soa_from_data') && $request->filled('soa_to_data'), function ($q) use ($from, $to) {
+                $q->whereBetween(DB::raw('DATE(invoice_date)'), [
+                    $from->format('Y-m-d'),
+                    $to->format('Y-m-d')
+                ]);
             });
 
         // Exclude disabled invoices
         if (!empty($excludedInvoices)) {
             $invoiceQuery->whereNotIn('id', $excludedInvoices);
+        }
+        // dd($paymentStatuses);
+        if (!empty($paymentStatuses)) {
+
+            $invoiceQuery->where(function ($q) use ($paymentStatuses) {
+
+                // PAID
+                if (in_array('Paid', $paymentStatuses)) {
+                    $q->orWhereHas('paymentData', function ($sub) {
+                        $sub->select(DB::raw('SUM(paid_amount)'))
+                            ->groupBy('invoice_id')
+                            ->havingRaw('
+                        SUM(paid_amount) + 
+                        COALESCE(
+                            (SELECT refund_amount 
+                             FROM credit_notes cn
+                             JOIN bookings b ON b.id = cn.booking_id
+                             WHERE b.id = invoices.booking_id
+                             LIMIT 1),
+                        0)
+                        >= invoices.total_amount
+                    ');
+                    });
+                }
+
+                // PENDING
+                if (in_array('Pending', $paymentStatuses)) {
+                    $q->orWhere(function ($subQuery) {
+                        $subQuery->whereDoesntHave('paymentData')
+                            ->orWhereHas('paymentData', function ($sub) {
+                                $sub->select(DB::raw('SUM(paid_amount)'))
+                                    ->groupBy('invoice_id')
+                                    ->havingRaw('SUM(paid_amount) = 0');
+                            });
+                    });
+                }
+
+                // PARTIALLY PAID
+                if (in_array('Partially Paid', $paymentStatuses)) {
+                    $q->orWhereHas('paymentData', function ($sub) {
+                        $sub->select(DB::raw('SUM(paid_amount) as total'))
+                            ->groupBy('invoice_id')
+                            ->havingRaw('
+                        total > 0 AND
+                        total + 
+                        COALESCE(
+                            (SELECT refund_amount 
+                             FROM credit_notes cn
+                             JOIN bookings b ON b.id = cn.booking_id
+                             WHERE b.id = invoices.booking_id
+                             LIMIT 1),
+                        0)
+                        < invoices.total_amount
+                    ');
+                    });
+                }
+
+            });
         }
 
         // Filter by investor if selected
@@ -608,6 +741,7 @@ class ReportController extends Controller
 
             // Get rental amount from booking_data row
             $rentalAmount = $bookingDataWithTax->price ?? 0;
+            $VATAmount = $bookingDataWithTax->tax_percent ?? 0;
 
             // Calculate rental period from start_date and end_date
             $rentalPeriod = '-';
@@ -637,18 +771,20 @@ class ReportController extends Controller
                 $carDetails = $vehicle->temp_vehicle_detail ??
                     ($vehicle->vehicle_name . ' ' . $vehicle->car_make . ' ' . $vehicle->year);
             }
-
             return (object) [
                 'invoice_id' => $invoice->id,
                 'invoice_number' => $invoice->zoho_invoice_number ?? '-',
+                'customer_name' => $invoice->booking->customer->customer_name ?? '-',
                 'plate_no' => $plateNo,
                 'car_details' => $carDetails,
                 'rental_period' => $rentalPeriod,
+                'vat_percent' => $VATAmount,
                 'rental_amount' => $rentalAmount,
             ];
         })->filter(function ($item) {
             return $item !== null;
         })->values();
+        // dd($soaData);
 
         $selectedInvestor = $investorId ? Investor::find($investorId) : null;
 

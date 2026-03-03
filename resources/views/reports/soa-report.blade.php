@@ -302,12 +302,12 @@
                             <input type="month" name="month" id="month" class="form-control" value="">
                         </div> --}}
                         <div class="col-md-2">
-                            <label for="from_date">From</label>
-                            <input type="date" name="from_date" id="from_date" class="form-control">
+                            <label for="soa_from_data">From</label>
+                            <input type="date" name="soa_from_data" id="soa_from_data" class="form-control">
                         </div>
                         <div class="col-md-2">
-                            <label for="to_date">To</label>
-                            <input type="date" name="to_date" id="to_date" class="form-control">
+                            <label for="soa_to_data">To</label>
+                            <input type="date" name="soa_to_data" id="soa_to_data" class="form-control">
                         </div>
                         <div class="col-md-2">
                             <label for="investor_id">Investor</label>
@@ -381,14 +381,16 @@
                                                         </th>
                                                         <th>Plate no.</th>
                                                         <th>Invoice no.</th>
+                                                        <th>Customer</th>
                                                         <th>Car Make - Model & Year</th>
                                                         <th>Rental Period</th>
+                                                        <th>VAT</th>
                                                         <th>Rental Amount</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="soaReportList">
                                                     <tr>
-                                                        <td colspan="6" class="text-center">Please select dates and click Filter to view report</td>
+                                                        <td colspan="8" class="text-center">Please select dates and click Filter to view report</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -445,8 +447,8 @@
         // Export to Excel button click handler
         $('#exportSoaExcelBtn').on('click', function() {
             // Get form values
-            var fromDate = $('#from_date').val();
-            var toDate = $('#to_date').val();
+            var fromDate = $('#soa_from_data').val();
+            var toDate = $('#soa_to_data').val();
             var investorId = $('#investor_id').val();
             var type = $('#type').val();
             var paymentStatus = $('#payment_status').val();
@@ -456,8 +458,8 @@
             
             // Build query string
             var params = new URLSearchParams();
-            if (fromDate) params.append('from_date', fromDate);
-            if (toDate) params.append('to_date', toDate);
+            if (fromDate) params.append('soa_from_data', fromDate);
+            if (toDate) params.append('soa_to_data', toDate);
             if (investorId) params.append('investor_id', investorId);
             if (type) params.append('type', type);
             if (paymentStatus) params.append('payment_status', paymentStatus);

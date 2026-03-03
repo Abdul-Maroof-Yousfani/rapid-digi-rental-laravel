@@ -19,9 +19,13 @@
                 {{ $item->invoice_number }}
             </a>
         </td>
+        <td>{{ $item->customer_name }}</td>
+
         <td>{{ $item->car_details }}</td>
         <td>{{ $item->rental_period }}</td>
+        <td>{{ $item->vat_percent }}</td>
         <td class="rental-amount">{{ number_format($item->rental_amount, 2) }}</td>
+
     </tr>
 @endforeach
 
