@@ -10,7 +10,7 @@
 | the IoC container for the system binding all of the various parts.
 |
 */
-
+ini_set('memory_limit', '256M');
 $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
