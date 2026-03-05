@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Exports\SoaReportExport;
+use App\Exports\GenericReportExport;
 use App\Models\PaymentData;
 use Carbon\Carbon;
 use App\Models\Booking;
@@ -802,5 +803,128 @@ class ReportController extends Controller
             $excel = app(ExcelManager::class);
             return $excel->download(new SoaReportExport($soaData), $filename);
         }
+    }
+    public function exportGenericReport(Request $request)
+    {
+        $reportType = $request->input('report_type');
+        $fromDate = $request->input('fromDate') ?: $request->input('from_date');
+        $toDate = $request->input('toDate') ?: $request->input('to_date');
+
+        $data = collect();
+        $headings = [];
+        $filename = 'report.xlsx';
+
+        if ($reportType === 'customer_wise_sales') {
+            $customerID = $request->input('customer_id');
+            $bookings = Booking::with(['bookingData', 'customer', 'payment'])
+                ->when($fromDate && $toDate, fn($q) => $q->whereBetween('started_at', [$fromDate, $toDate]))
+                ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
+                ->get();
+
+            $bookingsGrouped = $bookings->groupBy('customer_id')->map(function ($group) {
+                $first = $group->first();
+                $itemTotal = $group->reduce(function ($carry, $b) {
+                    if ($b->relationLoaded('bookingData') && $b->bookingData instanceof \Illuminate\Support\Collection) {
+                        return $carry + (float) $b->bookingData->sum('item_total');
+                    }
+                    return $carry + (float) ($b->item_total ?? 0);
+                }, 0.0);
+                $totalPrice = $group->reduce(function ($carry, $b) {
+                    if ($b->relationLoaded('bookingData') && $b->bookingData instanceof \Illuminate\Support\Collection) {
+                        return $carry + (float) ($b->bookingData->first()->price ?? 0);
+                    }
+                }, 0.0);
+                $paidAmount = $group->reduce(function ($carry, $b) {
+                    if ($b->relationLoaded('payment')) {
+                        if ($b->payment instanceof \Illuminate\Support\Collection) {
+                            return $carry + (float) $b->payment->sum('paid_amount');
+                        }
+                        return $carry + (float) ($b->payment->paid_amount ?? 0);
+                    }
+                    return $carry;
+                }, 0.0);
+                $first->item_total = $itemTotal;
+                $first->total_price = $totalPrice;
+                $first->paid_amount = $paidAmount;
+                return $first;
+            })->values();
+
+            $headings = ['S No.', 'Customer', 'Total Amount', 'Paid Amount', 'Pending Amount'];
+            $counter = 1;
+            foreach ($bookingsGrouped as $b) {
+                $itemTotal = $b->total_price ?? 0;
+                $paidAmount = $b->paid_amount ?? 0;
+                if ($itemTotal <= $paidAmount) {
+                    $paid_amt = $itemTotal;
+                    $rece_amt = 0;
+                } else {
+                    $paid_amt = $paidAmount;
+                    $rece_amt = $itemTotal - $paidAmount;
+                }
+                $data->push([
+                    $counter++,
+                    $b->customer->customer_name ?? 'N/A',
+                    number_format($itemTotal, 2, '.', ''),
+                    number_format($paid_amt, 2, '.', ''),
+                    number_format($rece_amt, 2, '.', ''),
+                ]);
+            }
+            $filename = 'Customer_Wise_Sales_Report.xlsx';
+
+        } elseif ($reportType === 'customer_wise_receivable') {
+            $customerID = $request->input('customer_id');
+            $bookings = Booking::with(['invoice', 'payment', 'customer', 'bookingData.invoice'])
+                ->when($customerID, fn($q) => $q->where('customer_id', $customerID))
+                ->when($fromDate && $toDate, fn($q) => $q->whereBetween(DB::raw('DATE(started_at)'), [$fromDate, $toDate]))
+                ->get();
+
+            $headings = ['S No.', 'Agreement no.', 'Invoice no.', 'Customer', 'Booking Total', 'Paid', 'Receivable'];
+            $counter = 1;
+            foreach ($bookings as $b) {
+                $price = $b->bookingData->sum('item_total');
+                $paidAmount = $b->payment->paid_amount ?? 0;
+                $receivableAmt = max($price - $paidAmount, 0);
+
+                $data->push([
+                    $counter++,
+                    $b->agreement_no,
+                    $b->bookingData->pluck('invoice.zoho_invoice_number')->filter()->unique()->implode(', '),
+                    $b->customer->customer_name ?? 'N/A',
+                    number_format($price, 2, '.', ''),
+                    number_format($paidAmount, 2, '.', ''),
+                    number_format($receivableAmt, 2, '.', ''),
+                ]);
+            }
+            $filename = 'Customer_Wise_Receivable_Report.xlsx';
+
+        } elseif ($reportType === 'saleman_wise_report') {
+            $salemenID = $request->input('saleman_id');
+            $bookings = Booking::with('bookingData', 'invoice', 'salePerson')
+                ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                    $query->whereBetween('started_at', [$fromDate, $toDate]);
+                })
+                ->when($salemenID, function ($query) use ($salemenID) {
+                    $query->whereHas('salePerson', function ($q1) use ($salemenID) {
+                        $q1->where('id', $salemenID);
+                    });
+                })->get();
+
+            $headings = ['S No.', 'Agreement no.', 'Invoice no.', 'Customer', 'Saleman name', 'Received Amount'];
+            $counter = 1;
+            foreach ($bookings as $b) {
+                $paidAmount = $b->payment->paid_amount ?? 0;
+                $data->push([
+                    $counter++,
+                    $b->agreement_no,
+                    $b->bookingData->pluck('invoice.zoho_invoice_number')->first() ?? '',
+                    $b->customer->customer_name ?? 'N/A',
+                    $b->salePerson->name ?? '-',
+                    number_format($paidAmount, 2, '.', ''),
+                ]);
+            }
+            $filename = 'Saleman_Wise_Report.xlsx';
+        }
+
+        return Excel::download(new GenericReportExport($data, $headings), $filename);
     }
 }

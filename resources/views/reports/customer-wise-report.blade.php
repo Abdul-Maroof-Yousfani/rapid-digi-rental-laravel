@@ -66,8 +66,20 @@
                             <button type="submit" class="btn btn-primary mt-4 w-100">Filter</button>
                         </div>
 
+                        {{-- <div class="col-md-2 text-right d-flex flex-column gap-2 mt-4">
+                            <button type="button" class="btn btn-success w-100 mb-2" onclick="exportToExcel('customer_wise_sales', 'customerWiseSalesreportForm')">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </button>
+                            <button class="btn btn-primary prinn pritns w-100" onclick="printView('printReport','','1')" style="">
+                                <span class="glyphicon glyphicon-print"></span> Print
+                            </button>
+                        </div> --}}
+
                         <div class="col-md-2 text-right">
-                            <button class="btn btn-primary prinn pritns" onclick="printView('printReport','','1')" style="">
+                            <button class="btn btn-success" onclick="exportToExcel('customer_wise_sales', 'customerWiseSalesreportForm')" style="">
+                                <span class="fas fa-file-excel"></span> Export Excel
+                            </button>
+                             <button class="btn btn-primary prinn pritns" onclick="printView('printReport','','1')" style="">
                                 <span class="glyphicon glyphicon-print"></span> Print
                             </button>
                         </div>

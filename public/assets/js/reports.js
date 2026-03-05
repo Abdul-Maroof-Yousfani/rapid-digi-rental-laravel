@@ -6,6 +6,12 @@ $(document).ready(function () {
         }
     });
 
+    window.exportToExcel = function (reportType, formId) {
+        let formData = $('#' + formId).serialize();
+        formData += '&report_type=' + reportType;
+        window.location.href = '/reports/export-excel?' + formData;
+    };
+
     $(document).on('submit', '#soaReportForm', function (e) {
         e.preventDefault();
 
